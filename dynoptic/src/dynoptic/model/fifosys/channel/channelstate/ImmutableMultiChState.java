@@ -99,7 +99,12 @@ public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
             newState.enqueue(e);
         } else if (e.isRecvEvent()) {
             DistEventType eRecv = newState.dequeue();
-            assert e.getEType().equals(eRecv.getEType());
+            if (!e.getEType().equals(eRecv.getEType())) {
+                throw new RuntimeException(
+                        "Expected type is not at the top of the queue. Expected: "
+                                + e.getEType() + ", got: " + eRecv.getEType());
+            }
+            // assert e.getEType().equals(eRecv.getEType());
         } else {
             assert false : "A non-local event is not a send or a receive event.";
         }

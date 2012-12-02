@@ -87,3 +87,5 @@ bin/
 # Ignore vim .swp files
 .*.swp
 
+# Ignore compiled py files
+*.pyc

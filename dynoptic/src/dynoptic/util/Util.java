@@ -29,10 +29,10 @@ public final class Util {
      */
     public static <T> List<List<T>> get2DPermutations(Iterable<T> list1,
             Iterable<T> list2) {
-        List<List<T>> ret = new ArrayList<List<T>>();
+        List<List<T>> ret = newList();
         for (T e1 : list1) {
             for (T e2 : list2) {
-                List<T> combo = new ArrayList<T>();
+                List<T> combo = newList();
                 combo.add(e1);
                 combo.add(e2);
                 ret.add(combo);
@@ -58,13 +58,18 @@ public final class Util {
      * 
      * NOTE: mutates listList1
      */
-    public static <T> void get2DPermutations(List<List<T>> listList1,
+    public static <T> List<List<T>> get2DPermutations(List<List<T>> listList1,
             Iterable<T> list2) {
+        List<List<T>> ret = newList();
         for (List<T> list1 : listList1) {
             for (T e2 : list2) {
-                list1.add(e2);
+                List<T> combo = newList();
+                combo.addAll(list1);
+                combo.add(e2);
+                ret.add(combo);
             }
         }
+        return ret;
     }
 
     /**

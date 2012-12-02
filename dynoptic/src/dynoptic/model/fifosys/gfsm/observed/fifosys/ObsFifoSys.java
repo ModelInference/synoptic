@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.checkers.BinChecker;
 import dynoptic.invariants.checkers.BinChecker.Validity;
-import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
@@ -124,6 +123,24 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
             }
         }
 
+        // TODO: calculating terminals above is somewhat pointless since we have
+        // to re-calculate them in the ObsFifoSys constructor -- this is because
+        // we may have synthetic terminals that we have not observed in any one
+        // trace!
+        //
+        // Example input where this may occur:
+        // 1,0 a
+        // 2,0 b
+        // 0,1 c
+        // 0,2 d
+        // --
+        // 1,0 a
+        // 2,0 e
+        // 0,1 c
+        // 0,2 f
+        //
+        // Above, the terminal state [a->b, c->f] is synthetic.
+
         if (consistentInitState) {
             assert dag != null;
             assert fifoStates != null;
@@ -174,7 +191,9 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
 
                     if (eSuccPid != pid) {
                         assert preEventNodesMap.containsKey(e);
-                        assert preEventNodesMap.containsKey(eSucc);
+                        if (!preEventNodesMap.containsKey(eSucc)) {
+                            assert preEventNodesMap.containsKey(eSucc);
+                        }
 
                         // post-state of eSucc depends on the post-state of
                         // e having occurred.
@@ -212,9 +231,6 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
             logger.info("Walking process[" + pid
                     + "] chain to create ObsFSMState instances.");
 
-            EventNode eNode = pidInitialNodes.get(pid);
-            assert eNode != null;
-
             ObsFSMState obsState;
 
             if (consistentInitState) {
@@ -230,6 +246,9 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
             ObsDAGNode prevNode = new ObsDAGNode(obsState);
 
             initDagCfg.set(pid, prevNode);
+
+            EventNode eNode = pidInitialNodes.get(pid);
+            // assert eNode != null;
 
             while (eNode != null) {
                 Event e = eNode.getEvent();
@@ -302,9 +321,9 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
 
         // Make sure that all of the processes have an "earliest" event node
         // set.
-        for (EventNode eNode : pidInitialNodes) {
-            assert eNode != null;
-        }
+        /*
+         * for (EventNode eNode : pidInitialNodes) { assert eNode != null; }
+         */
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -328,18 +347,23 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
         assert states.contains(initState);
         assert states.containsAll(termStates);
 
-        if (DynopticMain.assertsOn) {
-            for (ObsFifoSysState s : states) {
-                assert s.getNumProcesses() == this.numProcesses;
-                assert s.getChannelIds().equals(channelIds);
-                // There can only be one initial and one accept state in a
-                // trace.
-                if (s.isAccept()) {
-                    assert termStates.contains(s);
+        for (ObsFifoSysState s : states) {
+            assert s.getNumProcesses() == this.numProcesses;
+            assert s.getChannelIds().equals(channelIds);
+            // There can only be one initial and one accept state in a
+            // trace.
+            if (s.isAccept()) {
+                // NOTE: we may generate synthetic terminal states that we
+                // have no observed previously. We add them to our set of
+                // terminals.
+                if (!termStates.contains(s)) {
+                    termStates.add(s);
+                    logger.info("termStates does not contain a synthetic terminal state: "
+                            + s.toLongString() + ", adding it.");
                 }
-                if (s.isInitial()) {
-                    assert initState == s;
-                }
+            }
+            if (s.isInitial()) {
+                assert initState == s;
             }
         }
 

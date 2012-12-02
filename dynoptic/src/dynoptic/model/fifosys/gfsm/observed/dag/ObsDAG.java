@@ -141,6 +141,8 @@ public class ObsDAG {
         // Look up/create the next FIFO sys state.
         ObsFifoSysState nextSysState = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(curDagConfig), nextChStates);
+        // This boolean determines if we've already visited this state during
+        // _this_ traceid exploration. This is independent of other traces.
         boolean nextSysStatePreviouslyExplored = false;
         if (states.contains(nextSysState)) {
             nextSysStatePreviouslyExplored = true;
@@ -162,7 +164,6 @@ public class ObsDAG {
             ObsDistEventType obsEType = new ObsDistEventType(eType, traceId);
             currSysState.addTransition(obsEType, nextSysState);
         } else {
-
             // 1. Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
             // current traversal.
@@ -175,8 +176,6 @@ public class ObsDAG {
 
         if (nextSysStatePreviouslyExplored) {
             // Optimization to not re-explore previous fifo states.
-            // FIXME: However, we lose the ability to add new traceIds to old
-            // edges, as this is done during re-exploration. (Issue 277)
             curDagConfig.set(nextNode.getPid(), nextNode.getPrevState());
             return;
         }
@@ -208,8 +207,12 @@ public class ObsDAG {
     private ObsMultFSMState fsmStatesFromDagConfig(List<ObsDAGNode> dagConfig) {
         List<ObsFSMState> fsmStates = Util.newList();
 
+        int pid = 0;
         for (ObsDAGNode node : dagConfig) {
-            fsmStates.add(node.getObsState());
+            ObsFSMState s = node.getObsState();
+            assert (s.getPid() == pid);
+            fsmStates.add(s);
+            pid += 1;
         }
 
         ObsMultFSMState ret = ObsMultFSMState.getMultiFSMState(fsmStates);
@@ -227,7 +230,7 @@ public class ObsDAG {
     private Set<ObsDAGNode> getEnabledNodes(List<ObsDAGNode> curConfig) {
         Set<ObsDAGNode> ret = Util.newSet();
         for (ObsDAGNode node : curConfig) {
-            if (!node.isTermState() && node.getNextState().isEnabled()) {
+            if (node.getNextState() != null && node.getNextState().isEnabled()) {
                 ret.add(node.getNextState());
             }
         }

@@ -257,8 +257,42 @@ public class DynopticMainTests extends DynopticTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
-        args.add("../traces/AlternatingBitProtocol/src/trace_po_sr_longer.txt");
-        // runDynFromFileArgs(args);
+        // args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runTCPTrace() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("sc:0->1;cs:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/Tcp/live-capture/po_tcp_log.txt");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runVoldemortTrace() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("cr1:0->1;r1c:1->0;cr2:0->2;r2c:2->0");
+        args.add("-i");
+        args.add("-d");
+        // args.add("../traces/Voldemort/trace_client_put_get.txt");
+        runDynFromFileArgs(args);
     }
 
     /** A trivial example with 4 total events. */
@@ -313,6 +347,6 @@ public class DynopticMainTests extends DynopticTest {
                 + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
                 + "3,4 M?m\n";
 
-        // dyn.run(log);
+        dyn.run(log);
     }
 }

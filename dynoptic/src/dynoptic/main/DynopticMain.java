@@ -57,7 +57,9 @@ public class DynopticMain {
     static {
         // Dynamic check for asserts. Note: without the '== true' a conservative
         // compiler complaints that the assert is not checking a condition.
+        //
         assert (assertsOn = true) == true;
+        // assertsOn = false;
     }
 
     public static Logger logger = null;
@@ -281,8 +283,8 @@ public class DynopticMain {
         String dotFilename = opts.outputPathPrefix + ".trace-graph.dot";
         synoptic.model.export.GraphExporter.exportGraph(dotFilename,
                 traceGraph, true);
-        synoptic.model.export.GraphExporter
-                .generatePngFileFromDotFile(dotFilename);
+        // synoptic.model.export.GraphExporter
+        // .generatePngFileFromDotFile(dotFilename);
 
         // //////////////////
         // Mine Synoptic invariants
@@ -327,18 +329,19 @@ public class DynopticMain {
         // Export (just the first!) Observed FIFO System instance:
         dotFilename = opts.outputPathPrefix + ".obsfifosys.tid1.dot";
         GraphExporter.exportObsFifoSys(dotFilename, traces.get(0));
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // //////////////////
         // If assume consistent per-process initial state, check that
         // only one ObsFifoSys is created.
+        //
         // Also, this option allows stitchings between traces, which may lead to
-        // invariant violations. This post-processing step removes such
-        // stitchings.
+        // invariant violations. This post-processing step finds invariants that
+        // violate such stitchings.
         if (opts.consistentInitState) {
             assert traces.size() == 1;
 
-            logger.info("Finding invalidated invaraints in the observed fifo system.");
+            logger.info("Finding invalidated invariants in the observed fifo system.");
             Set<BinaryInvariant> faultyInvs = traces.get(0)
                     .findInvalidatedInvariants(dynInvs);
             if (!faultyInvs.isEmpty()) {
@@ -357,6 +360,16 @@ public class DynopticMain {
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph = new GFSM(traces);
+
+        // Order dynInvs so that the eventually invariants are at the front (the
+        // assumption is that they are faster to model check).
+        logger.info("Reordering invaraints to place \"eventually\" invariants at the front.");
+        for (int i = 0; i < dynInvs.size(); i++) {
+            if (dynInvs.get(i) instanceof EventuallyHappens) {
+                BinaryInvariant inv = dynInvs.remove(i);
+                dynInvs.add(0, inv);
+            }
+        }
 
         // ///////////////////
         // Model check, refine loop. Check each invariant in the model, and
@@ -646,14 +659,18 @@ public class DynopticMain {
 
         // ////// Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
-        int baseTimeout = 30;
+        // int baseTimeout = 120;
+        // int baseTimeout = 600;
+        int baseTimeout = 2400;
         // Current timeout value to use.
         int curTimeout = baseTimeout;
         // How much we increment curTimeout by, when we timeout on checking all
         // invariants.
-        int timeoutDelta = 30;
+        int timeoutDelta = 60;
         // Max curTimeout value (300s = 5min).
-        int maxTimeout = 300;
+        // int maxTimeout = 300;
+        // int maxTimeout = 1200;
+        int maxTimeout = 3600;
 
         logger.info("Model checking " + curInv.toString() + " : " + invsCounter
                 + " / " + totalInvs);
@@ -795,15 +812,36 @@ public class DynopticMain {
         for (int i = 0; i < this.getNumProcesses(); i++) {
             // Get set of GFSM paths for process i that generate the
             // sub-sequence of process i events in the counter-example.
+            logger.info("Computing process " + i + " paths...");
             Set<GFSMPath> processPaths = pGraph.getCExamplePaths(cexample, i);
+            if (processPaths == null) {
+                logger.info("No matching paths for process " + i
+                        + " exist, continuing.");
+                // Treat this as if we refined all of the paths for the process
+                // -- none exist!
+                return;
+            }
 
-            logger.info("Process " + i + " paths: " + processPaths.toString());
+            // logger.info("Process " + i + " paths: " +
+            // processPaths.toString());
 
             // Attempt to refine stitching partitions along these paths.
+
+            // TODO: attempt to find partitions that over all of the paths in
+            // processPaths. Then, refine these partitions, for a fewer number
+            // of total refinements.
+
             boolean refinedAll = true;
             for (GFSMPath path : processPaths) {
                 logger.info("Attempting to resolve process " + i + " path: "
                         + path.toString());
+                // If path is no longer a valid path then it was refined and
+                // eliminated previously.
+                if (!GFSMPath.checkPathCompleteness(path)) {
+                    continue;
+                }
+
+                // Otherwise, the path still needs to be refined.
                 if (!path.refine(pGraph)) {
                     refinedAll = false;
                     break;
@@ -816,6 +854,9 @@ public class DynopticMain {
                 return;
             }
 
+        }
+        if (DynopticMain.assertsOn) {
+            assert false;
         }
         throw new Exception(
                 "Unable to eliminate CFSM counter-example from GFSM.");

@@ -46,17 +46,17 @@ public class GFSMPath {
     }
 
     /** Checks the path for completeness/consistency. */
-    static private void checkPathCompleteness(GFSMPath p) {
+    static public boolean checkPathCompleteness(GFSMPath p) {
         assert p.states != null;
         assert p.events != null;
 
         // Empty path is a complete path.
         if (p.states.isEmpty()) {
             assert p.events.isEmpty();
-            return;
+            return true;
         }
 
-        // A complete path must start/end with a state.
+        // Any complete path must start/end with a state.
         assert p.states.size() == (p.events.size() + 1);
 
         // A state must contain at least one observation that emits the
@@ -67,9 +67,16 @@ public class GFSMPath {
             DistEventType e = p.events.get(sid);
             GFSMState sNext = p.states.get(sid + 1);
 
-            assert s.getTransitioningEvents().contains(e);
-            assert s.getNextStates(e).contains(sNext);
+            // assert s.getTransitioningEvents().contains(e);
+            if (!s.getTransitioningEvents().contains(e)) {
+                return false;
+            }
+            // assert s.getNextStates(e).contains(sNext);
+            if (!s.getNextStates(e).contains(sNext)) {
+                return false;
+            }
         }
+        return true;
     }
 
     // /////////////////////////////////////////////////////////////
@@ -96,7 +103,7 @@ public class GFSMPath {
      */
     public GFSMPath(GFSMPath prefix, GFSMPath suffix) {
         this(prefix);
-        checkPathCompleteness(prefix);
+        assert checkPathCompleteness(prefix);
 
         assert prefix.pid == suffix.pid;
 
@@ -109,7 +116,7 @@ public class GFSMPath {
         this.events.addAll(suffix.events);
 
         // Check that the resulting stitched path is valid.
-        checkPathCompleteness(this);
+        assert checkPathCompleteness(this);
     }
 
     // /////////////////////////////////////////////////////////////
@@ -139,14 +146,25 @@ public class GFSMPath {
      */
     @Override
     public String toString() {
-        // TODO: this does not handle incomplete paths.
-
         String ret = "GFSMPath : ";
+        boolean completePath = true;
+        if (states.size() != (events.size() + 1)) {
+            // Incomplete path.
+            ret += "-- " + events.get(0).toString() + " --> ";
+            completePath = false;
+        }
+
         int i = 0;
+        int eventIndex;
         for (GFSMState p : states) {
             ret += p.toString();
             if (i != states.size() - 1) {
-                ret += "-- " + events.get(i).toString() + " --> ";
+                if (completePath) {
+                    eventIndex = i;
+                } else {
+                    eventIndex = i + 1;
+                }
+                ret += "-- " + events.get(eventIndex).toString() + " --> ";
             }
             i += 1;
         }
@@ -163,11 +181,38 @@ public class GFSMPath {
      * @param pGraph
      */
     public boolean refine(GFSM pGraph) {
-        checkPathCompleteness(this);
+        assert checkPathCompleteness(this);
 
+        // If the path has just one state then we still have to try to refine
+        // it (e.g., in the worst (best?) case we are handling an "Eventually x"
+        // invariant and x is emitted by the initial GFSM partition).
         if (states.size() == 1) {
-            // No transitions observed along this path, so we cannot refine it.
-            return false;
+            // No transitions observed along this path, so we can either refine
+            // it by separating out the initial states, or by separating out the
+            // terminal states. TODO: how do we choose between these two?
+
+            // First try to separate out the initial states:
+
+            GFSMState part = states.get(0);
+            logger.info("Attempting to refine first partition (separate out initials) in a 1-state path.");
+            Set<ObsFifoSysState> setRight = getExtrema(part, true);
+
+            if (setRight == null) {
+                // Now, try to separate out the terminals.
+                logger.info("Attempting to refine first partition (separate out terminals) in a 1-state path.");
+                setRight = getExtrema(part, false);
+
+                // Give up on removing this path.
+                if (setRight == null) {
+                    return false;
+                }
+            }
+
+            // Construct setLeft.
+            Set<ObsFifoSysState> setLeft = setLeftFromSetRight(setRight, part);
+            pGraph.refineWithRandNonRelevantObsAssignment(part, setLeft,
+                    setRight);
+            return true;
         }
 
         int maxStitchPartIndex = findMaxStitchPartIndex(0);
@@ -255,11 +300,10 @@ public class GFSMPath {
                 || setRight.size() == part.getObservedStates().size()
                 || setRight.isEmpty()) {
 
-            partIndex = 0;
-            part = states.get(partIndex);
-            logger.info("Last partition cannot be refined, instead attempting to refine the 0th partition: "
-                    + states.get(partIndex));
-            setRight = getExtrema(states.get(partIndex), true);
+            part = states.get(0);
+            logger.info("Last partition cannot be refined, refining the 1st partition: "
+                    + part);
+            setRight = getExtrema(part, true);
 
             // Give up on refining this path.
             if (setRight == null) {
