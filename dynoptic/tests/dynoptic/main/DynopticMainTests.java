@@ -257,8 +257,8 @@ public class DynopticMainTests extends DynopticTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
-        // args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
-        runDynFromFileArgs(args);
+        args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        // runDynFromFileArgs(args);
     }
 
     @Test
@@ -291,8 +291,8 @@ public class DynopticMainTests extends DynopticTest {
         args.add("cr1:0->1;r1c:1->0;cr2:0->2;r2c:2->0");
         args.add("-i");
         args.add("-d");
-        // args.add("../traces/Voldemort/trace_client_put_get.txt");
-        runDynFromFileArgs(args);
+        args.add("../traces/Voldemort/trace_client_put_get.txt");
+        // runDynFromFileArgs(args);
     }
 
     /** A trivial example with 4 total events. */
