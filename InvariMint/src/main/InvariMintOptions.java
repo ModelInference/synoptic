@@ -48,7 +48,7 @@ public class InvariMintOptions extends synoptic.main.Options {
 
     // //////////////////////////////////////////////////
     /**
-     * Mine kTail invariants instead of Synoptic invariants.
+     * Mine kTail invariants.
      */
     @OptionGroup("Inference Options")
     @Option(value = "Perform kTails instead of Synoptic")
@@ -61,17 +61,39 @@ public class InvariMintOptions extends synoptic.main.Options {
     public int kTailLength = 2;
 
     /**
+     * Mine Synoptic invariants.
+     */
+    @Option(value = "AFby invariants")
+    public boolean AFbyInvariants = false;
+
+    @Option(value = "NFby invariants")
+    public boolean NFbyInvariants = false;
+
+    @Option(value = "AP invariants")
+    public boolean APInvariants = false;
+
+    /**
      * Whether to remove spurious edges from the InvariMint model.
      */
     @Option(value = "Remove spurious edges from InvariMint model")
     public boolean removeSpuriousEdges = false;
 
     /**
-     * Whether to minimize every intermediate model during invariant
-     * intersections.
+     * Composition method.
      */
-    @Option(value = "Minimize on afer each intersection")
-    public boolean minimizeIntersections = true;
+    // TODO(jenny): Use these.
+    @Option(value = "Intersection")
+    public boolean intersection = true;
+
+    @Option(value = "Union")
+    public boolean union = false;
+
+    /**
+     * Whether to minimize every intermediate model during invariant
+     * compositions.
+     */
+    @Option(value = "Minimize afer each composition")
+    public boolean minimizeCompositions = true;
 
     // end option group "Inference Options"
 

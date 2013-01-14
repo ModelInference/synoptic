@@ -20,7 +20,10 @@ import dk.brics.automaton.Transition;
 
 import synoptic.algorithms.Bisimulation;
 import synoptic.algorithms.KTails;
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -242,16 +245,37 @@ public class InvariMintMain {
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
 
-        TOInvariantMiner miner;
+        TemporalInvariantSet invariants = new TemporalInvariantSet();
 
         if (opts.performKTails) {
-            miner = new KTailInvariantMiner(opts.kTailLength);
-        } else {
-            miner = new ChainWalkingTOInvMiner();
-            logger.info("Mining invariants [" + miner.getClass().getName()
-                    + "]..");
+            TemporalInvariantSet kTailInvariants = mineInvariants(
+                    new KTailInvariantMiner(opts.kTailLength), inputGraph);
+            invariants.add(kTailInvariants);
         }
 
+        if (opts.AFbyInvariants || opts.NFbyInvariants || opts.APInvariants) {
+            TemporalInvariantSet synopticInvariants = mineInvariants(
+                    new ChainWalkingTOInvMiner(), inputGraph);
+
+            for (ITemporalInvariant inv : synopticInvariants) {
+                if (inv instanceof AlwaysFollowedInvariant
+                        && opts.AFbyInvariants) {
+                    invariants.add(inv);
+                } else if (inv instanceof NeverFollowedInvariant
+                        && opts.NFbyInvariants) {
+                    invariants.add(inv);
+                } else if (inv instanceof AlwaysPrecedesInvariant
+                        && opts.APInvariants) {
+                    invariants.add(inv);
+                }
+            }
+        }
+
+        return invariants;
+    }
+
+    private static TemporalInvariantSet mineInvariants(TOInvariantMiner miner,
+            ChainsTraceGraph inputGraph) {
         long startTime = System.currentTimeMillis();
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
 
@@ -308,7 +332,7 @@ public class InvariMintMain {
             }
         }
 
-        if (opts.minimizeIntersections) {
+        if (opts.minimizeCompositions) {
             // Optimize by minimizing the model.
             model.minimize();
         }
