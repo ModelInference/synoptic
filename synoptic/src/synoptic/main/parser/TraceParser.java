@@ -82,10 +82,13 @@ public class TraceParser {
             .compile("\\(\\?<(\\w*)\\+\\+>\\)");
     private static final Pattern matchDefault = Pattern
             .compile("\\(\\?<((\\w|\\*|\\-)*)>\\)");
-
-    // All line-matching regexps will be checked to include the following set of
-    // required regexp groups.
-    private static final List<String> requiredGroups = Arrays.asList("TYPE");
+    
+    // All line-matching regexps will be checked to include either of the following
+    // groups, but not both.
+    // Event type group
+    private static final String typeGroup = "TYPE";
+    // State property group, must be in the form id=value,...,id=value
+    private static final String statePropertyGroup = "STATE_PROPERTY";
 
     // Regexp groups that represent valid time in a log line:
     // TIME: integer time (e.g. 123)
@@ -366,17 +369,16 @@ public class TraceParser {
         // Process non-hidden expression specially, since these expressions are
         // supposed to generate event instances, while the hidden ones do not.
         if (!isHidden) {
-            // Check that the required groups are present.
-            for (String reqGroup : requiredGroups) {
-                if (!groups.contains(reqGroup) && !fields.contains(reqGroup)) {
-                    String error = "Regular expression: " + input_regex
-                            + " is missing the required named group: "
-                            + reqGroup;
-                    logger.severe(error);
-                    ParseException parseException = new ParseException(error);
-                    parseException.setRegex(input_regex);
-                    throw parseException;
-                }
+            // Check that either type or stateProperty group is present, but not both.
+            if ((groups.contains(typeGroup) && groups.contains(statePropertyGroup))
+                    || !(groups.contains(typeGroup) || groups.contains(statePropertyGroup))) {
+                String error = "Regular expression: " + input_regex
+                        + " should contain either a " + typeGroup + " named group"
+                        + " or a " + statePropertyGroup + " named group, but not both";
+                logger.severe(error);
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(input_regex);
+                throw parseException;
             }
 
             // Whether or not the PID group appears in this expressions.
@@ -1018,13 +1020,19 @@ public class TraceParser {
                 logger.info(msg.toString());
             }
             event.setTime(nextTime);
-
+            
             Relation timeRelation = new Relation("time-relation",
                     Event.defTimeRelationStr, false);
             eventRelations.add(timeRelation);
 
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
+            
+            // If a state property is captured, save it to eventNode.
+            if (eventStringArgs.containsKey(statePropertyGroup)) {
+                String statePropertyStr = eventStringArgs.get(statePropertyGroup);
+                eventNode.setStateProperty(statePropertyStr);
+            }
 
             if (!allEventRelations.containsKey(eventNode)) {
                 allEventRelations.put(eventNode, new HashSet<Relation>());

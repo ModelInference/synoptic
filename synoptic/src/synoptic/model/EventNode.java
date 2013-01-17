@@ -35,6 +35,11 @@ public class EventNode implements INode<EventNode> {
     private final Event event;
 
     /**
+     * The nullable string representing state property immediately prior to this event.
+     */
+    private String statePropertyStr;
+    
+    /**
      * A Unique trace identifier
      */
     private int traceID = 0;
@@ -83,6 +88,7 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
+        statePropertyStr = copyFrom.statePropertyStr;
     }
 
     public EventNode(Event eventArg) {
@@ -90,6 +96,7 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
+        statePropertyStr = null;
     }
 
     @Override
@@ -102,6 +109,10 @@ public class EventNode implements INode<EventNode> {
         this.parent = parent;
     }
 
+    public void setStateProperty(String statePropertyStr) {
+        this.statePropertyStr = statePropertyStr;
+    }
+    
     @Override
     public String toString() {
         return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
