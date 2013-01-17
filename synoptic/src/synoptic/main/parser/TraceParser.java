@@ -245,8 +245,7 @@ public class TraceParser {
         // Maintains a map between fields and their values in the regex.
         LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
 
-        // A list of all the fields that were assigned in the regex.
-        // List<String> fields = new LinkedList<String>();
+        // A set of all the fields that were assigned in the regex.
         Set<String> fields = new LinkedHashSet<String>();
 
         // Indicates whether this regexp sets the HIDE field to true or not.
@@ -353,6 +352,7 @@ public class TraceParser {
             throw parseException;
         }
         parsers.add(parser);
+        // A list of all named groups i.e., fields that have no assignment.
         List<String> groups = parser.groupNames();
 
         // Check that special/internal field names do not appear.
@@ -370,8 +370,10 @@ public class TraceParser {
         // supposed to generate event instances, while the hidden ones do not.
         if (!isHidden) {
             // Check that either type or stateProperty group is present, but not both.
-            if ((groups.contains(typeGroup) && groups.contains(statePropertyGroup))
-                    || !(groups.contains(typeGroup) || groups.contains(statePropertyGroup))) {
+            boolean typePresent = groups.contains(typeGroup) || fields.contains(typeGroup);
+            boolean statePresent = groups.contains(statePropertyGroup) || fields.contains(
+                    statePropertyGroup);
+            if (typePresent == statePresent) {
                 String error = "Regular expression: " + input_regex
                         + " should contain either a " + typeGroup + " named group"
                         + " or a " + statePropertyGroup + " named group, but not both";
