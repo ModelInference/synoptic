@@ -653,6 +653,29 @@ public class TraceParser {
             results.add(event);
         }
         br.close();
+        // At this point, each node in results either represents an event or
+        // a state property. We need to bundle pre- and post-event state properties
+        // and events.
+        int i = 0;
+        while (i < results.size()) {
+            EventNode node = results.get(i);
+            if (node.getPostStateProperty() != null) {
+                // This node represents state property, not event.
+                // Merge this node to surrounding event nodes.
+                // Note: assume that if log contains a state property, it must contain
+                // at least 1 event.
+                if  (i > 0) {
+                    results.get(i - 1).setPostStateProperty(node.getPostStateProperty());
+                }
+                if (i < results.size() - 1) {
+                    results.get(i + 1).setPreStateProperty(node.getPostStateProperty());
+                }
+                results.remove(i);
+            } else {
+                // This node represents event, do nothing.
+                i++;
+            }
+        }
 
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
             // Infer the PID (process ID) corresponding to each of the parsed
@@ -848,16 +871,16 @@ public class TraceParser {
 
             String eTypeLabel;
             EventType eType;
-            if (syn.options.internCommonStrings) {
-                eTypeLabel = matched.get("TYPE").intern();
+            // Check if this line contains event type or state property.
+            if (matched.containsKey(typeGroup)) {
+                if (syn.options.internCommonStrings) {
+                    eTypeLabel = matched.get(typeGroup).intern();
+                } else {
+                    eTypeLabel = matched.get(typeGroup);
+                }
             } else {
-                eTypeLabel = matched.get("TYPE");
-            }
-
-            // TODO: determine if this is desired + print warning
-            if (eTypeLabel == null) {
-                // In the absence of an event type, use the entire log line as
-                // the type.
+                // This line has state property, so event type is irrelevant.
+                // Use the entire log line as dummy type.
                 eTypeLabel = line;
             }
 
@@ -1030,10 +1053,14 @@ public class TraceParser {
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
             
-            // If a state property is captured, save it to eventNode.
+            // If a state property is captured, save it to eventNode's post-event
+            // state property to indicate that this node represents state property
+            // and not event.
+            // Use post-event because, when merging state nodes to event nodes,
+            // pre-event might be set before we check if that node represents state or event.
             if (eventStringArgs.containsKey(statePropertyGroup)) {
-                String statePropertyStr = eventStringArgs.get(statePropertyGroup);
-                eventNode.setStateProperty(statePropertyStr);
+                String stateProperty = eventStringArgs.get(statePropertyGroup);
+                eventNode.setPostStateProperty(stateProperty);
             }
 
             if (!allEventRelations.containsKey(eventNode)) {

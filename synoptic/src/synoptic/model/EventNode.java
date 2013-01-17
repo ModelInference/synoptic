@@ -35,9 +35,14 @@ public class EventNode implements INode<EventNode> {
     private final Event event;
 
     /**
-     * The nullable string representing state property immediately prior to this event.
+     * Pre-event state property.
      */
-    private String statePropertyStr;
+    private String preStateProperty;
+    
+    /**
+     * Post-event state property.
+     */
+    private String postStateProperty;
     
     /**
      * A Unique trace identifier
@@ -88,7 +93,8 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
-        statePropertyStr = copyFrom.statePropertyStr;
+        preStateProperty = copyFrom.preStateProperty;
+        postStateProperty = copyFrom.postStateProperty;
     }
 
     public EventNode(Event eventArg) {
@@ -96,7 +102,8 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
-        statePropertyStr = null;
+        preStateProperty = null;
+        postStateProperty = null;
     }
 
     @Override
@@ -109,8 +116,20 @@ public class EventNode implements INode<EventNode> {
         this.parent = parent;
     }
 
-    public void setStateProperty(String statePropertyStr) {
-        this.statePropertyStr = statePropertyStr;
+    public void setPreStateProperty(String stateProperty) {
+        this.preStateProperty = stateProperty;
+    }
+    
+    public void setPostStateProperty(String stateProperty) {
+        this.postStateProperty = stateProperty;
+    }
+    
+    public String getPreStateProperty() {
+        return preStateProperty;
+    }
+    
+    public String getPostStateProperty() {
+        return postStateProperty;
     }
     
     @Override
