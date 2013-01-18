@@ -37,12 +37,12 @@ public class EventNode implements INode<EventNode> {
     /**
      * Pre-event state property.
      */
-    private String preStateProperty;
+    private String preEventStateProperty;
     
     /**
      * Post-event state property.
      */
-    private String postStateProperty;
+    private String postEventStateProperty;
     
     /**
      * A Unique trace identifier
@@ -93,8 +93,8 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
-        preStateProperty = copyFrom.preStateProperty;
-        postStateProperty = copyFrom.postStateProperty;
+        preEventStateProperty = copyFrom.preEventStateProperty;
+        postEventStateProperty = copyFrom.postEventStateProperty;
     }
 
     public EventNode(Event eventArg) {
@@ -102,8 +102,8 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
-        preStateProperty = null;
-        postStateProperty = null;
+        preEventStateProperty = null;
+        postEventStateProperty = null;
     }
 
     @Override
@@ -116,20 +116,20 @@ public class EventNode implements INode<EventNode> {
         this.parent = parent;
     }
 
-    public void setPreStateProperty(String stateProperty) {
-        this.preStateProperty = stateProperty;
+    public void setPreEventStateProperty(String stateProperty) {
+        this.preEventStateProperty = stateProperty;
     }
     
-    public void setPostStateProperty(String stateProperty) {
-        this.postStateProperty = stateProperty;
+    public void setPostEventStateProperty(String stateProperty) {
+        this.postEventStateProperty = stateProperty;
     }
     
-    public String getPreStateProperty() {
-        return preStateProperty;
+    public String getPreEventStateProperty() {
+        return preEventStateProperty;
     }
     
-    public String getPostStateProperty() {
-        return postStateProperty;
+    public String getPostEventStateProperty() {
+        return postEventStateProperty;
     }
     
     @Override
