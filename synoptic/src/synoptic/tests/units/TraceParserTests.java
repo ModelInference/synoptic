@@ -1,5 +1,6 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +25,7 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
@@ -219,7 +221,7 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test
-    public void addRegexAssignRequiredFieldRegExpExceptionTest()
+    public void addRegexAssignRequiredFieldRegTest()
             throws ParseException {
         parser.addRegex("^(?<TIME>)\\s(?<TYPE=>.+)$");
     }
@@ -249,6 +251,37 @@ public class TraceParserTests extends SynopticTest {
         }
         // Second addRegex should throw the expected exception.
         parser.addRegex("^(?<" + t2 + ">)\\s(?<TYPE>)\\s$");
+    }
+    
+    /**
+     * Add a regex with the STATE_PROPERTY named group.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void addRegexStatePropertyTest() throws ParseException {
+        parser.addRegex("^(?<STATE_PROPERTY>)$");
+    }
+    
+    /**
+     * Add a regex with an assignment to the STATE_PROPERY field.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void addRegexAssignStatePropertyTest() throws ParseException {
+        parser.addRegex("^(?<STATE_PROPERTY=>a=1,b=2)$");
+    }
+    
+    /**
+     * Add a regex with both TYPE and STATE_PROPERTY named groups --
+     * expect a ParseException.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexWithTypeAndStatePropertyGroupsExpExceptionTest() throws ParseException {
+        parser.addRegex("^(?<TYPE>\\S+)\\s(?<STATE_PROPERTY>\\S+)$");
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -1284,4 +1317,106 @@ public class TraceParserTests extends SynopticTest {
         parser.parseTraceString(traceStr, "test", -1);
     }
 
+    /**
+     * Check that the type/pre- and post-event state properties of each log event
+     * in the list is correct.
+     * 
+     * @throws ParseException
+     */
+    private void checkEventTypesAndStateProperties(List<EventNode> eventNodes,
+            EventType[] types, String[] preEvent, String[] postEvent) throws ParseException {
+        assertTrue(eventNodes.size() == types.length);
+        for (int i = 0; i < eventNodes.size(); i++) {
+            EventNode eventNode = eventNodes.get(i);
+            assertEquals(types[i], eventNode.getEType());
+            assertTrue((preEvent[i] == null && eventNode.getPreEventStateProperty() == null)
+                    || preEvent[i].equals(eventNode.getPreEventStateProperty()));
+            assertTrue((postEvent[i] == null && eventNode.getPostEventStateProperty() == null)
+                    || postEvent[i].equals(eventNode.getPostEventStateProperty()));
+        }
+    }
+    
+    /**
+     * Parse an event with a pre-event state property.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void parseEventWithPreEventStatePropertyTest() throws ParseException {
+        String traceStr = "x=0,y=1\na\n";
+        parser.addRegex("^(?<TYPE>[abc])$");
+        parser.addRegex("^(?<STATE_PROPERTY>\\w=\\d,\\w=\\d)$");
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        EventType type = new StringEventType("a");
+        checkEventTypesAndStateProperties(eventNodes, new EventType[] { type },
+                new String[] { "x=0,y=1" }, new String[] { null });
+    }
+    
+    /**
+     * Parse an event with a post-event state property.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void parseEventWithPostEventStatePropertyTest() throws ParseException {
+        String traceStr = "b\ni=1,j=2\n";
+        parser.addRegex("^(?<TYPE>[abc])$");
+        parser.addRegex("^(?<STATE_PROPERTY>\\w=\\d,\\w=\\d)$");
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        EventType type = new StringEventType("b");
+        checkEventTypesAndStateProperties(eventNodes, new EventType[] { type },
+                new String[] { null }, new String[] { "i=1,j=2" });
+    }
+    
+    /**
+     * Parse an event with pre- and post-event state properties.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void parseEventWithPrePostEventStatePropertiesTest() throws ParseException {
+        String traceStr = "n=3,m=4\nc\np=0,q=1\n";
+        parser.addRegex("^(?<TYPE>[abc])$");
+        parser.addRegex("^(?<STATE_PROPERTY>\\w=\\d,\\w=\\d)$");
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        EventType type = new StringEventType("c");
+        checkEventTypesAndStateProperties(eventNodes, new EventType[] { type },
+                new String[] { "n=3,m=4" }, new String[] { "p=0,q=1" });
+    }
+    
+    /**
+     * Parse 2 events interleaved by a state property -- the first event should
+     * have a post-event and the second should have a pre-event.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void parseTwoEventsInterleavedByStateProperty() throws ParseException {
+        String traceStr = "a\nx=0,y=1\nb\n";
+        parser.addRegex("^(?<TYPE>[abc])$");
+        parser.addRegex("^(?<STATE_PROPERTY>\\w=\\d,\\w=\\d)$");
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        EventType a = new StringEventType("a");
+        EventType b = new StringEventType("b");
+        checkEventTypesAndStateProperties(eventNodes, new EventType[] { a, b },
+                new String[] { null, "x=0,y=1" }, new String[] { "x=0,y=1", null });
+    }
+
+    /**
+     * Parse 2 events that follow a single state property -- the first event
+     * should have a pre-event but the second event should not.
+     * 
+     * @throws ParseException 
+     */
+    @Test
+    public void parseTwoEventsFollowSingleStateProperty() throws ParseException {
+        String traceStr = "u=0,t=1\na\nb\n";
+        parser.addRegex("^(?<TYPE>[abc])$");
+        parser.addRegex("^(?<STATE_PROPERTY>\\w=\\d,\\w=\\d)$");
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        EventType a = new StringEventType("a");
+        EventType b = new StringEventType("b");
+        checkEventTypesAndStateProperties(eventNodes, new EventType[] { a, b },
+                new String[] { "u=0,t=1", null }, new String[] { null, null });
+    }
 }

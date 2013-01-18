@@ -659,22 +659,26 @@ public class TraceParser {
         int i = 0;
         while (i < results.size()) {
             EventNode node = results.get(i);
-            if (node.getPostStateProperty() != null) {
+            if (node.getPostEventStateProperty() != null) {
                 // This node represents state property, not event.
-                // Merge this node to surrounding event nodes.
-                // Note: assume that if log contains a state property, it must contain
-                // at least 1 event.
-                if  (i > 0) {
-                    results.get(i - 1).setPostStateProperty(node.getPostStateProperty());
+                // Merge this node to surrounding event nodes of the same traceID.
+                // Assumptions:
+                // 1) If a trace contains a state property, it must also contain
+                //    at least 1 event.
+                // 2) A trace cannot have 2 consecutive state properties.
+                if  (i > 0
+                        && results.get(i - 1).getTraceID() == node.getTraceID()) {
+                    results.get(i - 1).setPostEventStateProperty(node.getPostEventStateProperty());
                 }
-                if (i < results.size() - 1) {
-                    results.get(i + 1).setPreStateProperty(node.getPostStateProperty());
+                if (i < results.size() - 1
+                        && results.get(i + 1).getTraceID() == node.getTraceID()) {
+                    results.get(i + 1).setPreEventStateProperty(node.getPostEventStateProperty());
                 }
                 results.remove(i);
-            } else {
-                // This node represents event, do nothing.
-                i++;
-            }
+            } // Else, this node represents event, do nothing, go to the next node.
+            // If the node has just been removed, skip the next node, because
+            // it must represent event.
+            i++;
         }
 
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
@@ -1060,7 +1064,7 @@ public class TraceParser {
             // pre-event might be set before we check if that node represents state or event.
             if (eventStringArgs.containsKey(statePropertyGroup)) {
                 String stateProperty = eventStringArgs.get(statePropertyGroup);
-                eventNode.setPostStateProperty(stateProperty);
+                eventNode.setPostEventStateProperty(stateProperty);
             }
 
             if (!allEventRelations.containsKey(eventNode)) {
