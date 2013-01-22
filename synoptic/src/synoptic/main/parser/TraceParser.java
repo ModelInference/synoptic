@@ -87,8 +87,8 @@ public class TraceParser {
     // groups, but not both.
     // Event type group
     private static final String typeGroup = "TYPE";
-    // State property group, must be in the form id=value,...,id=value
-    private static final String statePropertyGroup = "STATE_PROPERTY";
+    // State group, must be in the form id=value,...,id=value
+    private static final String stateGroup = "STATE";
 
     // Regexp groups that represent valid time in a log line:
     // TIME: integer time (e.g. 123)
@@ -369,14 +369,14 @@ public class TraceParser {
         // Process non-hidden expression specially, since these expressions are
         // supposed to generate event instances, while the hidden ones do not.
         if (!isHidden) {
-            // Check that either type or stateProperty group is present, but not both.
+            // Check that either type or state group is present, but not both.
             boolean typePresent = groups.contains(typeGroup) || fields.contains(typeGroup);
-            boolean statePresent = groups.contains(statePropertyGroup) || fields.contains(
-                    statePropertyGroup);
+            boolean statePresent = groups.contains(stateGroup) || fields.contains(
+                    stateGroup);
             if (typePresent == statePresent) {
                 String error = "Regular expression: " + input_regex
                         + " should contain either a " + typeGroup + " named group"
-                        + " or a " + statePropertyGroup + " named group, but not both";
+                        + " or a " + stateGroup + " named group, but not both";
                 logger.severe(error);
                 ParseException parseException = new ParseException(error);
                 parseException.setRegex(input_regex);
@@ -646,40 +646,18 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            EventNode event = parseLine(strLine, tName, context, lineNum);
-            if (event == null) {
+            EventNode node = parseLine(strLine, tName, context, lineNum);
+            if (node == null) {
                 continue;
             }
-            results.add(event);
+            results.add(node);
         }
         br.close();
+        // TODO: this is a hacky solution, should refactor the parseTrace and
+        // parseLine methods so that State is separated from EventNode.
         // At this point, each node in results either represents an event or
-        // a state property. We need to bundle pre- and post-event state properties
-        // and events.
-        int i = 0;
-        while (i < results.size()) {
-            EventNode node = results.get(i);
-            if (node.getPostEventStateProperty() != null) {
-                // This node represents state property, not event.
-                // Merge this node to surrounding event nodes of the same traceID.
-                // Assumptions:
-                // 1) If a trace contains a state property, it must also contain
-                //    at least 1 event.
-                // 2) A trace cannot have 2 consecutive state properties.
-                if  (i > 0
-                        && results.get(i - 1).getTraceID() == node.getTraceID()) {
-                    results.get(i - 1).setPostEventStateProperty(node.getPostEventStateProperty());
-                }
-                if (i < results.size() - 1
-                        && results.get(i + 1).getTraceID() == node.getTraceID()) {
-                    results.get(i + 1).setPreEventStateProperty(node.getPostEventStateProperty());
-                }
-                results.remove(i);
-            } // Else, this node represents event, do nothing, go to the next node.
-            // If the node has just been removed, skip the next node, because
-            // it must represent event.
-            i++;
-        }
+        // a state. We need to bundle pre- and post-event states and events.
+        mergeStatesWithEventNodes(results);
 
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
             // Infer the PID (process ID) corresponding to each of the parsed
@@ -781,6 +759,53 @@ public class TraceParser {
                 + " events from [" + tName + "]");
         return results;
     }
+    
+    /**
+     * Merge each state node in results with its surrounding event nodes
+     * of the same traceID.
+     * 
+     * @throws ParseException
+     */
+    private void mergeStatesWithEventNodes(List<EventNode> results) throws ParseException {
+        int i = 0;
+        while (i < results.size()) {
+            EventNode node = results.get(i);
+            String state = node.getPostEventState();
+            if (state != null) {
+                // This node represents a state, not an event.
+                // Merge this node with surrounding event nodes of the same traceID.
+                // Assumptions: a trace cannot have 2 consecutive states.
+                EventNode prevNode = i > 0 ? results.get(i - 1) : null;
+                EventNode nextNode = i < results.size() - 1 ? results.get(i + 1) : null;
+                int traceID = node.getTraceID();
+                boolean mergeFront = false;
+                boolean mergeBack = false;
+                if  (prevNode != null
+                        && prevNode.getTraceID() == traceID) {
+                    if (prevNode.getPostEventState() != null) {
+                        // This trace has 2 consecutive states.
+                        throw new ParseException(
+                                "Found 2 consecutive states in the trace ID: "
+                                + traceID);
+                    }
+                    prevNode.setPostEventState(state);
+                    mergeFront = true;
+                }
+                if (nextNode != null
+                        && nextNode.getTraceID() == traceID) {
+                    nextNode.setPreEventState(state);
+                    mergeBack = true;
+                }
+                if (mergeFront || mergeBack) {
+                    results.remove(i);
+                    continue;
+                }
+            }
+            // No need to merge this node with other -- it is either an event node,
+            // or the only state node in a trace.
+            i++;
+        }
+    }
 
     /**
      * Builds a generic string to describe a location of an error on a line in
@@ -875,16 +900,21 @@ public class TraceParser {
 
             String eTypeLabel;
             EventType eType;
-            // Check if this line contains event type or state property.
+            // Check if this line contains event type or state.
             if (matched.containsKey(typeGroup)) {
                 if (syn.options.internCommonStrings) {
                     eTypeLabel = matched.get(typeGroup).intern();
                 } else {
                     eTypeLabel = matched.get(typeGroup);
                 }
+            } else if (matched.containsKey(stateGroup)) {
+                // This line has state, so event type is irrelevant.
+                // Use "null" as dummy type.
+                eTypeLabel = "null";
             } else {
-                // This line has state property, so event type is irrelevant.
-                // Use the entire log line as dummy type.
+                // TODO: determine if this is desired + print warning
+                // In the absence of an event type, use the entire log line as      
+                // the type.
                 eTypeLabel = line;
             }
 
@@ -1057,14 +1087,14 @@ public class TraceParser {
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
             
-            // If a state property is captured, save it to eventNode's post-event
-            // state property to indicate that this node represents state property
-            // and not event.
-            // Use post-event because, when merging state nodes to event nodes,
-            // pre-event might be set before we check if that node represents state or event.
-            if (eventStringArgs.containsKey(statePropertyGroup)) {
-                String stateProperty = eventStringArgs.get(statePropertyGroup);
-                eventNode.setPostEventStateProperty(stateProperty);
+            // If a state is captured, save it to eventNode's post-event state
+            // to indicate that this node represents a state and not an event.
+            // Use post-event state because, when merging state nodes to event nodes,
+            // pre-event state might be set before we check if that node represents
+            // state or event.
+            if (eventStringArgs.containsKey(stateGroup)) {
+                String state = eventStringArgs.get(stateGroup);
+                eventNode.setPostEventState(state);
             }
 
             if (!allEventRelations.containsKey(eventNode)) {
