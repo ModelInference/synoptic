@@ -787,7 +787,9 @@ public class TraceParser {
                     if (prevNode.getPostEventState() != null) {
                         // This trace has 2 consecutive states.
                         throw new ParseException(
-                                "Found 2 consecutive states in 1 trace");
+                                "Found 2 consecutive states: "
+                                + prevNode.getPostEventState() + " and "
+                                + state + " in trace ID: " + traceID);
                     }
                     prevNode.setPostEventState(state);
                     mergeFront = true;
@@ -799,7 +801,9 @@ public class TraceParser {
                 }
                 if (!mergeFront && !mergeBack) {
                     throw new ParseException(
-                            "A trace contains a state but does not contain any event");
+                            "Trace ID: " + traceID
+                            + " contains a state: " + state
+                            + " but does not contain any event");
                 }
                 results.remove(i);
             } else {
@@ -911,8 +915,8 @@ public class TraceParser {
                 }
             } else if (matched.containsKey(stateGroup)) {
                 // This line has state, so event type is irrelevant.
-                // Use use the entire log line as the type.
-                eTypeLabel = line;
+                // Use use the dummy string as the type.
+                eTypeLabel = "dummy-etype-for-line-with-state".intern();
             } else {
                 // TODO: determine if this is desired + print warning
                 // In the absence of an event type, use the entire log line as      
