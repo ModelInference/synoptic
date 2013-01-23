@@ -1337,11 +1337,11 @@ public class TraceParserTests extends SynopticTest {
     }
     
     /**
-     * Parse a trace that contains a single state.
+     * Parse a trace that contains a single state -- expect parse exception.
      * 
      * @throws ParseException
      */
-    @Test
+    @Test(expected = ParseException.class)
     public void parseTraceWithSingleState() throws ParseException {
         String traceStr = "STATE:s=0\n";
         parser.addRegex("^STATE:(?<STATE>)$");

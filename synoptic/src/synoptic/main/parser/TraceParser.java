@@ -774,7 +774,9 @@ public class TraceParser {
             if (state != null) {
                 // This node represents a state, not an event.
                 // Merge this node with surrounding event nodes of the same traceID.
-                // Assumptions: a trace cannot have 2 consecutive states.
+                // Assumptions:
+                // (1) A trace cannot have 2 consecutive states.
+                // (2) If a trace contains a state, it also contains at least 1 event.
                 EventNode prevNode = i > 0 ? results.get(i - 1) : null;
                 EventNode nextNode = i < results.size() - 1 ? results.get(i + 1) : null;
                 int traceID = node.getTraceID();
@@ -785,8 +787,7 @@ public class TraceParser {
                     if (prevNode.getPostEventState() != null) {
                         // This trace has 2 consecutive states.
                         throw new ParseException(
-                                "Found 2 consecutive states in the trace ID: "
-                                + traceID);
+                                "Found 2 consecutive states in 1 trace");
                     }
                     prevNode.setPostEventState(state);
                     mergeFront = true;
@@ -796,14 +797,15 @@ public class TraceParser {
                     nextNode.setPreEventState(state);
                     mergeBack = true;
                 }
-                if (mergeFront || mergeBack) {
-                    results.remove(i);
-                    continue;
+                if (!mergeFront && !mergeBack) {
+                    throw new ParseException(
+                            "A trace contains a state but does not contain any event");
                 }
+                results.remove(i);
+            } else {
+                // This node represents an event -- do nothing.
+                i++;
             }
-            // No need to merge this node with other -- it is either an event node,
-            // or the only state node in a trace.
-            i++;
         }
     }
 
@@ -909,8 +911,8 @@ public class TraceParser {
                 }
             } else if (matched.containsKey(stateGroup)) {
                 // This line has state, so event type is irrelevant.
-                // Use "null" as dummy type.
-                eTypeLabel = "null";
+                // Use use the entire log line as the type.
+                eTypeLabel = line;
             } else {
                 // TODO: determine if this is desired + print warning
                 // In the absence of an event type, use the entire log line as      
