@@ -26,6 +26,7 @@ import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
+import synoptic.model.state.State;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
@@ -1324,7 +1325,7 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     private void checkEventTypesAndStates(List<EventNode> eventNodes,
-            EventType[] types, String[] preEvent, String[] postEvent) throws ParseException {
+            EventType[] types, State[] preEvent, State[] postEvent) throws ParseException {
         assertTrue(eventNodes.size() == types.length);
         for (int i = 0; i < eventNodes.size(); i++) {
             EventNode eventNode = eventNodes.get(i);
@@ -1342,7 +1343,7 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void parseTraceWithSingleState() throws ParseException {
+    public void parseTraceWithSingleStateTest() throws ParseException {
         String traceStr = "STATE:s=0\n";
         parser.addRegex("^STATE:(?<STATE>)$");
         parser.parseTraceString(traceStr, "test", -1);
@@ -1360,8 +1361,9 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^STATE:(?<STATE>)$");
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType type = new StringEventType("a");
+        State state = new State("x=0,y=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
-                new String[] { "x=0,y=1" }, new String[] { null });
+                new State[] { state }, new State[] { null });
     }
     
     /**
@@ -1376,8 +1378,9 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^STATE:(?<STATE>)$");
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType type = new StringEventType("b");
+        State state = new State("i=1,j=2");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
-                new String[] { null }, new String[] { "i=1,j=2" });
+                new State[] { null }, new State[] { state });
     }
     
     /**
@@ -1392,8 +1395,10 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^STATE:(?<STATE>)$");
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType type = new StringEventType("c");
+        State preEvent = new State("n=3,m=4");
+        State postEvent = new State("p=0,q=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
-                new String[] { "n=3,m=4" }, new String[] { "p=0,q=1" });
+                new State[] { preEvent }, new State[] { postEvent });
     }
     
     /**
@@ -1410,8 +1415,10 @@ public class TraceParserTests extends SynopticTest {
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
+        State preEvent = new State("x=0,y=1");
+        State postEvent = new State("x=0,y=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { a, b },
-                new String[] { null, "x=0,y=1" }, new String[] { "x=0,y=1", null });
+                new State[] { null, preEvent }, new State[] { postEvent, null });
     }
 
     /**
@@ -1428,8 +1435,9 @@ public class TraceParserTests extends SynopticTest {
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
+        State state = new State("u=0,t=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { a, b },
-                new String[] { "u=0,t=1", null }, new String[] { null, null });
+                new State[] { state, null }, new State[] { null, null });
     }
     
     /**
@@ -1447,8 +1455,9 @@ public class TraceParserTests extends SynopticTest {
         List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
+        State state = new State("connected=true");
         checkEventTypesAndStates(eventNodes, new EventType[] { a, b },
-                new String[] { null, null }, new String[] { "connected=true", null });
+                new State[] { null, null }, new State[] { state, null });
     }
     
     /**
@@ -1462,5 +1471,16 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
         parser.parseTraceString(traceStr, "test", -1);
+    }
+
+    /**
+     * Construct a state with invalid format of state string.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void stateConstructorInvalidStateStrExpExceptionTest() throws ParseException {
+        String stateStr = "q == 1";
+        State state = new State(stateStr);
     }
 }

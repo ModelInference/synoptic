@@ -33,6 +33,7 @@ import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
+import synoptic.model.state.State;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.matching.NamedMatcher;
 import synoptic.util.matching.NamedPattern;
@@ -770,7 +771,7 @@ public class TraceParser {
         int i = 0;
         while (i < results.size()) {
             EventNode node = results.get(i);
-            String state = node.getPostEventState();
+            State state = node.getPostEventState();
             if (state != null) {
                 // This node represents a state, not an event.
                 // Merge this node with surrounding event nodes of the same traceID.
@@ -1099,7 +1100,8 @@ public class TraceParser {
             // pre-event state might be set before we check if that node represents
             // state or event.
             if (eventStringArgs.containsKey(stateGroup)) {
-                String state = eventStringArgs.get(stateGroup);
+                String stateStr = eventStringArgs.get(stateGroup);
+                State state = new State(stateStr);
                 eventNode.setPostEventState(state);
             }
 
