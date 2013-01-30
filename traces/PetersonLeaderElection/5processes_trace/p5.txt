@@ -1,0 +1,14 @@
+# p5, uid5
+0,0,0,0,1 active uid5
+0,0,0,0,2 send1 uid5
+0,0,0,2,3 recv1 uid2
+0,0,0,2,4 send2 uid2
+0,0,2,4,5 recv2 uid3
+0,0,2,4,6 relay
+2,4,7,8,7 recv1 uid4
+2,4,7,8,8 fwd uid4
+7,8,9,10,9 recv1 uid5
+7,8,9,10,10 fwd uid5
+9,10,12,12,11 recv1 uid5
+9,10,12,12,12 fwd uid5
+
