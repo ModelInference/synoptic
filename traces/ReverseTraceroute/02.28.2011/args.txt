@@ -5,7 +5,6 @@
 -r ^(?<DTIME>)(?<obj_id>)(?<src>)(?<dst>)(?<spoof_only>)(?<rec_route_cnt>)(?<ip_timestamp_cnt>)(?<method>)(?<extra1>)(?<extra2>)(?<extra3>)$(?<TYPE=>\\k<method>)
 -m \\k<obj_id>
 -i
---dumpInitialGraph=false
 --dumpInvariants=true
 --internCommonStrings=true
 --showTerminalNode=false
