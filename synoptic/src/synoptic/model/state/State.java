@@ -1,6 +1,7 @@
 package synoptic.model.state;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ import synoptic.main.parser.ParseException;
  * @author rsukkerd
  *
  */
-public class State {
+public class State implements Iterable<Map.Entry<String, String>> {
     /** An identifier-value pair delimiter */
     private static final String DELIM = "\\s*,\\s*";
     /** An assignment pattern -- the left side is identifier, the right side is value */
@@ -47,6 +48,7 @@ public class State {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
             }
+            // TODO: figure out variable type
             stateMap.put(id, value);
         }
     }
@@ -69,5 +71,10 @@ public class State {
         }
         State other = (State) obj;
         return stateMap.equals(other.stateMap);
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
+        return stateMap.entrySet().iterator();
     }
 }
