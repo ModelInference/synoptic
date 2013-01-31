@@ -53,6 +53,10 @@ public class State implements Iterable<Map.Entry<String, String>> {
         }
     }
     
+    public int size() {
+        return stateMap.size();
+    }
+    
     @Override
     public int hashCode() {
         return stateMap.hashCode();
@@ -76,5 +80,10 @@ public class State implements Iterable<Map.Entry<String, String>> {
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return stateMap.entrySet().iterator();
+    }
+    
+    @Override
+    public String toString() {
+        return stateMap.toString();
     }
 }
