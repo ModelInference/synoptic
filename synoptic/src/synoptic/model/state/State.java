@@ -3,21 +3,25 @@ package synoptic.model.state;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import daikonizer.DaikonType;
+import daikonizer.DaikonVar;
 
 import synoptic.main.parser.ParseException;
 
 /**
  * Represents a state parsed from a log file. A state is a set of
- * identifier-value pairs, defined at a point in time (in an execution trace).
- * A String representation of a state is in the form id=value,...,id=value.
+ * variable-value pairs, defined at a point in time (in an execution trace).
+ * A String representation of a state is in the form var=value,...,var=value.
  * 
  * @author rsukkerd
  *
  */
-public class State implements Iterable<Map.Entry<String, String>> {
+public class State implements Iterable<Map.Entry<DaikonVar, String>> {
     /** An identifier-value pair delimiter */
     private static final String DELIM = "\\s*,\\s*";
     /** An assignment pattern -- the left side is identifier, the right side is value */
@@ -26,11 +30,12 @@ public class State implements Iterable<Map.Entry<String, String>> {
     
     /** A String representation of this state. */
     private final String stateString;
-    private final Map<String, String> stateMap;
+    /** A map from variables to values. */
+    private final Map<DaikonVar, String> stateMap;
     
     public State(String stateString) throws ParseException {
         this.stateString = stateString;
-        stateMap = new HashMap<String, String>();
+        stateMap = new HashMap<DaikonVar, String>();
         buildStateMap();
     }
     
@@ -49,12 +54,18 @@ public class State implements Iterable<Map.Entry<String, String>> {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
             }
-            // TODO: figure out variable type
-            stateMap.put(id, value);
+            DaikonType type = determineType(value);
+            DaikonVar var = new DaikonVar(id, type);
+            stateMap.put(var, value);
         }
     }
     
-    public Set<String> getVariableNames() {
+    private DaikonType determineType(String value) {
+        // TODO: figure out type of value
+        return null;
+    }
+    
+    public Set<DaikonVar> getVariables() {
         return stateMap.keySet();
     }
     
@@ -79,7 +90,7 @@ public class State implements Iterable<Map.Entry<String, String>> {
     }
 
     @Override
-    public Iterator<Map.Entry<String, String>> iterator() {
+    public Iterator<Entry<DaikonVar, String>> iterator() {
         return stateMap.entrySet().iterator();
     }
     

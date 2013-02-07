@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import daikon.inv.Invariant;
+import daikonizer.DaikonVar;
 import daikonizer.Daikonizer;
 
 /**
@@ -16,11 +17,11 @@ import daikonizer.Daikonizer;
  *
  */
 public class SynDaikonizer {
-    private List<String> varNames;    
+    private List<DaikonVar> vars;
     private Daikonizer daikonizer;
     
     public SynDaikonizer() {
-        varNames = new Vector<String>();
+        vars = new Vector<DaikonVar>();
         daikonizer = null;
     }
     
@@ -31,30 +32,31 @@ public class SynDaikonizer {
      * @throws Exception
      */
     public void addInstance(State state) throws Exception {
-        Set<String> stateVarNames = state.getVariableNames();
-        if (!varNames.containsAll(stateVarNames)
-                || !stateVarNames.containsAll(varNames)) {
+        Set<DaikonVar> stateVars = state.getVariables();
+        if (!vars.isEmpty()
+                && (!vars.containsAll(stateVars)
+                        || !stateVars.containsAll(vars))) {
             throw new Exception(
                     "Variables are inconsistent among added states: "
-                    + varNames + " and " + stateVarNames);
+                    + vars + " and " + stateVars);
         }
         
         Vector<Object> record = new Vector<Object>();
-        record.setSize(stateVarNames.size());
+        record.setSize(stateVars.size());
         
-        for (Map.Entry<String, String> entry : state) {
-            String varName = entry.getKey();
+        for (Map.Entry<DaikonVar, String> entry : state) {
+            DaikonVar var = entry.getKey();
             String value = entry.getValue();
-            int index = varNames.indexOf(varName);
+            int index = vars.indexOf(var);
             if (index < 0) {
-                index = 0;
-                varNames.add(value);
+                index = vars.size();
+                vars.add(var);
             }
             record.set(index, value);
         }
         
         if (daikonizer == null) {
-            daikonizer = new Daikonizer("SynopticPoint", varNames, varNames);
+            daikonizer = new Daikonizer("SynopticPoint", vars);
         }
         daikonizer.addValues(record, record);
     }
