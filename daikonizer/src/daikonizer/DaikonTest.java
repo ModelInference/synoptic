@@ -1,3 +1,5 @@
+package daikonizer;
+
 import java.util.Vector;
 
 import junit.framework.TestCase;
