@@ -46,11 +46,11 @@ public class DaikonTrace {
 
     private String ProgramPointInstanceToString(List<?> o1,
             String ProgramPointInstanceType) {
-        String ret = ppt.ProgramPointName + ":::" + ProgramPointInstanceType
+        String ret = ppt.pptName + ":::" + ProgramPointInstanceType
                 + "\n";
 
         for (int i = 0; i < ppt.vars.size(); i++) {
-            DaikonVar v = (DaikonVar) ppt.vars.elementAt(i);
+            DaikonVar v = ppt.vars.get(i);
             Object val = o1.get(i);
             ret += v.vname + "\n";
             ret += val + "\n";
