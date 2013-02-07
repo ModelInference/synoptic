@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Synoptic"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/daikon.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -3,6 +3,7 @@ package synoptic.model.state;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,10 @@ public class State implements Iterable<Map.Entry<String, String>> {
         }
     }
     
+    public Set<String> getVariableNames() {
+        return stateMap.keySet();
+    }
+    
     @Override
     public int hashCode() {
         return stateMap.hashCode();
@@ -76,5 +81,10 @@ public class State implements Iterable<Map.Entry<String, String>> {
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
         return stateMap.entrySet().iterator();
+    }
+    
+    @Override
+    public String toString() {
+        return stateMap.toString();
     }
 }

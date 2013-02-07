@@ -1,3 +1,5 @@
+package daikonizer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
