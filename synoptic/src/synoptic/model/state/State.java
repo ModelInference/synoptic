@@ -66,8 +66,11 @@ public class State {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
             }
-            String id = matcher.group("ID");
-            String value = matcher.group("VALUE");
+            // The following 2 lines only work in Java 7.
+            // String id = matcher.group("ID");
+            // String value = matcher.group("VALUE");
+            String id = matcher.group(1);
+            String value = matcher.group(2).trim();
             if (id == null || value == null) {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
