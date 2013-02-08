@@ -1,7 +1,6 @@
 package synoptic.model.state;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -44,9 +43,8 @@ public class SynDaikonizer {
         Vector<Object> record = new Vector<Object>();
         record.setSize(stateVars.size());
         
-        for (Map.Entry<DaikonVar, String> entry : state) {
-            DaikonVar var = entry.getKey();
-            String value = entry.getValue();
+        for (DaikonVar var : stateVars) {
+            String value = state.getValue(var);
             int index = vars.indexOf(var);
             if (index < 0) {
                 index = vars.size();

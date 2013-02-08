@@ -1,9 +1,7 @@
 package synoptic.model.state;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,18 +22,18 @@ import synoptic.main.parser.ParseException;
  * @author rsukkerd
  *
  */
-public class State implements Iterable<Map.Entry<DaikonVar, String>> {
+public class State {
     /** An identifier-value pair delimiter */
     private static final String DELIM = "\\s*,\\s*";
     /** An assignment pattern -- the left side is identifier, the right side is value */
     private static final Pattern matchAssign = Pattern
-            .compile("(?<ID>[^\\s=]+)\\s*=\\s*(?<VALUE>[^\\s=]+)");
+            .compile("(?<ID>[^\\s=]+)\\s*=\\s*(?<VALUE>.+)");
     
     /** Type patterns -- boolean, int, hashcode, double and String **/
     private static final Pattern matchBoolean = Pattern
             .compile("true|false");
     private static final Pattern matchInt = Pattern
-            .compile("[+-]?[1-9][0-9]*");
+            .compile("[+-]?(0|[1-9])[0-9]*");
     private static final Pattern matchHashcode = Pattern
             .compile("0x([0-9]|[a-fA-F])+");
     private static final Pattern matchDouble = Pattern
@@ -113,6 +111,10 @@ public class State implements Iterable<Map.Entry<DaikonVar, String>> {
         return stateMap.keySet();
     }
     
+    public String getValue(DaikonVar variable) {
+        return stateMap.get(variable);
+    }
+    
     @Override
     public int hashCode() {
         return stateMap.hashCode();
@@ -133,11 +135,6 @@ public class State implements Iterable<Map.Entry<DaikonVar, String>> {
         return stateMap.equals(other.stateMap);
     }
 
-    @Override
-    public Iterator<Entry<DaikonVar, String>> iterator() {
-        return stateMap.entrySet().iterator();
-    }
-    
     @Override
     public String toString() {
         return stateMap.toString();
