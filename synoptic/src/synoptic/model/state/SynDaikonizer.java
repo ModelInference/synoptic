@@ -27,10 +27,14 @@ public class SynDaikonizer {
     /**
      * Adds an instance of data record i.e., State.
      * Variables must be consistent among all added states.
+     * If the state is null, then nothing is added.
      * 
      * @throws Exception
      */
     public void addInstance(State state) throws Exception {
+        if (state == null) {
+            return;
+        }
         Set<DaikonVar> stateVars = state.getVariables();
         if (!vars.isEmpty()
                 && (!vars.containsAll(stateVars)
