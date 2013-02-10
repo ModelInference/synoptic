@@ -26,8 +26,11 @@ public class State {
     /** An identifier-value pair delimiter */
     private static final String DELIM = "\\s*,\\s*";
     /** An assignment pattern -- the left side is identifier, the right side is value */
+    // This Pattern only works in Java 7.
+    // private static final Pattern matchAssign = Pattern
+    //      .compile("(?<ID>[^\\s=]+)\\s*=\\s*(?<VALUE>.+)");
     private static final Pattern matchAssign = Pattern
-            .compile("(?<ID>[^\\s=]+)\\s*=\\s*(?<VALUE>.+)");
+            .compile("([^\\s=]+)\\s*=\\s*(.+)");
     
     /** Type patterns -- boolean, int, hashcode, double and String **/
     private static final Pattern matchBoolean = Pattern
@@ -47,7 +50,7 @@ public class State {
     private final Map<DaikonVar, String> stateMap;
     
     public State(String stateString) throws ParseException {
-        this.stateString = stateString;
+        this.stateString = stateString.trim();
         stateMap = new HashMap<DaikonVar, String>();
         buildStateMap();
     }
@@ -70,7 +73,7 @@ public class State {
             // String id = matcher.group("ID");
             // String value = matcher.group("VALUE");
             String id = matcher.group(1);
-            String value = matcher.group(2).trim();
+            String value = matcher.group(2);
             if (id == null || value == null) {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
