@@ -41,8 +41,14 @@ public class PartitionWrapper {
                 // This is a dummy initial partition and its dummy event node
                 // has no post-event state. Instead, we need to get
                 // pre-event states of the successor events.
-                for (EventNode succEvent : succPartition.getEventNodes()) {
-                    daikonizer.addInstance(succEvent.getPreEventState());
+                Set<EventNode> events = partition.getEventNodes();
+                // Dummy initial partition contains only 1 dummy initial event node.
+                assert events.size() == 1;
+                EventNode dummyInitNode = events.iterator().next();
+                for (EventNode initEvent : dummyInitNode.getAllSuccessors()) {
+                    if (initEvent.getParent().compareTo(succPartition) == 0) {
+                        daikonizer.addInstance(initEvent.getPreEventState());
+                    }
                 }
                 continue;
             }
