@@ -13,8 +13,9 @@ import daikonizer.DaikonVar;
 
 import synoptic.main.parser.ParseException;
 import synoptic.model.state.State;
+import synoptic.tests.SynopticTest;
 
-public class StateTests {
+public class StateTests extends SynopticTest {
 
     /**
      * Boolean values.
