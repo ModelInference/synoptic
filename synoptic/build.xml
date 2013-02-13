@@ -17,7 +17,7 @@
     <!-- Where to output junit test results. -->
     <property name="junit.output.dir" value="junit"/>
 
-    <!-- Where to find tests. -->
+    <!-- Where to find tests (relative to bin). -->
     <property name="synoptic.testdir" value="synoptic/tests/" />
 
     <!-- Where to find the generated synoptic classes. -->
@@ -150,6 +150,7 @@
 	
 	<batchtest fork="no" todir="${junit.output.dir}">
 	  <fileset dir="bin/">
+            <!-- TODO: use synoptic.testdir instead of the hardcoded path here-->
 	    <include name="synoptic/tests/units/*Tests.class"/>
 	    <include name="synoptic/tests/integration/*Tests.class"/>
 	  </fileset>
