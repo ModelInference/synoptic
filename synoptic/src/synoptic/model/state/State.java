@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import daikonizer.DaikonType;
+import daikonizer.DaikonVarType;
 import daikonizer.DaikonVar;
 
 import synoptic.main.parser.ParseException;
@@ -32,18 +32,6 @@ public class State {
     private static final Pattern matchAssign = Pattern
             .compile("([^\\s=]+)\\s*=\\s*(.+)");
     
-    /** Type patterns -- boolean, int, hashcode, double and String **/
-    private static final Pattern matchBoolean = Pattern
-            .compile("true|false");
-    private static final Pattern matchInt = Pattern
-            .compile("[+-]?(0|[1-9])[0-9]*");
-    private static final Pattern matchHashcode = Pattern
-            .compile("0x([0-9]|[a-fA-F])+");
-    private static final Pattern matchDouble = Pattern
-            .compile("[+-]?(0|[1-9][0-9]*)(.[0-9]+)?([eE][+-]?[0-9]+)?");
-    private static final Pattern matchString = Pattern
-            .compile("\"[^\"]*\"");
-
     /** A String representation of this state. */
     private final String stateString;
     /** A map from variables to values. */
@@ -78,39 +66,15 @@ public class State {
                 throw new ParseException("State: " + stateString
                         + " is not in the format id=value,...,id=value");
             }
-            DaikonType type = determineType(value);
+            DaikonVarType type;
+            try {
+                type = DaikonVarType.determineType(value);
+            } catch (Exception e) {
+                throw new ParseException(e.getMessage());
+            }
             DaikonVar var = new DaikonVar(id, type);
             stateMap.put(var, value);
         }
-    }
-    
-    /**
-     * Determines the type of this value.
-     * 
-     * @throws ParseException
-     */
-    private DaikonType determineType(String value) throws ParseException {
-        Matcher matcher = matchBoolean.matcher(value);
-        if (matcher.matches()) {
-            return DaikonType.BOOLEAN;
-        }
-        matcher = matchInt.matcher(value);
-        if (matcher.matches()) {
-            return DaikonType.INT;
-        }
-        matcher = matchHashcode.matcher(value);
-        if (matcher.matches()) {
-            return DaikonType.HASHCODE;
-        }
-        matcher = matchDouble.matcher(value);
-        if (matcher.matches()) {
-            return DaikonType.DOUBLE;
-        }
-        matcher = matchString.matcher(value);
-        if (matcher.matches()) {
-            return DaikonType.STRING;
-        }
-        throw new ParseException(value + " is not a recognizable type");
     }
     
     public Set<DaikonVar> getVariables() {

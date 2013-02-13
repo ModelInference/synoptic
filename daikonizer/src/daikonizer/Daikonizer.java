@@ -17,7 +17,7 @@ public class Daikonizer {
     public DaikonTrace trace;
 
     public Daikonizer(String pptName, List<String> varNames,
-            List<DaikonType> varTypes) {
+            List<DaikonVarType> varTypes) {
         List<DaikonVar> vars = new Vector<DaikonVar>(varNames.size());
 
         assert (varNames.size() == varTypes.size());
