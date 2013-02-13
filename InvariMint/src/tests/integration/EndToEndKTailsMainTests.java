@@ -4,7 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import main.InvariMintFromTextFile;
+import main.InvariMintMain;
+import main.InvariMintOptions;
 import model.CustomModel;
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
@@ -19,12 +20,12 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 /**
- * Runs InvariMint end-to-end on a simple invariants file and checks that the
+ * Runs KTails InvariMint end-to-end on a simple log file and checks that the
  * final model matches the expected output.
  * 
  * @author jennyabrahamson
  */
-public class EndToEndInvariantsTextFileTest extends InvariMintTest {
+public class EndToEndKTailsMainTests extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();
     private EventType terminal = StringEventType.newTerminalStringEventType();
 
@@ -38,11 +39,18 @@ public class EndToEndInvariantsTextFileTest extends InvariMintTest {
      */
     @Test
     public void simpleModelTest() throws Exception {
-        String filename = ".." + File.separator + "traces" + File.separator
-                + "abstract" + File.separator + "simple-model" + File.separator
-                + "invariants.txt";
+        String tPath = ".." + File.separator + "traces" + File.separator;
+        String simpleModelPath = tPath + "abstract" + File.separator
+                + "simple-model" + File.separator;
 
-        EncodedAutomaton dfa = InvariMintFromTextFile.createDFA(filename);
+        String[] args = new String[] { "--invMintKTails=true", "--kTailLength",
+                "2", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
+                "\\k<nodename>", "-o",
+                testOutputDir + "ktail-simple-model-example",
+                simpleModelPath + "trace.txt" };
+
+        InvariMintOptions opts = new InvariMintOptions(args);
+        EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
 
         // Create expected model:
         EventTypeEncodings encodings = dfa.getEventEncodings();

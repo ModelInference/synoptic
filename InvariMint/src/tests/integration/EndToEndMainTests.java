@@ -20,12 +20,13 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 /**
- * Runs KTails InvariMint end-to-end on a simple log file and checks that the
+ * Runs Synoptic InvariMint end-to-end on a simple log file and checks that the
  * final model matches the expected output.
  * 
- * @author jennyabrahamson
+ * @author ivan
  */
-public class EndToEndKTailsMainTest extends InvariMintTest {
+public class EndToEndMainTests extends InvariMintTest {
+
     private EventType initial = StringEventType.newInitialStringEventType();
     private EventType terminal = StringEventType.newTerminalStringEventType();
 
@@ -43,12 +44,10 @@ public class EndToEndKTailsMainTest extends InvariMintTest {
         String simpleModelPath = tPath + "abstract" + File.separator
                 + "simple-model" + File.separator;
 
-        String[] args = new String[] { "--invMintKTails=true", "--kTailLength",
-                "2", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
-                "\\k<nodename>", "-o",
-                testOutputDir + "ktail-simple-model-example",
-                simpleModelPath + "trace.txt" };
-
+        String[] args = new String[] { "-r",
+                "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>",
+                "-o", testOutputDir + "simple-model-example",
+                "-invMintSynoptic=true", simpleModelPath + "trace.txt" };
         InvariMintOptions opts = new InvariMintOptions(args);
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
 
@@ -58,8 +57,6 @@ public class EndToEndKTailsMainTest extends InvariMintTest {
         State one = new State();
         State two = new State();
         State three = new State();
-        State four = new State();
-        State five = new State();
         State terminalState = new State();
         terminalState.setAccept(true);
         initialState.addTransition(new dk.brics.automaton.Transition(encodings
@@ -67,18 +64,16 @@ public class EndToEndKTailsMainTest extends InvariMintTest {
         one.addTransition(new dk.brics.automaton.Transition(encodings
                 .getEncoding(a), two));
         two.addTransition(new dk.brics.automaton.Transition(encodings
-                .getEncoding(b), five));
+                .getEncoding(a), two));
         two.addTransition(new dk.brics.automaton.Transition(encodings
-                .getEncoding(a), three));
+                .getEncoding(b), three));
         three.addTransition(new dk.brics.automaton.Transition(encodings
-                .getEncoding(b), four));
-        four.addTransition(new dk.brics.automaton.Transition(encodings
-                .getEncoding(b), five));
-        five.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(b), three));
+        three.addTransition(new dk.brics.automaton.Transition(encodings
                 .getEncoding(terminal), terminalState));
         EncodedAutomaton expectedDfa = new CustomModel(encodings, initialState);
 
-        assertTrue(dfa.subsetOf(expectedDfa));
         assertTrue(expectedDfa.subsetOf(dfa));
+        assertTrue(dfa.subsetOf(expectedDfa));
     }
 }

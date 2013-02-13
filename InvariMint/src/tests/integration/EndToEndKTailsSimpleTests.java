@@ -18,7 +18,7 @@ import synoptic.model.event.StringEventType;
 
 import tests.InvariMintTest;
 
-public class EndToEndKTailsSimpleTest extends InvariMintTest {
+public class EndToEndKTailsSimpleTests extends InvariMintTest {
 
     private EventType x = new StringEventType("x");
     private EventType y = new StringEventType("y");

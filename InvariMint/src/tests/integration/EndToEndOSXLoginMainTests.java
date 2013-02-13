@@ -18,7 +18,7 @@ import synoptic.model.event.StringEventType;
 
 import tests.InvariMintTest;
 
-public class EndToEndOSXLoginMainTest extends InvariMintTest {
+public class EndToEndOSXLoginMainTests extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();
     private EventType terminal = StringEventType.newTerminalStringEventType();
 
