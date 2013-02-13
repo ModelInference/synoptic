@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import tests.InvariMintTest;
 
-public class KTailImplComparisons extends InvariMintTest {
+public class KTailImplComparisonTests extends InvariMintTest {
 
     /**
      * Tests InvariMint KTails versus Synoptic KTails.
