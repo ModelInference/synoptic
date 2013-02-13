@@ -26,6 +26,9 @@
         <pathelement location="bin"/>
     </path>
 
+    <!-- Where to find tests (relative to bin). -->
+    <property name="invarimint.testdir" value="tests/" />
+
     <!-- The set of jars synoptic depends on, in classpath format. -->
     <path id="invarimint.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
@@ -75,6 +78,65 @@
         </javac>
     </target>
 
+    <!--====================================================================-->
+	
+    <!-- 
+	 Runs test(s) that match a regex partially defined by the
+	 -Djunit.include option from the command line. For example,
+
+	 $ ant -Djunit.include=Foo test
+
+	 Would run all test classes that match the regex '.*Foo.*(\.class)?$'
+
+
+         For example, to run just the unit tests, use:
+
+         $ ant -Djunit.include=units test
+
+
+	 Note: This searches for classes in invarimint's testing directory
+	 and executes all matching files across all subdirectories.
+      -->
+    <target name="test" depends="build"> 
+      <!-- If junit.include is not set, complain. -->
+      <fail unless="junit.include">Must supply a class name with -Djunit.include</fail>
+      <echo message="Looking for files matching '.*${junit.include}.*(\.class)?$' in bin/${invarimint.testdir}" />
+
+      <mkdir dir="${junit.output.dir}"/>
+
+      <!-- Build the file set and make sure it's not empty. -->
+      <property name="junit.regex" value=".*${junit.include}.*(\.class)?$" />
+      <condition property="dir.empty">
+	<length length="0">
+	  <fileset id="junit.include.fileset" dir="bin/" includes="${invarimint.testdir}">
+	    <filename regex="${junit.regex}"/>
+	  </fileset>
+	</length>
+      </condition>
+
+      <!-- If there were no files found, exit. -->
+      <fail if="dir.empty">No files matching ${junit.include} were found</fail>
+
+      <!-- Print the files to be run. -->
+      <echo>Running JUnit on these files:</echo>
+      <pathconvert pathsep="${line.separator}    --"             
+		   property="junit.include.path"             
+		   refid="junit.include.fileset">
+      </pathconvert>
+      <echo>    ${junit.include.path}</echo>
+      
+      <!-- Run junit on the found files. -->
+      <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+	<classpath refid="invarimint.classpath"/>
+	<formatter type="xml"/>
+	<batchtest fork="yes" todir="${junit.output.dir}">
+	  <!-- Include all class files, then filter. -->
+	  <fileset refid="junit.include.fileset" />
+	</batchtest>
+      </junit>
+    </target>
+
+
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
@@ -85,6 +147,7 @@
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
 	    <fileset dir="bin/">
+              <!-- TODO: use invarimint.testdir instead of the hardcoded path here-->
 	      <include name="tests/units/*Tests.class"/>
 	      <include name="tests/integration/*Tests.class"/>
 	    </fileset>
