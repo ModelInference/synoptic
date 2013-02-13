@@ -44,16 +44,26 @@ public class InvariMintMain {
         }
     }
 
-    /**
-     * Performs InvariMint with the given set of options, returns the final dfa.
-     */
-    public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
+    public static boolean compareInvariMintSynoptic(InvariMintOptions opts)
+            throws Exception {
+        PGraphInvariMint invMintAlg = setUpAndGetAlg(opts);
+        runStandardAlg(invMintAlg);
+        InvsModel dfa = runInvariMint(invMintAlg);
+
+        invMintAlg.exportStdAlgDFA();
+        // Export final model.
+        String exportFname = opts.outputPathPrefix + "."
+                + invMintAlg.getInvMintAlgName() + ".dfa.dot";
+        dfa.exportDotAndPng(exportFname);
+        return invMintAlg.compareToStandardAlg();
+    }
+
+    private static PGraphInvariMint setUpAndGetAlg(InvariMintOptions opts)
             throws Exception {
 
         setUpLogging(opts);
         handleOptions(opts);
 
-        InvsModel dfa;
         PGraphInvariMint invMintAlg;
         if (opts.invMintSynoptic) {
             // Instantiate a Synoptic version of InvariMint.
@@ -64,7 +74,10 @@ public class InvariMintMain {
         } else {
             throw new Exception("InvariMint algorithm not specified.");
         }
+        return invMintAlg;
+    }
 
+    private static void runStandardAlg(PGraphInvariMint invMintAlg) {
         logger.info("Running Standard Alg.");
         long startTime = System.nanoTime();
         long endTime;
@@ -77,9 +90,14 @@ public class InvariMintMain {
         double duration_secs = (endTime - startTime) / 1000000000.0;
         logger.info("DONE Running Standard Alg. Duration = " + duration_secs);
         // assert false;
+    }
 
+    private static InvsModel runInvariMint(PGraphInvariMint invMintAlg)
+            throws Exception {
+        InvsModel dfa;
         logger.info("Running InvariMint Alg.");
-        startTime = System.nanoTime();
+        long startTime = System.nanoTime();
+        long endTime;
         try {
             // Run the appropriate version of InvariMint.
             dfa = invMintAlg.runInvariMint();
@@ -87,13 +105,21 @@ public class InvariMintMain {
             endTime = System.nanoTime();
         }
         // Convert nanoseconds to seconds
-        duration_secs = (endTime - startTime) / 1000000000.0;
+        double duration_secs = (endTime - startTime) / 1000000000.0;
         logger.info("DONE Running InvariMint Alg. Duration = " + duration_secs);
 
-        invMintAlg.compareToStandardAlg();
+        return dfa;
+    }
 
-        // Forcefully terminate.
-        // assert false;
+    /**
+     * Performs InvariMint with the given set of options, returns the final dfa.
+     */
+    public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
+            throws Exception {
+
+        PGraphInvariMint invMintAlg = setUpAndGetAlg(opts);
+        runStandardAlg(invMintAlg);
+        InvsModel dfa = runInvariMint(invMintAlg);
 
         // Optionally remove paths from the model not found in any input trace.
         if (opts.removeSpuriousEdges) {

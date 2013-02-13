@@ -145,15 +145,17 @@ public abstract class PGraphInvariMint {
      * Compares the InvariMint-derived model to the model derived using the
      * Standard algorithm.
      */
-    public void compareToStandardAlg() {
+    public boolean compareToStandardAlg() {
         stdAlgpGraphToDFA();
         assert stdAlgDFA != null;
 
-        logger.info("L(stdAlgDFA) subsetOf L(invMintDFA): "
-                + stdAlgDFA.subsetOf(invMintModel));
-        logger.info("L(invMintDFA) subsetOf L(stdAlgDFA): "
-                + invMintModel.subsetOf(stdAlgDFA));
+        boolean stdSubset = stdAlgDFA.subsetOf(invMintModel);
+        boolean invSubset = invMintModel.subsetOf(stdAlgDFA);
 
+        logger.info("L(stdAlgDFA) subsetOf L(invMintDFA): " + stdSubset);
+        logger.info("L(invMintDFA) subsetOf L(stdAlgDFA): " + invSubset);
+
+        return stdSubset && invSubset;
     }
 
     /**
