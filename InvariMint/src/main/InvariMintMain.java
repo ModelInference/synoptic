@@ -50,11 +50,12 @@ public class InvariMintMain {
         runStandardAlg(invMintAlg);
         InvsModel dfa = runInvariMint(invMintAlg);
 
+        // TODO (jenny): remove exports after bugs are fixed!
         invMintAlg.exportStdAlgDFA();
-        // Export final model.
         String exportFname = opts.outputPathPrefix + "."
                 + invMintAlg.getInvMintAlgName() + ".dfa.dot";
         dfa.exportDotAndPng(exportFname);
+
         return invMintAlg.compareToStandardAlg();
     }
 
