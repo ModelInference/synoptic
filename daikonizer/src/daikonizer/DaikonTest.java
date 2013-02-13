@@ -11,9 +11,9 @@ public class DaikonTest extends TestCase {
 		varNames.add("x");
 		varNames.add("y");
 
-		Vector<DaikonType> varTypes = new Vector<DaikonType>();
-		varTypes.add(DaikonType.INT);
-		varTypes.add(DaikonType.INT);
+		Vector<DaikonVarType> varTypes = new Vector<DaikonVarType>();
+		varTypes.add(DaikonVarType.INT);
+		varTypes.add(DaikonVarType.INT);
 
 		Daikonizer d = new Daikonizer("transition", varNames, varTypes);
 

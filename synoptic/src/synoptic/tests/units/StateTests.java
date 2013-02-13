@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import daikonizer.DaikonType;
+import daikonizer.DaikonVarType;
 import daikonizer.DaikonVar;
 
 import synoptic.main.parser.ParseException;
@@ -26,8 +26,8 @@ public class StateTests extends SynopticTest {
     public void booleanTest() throws ParseException {
         String stateStr = "p=true, q=false";
         State state = new State(stateStr);
-        DaikonVar p = new DaikonVar("p", DaikonType.BOOLEAN);
-        DaikonVar q = new DaikonVar("q", DaikonType.BOOLEAN);
+        DaikonVar p = new DaikonVar("p", DaikonVarType.BOOLEAN);
+        DaikonVar q = new DaikonVar("q", DaikonVarType.BOOLEAN);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(p, "true");
         expected.put(q, "false");
@@ -43,11 +43,11 @@ public class StateTests extends SynopticTest {
     public void smallIntTest() throws ParseException {
         String stateStr = "i=0, j=1, k=-1, m=-42, n=73";
         State state = new State(stateStr);
-        DaikonVar i = new DaikonVar("i", DaikonType.INT);
-        DaikonVar j = new DaikonVar("j", DaikonType.INT);
-        DaikonVar k = new DaikonVar("k", DaikonType.INT);
-        DaikonVar m = new DaikonVar("m", DaikonType.INT);
-        DaikonVar n = new DaikonVar("n", DaikonType.INT);
+        DaikonVar i = new DaikonVar("i", DaikonVarType.INT);
+        DaikonVar j = new DaikonVar("j", DaikonVarType.INT);
+        DaikonVar k = new DaikonVar("k", DaikonVarType.INT);
+        DaikonVar m = new DaikonVar("m", DaikonVarType.INT);
+        DaikonVar n = new DaikonVar("n", DaikonVarType.INT);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(i, "0");
         expected.put(j, "1");
@@ -66,8 +66,8 @@ public class StateTests extends SynopticTest {
     public void bigIntTest() throws ParseException {
         String stateStr = "i=15670465892, j=-54121051040";
         State state = new State(stateStr);
-        DaikonVar i = new DaikonVar("i", DaikonType.INT);
-        DaikonVar j = new DaikonVar("j", DaikonType.INT);
+        DaikonVar i = new DaikonVar("i", DaikonVarType.INT);
+        DaikonVar j = new DaikonVar("j", DaikonVarType.INT);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(i, "15670465892");
         expected.put(j, "-54121051040");
@@ -83,8 +83,8 @@ public class StateTests extends SynopticTest {
     public void hashcodeTest() throws ParseException {
         String stateStr = "h=0x38E8A, k=0xdeadbeef";
         State state = new State(stateStr);
-        DaikonVar h = new DaikonVar("h", DaikonType.HASHCODE);
-        DaikonVar k = new DaikonVar("k", DaikonType.HASHCODE);
+        DaikonVar h = new DaikonVar("h", DaikonVarType.HASHCODE);
+        DaikonVar k = new DaikonVar("k", DaikonVarType.HASHCODE);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(h, "0x38E8A");
         expected.put(k, "0xdeadbeef");
@@ -100,11 +100,11 @@ public class StateTests extends SynopticTest {
     public void smallDoubleTest() throws ParseException {
         String stateStr = "i=0.0, j=1.003, k=-0.45, m=-9.999, n=3.14159";
         State state = new State(stateStr);
-        DaikonVar i = new DaikonVar("i", DaikonType.DOUBLE);
-        DaikonVar j = new DaikonVar("j", DaikonType.DOUBLE);
-        DaikonVar k = new DaikonVar("k", DaikonType.DOUBLE);
-        DaikonVar m = new DaikonVar("m", DaikonType.DOUBLE);
-        DaikonVar n = new DaikonVar("n", DaikonType.DOUBLE);
+        DaikonVar i = new DaikonVar("i", DaikonVarType.DOUBLE);
+        DaikonVar j = new DaikonVar("j", DaikonVarType.DOUBLE);
+        DaikonVar k = new DaikonVar("k", DaikonVarType.DOUBLE);
+        DaikonVar m = new DaikonVar("m", DaikonVarType.DOUBLE);
+        DaikonVar n = new DaikonVar("n", DaikonVarType.DOUBLE);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(i, "0.0");
         expected.put(j, "1.003");
@@ -123,9 +123,9 @@ public class StateTests extends SynopticTest {
     public void bigDoubleTest() throws ParseException {
         String stateStr = "i=5.972E24, j=-0.10848103540060e-009, k=7098701.806456e+100";
         State state = new State(stateStr);
-        DaikonVar i = new DaikonVar("i", DaikonType.DOUBLE);
-        DaikonVar j = new DaikonVar("j", DaikonType.DOUBLE);
-        DaikonVar k = new DaikonVar("k", DaikonType.DOUBLE);
+        DaikonVar i = new DaikonVar("i", DaikonVarType.DOUBLE);
+        DaikonVar j = new DaikonVar("j", DaikonVarType.DOUBLE);
+        DaikonVar k = new DaikonVar("k", DaikonVarType.DOUBLE);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(i, "5.972E24");
         expected.put(j, "-0.10848103540060e-009");
@@ -142,8 +142,8 @@ public class StateTests extends SynopticTest {
     public void stringTest() throws ParseException {
         String stateStr = "str=\"Hello World!\", msg=\"\"";
         State state = new State(stateStr);
-        DaikonVar str = new DaikonVar("str", DaikonType.STRING);
-        DaikonVar msg = new DaikonVar("msg", DaikonType.STRING);
+        DaikonVar str = new DaikonVar("str", DaikonVarType.STRING);
+        DaikonVar msg = new DaikonVar("msg", DaikonVarType.STRING);
         Map<DaikonVar, String> expected = new HashMap<DaikonVar, String>();
         expected.put(str, "\"Hello World!\"");
         expected.put(msg, "\"\"");

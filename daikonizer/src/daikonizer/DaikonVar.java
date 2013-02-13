@@ -8,9 +8,9 @@ package daikonizer;
  */
 public class DaikonVar {
 	public String vname;
-	public DaikonType vtype;
+	public DaikonVarType vtype;
 	
-	public DaikonVar(String vname, DaikonType vtype) {
+	public DaikonVar(String vname, DaikonVarType vtype) {
 		this.vname = vname;
 		this.vtype = vtype;
 	}
