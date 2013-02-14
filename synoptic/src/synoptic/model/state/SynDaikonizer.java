@@ -35,6 +35,7 @@ public class SynDaikonizer {
         if (state == null) {
             return;
         }
+        
         Set<DaikonVar> stateVars = state.getVariables();
         if (!vars.isEmpty()
                 && (!vars.containsAll(stateVars)
@@ -45,21 +46,25 @@ public class SynDaikonizer {
         }
         
         Vector<Object> record = new Vector<Object>();
-        record.setSize(stateVars.size());
-        
-        for (DaikonVar var : stateVars) {
-            String value = state.getValue(var);
-            int index = vars.indexOf(var);
-            if (index < 0) {
-                index = vars.size();
-                vars.add(var);
-            }
-            record.set(index, value);
-        }
-        
         if (daikonizer == null) {
+            // Set the order of variables.
+            for (DaikonVar var : stateVars) {
+                vars.add(var);
+                String value = state.getValue(var);
+                record.add(value);
+            }
             daikonizer = new Daikonizer("SynopticPoint", vars);
+        } else {
+            // Align values to their corresponding variables.
+            record.setSize(stateVars.size());
+            for (DaikonVar var : stateVars) {
+                String value = state.getValue(var);
+                int index = vars.indexOf(var);
+                assert index >= 0;
+                record.set(index, value);
+            }
         }
+        
         daikonizer.addValues(record, record);
     }
     
@@ -67,7 +72,7 @@ public class SynDaikonizer {
      * @return Daikon invariants detected from all added states.
      * @throws Exception
      */
-    public List<Invariant> getDaikonInvariants() throws Exception {
+    public List<Invariant> getDaikonEnterInvariants() throws Exception {
         List<Invariant> enterInvs = new Vector<Invariant>();
         List<Invariant> exitInvs = new Vector<Invariant>();
         List<Invariant> flow = new Vector<Invariant>();

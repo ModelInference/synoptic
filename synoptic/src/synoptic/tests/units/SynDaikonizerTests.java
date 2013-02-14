@@ -59,7 +59,7 @@ public class SynDaikonizerTests extends SynopticTest {
         for (State state : states) {
             daikonizer.addInstance(state);
         }
-        List<Invariant> invariants = daikonizer.getDaikonInvariants();
+        List<Invariant> invariants = daikonizer.getDaikonEnterInvariants();
         System.out.println("Invariants of the states:");
         for (State state : states) {
             System.out.println("\t" + state);

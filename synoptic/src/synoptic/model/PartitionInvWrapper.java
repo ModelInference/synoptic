@@ -16,13 +16,13 @@ import daikon.inv.Invariant;
  * @author rsukkerd
  *
  */
-public class PartitionWrapper {
+public class PartitionInvWrapper {
     private final Partition partition;
     /** Maps each Synoptic point (i.e., outgoing edge of this partition)
      *  to a list of invariants */
     private final Map<Partition, List<Invariant>> invariants;
     
-    public PartitionWrapper(Partition partition) {
+    public PartitionInvWrapper(Partition partition) {
         this.partition = partition;
         invariants = new HashMap<Partition, List<Invariant>>();
     }
@@ -63,7 +63,7 @@ public class PartitionWrapper {
                 }
             }
             
-            List<Invariant> invs = daikonizer.getDaikonInvariants();
+            List<Invariant> invs = daikonizer.getDaikonEnterInvariants();
             invariants.put(succPartition, invs);
         }
     }
