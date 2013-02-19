@@ -1,3 +1,5 @@
+package daikonizer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,16 +17,21 @@ public class Daikonizer {
     public DaikonTrace trace;
 
     public Daikonizer(String pptName, List<String> varNames,
-            List<String> varTypes) {
-        Vector<DaikonVar> vars = new Vector<DaikonVar>(varNames.size());
+            List<DaikonVarType> varTypes) {
+        List<DaikonVar> vars = new Vector<DaikonVar>(varNames.size());
 
         assert (varNames.size() == varTypes.size());
 
         for (int i = 0; i < varNames.size(); i++) {
             DaikonVar v = new DaikonVar(varNames.get(i), varTypes.get(i));
-            vars.addElement(v);
+            vars.add(v);
         }
 
+        this.ppt = new ProgramPoint(pptName, vars);
+        this.trace = new DaikonTrace(this.ppt);
+    }
+    
+    public Daikonizer(String pptName, List<DaikonVar> vars) {
         this.ppt = new ProgramPoint(pptName, vars);
         this.trace = new DaikonTrace(this.ppt);
     }
