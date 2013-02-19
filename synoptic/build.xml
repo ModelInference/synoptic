@@ -28,6 +28,7 @@
     <!-- The set of jars synoptic depends on, in classpath format. -->
     <path id="synoptic.depjars.classpath">
       <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+      <pathelement location="${util.synoptic.libdir}/daikonizer.jar"/>
       <pathelement location="${util.synoptic.libdir}/plume.jar"/>
     </path>
 
