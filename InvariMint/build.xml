@@ -29,7 +29,7 @@
     <!-- Where to find tests (relative to bin). -->
     <property name="invarimint.testdir" value="tests/" />
 
-    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <!-- The set of jars invarimint depends on, in classpath format. -->
     <path id="invarimint.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
         <pathelement location="${util.synoptic.libdir}/plume.jar"/>
