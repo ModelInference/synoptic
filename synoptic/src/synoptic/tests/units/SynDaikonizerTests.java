@@ -1,72 +1,125 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
 import daikon.inv.Invariant;
+import daikon.inv.unary.scalar.OneOfScalar;
+import daikon.inv.binary.twoScalar.IntEqual;
+import daikon.inv.binary.twoScalar.LinearBinary;
 
 import synoptic.model.state.State;
 import synoptic.model.state.SynDaikonizer;
 import synoptic.tests.SynopticTest;
 
+/**
+ * Checks that SynDaikonizer returns expected invariants of some kinds.
+ * These unit tests are not intended to check every invariant that SynDaikonizer
+ * returns; they only confirm that it returns some expected invariants.
+ * 
+ * @author rsukkerd
+ *
+ */
 public class SynDaikonizerTests extends SynopticTest {
     
     /**
-     * All states have 1 variable: x.
+     * Test OneOfScalar invariant.
      * 
      * @throws Exception
      */
     @Test
-    public void oneVariableTest() throws Exception {
+    public void oneOfScalarTest() throws Exception {
         State s1 = new State("x=-1");
         State s2 = new State("x=0");
         State s3 = new State("x=1");
-        detectDaikonInvariants(s1, s2, s3);
+        long[] expectedElems = new long[] { -1, 0, 1 };
+        List<Invariant> invariants = getDaikonInvariants(s1, s2, s3);
+        for (Invariant invariant : invariants) {
+            if (invariant instanceof OneOfScalar) {
+                OneOfScalar oneOfInv = (OneOfScalar) invariant;
+                long[] actualElems = oneOfInv.getElts();
+                assertEquals(expectedElems.length, actualElems.length);
+                
+                for (long expectedElem : expectedElems) {
+                    int index = Arrays.binarySearch(actualElems, expectedElem);
+                    assertTrue(index >= 0);
+                }
+                return;
+            }
+        }
+        fail("There is no OneOfScalar invariant: x one of {-1, 0, 1}.");
     }
     
     /**
-     * All states have 2 variables: x and y.
+     * Test IntEqual invariant.
      * 
      * @throws Exception
      */
     @Test
-    public void twoVariablesTest() throws Exception {
+    public void intEqualTest() throws Exception {
         State s1 = new State("x=1,y=1");
         State s2 = new State("x=2,y=2");
         State s3 = new State("x=3,y=3");
-        detectDaikonInvariants(s1, s2, s3);
+        List<Invariant> invariants = getDaikonInvariants(s1, s2, s3);
+        for (Invariant invariant : invariants) {
+            if (invariant instanceof IntEqual) {
+                IntEqual equalInv = (IntEqual) invariant;
+                String var1 = equalInv.var1().str_name();
+                String var2 = equalInv.var2().str_name();
+                // This is to handle invariants like x == x and y == y.
+                // TODO: Filter out such invariants.
+                if ((var1.equals("x") && var2.equals("y"))
+                        || (var1.equals("y") && var2.equals("x"))) {
+                    return;
+                }
+            }
+        }
+        fail("There is no IntEqual invariant: x == y.");
     }
     
     /**
-     * All states have 3 variables: x, y and z.
+     * Test LinearBinary invariant.
      * 
      * @throws Exception
      */
     @Test
-    public void threeVariablesTest() throws Exception {
-        State s1 = new State("x=1,y=1,z=2");
-        State s2 = new State("x=2,y=-1,z=1");
-        State s3 = new State("x=3,y=0,z=3");
-        detectDaikonInvariants(s1, s2, s3);
+    public void linearBinaryTest() throws Exception {
+        SynDaikonizer daikonizer = new SynDaikonizer();
+        for (int i = 0; i < 100; i++) {
+            String stateStr = "foo=" + i + ",bar=" + (i + 1);
+            State state = new State(stateStr);
+            daikonizer.addInstance(state);
+        }
+        List<Invariant> invariants = daikonizer.getDaikonEnterInvariants();
+        for (Invariant invariant : invariants) {
+            if (invariant instanceof LinearBinary) {
+                LinearBinary linearInv = (LinearBinary) invariant;
+                String var1 = linearInv.var1().str_name();
+                assertEquals("foo", var1);
+                String var2 = linearInv.var2().str_name();
+                assertEquals("bar", var2);
+                double a = linearInv.core.a;
+                assertEquals(1, a, 0.0001);
+                double b = linearInv.core.b;
+                assertEquals(-1, b, 0.0001);
+                double c = linearInv.core.c;
+                assertEquals(1, c, 0.0001);
+            }
+            return;
+        }
+        fail("There is no LinearBinary invariant: foo - bar + 1 = 0");
     }
     
-    /**
-     * Detects invariants of the states and prints them.
-     */
-    private void detectDaikonInvariants(State... states) throws Exception {
+    private List<Invariant> getDaikonInvariants(State... states) throws Exception {
         SynDaikonizer daikonizer = new SynDaikonizer();
         for (State state : states) {
             daikonizer.addInstance(state);
         }
         List<Invariant> invariants = daikonizer.getDaikonEnterInvariants();
-        System.out.println("Invariants of the states:");
-        for (State state : states) {
-            System.out.println("\t" + state);
-        }
-        System.out.println("are:");
-        for (Invariant inv : invariants) {
-            System.out.println("\t" + inv);
-        }
+        return invariants;
     }
 }
