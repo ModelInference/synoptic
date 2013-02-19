@@ -75,6 +75,19 @@ lib/dynoptic.jar
 
 
 #####################
+# Daikonizer
+#####################
+
+# Ignore directories with auto-generated files
+daikonizer/bin/*
+daikonizer/daikonizer_*.dtrace
+daikonizer/daikonizer_*.inv.gz
+
+# Ignore the compiled jar
+lib/daikonizer.jar
+
+
+#####################
 # Other
 #####################
 
