@@ -8,5 +8,7 @@
 	<classpathentry kind="var" path="SYNOPTIC_LIB"/>
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Daikonizer"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/daikon.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -15,6 +15,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.model.state.State;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
 
@@ -37,12 +38,12 @@ public class EventNode implements INode<EventNode> {
     /**
      * Pre-event state.
      */
-    private String preEventState;
+    private State preEventState;
     
     /**
      * Post-event state.
      */
-    private String postEventState;
+    private State postEventState;
     
     /**
      * A Unique trace identifier
@@ -116,19 +117,19 @@ public class EventNode implements INode<EventNode> {
         this.parent = parent;
     }
 
-    public void setPreEventState(String state) {
+    public void setPreEventState(State state) {
         this.preEventState = state;
     }
     
-    public void setPostEventState(String state) {
+    public void setPostEventState(State state) {
         this.postEventState = state;
     }
     
-    public String getPreEventState() {
+    public State getPreEventState() {
         return preEventState;
     }
     
-    public String getPostEventState() {
+    public State getPostEventState() {
         return postEventState;
     }
     

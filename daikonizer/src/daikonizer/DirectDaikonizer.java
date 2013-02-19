@@ -1,3 +1,5 @@
+package daikonizer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,15 +12,17 @@ import daikon.inv.Invariant;
 import daikon.inv.InvariantStatus;
 import daikon.util.Intern;
 
-import synoptic.model.event.Event;
-import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
+//import synoptic.model.event.Event;
+//import synoptic.model.interfaces.INode;
+//import synoptic.model.interfaces.ITransition;
 
 /**
  * This attempts to use Daikon as a library (I think).
  */
 public class DirectDaikonizer {
 
+    // TODO: The current code doesn't compile.
+    /*
     public static <T extends INode<T>> void generateStructuralInvariants(
             Set<T> hasPredecessor, Set<T> hasNoPredecessor,
             Set<T> isPredecessor, Set<T> isNoPredecessor,
@@ -218,5 +222,6 @@ public class DirectDaikonizer {
         }
         return null;
     }
+    */
 
 }

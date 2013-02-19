@@ -1,3 +1,5 @@
+package daikonizer;
+
 import java.util.Vector;
 
 import junit.framework.TestCase;
@@ -9,9 +11,9 @@ public class DaikonTest extends TestCase {
 		varNames.add("x");
 		varNames.add("y");
 
-		Vector<String> varTypes = new Vector<String>();
-		varTypes.add("int");
-		varTypes.add("int");
+		Vector<DaikonVarType> varTypes = new Vector<DaikonVarType>();
+		varTypes.add(DaikonVarType.INT);
+		varTypes.add(DaikonVarType.INT);
 
 		Daikonizer d = new Daikonizer("transition", varNames, varTypes);
 
