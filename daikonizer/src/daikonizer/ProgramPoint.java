@@ -1,14 +1,17 @@
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
+package daikonizer;
 
-// a program point has a name and a set of variables
+import java.util.List;
+
+/**
+ * Represents a program point, which has a name and a list of variables.
+ *
+ */
 public class ProgramPoint {
-	public String ProgramPointName;
-	public Vector vars;
+	public String pptName;
+	public List<DaikonVar> vars;
 
-	public ProgramPoint(String ProgramPointName, Vector vars) {
-		this.ProgramPointName = ProgramPointName;
+	public ProgramPoint(String pptName, List<DaikonVar> vars) {
+		this.pptName = pptName;
 		this.vars = vars;
 	}
 
@@ -17,11 +20,9 @@ public class ProgramPoint {
 	}
 
 	private String varsDeclString() {
-		Enumeration e;
 		String ret = "";
 		int comparability =0;
-		for (e = this.vars.elements(); e.hasMoreElements();) {
-			DaikonVar var = (DaikonVar) e.nextElement();
+		for (DaikonVar var : vars) {
 			ret += " variable " + var.vname + "\n";
 			ret += "  var-kind variable\n";
 			ret += "  dec-type " + var.vtype + "\n";
@@ -32,13 +33,13 @@ public class ProgramPoint {
 	}
 
 	private String exitString() {
-		String ret = "ppt " + ProgramPointName + ":::EXIT1\n"
+		String ret = "ppt " + pptName + ":::EXIT1\n"
 				+ "ppt-type subexit\n";
 		return ret + this.varsDeclString();
 	}
 
 	private String enterString() {
-		String ret = "ppt " + ProgramPointName + ":::ENTER\n"
+		String ret = "ppt " + pptName + ":::ENTER\n"
 				+ "ppt-type enter\n";
 		return ret + this.varsDeclString();
 	}
@@ -48,11 +49,11 @@ public class ProgramPoint {
 	}
 
 	public String getExitName() {
-		return ProgramPointName + ":::EXIT1";
+		return pptName + ":::EXIT1";
 	}
 
 	public String getEnterName() {
-		return ProgramPointName + ":::ENTER";
+		return pptName + ":::ENTER";
 	}
 
 }
