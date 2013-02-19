@@ -295,6 +295,29 @@ public class DynopticMainTests extends DynopticTest {
         // runDynFromFileArgs(args);
     }
 
+    /**
+     * A simple PO example with p0 sending a message, and p1 receiving the
+     * message, performing a local action, and replying with an ack. This is
+     * recorded as 1, and 2 iterations.
+     */
+    @Test
+    public void runSimpleReqRes() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("A:0->1;B:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("-minimize");
+        args.add("../traces/abstract/request-response-po/trace.txt");
+        runDynFromFileArgs(args);
+    }
+
     /** A trivial example with 4 total events. */
     @Test
     public void runSimpleConcurrencyFileSuccess() throws Exception {

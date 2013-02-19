@@ -363,7 +363,7 @@ public class DynopticMain {
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).
-        logger.info("Reordering invaraints to place \"eventually\" invariants at the front.");
+        logger.info("Reordering invariants to place \"eventually\" invariants at the front.");
         for (int i = 0; i < dynInvs.size(); i++) {
             if (dynInvs.get(i) instanceof EventuallyHappens) {
                 BinaryInvariant inv = dynInvs.remove(i);
