@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 
 /**
  * InputStream to parse VectorClocks from incoming messages.
@@ -9,15 +8,14 @@ import java.net.Socket;
  */
 public class ShivSocketInputStream extends InputStream {
 
-    private final InputStream in;
-    private Socket socket;
+    private InputStream in;
     private VectorClock clock;
+    private int availableBytes;
 
-    public ShivSocketInputStream(InputStream in, Socket socket,
-            VectorClock clock) {
+    public ShivSocketInputStream(InputStream in, VectorClock clock) {
         this.in = in;
-        this.socket = socket;
         this.clock = clock;
+        availableBytes = 0;
     }
 
     @Override
@@ -42,22 +40,43 @@ public class ShivSocketInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        // TODO(jennya): this is going to cause problems if the input stream is
-        // read in different increments from how the output stream was written
-        clock.parsePayloadAndMergeClocks(socket.getInetAddress(), in);
-        return in.read();
+        if (emptyBuffer()) {
+            return -1;
+        }
+        int byteRead = in.read();
+        if (byteRead != -1) {
+            availableBytes -= 1;
+        }
+
+        return byteRead;
     }
 
     @Override
     public int read(byte[] b) throws IOException {
-        clock.parsePayloadAndMergeClocks(socket.getInetAddress(), in);
-        return in.read(b);
+        return read(b, 0, b.length);
+    }
+
+    private boolean emptyBuffer() throws IOException {
+        if (availableBytes == 0) {
+            availableBytes = clock.parsePayloadAndMergeClocks(in);
+            if (availableBytes <= 0) {
+                availableBytes = 0;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        clock.parsePayloadAndMergeClocks(socket.getInetAddress(), in);
-        return in.read(b, off, len);
+        if (emptyBuffer()) {
+            return -1;
+        }
+        int bytesRead = in.read(b, off, Math.min(availableBytes, len));
+        if (bytesRead >= 0) {
+            availableBytes -= bytesRead;
+        }
+        return bytesRead;
     }
 
     @Override

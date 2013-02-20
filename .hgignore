@@ -28,6 +28,9 @@ InvariMint/bin/*
 InvariMint/junit/*
 InvariMint/test-output/*
 
+shivector/bin/*
+shivector/src/*.class
+
 # Ignore vim .swp files
 .*.swp
 
