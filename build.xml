@@ -16,6 +16,7 @@
 
     <!--=====================================================================-->
     <target name="clean">
+      <ant inheritAll="false" antfile="./shivector/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
@@ -23,6 +24,14 @@
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticjung/build.xml" target="clean"/>
     </target>
+
+    <!--=====================================================================-->
+    <target name="shivector">
+      <ant inheritAll="false" antfile="./shivector/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./shivector/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./shivector/build.xml" target="jar"/>
+    </target>
+
 
     <!--=====================================================================-->
     <target name="daikonizer">
