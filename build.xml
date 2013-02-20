@@ -19,7 +19,7 @@
       <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
-      <ant inheritAll="false" antfile="./invarimint/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./InvariMint/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticjung/build.xml" target="clean"/>
     </target>
@@ -47,9 +47,9 @@
 
     <!--=====================================================================-->
     <target name="invarimint" depends="synoptic">
-      <ant inheritAll="false" antfile="./invarimint/build.xml" target="clean"/>
-      <ant inheritAll="false" antfile="./invarimint/build.xml" target="build"/>
-      <ant inheritAll="false" antfile="./invarimint/build.xml" target="jar"/>
+      <ant inheritAll="false" antfile="./InvariMint/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./InvariMint/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./InvariMint/build.xml" target="jar"/>
     </target>
 
     <!--=====================================================================-->
