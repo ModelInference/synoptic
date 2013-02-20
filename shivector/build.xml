@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<project basedir="." default="build" name="InvariMint">
+<project basedir="." default="build" name="ShiVector">
     <description>
       Provides targets to build, test, and package the ShiVector 
       project into a shivector.jar archive.
@@ -11,7 +11,7 @@
 
     <property environment="env"/>
 
-    <!-- Where to create the invarimint.jar file. -->
+    <!-- Where to create the shivector.jar file. -->
     <property name="shivector.jarpath" value="${util.synoptic.libdir}/shivector.jar"/>
 
 	<property name="junit.output.dir" value="junit"/>
@@ -57,10 +57,6 @@
     <target name="clean">
         <delete dir="bin"/>
         <delete dir="junit"/>
-	<!-- Clear out any generated test output. -->
-	<delete>
-          <fileset dir="test-output" includes="*" excludes=".hidden"/>
-        </delete>
     </target>
 
     <!--=====================================================================-->
@@ -83,8 +79,7 @@
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
 	    <fileset dir="bin/">
-	      <include name="tests/units/*Tests.class"/>
-	      <include name="tests/integration/*Tests.class"/>
+	      <include name="*Tests.class"/>
 	    </fileset>
 	  </batchtest>
 
@@ -99,9 +94,9 @@
            includes="**/*.class">
         <manifest>
 	  <attribute name="Manifest-Version" value="1.0" />
-	  <attribute name="Implementation-Title" value="InvariMint" />
+	  <attribute name="Implementation-Title" value="ShiVector" />
 	  <attribute name="Implementation-Version" value="0.0.1" />
-	  <attribute name="Main-Class" value="main.InvariMintMain" />
+	  <attribute name="Main-Class" value="main.ShiVectorMain" />
       <attribute name="Class-Path" value="${jar.liblist}" />
 	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>

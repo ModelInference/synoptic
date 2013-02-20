@@ -16,7 +16,7 @@ import org.junit.runners.JUnit4;
  * @author jennyabrahamson
  */
 @RunWith(JUnit4.class)
-public class VectorClockTest {
+public class VectorClockTests {
 
     @Test
     public void prependClock() throws IOException {
