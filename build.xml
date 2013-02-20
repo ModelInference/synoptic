@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="Synoptic">
+    <description>
+      Builds sub-projects tracked by this repository. This is useful
+      since each of the build.xml file for each sub-projects depends
+      on other projects. This file wraps them all together and
+      resolves the necessary dependencies as it builds each
+      sub-project.
+    </description>
+
+    <!-- Include ant xml file with shared utils. -->
+    <include file="ant-util.xml" as="util" />
+
+    <property environment="env"/>
+
+    <!--=====================================================================-->
+    <target name="clean">
+      <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./invarimint/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synopticjung/build.xml" target="clean"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="daikonizer">
+      <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./daikonizer/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./daikonizer/build.xml" target="jar"/>
+    </target>
+    
+    <!--=====================================================================-->
+    <target name="synoptic" depends="daikonizer">
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="jar"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="dynoptic" depends="synoptic">
+      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="jar"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="invarimint" depends="synoptic">
+      <ant inheritAll="false" antfile="./invarimint/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./invarimint/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./invarimint/build.xml" target="jar"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="synopticgwt" depends="synoptic">
+      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="jar"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="synopticjung" depends="synoptic">
+      <ant inheritAll="false" antfile="./synopticjung/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synopticjung/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./synopticjung/build.xml" target="jar"/>
+    </target>
+
+</project>
