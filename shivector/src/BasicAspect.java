@@ -1,5 +1,8 @@
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,8 +19,28 @@ public class BasicAspect {
 
     private VectorClock clock;
 
+    private static final String processId = ManagementFactory
+            .getRuntimeMXBean().getName();
+    private static final String macAddress = getMacAddress();
+
     public BasicAspect() {
-        this.clock = new VectorClock();
+        this.clock = new VectorClock(processId + macAddress);
+    }
+
+    private static String getMacAddress() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+            byte[] mac = network.getHardwareAddress();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < mac.length; i++) {
+                sb.append(String.format("%02X%s", mac[i],
+                        (i < mac.length - 1) ? "-" : ""));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     // Adopted from http://www.javaspecialists.eu/archive/Issue169.html
@@ -26,14 +49,14 @@ public class BasicAspect {
     public Object wrapInputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
         InputStream in = (InputStream) joinPoint.proceed();
-        return new ShivSocketInputStream(in, s, clock);
+        return new ShivSocketInputStream(in, clock);
     }
 
     @Around("call(* java.net.Socket.getOutputStream()) && target(s)")
     public Object wrapOutputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
         OutputStream out = (OutputStream) joinPoint.proceed();
-        return new ShivSocketOutputStream(out, s, clock);
+        return new ShivSocketOutputStream(out, clock);
     }
 
     @Around("call(void *.println(..)) && args(str)")

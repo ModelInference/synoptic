@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Socket;
 
 /**
  * OutputStream to prepend VectorClocks on outgoing messages.
@@ -9,14 +8,11 @@ import java.net.Socket;
  */
 public class ShivSocketOutputStream extends OutputStream {
 
-    private final OutputStream out;
-    private Socket socket;
+    private OutputStream out;
     private VectorClock clock;
 
-    public ShivSocketOutputStream(OutputStream out, Socket socket,
-            VectorClock clock) {
+    public ShivSocketOutputStream(OutputStream out, VectorClock clock) {
         this.out = out;
-        this.socket = socket;
         this.clock = clock;
     }
 
@@ -32,19 +28,19 @@ public class ShivSocketOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] b) throws IOException {
-        clock.writeVectorClock(socket.getInetAddress(), out);
+        clock.writeVectorClock(out, b.length);
         out.write(b);
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        clock.writeVectorClock(socket.getInetAddress(), out);
+        clock.writeVectorClock(out, len);
         out.write(b, off, len);
     }
 
     @Override
     public void write(int b) throws IOException {
-        clock.writeVectorClock(socket.getInetAddress(), out);
+        clock.writeVectorClock(out, 1);
         out.write(b);
     }
 }
