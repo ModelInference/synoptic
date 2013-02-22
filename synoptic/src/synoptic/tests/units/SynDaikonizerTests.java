@@ -3,7 +3,6 @@ package synoptic.tests.units;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -11,6 +10,7 @@ import daikon.inv.Invariant;
 import daikon.inv.unary.scalar.OneOfScalar;
 import daikon.inv.binary.twoScalar.IntEqual;
 import daikon.inv.binary.twoScalar.LinearBinary;
+import daikonizer.DaikonInvariants;
 
 import synoptic.model.state.State;
 import synoptic.model.state.SynDaikonizer;
@@ -37,7 +37,7 @@ public class SynDaikonizerTests extends SynopticTest {
         State s2 = new State("x=0");
         State s3 = new State("x=1");
         long[] expectedElems = new long[] { -1, 0, 1 };
-        List<Invariant> invariants = getDaikonInvariants(s1, s2, s3);
+        DaikonInvariants invariants = getDaikonInvariants(s1, s2, s3);
         for (Invariant invariant : invariants) {
             if (invariant instanceof OneOfScalar) {
                 OneOfScalar oneOfInv = (OneOfScalar) invariant;
@@ -64,7 +64,7 @@ public class SynDaikonizerTests extends SynopticTest {
         State s1 = new State("x=1,y=1");
         State s2 = new State("x=2,y=2");
         State s3 = new State("x=3,y=3");
-        List<Invariant> invariants = getDaikonInvariants(s1, s2, s3);
+        DaikonInvariants invariants = getDaikonInvariants(s1, s2, s3);
         for (Invariant invariant : invariants) {
             if (invariant instanceof IntEqual) {
                 IntEqual equalInv = (IntEqual) invariant;
@@ -94,7 +94,7 @@ public class SynDaikonizerTests extends SynopticTest {
             State state = new State(stateStr);
             daikonizer.addInstance(state);
         }
-        List<Invariant> invariants = daikonizer.getDaikonEnterInvariants();
+        DaikonInvariants invariants = daikonizer.getDaikonEnterInvariants();
         for (Invariant invariant : invariants) {
             if (invariant instanceof LinearBinary) {
                 LinearBinary linearInv = (LinearBinary) invariant;
@@ -114,12 +114,12 @@ public class SynDaikonizerTests extends SynopticTest {
         fail("There is no LinearBinary invariant: foo - bar + 1 = 0");
     }
     
-    private List<Invariant> getDaikonInvariants(State... states) throws Exception {
+    private DaikonInvariants getDaikonInvariants(State... states) throws Exception {
         SynDaikonizer daikonizer = new SynDaikonizer();
         for (State state : states) {
             daikonizer.addInstance(state);
         }
-        List<Invariant> invariants = daikonizer.getDaikonEnterInvariants();
+        DaikonInvariants invariants = daikonizer.getDaikonEnterInvariants();
         return invariants;
     }
 }
