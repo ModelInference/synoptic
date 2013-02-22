@@ -38,6 +38,7 @@ public class SynDaikonizer {
         }
         
         Set<DaikonVar> stateVars = state.getVariables();
+        // TODO: This might not be the best policy. Revisit this condition.
         if (!vars.isEmpty()
                 && (!vars.containsAll(stateVars)
                         || !stateVars.containsAll(vars))) {

@@ -34,6 +34,7 @@ import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
@@ -670,8 +671,9 @@ public class SynopticMain {
      * 
      * @param pGraph
      *            The initial graph model to start refining.
+     * @throws Exception 
      */
-    public void runSynoptic(PartitionGraph pGraph) {
+    public void runSynoptic(PartitionGraph pGraph) throws Exception {
         long startTime;
 
         if (options.logLvlVerbose || options.logLvlExtraVerbose) {
@@ -700,6 +702,12 @@ public class SynopticMain {
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
+        
+        // Populate state invariants in the final model.
+        // TODO: Only do this when there are states captured from the log.
+        for (Partition p : pGraph.getNodes()) {
+            p.getTransitionsWithDaikonInvariants();
+        }
 
         // export the resulting graph
         if (options.outputPathPrefix != null) {
