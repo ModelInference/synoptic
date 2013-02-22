@@ -1,5 +1,7 @@
 package synoptic.model;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.util.time.ITime;
 import synoptic.util.time.TimeSeries;
 
@@ -34,7 +36,11 @@ public enum TransitionLabelType {
     /**
      * The set of relations associated with this transition.
      */
-    RELATIONS_LABEL("relations", RelationsSet.class);
+    RELATIONS_LABEL("relations", RelationsSet.class),
+    /**
+     * The list of Daikon invariants.
+     */
+    DAIKON_INVARIANTS_LABEL("daikon-invariants", DaikonInvariants.class);
 
     /**
      * A string description of this label type.
@@ -47,6 +53,7 @@ public enum TransitionLabelType {
         this.cls = cls;
     }
 
+    @Override
     public String toString() {
         return desc;
     }
