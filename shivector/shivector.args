@@ -1,5 +1,0 @@
--cp
-../lib/aspectjrt.jar:~/Documents/workspace/DummyServer/src:../lib/junit.4.9b2.jar
--inpath
-../lib/shivector.jar
--1.5
