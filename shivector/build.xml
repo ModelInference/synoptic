@@ -14,11 +14,11 @@
     <!-- Where to create the shivector.jar file. -->
     <property name="shivector.jarpath" value="${util.synoptic.libdir}/shivector.jar"/>
 
-	<property name="junit.output.dir" value="junit"/>
+	  <property name="junit.output.dir" value="junit"/>
 
-	<property name="debuglevel" value="source,lines,vars"/>
+    <property name="debuglevel" value="source,lines,vars"/>
 
-	<property name="target" value="1.6"/>
+    <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
 
     <!-- Where to find the generated shivector classes. -->
