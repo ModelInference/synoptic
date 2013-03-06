@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="compile" name="DummyServer">
+
+  <property environment="env" />
+  <property name="synoptic.lib" value="/Users/jennyabrahamson/Documents/research/synoptic/lib" />
+  <property name="aspectj" value="/Users/jennyabrahamson/Applications/aspectj1.7/lib" />
+  <property name="debuglevel" value="source,lines,vars"/>
+
+  <!-- The jars DummyServer depends on, in classpath form. -->
+  <path id="dummyserver.depjars.classpath" >
+    <pathelement location="${aspectj}/aspectjrt.jar" />
+    <pathelement location="${synoptic.lib}/junit-4.9b2.jar" />
+  </path>
+
+  <!-- The complete classpath for running the compiled DummyServer. -->
+  <path id="dummyserver.classpath" >
+    <pathelement location="bin" />
+    <pathelement location="${aspectj}/aspectjrt.jar" />
+  </path>
+
+  <!--=====================================================================-->
+  <target name="init">
+    <mkdir dir="bin"/>
+  </target>
+
+  <!--=====================================================================-->
+  <taskdef 
+      resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+    <classpath>
+      <pathelement location="${aspectj}/aspectjtools.jar"/>
+    </classpath>
+  </taskdef>
+
+  <target name="compile" depends="init">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+    <iajc sourceroots="src" destDir="bin">
+      <classpath refid="dummyserver.depjars.classpath" />
+      <inpath>
+        <pathelement location="${synoptic.lib}/shivector.jar" />
+      </inpath>
+    </iajc>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="clean">
+    <delete dir="bin"/>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runServer" depends="compile">
+    <java classname="Server">
+      <classpath refid="dummyserver.classpath" />
+    </java>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runClient" depends="compile">
+    <java classname="Client">
+      <classpath refid="dummyserver.classpath" />
+    </java>
+  </target>
+</project>
