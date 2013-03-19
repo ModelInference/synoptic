@@ -703,12 +703,6 @@ public class SynopticMain {
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
         
-        // Populate state invariants in the final model.
-        // TODO: Only do this when there are states captured from the log.
-        for (Partition p : pGraph.getNodes()) {
-            p.getTransitionsWithDaikonInvariants();
-        }
-
         // export the resulting graph
         if (options.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
