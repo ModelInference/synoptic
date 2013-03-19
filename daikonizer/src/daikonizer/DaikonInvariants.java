@@ -1,5 +1,6 @@
 package daikonizer;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,11 +16,21 @@ import daikon.inv.Invariant;
  * @author rsukkerd
  *
  */
-public class DaikonInvariants implements Iterable<Invariant> {
+public class DaikonInvariants implements Iterable<Invariant>, 
+        Comparable<DaikonInvariants> {
     private final List<Invariant> invariants;
+    // We maintain a list of string representations of the invariants
+    // for comparison purposes (e.g., use in equals, hashCode etc.)
+    // since Invariant and its inherited classes do not implement
+    // equals and hashCode methods, but Invariant implements toString.
+    private final List<String> invariantStr;
     
     public DaikonInvariants(List<Invariant> invariants) {
         this.invariants = invariants;
+        invariantStr = new ArrayList<String>();
+        for (Invariant inv : invariants) {
+            invariantStr.add(inv.toString());
+        }
     }
 
     @Override
@@ -36,22 +47,33 @@ public class DaikonInvariants implements Iterable<Invariant> {
             return false;
         }
         DaikonInvariants other = (DaikonInvariants) obj;
-        return other.invariants.equals(invariants);
+        return other.invariantStr.equals(invariantStr);
     }
     
     @Override
     public int hashCode() {
-        return invariants.hashCode();
+        return invariantStr.hashCode();
     }
     
     @Override
     public String toString() {
         String str = "";
-        for (int i = 0; i < invariants.size() - 1; i++) {
-            str += invariants.get(i).toString();
+        for (int i = 0; i < invariantStr.size() - 1; i++) {
+            str += invariantStr.get(i);
             str += "\n";
         }
-        str += invariants.get(invariants.size() - 1).toString();
+        str += invariantStr.get(invariantStr.size() - 1);
         return str;
+    }
+
+    @Override
+    public int compareTo(DaikonInvariants daikonInvariants) {
+        if (hashCode() < daikonInvariants.hashCode()) {
+            return -1;
+        }
+        if (hashCode() > daikonInvariants.hashCode()) {
+            return 1;
+        }
+        return 0;
     }
 }

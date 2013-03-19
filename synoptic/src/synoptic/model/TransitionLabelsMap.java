@@ -178,6 +178,14 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
                 return cmp;
             }
         }
+        
+        // Compare Daikon invariants.
+        if (comparePossiblyNullObjects(this.getRelations(), o.getRelations()) == -2) {
+            cmp = this.getDaikonInvariants().compareTo(o.getDaikonInvariants());
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
 
         return 0;
     }
