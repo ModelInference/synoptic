@@ -3,17 +3,22 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.main.SynopticMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.model.state.State;
+import synoptic.model.state.SynDaikonizer;
 import synoptic.util.NotImplementedException;
 import synoptic.util.time.ITime;
 
@@ -49,7 +54,7 @@ public class Partition implements INode<Partition> {
      * Event instances that contains this type of event.
      */
     private EventType eType = null;
-
+    
     /**
      * Creates a new partition that will contain a set of event nodes.
      * 
@@ -440,7 +445,7 @@ public class Partition implements INode<Partition> {
         throw new UnsupportedOperationException();
     }
 
-    private void updateTransitionDeltas(EventNode srcENode,
+    private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
         if (!SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
             return;
@@ -526,4 +531,96 @@ public class Partition implements INode<Partition> {
         throw new NotImplementedException();
     }
 
+    /**
+     * Generates and caches outgoing transitions of this partition, each of which
+     * has DaikonInvariants labeled on it.
+     * 
+     * @return transitions with Daikon invariants
+     * @throws Exception
+     */
+    public Set<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants()
+            throws Exception {
+        Set<Transition<Partition>> transitionsWithInvs = 
+            new HashSet<Transition<Partition>>();
+
+        for (Partition childP : getAllSuccessors()) {
+            Transition<Partition> tx = null;
+            SynDaikonizer daikonizer = new SynDaikonizer();
+            
+            if (isInitial()) {
+                // This is a dummy initial partition and its dummy event node
+                // has no post-event state. Instead, we need to get
+                // pre-event states of the successor event nodes.
+                // This partition contains only a single dummy event node.
+                assert events.size() == 1;
+                EventNode dummyInitEvent = events.iterator().next();
+                
+                for (ITransition<EventNode> tr : dummyInitEvent.getAllTransitions()) {
+                    // Add only states that are on transitions to childP
+                    // to daikonizer.
+                    addStateToDaikonizer(tr, childP, daikonizer, false);
+                    // Create transition to childP iff it doesn't already exist.
+                    if (tx == null) {
+                        tx = createDaikonInvTransition(tr);
+                        transitionsWithInvs.add(tx);
+                    }
+                }
+            } else {
+                // This is NOT a dummy initial partition. Its event nodes have
+                // post-event states.
+                for (EventNode event : events) {
+                    List<Transition<EventNode>> transitions = event.getAllTransitions();
+                    // Events are totally ordered.
+                    assert transitions.size() == 1;
+                    ITransition<EventNode> tr = transitions.iterator().next();
+                    addStateToDaikonizer(tr, childP, daikonizer, true);
+                    if (tx == null) {
+                        tx = createDaikonInvTransition(tr);
+                        transitionsWithInvs.add(tx);
+                    }
+                }
+            }
+            assert (tx != null);
+            // Generate invariants of tx.
+            DaikonInvariants daikonInvs = daikonizer.getDaikonEnterInvariants();
+            // Label tx with Daikon invariants.
+            tx.labels.setLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL, daikonInvs);
+        }
+        return transitionsWithInvs;
+    }
+    
+    /**
+     * Adds a state that is on eventTrans to daikonizer iff the target of
+     * eventTrans is in targetPartition.
+     * 
+     * @throws Exception
+     */
+    private static void addStateToDaikonizer(ITransition<EventNode> eventTrans,
+            Partition targetPartition, SynDaikonizer daikonizer, boolean post)
+            throws Exception {
+        EventNode srcEvent = eventTrans.getSource();
+        EventNode dstEvent = eventTrans.getTarget();
+        Partition dstPartition = dstEvent.getParent();
+        
+        if (dstPartition.compareTo(targetPartition) == 0) {
+            State state = post ? srcEvent.getPostEventState() : dstEvent
+                    .getPreEventState();
+            daikonizer.addInstance(state);
+        }
+    }
+    
+    /**
+     * Creates Partition transition from the given EventNode transition.
+     * This transition will be used to store Daikon invariants.
+     */
+    private static Transition<Partition> createDaikonInvTransition(
+            ITransition<EventNode> eventTrans) {
+        EventNode srcNode = eventTrans.getSource();
+        EventNode targetNode = eventTrans.getTarget();
+        Transition<Partition> tx = new Transition<Partition>(srcNode.getParent(),
+                targetNode.getParent(), eventTrans.getRelation());
+        updateTransitionDeltas(srcNode, targetNode, tx);
+        // But, tx has no invariants associated with it yet.
+        return tx;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import daikon.inv.Invariant;
+import daikonizer.DaikonInvariants;
 import daikonizer.DaikonVar;
 import daikonizer.Daikonizer;
 
@@ -37,6 +38,7 @@ public class SynDaikonizer {
         }
         
         Set<DaikonVar> stateVars = state.getVariables();
+        // TODO: This might not be the best policy. Revisit this condition.
         if (!vars.isEmpty()
                 && (!vars.containsAll(stateVars)
                         || !stateVars.containsAll(vars))) {
@@ -72,11 +74,14 @@ public class SynDaikonizer {
      * @return Daikon invariants detected from all added states.
      * @throws Exception
      */
-    public List<Invariant> getDaikonEnterInvariants() throws Exception {
+    public DaikonInvariants getDaikonEnterInvariants() throws Exception {
+        // TODO: add a new method to Daikonizer that generates invariants
+        // at a single point, and use that method instead.
         List<Invariant> enterInvs = new Vector<Invariant>();
         List<Invariant> exitInvs = new Vector<Invariant>();
         List<Invariant> flow = new Vector<Invariant>();
         daikonizer.genDaikonInvariants(enterInvs, exitInvs, flow, false);
-        return enterInvs;
+        DaikonInvariants invs = new DaikonInvariants(enterInvs);
+        return invs;
     }
 }
