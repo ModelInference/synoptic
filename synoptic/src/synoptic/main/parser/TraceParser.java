@@ -658,7 +658,9 @@ public class TraceParser {
         // parseLine methods so that State is separated from EventNode.
         // At this point, each node in results either represents an event or
         // a state. We need to bundle pre- and post-event states and events.
-        mergeStatesWithEventNodes(results);
+        if (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+            mergeStatesWithEventNodes(results);
+        }
 
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
             // Infer the PID (process ID) corresponding to each of the parsed
@@ -1103,6 +1105,8 @@ public class TraceParser {
                 String stateStr = eventStringArgs.get(stateGroup);
                 State state = new State(stateStr);
                 eventNode.setPostEventState(state);
+                // State is parsed. Enable state processing logic.
+                syn.options.stateProcessing = true;
             }
 
             if (!allEventRelations.containsKey(eventNode)) {

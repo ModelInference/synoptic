@@ -535,11 +535,15 @@ public class Partition implements INode<Partition> {
      * Generates and caches outgoing transitions of this partition, each of which
      * has DaikonInvariants labeled on it.
      * 
+     * This method should be called only when state processing logic is enabled.
+     * 
      * @return transitions with Daikon invariants
      * @throws Exception
      */
     public Set<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants()
             throws Exception {
+        assert (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing);
+        
         Set<Transition<Partition>> transitionsWithInvs = 
             new HashSet<Transition<Partition>>();
 
