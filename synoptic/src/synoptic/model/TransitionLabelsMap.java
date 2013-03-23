@@ -3,6 +3,8 @@ package synoptic.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.util.time.ITime;
 import synoptic.util.time.TimeSeries;
 
@@ -110,6 +112,19 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
         assert (o instanceof RelationsSet);
         return (RelationsSet) o;
     }
+    
+    /**
+     * Returns Daikon invariants associated with the transition, or null if
+     * none exist.
+     */
+    public DaikonInvariants getDaikonInvariants() {
+        Object o = getLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL);
+        if (o == null) {
+            return null;
+        }
+        assert (o instanceof DaikonInvariants);
+        return (DaikonInvariants) o;
+    }
 
     @Override
     public int compareTo(TransitionLabelsMap o) {
@@ -159,6 +174,15 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
         // Compare relations.
         if (comparePossiblyNullObjects(this.getRelations(), o.getRelations()) == -2) {
             cmp = this.getRelations().compareTo(o.getRelations());
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        
+        // Compare Daikon invariants.
+        if (comparePossiblyNullObjects(this.getDaikonInvariants(),
+                o.getDaikonInvariants()) == -2) {
+            cmp = this.getDaikonInvariants().compareTo(o.getDaikonInvariants());
             if (cmp != 0) {
                 return cmp;
             }
