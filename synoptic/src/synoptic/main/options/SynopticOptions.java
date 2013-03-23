@@ -83,9 +83,9 @@ public class SynopticOptions extends Options {
     public boolean multipleRelations = false;
     
     /**
-     * States are parsed. Enable state processing logic.
+     * States are parsed. Enable state processing.
      */
-    @Option("Enable state processing logic")
+    @Option("Enable state processing")
     public boolean stateProcessing = false;
     // end option group "Execution Options"
 

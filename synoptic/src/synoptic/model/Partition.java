@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -460,6 +459,12 @@ public class Partition implements INode<Partition> {
 
     @Override
     public List<? extends ITransition<Partition>> getAllTransitions() {
+        // If state processing is enabled, return transitions with
+        // Daikon invariants.
+        if (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+            return getTransitionsWithDaikonInvariants();
+        }
+        
         // TODO: implement a transition cache optimization.
         List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
         Set<Partition> children = new LinkedHashSet<Partition>();
@@ -540,12 +545,11 @@ public class Partition implements INode<Partition> {
      * @return transitions with Daikon invariants
      * @throws Exception
      */
-    public Set<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants()
-            throws Exception {
+    public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
         assert (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing);
         
-        Set<Transition<Partition>> transitionsWithInvs = 
-            new HashSet<Transition<Partition>>();
+        List<Transition<Partition>> transitionsWithInvs = 
+            new ArrayList<Transition<Partition>>();
 
         for (Partition childP : getAllSuccessors()) {
             Transition<Partition> tx = null;
@@ -588,7 +592,8 @@ public class Partition implements INode<Partition> {
             // Generate invariants of tx.
             DaikonInvariants daikonInvs = daikonizer.getDaikonEnterInvariants();
             // Label tx with Daikon invariants.
-            tx.labels.setLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL, daikonInvs);
+            tx.labels.setLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL,
+                    daikonInvs);
         }
         return transitionsWithInvs;
     }
@@ -600,8 +605,7 @@ public class Partition implements INode<Partition> {
      * @throws Exception
      */
     private static void addStateToDaikonizer(ITransition<EventNode> eventTrans,
-            Partition targetPartition, SynDaikonizer daikonizer, boolean post)
-            throws Exception {
+            Partition targetPartition, SynDaikonizer daikonizer, boolean post) {
         EventNode srcEvent = eventTrans.getSource();
         EventNode dstEvent = eventTrans.getTarget();
         Partition dstPartition = dstEvent.getParent();

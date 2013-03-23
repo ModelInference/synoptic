@@ -58,11 +58,13 @@ public class DaikonInvariants implements Iterable<Invariant>,
     @Override
     public String toString() {
         String str = "";
-        for (int i = 0; i < invariantStr.size() - 1; i++) {
-            str += invariantStr.get(i);
-            str += "\n";
+        if (!invariantStr.isEmpty()) {
+            for (int i = 0; i < invariantStr.size() - 1; i++) {
+                str += invariantStr.get(i);
+                str += "\n";
+            }
+            str += invariantStr.get(invariantStr.size() - 1);
         }
-        str += invariantStr.get(invariantStr.size() - 1);
         return str;
     }
 
