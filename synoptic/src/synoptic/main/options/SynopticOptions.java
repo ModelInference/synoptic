@@ -81,6 +81,12 @@ public class SynopticOptions extends Options {
      */
     @Option("Mine multiple relations from the trace graph")
     public boolean multipleRelations = false;
+    
+    /**
+     * States are parsed. Enable state processing logic.
+     */
+    @Option("Enable state processing logic")
+    public boolean stateProcessing = false;
     // end option group "Execution Options"
 
     // //////////////////////////////////////////////////
