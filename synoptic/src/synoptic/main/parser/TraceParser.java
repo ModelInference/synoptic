@@ -1105,7 +1105,7 @@ public class TraceParser {
                 String stateStr = eventStringArgs.get(stateGroup);
                 State state = new State(stateStr);
                 eventNode.setPostEventState(state);
-                // State is parsed. Enable state processing logic.
+                // State is parsed. Enable state processing.
                 syn.options.stateProcessing = true;
             }
 
