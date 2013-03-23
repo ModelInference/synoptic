@@ -41,8 +41,7 @@ public class Daikonizer {
     }
 
     public void genDaikonInvariants(List<Invariant> enter,
-            List<Invariant> exit, List<Invariant> flow, boolean norestict)
-            throws Exception {
+            List<Invariant> exit, List<Invariant> flow, boolean norestict) {
         String fname = "./daikonizer_" + System.currentTimeMillis() + ".dtrace";
         // System.out.println("using fname: " + fname);
 
