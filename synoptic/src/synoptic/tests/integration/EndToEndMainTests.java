@@ -46,8 +46,10 @@ public class EndToEndMainTests extends SynopticTest {
         Collection<Object[]> argsList = new LinkedList<Object[]>();
 
         // List of input sub-dirs that contains end-to-end test examples.
-        String[] testPaths = { "mid_branching", "osx-login-example",
-                "shopping-cart-example", "ticket-reservation-example" };
+//        String[] testPaths = { "mid_branching", "osx-login-example",
+//                "shopping-cart-example", "ticket-reservation-example",
+//                "turnstile-example" };
+        String[] testPaths = { "turnstile-example" };
 
         // Determine where the input traces/args are located -- try two options:
         // tracesPath1 and tracesPath2. Test using testPaths[0].
