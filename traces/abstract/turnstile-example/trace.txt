@@ -1,4 +1,4 @@
-1 {locked=true,coinCount=0,entryCount=0}
+1 {locked=true, coinCount=0, entryCount=0}
 1 coin
 1 {locked=false, coinCount=1, entryCount=0}
 1 push
