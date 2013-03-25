@@ -128,6 +128,9 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
+    
+    private static final String dummyEtypeLabel = "dummy-etype-for-line-with-state"
+        .intern();
 
     /**
      * Returns an un-parameterized trace parser.
@@ -919,7 +922,7 @@ public class TraceParser {
             } else if (matched.containsKey(stateGroup)) {
                 // This line has state, so event type is irrelevant.
                 // Use use the dummy string as the type.
-                eTypeLabel = "dummy-etype-for-line-with-state".intern();
+                eTypeLabel = dummyEtypeLabel;
             } else {
                 // TODO: determine if this is desired + print warning
                 // In the absence of an event type, use the entire log line as      
@@ -1108,16 +1111,21 @@ public class TraceParser {
                 // State is parsed. Enable state processing.
                 syn.options.stateProcessing = true;
             }
-
-            if (!allEventRelations.containsKey(eventNode)) {
-                allEventRelations.put(eventNode, new HashSet<Relation>());
+            
+            // We want to add eventNode->eventRelations to allEventRelations
+            // ONLY IF eventNode actually represents an event, not a dummy
+            // for state.
+            if (!eventNode.getEType().getETypeLabel().equals(dummyEtypeLabel)) {
+                if (!allEventRelations.containsKey(eventNode)) {
+                    allEventRelations.put(eventNode, new HashSet<Relation>());
+                }
+    
+                Set<Relation> relations = allEventRelations.get(eventNode);
+    
+                // Relations are immutable so we don't have to worry about
+                // representation exposure.
+                relations.addAll(eventRelations);
             }
-
-            Set<Relation> relations = allEventRelations.get(eventNode);
-
-            // Relations are immutable so we don't have to worry about
-            // representation exposure.
-            relations.addAll(eventRelations);
 
             eventStringArgs = null;
             return eventNode;
@@ -1168,6 +1176,9 @@ public class TraceParser {
     /**
      * Adds an event to an internal map of partitions.
      * 
+     * NOTE: Only events that actually represent events (i.e., not just dummies
+     * for states) can be added to the partition map.
+     * 
      * @param eventNode
      * @param pName
      */
@@ -1185,7 +1196,12 @@ public class TraceParser {
             nextTraceID++;
         }
         eventNode.setTraceID(partitionNameToTraceID.get(pName));
-        events.add(eventNode);
+        
+        // We want to add eventNode to partitions ONLY IF event actually
+        // represents an event, not a dummy for state.
+        if (!event.getEType().getETypeLabel().equals(dummyEtypeLabel)) {
+            events.add(eventNode);
+        }
         return eventNode;
     }
 
