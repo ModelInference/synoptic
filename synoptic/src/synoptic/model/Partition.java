@@ -566,9 +566,11 @@ public class Partition implements INode<Partition> {
                 for (ITransition<EventNode> tr : dummyInitEvent.getAllTransitions()) {
                     // Add only states that are on transitions to childP
                     // to daikonizer.
-                    addStateToDaikonizer(tr, childP, daikonizer, false);
-                    // Create transition to childP iff it doesn't already exist.
-                    if (tx == null) {
+                    boolean stateAdded = addStateToDaikonizer(
+                            tr, childP, daikonizer, false);
+                    // Create transition to childP iff it doesn't already exist
+                    // and tr's destination is childP.
+                    if (stateAdded && tx == null) {
                         tx = createDaikonInvTransition(tr);
                         transitionsWithInvs.add(tx);
                     }
@@ -581,8 +583,9 @@ public class Partition implements INode<Partition> {
                     // Events are totally ordered.
                     assert transitions.size() == 1;
                     ITransition<EventNode> tr = transitions.iterator().next();
-                    addStateToDaikonizer(tr, childP, daikonizer, true);
-                    if (tx == null) {
+                    boolean stateAdded = addStateToDaikonizer(
+                            tr, childP, daikonizer, true);
+                    if (stateAdded && tx == null) {
                         tx = createDaikonInvTransition(tr);
                         transitionsWithInvs.add(tx);
                     }
@@ -602,9 +605,10 @@ public class Partition implements INode<Partition> {
      * Adds a state that is on eventTrans to daikonizer iff the target of
      * eventTrans is in targetPartition.
      * 
+     * @return true iff the state is added to daikonizer.
      * @throws Exception
      */
-    private static void addStateToDaikonizer(ITransition<EventNode> eventTrans,
+    private static boolean addStateToDaikonizer(ITransition<EventNode> eventTrans,
             Partition targetPartition, SynDaikonizer daikonizer, boolean post) {
         EventNode srcEvent = eventTrans.getSource();
         EventNode dstEvent = eventTrans.getTarget();
@@ -614,7 +618,9 @@ public class Partition implements INode<Partition> {
             State state = post ? srcEvent.getPostEventState() : dstEvent
                     .getPreEventState();
             daikonizer.addInstance(state);
+            return true;
         }
+        return false;
     }
     
     /**
