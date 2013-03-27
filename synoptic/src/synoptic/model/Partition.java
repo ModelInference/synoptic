@@ -459,9 +459,9 @@ public class Partition implements INode<Partition> {
 
     @Override
     public List<? extends ITransition<Partition>> getAllTransitions() {
-        // If state processing is enabled, return transitions with
+        // If Daikon invariant-mining is enabled, return transitions with
         // Daikon invariants.
-        if (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+        if (SynopticMain.getInstanceWithExistenceCheck().options.daikonInvariants) {
             return getTransitionsWithDaikonInvariants();
         }
         
