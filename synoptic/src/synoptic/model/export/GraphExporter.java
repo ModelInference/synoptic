@@ -203,7 +203,7 @@ public class GraphExporter {
                 // If perf debugging and state processing aren't enabled,
                 // then output weights, else add the edge labels later.
                 if (outputEdgeLabels && !syn.options.enablePerfDebugging
-                        && !syn.options.stateProcessing) {
+                        && !syn.options.daikonInvariants) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -240,7 +240,7 @@ public class GraphExporter {
                     } else {
                         if (outputEdgeLabels) {
 
-                            if (syn.options.stateProcessing) {
+                            if (syn.options.daikonInvariants) {
                                 // Label Daikon invariants on this transition.
                                 DaikonInvariants daikonInvs = trans.getLabels()
                                         .getDaikonInvariants();

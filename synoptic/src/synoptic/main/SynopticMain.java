@@ -699,6 +699,9 @@ public class SynopticMain {
         // //////////////////
 
         // At this point, we have the final model in the pGraph object.
+        
+        // If states are parsed, enable Daikon invariant-mining.
+        options.daikonInvariants = options.stateProcessing;
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result

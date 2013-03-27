@@ -87,6 +87,13 @@ public class SynopticOptions extends Options {
      */
     @Option("Enable state processing")
     public boolean stateProcessing = false;
+    
+    /**
+     * Mine Daikon invariants from the parsed states.
+     * NOTE: This flag is only set to true after we have a final model.
+     */
+    @Option("Mine Daikon invariants from the parsed states")
+    public boolean daikonInvariants = false;
     // end option group "Execution Options"
 
     // //////////////////////////////////////////////////
