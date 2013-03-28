@@ -459,12 +459,6 @@ public class Partition implements INode<Partition> {
 
     @Override
     public List<? extends ITransition<Partition>> getAllTransitions() {
-        // If Daikon invariant-mining is enabled, return transitions with
-        // Daikon invariants.
-        if (SynopticMain.getInstanceWithExistenceCheck().options.daikonInvariants) {
-            return getTransitionsWithDaikonInvariants();
-        }
-        
         // TODO: implement a transition cache optimization.
         List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
         Set<Partition> children = new LinkedHashSet<Partition>();
