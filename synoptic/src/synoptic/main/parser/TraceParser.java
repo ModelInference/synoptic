@@ -1176,8 +1176,10 @@ public class TraceParser {
     /**
      * Adds an event to an internal map of partitions.
      * 
-     * NOTE: Only events that actually represent events (i.e., not just dummies
-     * for states) can be added to the partition map.
+     * NOTE: Only eventNodes that actually represent events (i.e., not pseudo
+     * eventNodes that represent states) can be added to the partitions.
+     * But, we create a partition for every pName, since every partition
+     * contains at least 1 event.
      * 
      * @param eventNode
      * @param pName
