@@ -24,6 +24,7 @@ import daikonizer.DaikonInvariants;
 import synoptic.main.SynopticMain;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.Partition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -200,10 +201,17 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                // If perf debugging and state processing aren't enabled,
-                // then output weights, else add the edge labels later.
-                if (outputEdgeLabels && !syn.options.enablePerfDebugging
-                        && !syn.options.daikonInvariants) {
+                if (syn.options.stateProcessing) {
+                    // We need to do these castings because INode<T> doesn't
+                    // have getTransitionsWithDaikonInvariants method, but
+                    // Partition has.
+                    Partition partition = (Partition) node;
+                    transitions = (List<? extends ITransition<T>>) partition
+                        .getTransitionsWithDaikonInvariants();
+                } 
+                // If perf debugging isn't enabled, then output weights,
+                // else add the edge labels later.
+                else if (outputEdgeLabels && !syn.options.enablePerfDebugging) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -240,7 +248,7 @@ public class GraphExporter {
                     } else {
                         if (outputEdgeLabels) {
 
-                            if (syn.options.daikonInvariants) {
+                            if (syn.options.stateProcessing) {
                                 // Label Daikon invariants on this transition.
                                 DaikonInvariants daikonInvs = trans.getLabels()
                                         .getDaikonInvariants();
