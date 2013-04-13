@@ -621,31 +621,31 @@ public class PartitionGraph implements IGraph<Partition> {
     }
     
     /**
-     * Finds all paths, from initial node to terminal node, in this partition
-     * graph with a condition that a partition can appear in a path no more
-     * than some limited number of times.
+     * Finds all predicted paths, from initial node to terminal node, in this
+     * partition graph with a condition that a partition can appear in a path
+     * no more than some limited number of times.
      * 
      * @return a set of all bounded paths in this partition graph.
      */
-    public Set<List<Partition>> getAllBoundedPaths() {
+    public Set<List<Partition>> getAllBoundedPredictedPaths() {
     	List<Partition> currPath = new ArrayList<Partition>();
     	Set<List<Partition>> pathsSoFar = new LinkedHashSet<List<Partition>>();
     	for (Partition partition : partitions) {
     		numAppearInPath.put(partition, 0);
     	}
-    	getAllBoundedPathsHelper(getDummyInitialNode(), currPath, pathsSoFar);
+    	getAllBoundedPredictedPathsHelper(getDummyInitialNode(), currPath, pathsSoFar);
     	return pathsSoFar;
     }
     
     /**
-     * Helper method of getAllBoundedPaths.
+     * Helper method of getAllBoundedPredictedPaths.
      * 
      * @param p - the partition which we are processing.
      * @param currPath - the path which we are constructing.
      * @param pathsSoFar - the paths we have constructed so far.
      */
-    private void getAllBoundedPathsHelper(Partition p, List<Partition> currPath,
-    		Set<List<Partition>> pathsSoFar) {
+    private void getAllBoundedPredictedPathsHelper(Partition p,
+            List<Partition> currPath, Set<List<Partition>> pathsSoFar) {
     	int pCount = numAppearInPath.get(p);
     	if (pCount >= repeatLimit) {
     		return;
@@ -653,14 +653,37 @@ public class PartitionGraph implements IGraph<Partition> {
     	numAppearInPath.put(p, pCount + 1);
     	currPath.add(p);
     	for (Partition succ : getAdjacentNodes(p)) {
-    		getAllBoundedPathsHelper(succ, currPath, pathsSoFar);
+    		getAllBoundedPredictedPathsHelper(succ, currPath, pathsSoFar);
     	}
-    	if (p.isTerminal()) {
+    	if (p.isTerminal() && isPredictedPath(currPath)) {
     		List<Partition> newPath = new ArrayList<Partition>(currPath);
     		pathsSoFar.add(newPath);
     	}
     	currPath.remove(currPath.size() - 1);
     	pCount = numAppearInPath.get(p);
     	numAppearInPath.put(p, pCount - 1);
+    }
+    
+    /**
+     * Determines if a path is predicted, that is, the path was not observed
+     * in the logs, but is predicted by Synoptic.
+     * 
+     * @return true if a path is predicted and not observed.
+     */
+    public static boolean isPredictedPath(List<Partition> path) {
+        assert !path.isEmpty();
+        Set<Integer> commonTraceIDs = path.get(0).getTraceIDs();
+        for (Partition p : path) {
+            Set<Integer> pTraceIDs = p.getTraceIDs();
+            for (int traceID : commonTraceIDs) {
+                if (!pTraceIDs.contains(traceID)) {
+                    commonTraceIDs.remove(traceID);
+                }
+            }
+            if (commonTraceIDs.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
