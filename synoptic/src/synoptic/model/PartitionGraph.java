@@ -69,6 +69,18 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /** Initial trace graph. */
     private ChainsTraceGraph traceGraph;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // This part is for the purpose of test generation.
+    /**
+     * The limit of how many times a partition can appear in a path.
+     */
+    private static final int repeatLimit = 3;
+    /**
+     * Maps each partition to the number of times it appears in the current path.
+     */
+    private final Map<Partition, Integer> numAppearInPath = new HashMap<Partition, Integer>();
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
@@ -606,5 +618,49 @@ public class PartitionGraph implements IGraph<Partition> {
     /** Returns the initial trace graph. */
     public ChainsTraceGraph getTraceGraph() {
         return traceGraph;
+    }
+    
+    /**
+     * Finds all paths, from initial node to terminal node, in this partition
+     * graph with a condition that a partition can appear in a path no more
+     * than some limited number of times.
+     * 
+     * @return a set of all bounded paths in this partition graph.
+     */
+    public Set<List<Partition>> getAllBoundedPaths() {
+    	List<Partition> currPath = new ArrayList<Partition>();
+    	Set<List<Partition>> pathsSoFar = new LinkedHashSet<List<Partition>>();
+    	for (Partition partition : partitions) {
+    		numAppearInPath.put(partition, 0);
+    	}
+    	getAllBoundedPathsHelper(getDummyInitialNode(), currPath, pathsSoFar);
+    	return pathsSoFar;
+    }
+    
+    /**
+     * Helper method of getAllBoundedPaths.
+     * 
+     * @param p - the partition which we are processing.
+     * @param currPath - the path which we are constructing.
+     * @param pathsSoFar - the paths we have constructed so far.
+     */
+    private void getAllBoundedPathsHelper(Partition p, List<Partition> currPath,
+    		Set<List<Partition>> pathsSoFar) {
+    	int pCount = numAppearInPath.get(p);
+    	if (pCount >= repeatLimit) {
+    		return;
+    	}
+    	numAppearInPath.put(p, pCount + 1);
+    	currPath.add(p);
+    	for (Partition succ : getAdjacentNodes(p)) {
+    		getAllBoundedPathsHelper(succ, currPath, pathsSoFar);
+    	}
+    	if (p.isTerminal()) {
+    		List<Partition> newPath = new ArrayList<Partition>(currPath);
+    		pathsSoFar.add(newPath);
+    	}
+    	currPath.remove(currPath.size() - 1);
+    	pCount = numAppearInPath.get(p);
+    	numAppearInPath.put(p, pCount - 1);
     }
 }
