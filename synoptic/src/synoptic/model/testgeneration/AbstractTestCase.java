@@ -2,10 +2,12 @@ package synoptic.model.testgeneration;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.ITransition;
 
 /**
  * AbstractTestCase is a sequence of actions corresponding to a valid path
@@ -35,7 +37,17 @@ public class AbstractTestCase implements IGraph<Action> {
 
 	@Override
 	public Set<String> getRelations() {
-		throw new UnsupportedOperationException();
+	    Set<String> relations = new LinkedHashSet<String>();
+	    for (Action action : allActions) {
+	        List<? extends ITransition<Action>> transitions = action
+	                .getAllTransitions();
+	        // Each action in an abstract test can have at most 1 transition.
+	        assert transitions.size() <= 1;
+	        for (ITransition<Action> trans : transitions) {
+	            relations.addAll(trans.getRelation());
+	        }
+	    }
+		return relations;
 	}
 
 	@Override
