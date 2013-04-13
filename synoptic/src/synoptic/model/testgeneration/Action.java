@@ -22,7 +22,7 @@ public class Action implements INode<Action> {
 	
 	public Action(EventType eventType) {
 		this.eventType = eventType;
-		transitions = new ArrayList<ITransition<Action>>();;
+		transitions = new ArrayList<ITransition<Action>>();
 	}
 	
 	/**
