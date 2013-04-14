@@ -672,17 +672,29 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public static boolean isPredictedPath(List<Partition> path) {
         assert !path.isEmpty();
-        Set<Integer> commonTraceIDs = path.get(0).getTraceIDs();
-        for (Partition p : path) {
-            Set<Integer> pTraceIDs = p.getTraceIDs();
-            for (int traceID : commonTraceIDs) {
-                if (!pTraceIDs.contains(traceID)) {
-                    commonTraceIDs.remove(traceID);
+        assert path.get(0).isInitial();
+        assert path.get(path.size() - 1).isTerminal();
+        
+        Set<EventNode> reachableNodes = new LinkedHashSet<EventNode>();
+        // Add dummy initial eventNode to the set of reachable nodes.
+        reachableNodes.addAll(path.get(0).getEventNodes());
+        for (int i = 1; i < path.size(); i++) {
+            Partition nextPartiton = path.get(i);
+            // Get nodes in nextPartition that are reachable from reachableNodes
+            Set<EventNode> nextReachableNodes = new LinkedHashSet<EventNode>();
+            for (EventNode node : reachableNodes) {
+                for (EventNode nextNode : node.getAllSuccessors()) {
+                    if (nextNode.getParent().compareTo(nextPartiton) == 0) {
+                        nextReachableNodes.add(nextNode);
+                    }
                 }
             }
-            if (commonTraceIDs.isEmpty()) {
+            if (nextReachableNodes.isEmpty()) {
+                // No reachable nodes in nextPartition.
+                // This path was not observed in log.
                 return true;
             }
+            reachableNodes = nextReachableNodes;
         }
         return false;
     }

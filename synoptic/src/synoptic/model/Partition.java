@@ -646,19 +646,4 @@ public class Partition implements INode<Partition> {
         // But, tx has no invariants associated with it yet.
         return tx;
     }
-    
-    /**
-     * Gets trace IDs of all event nodes in this partition.
-     * This method is used in filtering predicted paths from all paths
-     * in a partition graph.
-     * 
-     * @return a set of trace IDs of all event nodes in this partition.
-     */
-    public Set<Integer> getTraceIDs() {
-        Set<Integer> traceIDs = new HashSet<Integer>();
-        for (EventNode eventNode : events) {
-            traceIDs.add(eventNode.getTraceID());
-        }
-        return traceIDs;
-    }
 }
