@@ -88,6 +88,14 @@ public class SynopticOptions extends Options {
     @Option("Enable state processing")
     public boolean stateProcessing = false;
     
+    /**
+     * Enable abstract test generation.
+     */
+    @Option(
+            value = "-t Enable abstract test generation",
+            aliases = { "-test-generation" })
+    public boolean testGeneration = false;
+    
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match
