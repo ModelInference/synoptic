@@ -69,6 +69,18 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /** Initial trace graph. */
     private ChainsTraceGraph traceGraph;
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // This part is for the purpose of test generation.
+    /**
+     * The limit of how many times a partition can appear in a path.
+     */
+    private static final int repeatLimit = 3;
+    /**
+     * Maps each partition to the number of times it appears in the current path.
+     */
+    private final Map<Partition, Integer> numAppearInPath = new HashMap<Partition, Integer>();
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
@@ -606,5 +618,88 @@ public class PartitionGraph implements IGraph<Partition> {
     /** Returns the initial trace graph. */
     public ChainsTraceGraph getTraceGraph() {
         return traceGraph;
+    }
+    
+    /**
+     * Finds all predicted paths, from initial node to terminal node, in this
+     * partition graph with a condition that a partition can appear in a path
+     * no more than some limited number of times.
+     * 
+     * @return a set of all bounded paths in this partition graph.
+     */
+    public Set<List<Partition>> getAllBoundedPredictedPaths() {
+    	List<Partition> currPath = new ArrayList<Partition>();
+    	Set<List<Partition>> pathsSoFar = new LinkedHashSet<List<Partition>>();
+    	for (Partition partition : partitions) {
+    	    // NOTE: numAppearInPath is a hash map but Partition doesn't override
+    	    // hashCode(), but this is OK because every node is distinct from
+    	    // the rest of the nodes in graph.
+    		numAppearInPath.put(partition, 0);
+    	}
+    	getAllBoundedPredictedPathsHelper(getDummyInitialNode(), currPath, pathsSoFar);
+    	return pathsSoFar;
+    }
+    
+    /**
+     * Helper method of getAllBoundedPredictedPaths.
+     * 
+     * @param p - the partition which we are processing.
+     * @param currPath - the path which we are constructing.
+     * @param pathsSoFar - the paths we have constructed so far.
+     */
+    private void getAllBoundedPredictedPathsHelper(Partition p,
+            List<Partition> currPath, Set<List<Partition>> pathsSoFar) {
+    	int pCount = numAppearInPath.get(p);
+    	if (pCount >= repeatLimit) {
+    		return;
+    	}
+    	pCount++;
+    	numAppearInPath.put(p, pCount);
+    	currPath.add(p);
+    	for (Partition succ : getAdjacentNodes(p)) {
+    		getAllBoundedPredictedPathsHelper(succ, currPath, pathsSoFar);
+    	}
+    	if (p.isTerminal() && isPredictedPath(currPath)) {
+    		List<Partition> newPath = new ArrayList<Partition>(currPath);
+    		pathsSoFar.add(newPath);
+    	}
+    	currPath.remove(currPath.size() - 1);
+    	pCount--;
+    	numAppearInPath.put(p, pCount);
+    }
+    
+    /**
+     * Determines if a path is predicted, that is, the path was not observed
+     * in the logs, but is predicted by Synoptic.
+     * 
+     * @return true if a path is predicted and not observed.
+     */
+    public static boolean isPredictedPath(List<Partition> path) {
+        assert !path.isEmpty();
+        assert path.get(0).isInitial();
+        assert path.get(path.size() - 1).isTerminal();
+        
+        Set<EventNode> reachableNodes = new LinkedHashSet<EventNode>();
+        // Add dummy initial eventNode to the set of reachable nodes.
+        reachableNodes.addAll(path.get(0).getEventNodes());
+        for (int i = 1; i < path.size(); i++) {
+            Partition nextPartiton = path.get(i);
+            // Get nodes in nextPartition that are reachable from reachableNodes
+            Set<EventNode> nextReachableNodes = new LinkedHashSet<EventNode>();
+            for (EventNode node : reachableNodes) {
+                for (EventNode nextNode : node.getAllSuccessors()) {
+                    if (nextNode.getParent().compareTo(nextPartiton) == 0) {
+                        nextReachableNodes.add(nextNode);
+                    }
+                }
+            }
+            if (nextReachableNodes.isEmpty()) {
+                // No reachable nodes in nextPartition.
+                // This path was not observed in log.
+                return true;
+            }
+            reachableNodes = nextReachableNodes;
+        }
+        return false;
     }
 }

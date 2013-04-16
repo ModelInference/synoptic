@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -55,6 +56,14 @@ public class Partition implements INode<Partition> {
     private EventType eType = null;
     
     /**
+     * Cached transitions with Daikon invariants.
+     * We need to cache these transitions because Daikon invariants are
+     * expensive to compute, and we may revisit the same transition many times
+     * while deriving abstract tests from a model (i.e., a PartitionGraph).
+     */
+    private final List<Transition<Partition>> cachedTransitionsWithInvs;
+    
+    /**
      * Creates a new partition that will contain a set of event nodes.
      * 
      * @param eNodes
@@ -63,6 +72,7 @@ public class Partition implements INode<Partition> {
         assert eNodes.size() > 0;
         events = new LinkedHashSet<EventNode>();
         addEventNodes(eNodes);
+        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
     }
 
     /**
@@ -73,6 +83,7 @@ public class Partition implements INode<Partition> {
     public Partition(EventNode eNode) {
         events = new LinkedHashSet<EventNode>();
         addOneEventNode(eNode);
+        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
     }
 
     public void initialize(EventNode eNode) {
@@ -534,7 +545,10 @@ public class Partition implements INode<Partition> {
      * Generates and caches outgoing transitions of this partition, each of which
      * has DaikonInvariants labeled on it.
      * 
-     * This method should be called only when state processing logic is enabled.
+     * NOTE:
+     * 1) This method must be called only when state processing logic is enabled.
+     * 2) Since this method caches transitions, it must be called only after
+     *    the final model is yield (i.e., no more changes to this Partition).
      * 
      * @return transitions with Daikon invariants
      * @throws Exception
@@ -542,9 +556,10 @@ public class Partition implements INode<Partition> {
     public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
         assert (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing);
         
-        List<Transition<Partition>> transitionsWithInvs = 
-            new ArrayList<Transition<Partition>>();
-
+        if (!cachedTransitionsWithInvs.isEmpty() || isTerminal()) {
+            return cachedTransitionsWithInvs;
+        }
+        
         for (Partition childP : getAllSuccessors()) {
             Transition<Partition> tx = null;
             SynDaikonizer daikonizer = new SynDaikonizer();
@@ -566,7 +581,7 @@ public class Partition implements INode<Partition> {
                     // and tr's destination is childP.
                     if (stateAdded && tx == null) {
                         tx = createDaikonInvTransition(tr);
-                        transitionsWithInvs.add(tx);
+                        cachedTransitionsWithInvs.add(tx);
                     }
                 }
             } else {
@@ -581,7 +596,7 @@ public class Partition implements INode<Partition> {
                             tr, childP, daikonizer, true);
                     if (stateAdded && tx == null) {
                         tx = createDaikonInvTransition(tr);
-                        transitionsWithInvs.add(tx);
+                        cachedTransitionsWithInvs.add(tx);
                     }
                 }
             }
@@ -592,7 +607,7 @@ public class Partition implements INode<Partition> {
             tx.labels.setLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL,
                     daikonInvs);
         }
-        return transitionsWithInvs;
+        return cachedTransitionsWithInvs;
     }
     
     /**
