@@ -631,6 +631,9 @@ public class PartitionGraph implements IGraph<Partition> {
     	List<Partition> currPath = new ArrayList<Partition>();
     	Set<List<Partition>> pathsSoFar = new LinkedHashSet<List<Partition>>();
     	for (Partition partition : partitions) {
+    	    // NOTE: numAppearInPath is a hash map but Partition doesn't override
+    	    // hashCode(), but this is OK because every node is distinct from
+    	    // the rest of the nodes in graph.
     		numAppearInPath.put(partition, 0);
     	}
     	getAllBoundedPredictedPathsHelper(getDummyInitialNode(), currPath, pathsSoFar);
@@ -650,7 +653,8 @@ public class PartitionGraph implements IGraph<Partition> {
     	if (pCount >= repeatLimit) {
     		return;
     	}
-    	numAppearInPath.put(p, pCount + 1);
+    	pCount++;
+    	numAppearInPath.put(p, pCount);
     	currPath.add(p);
     	for (Partition succ : getAdjacentNodes(p)) {
     		getAllBoundedPredictedPathsHelper(succ, currPath, pathsSoFar);
@@ -660,8 +664,8 @@ public class PartitionGraph implements IGraph<Partition> {
     		pathsSoFar.add(newPath);
     	}
     	currPath.remove(currPath.size() - 1);
-    	pCount = numAppearInPath.get(p);
-    	numAppearInPath.put(p, pCount - 1);
+    	pCount--;
+    	numAppearInPath.put(p, pCount);
     }
     
     /**
