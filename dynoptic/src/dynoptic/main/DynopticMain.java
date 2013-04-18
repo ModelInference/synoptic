@@ -659,18 +659,23 @@ public class DynopticMain {
 
         // ////// Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
-        // int baseTimeout = 120;
-        // int baseTimeout = 600;
-        int baseTimeout = 2400;
-        // Current timeout value to use.
-        int curTimeout = baseTimeout;
+        int baseTimeout = opts.baseTimeout;
+
         // How much we increment curTimeout by, when we timeout on checking all
         // invariants.
-        int timeoutDelta = 60;
-        // Max curTimeout value (300s = 5min).
-        // int maxTimeout = 300;
-        // int maxTimeout = 1200;
-        int maxTimeout = 3600;
+        int timeoutDelta = opts.timeoutDelta;
+
+        // At what point to we stop the incrementing the timeout and terminate
+        // with a failure.
+        int maxTimeout = opts.maxTimeout;
+
+        // Current timeout value to use.
+        int curTimeout = baseTimeout;
+
+        if (maxTimeout < baseTimeout) {
+            throw new Exception(
+                    "maxTimeout value must be greater than baseTimeout value");
+        }
 
         logger.info("Model checking " + curInv.toString() + " : " + invsCounter
                 + " / " + totalInvs);
@@ -702,7 +707,8 @@ public class DynopticMain {
             logger.info("*******************************************************");
             logger.info("Checking ... " + curInv.toString() + ". Inv "
                     + invsCounter + " / " + totalInvs
-                    + ", refinements so far: " + gfsmCounter);
+                    + ", refinements so far: " + gfsmCounter + ". Timeout = "
+                    + curTimeout + ".");
             logger.info("*******************************************************");
 
             try {

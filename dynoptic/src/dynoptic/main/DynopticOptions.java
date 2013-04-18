@@ -151,6 +151,32 @@ public class DynopticOptions extends Options {
             aliases = { "-verify-path" })
     public String mcPath = null;
 
+    /**
+     * The base timeout that is used to time out invocations of McScM
+     * verification (which may run indefinitely).
+     */
+    @Option(
+            value = "Initial timeout (in seconds) that is used to time out McScM verification.",
+            aliases = { "-base-timeout" })
+    public int baseTimeout = 20;
+
+    /**
+     * The amount of time added to baseTimeout before retrying the McScM
+     * verification.
+     */
+    @Option(
+            value = "Time (in seconds) to add to -base-timeout after each time McScM times out, before reaching max timeout.",
+            aliases = { "-timeout-delta" })
+    public int timeoutDelta = 10;
+
+    /**
+     * Maximum timeout value to use for McScM verification.
+     */
+    @Option(
+            value = "Maximum timeout (in seconds) to use for McScM verification.",
+            aliases = { "-max-timeout" })
+    public int maxTimeout = 60;
+
     // end option group "Verify Options"
     // //////////////////////////////////////////////////
 
