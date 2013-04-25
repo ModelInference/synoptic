@@ -32,6 +32,7 @@
     <mkdir dir="war/WEB-INF/lib" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
+    <copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/daikonizer.jar" />
     <copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/synoptic.jar" />
     <copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/derby-10.8.2.2.jar" />
     <copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/junit-4.9b2.jar" />
