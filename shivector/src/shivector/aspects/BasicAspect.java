@@ -1,4 +1,4 @@
-package aspects;
+package shivector.aspects;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,6 +11,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
+import shivector.options.ShiVectorOptions;
+
 /**
  * Aspect to wrap socket streams and intercept logging methods.
  * 
@@ -20,6 +22,7 @@ import org.aspectj.lang.annotation.Aspect;
 public class BasicAspect {
 
     private VectorClock clock;
+    private ShiVectorOptions options;
 
     private static final String processId = ManagementFactory
             .getRuntimeMXBean().getName();
@@ -27,6 +30,7 @@ public class BasicAspect {
 
     public BasicAspect() {
         this.clock = new VectorClock(processId + macAddress);
+        this.options = ShiVectorOptions.getOptions();
     }
 
     private static String getMacAddress() {
@@ -47,24 +51,39 @@ public class BasicAspect {
 
     // Adopted from http://www.javaspecialists.eu/archive/Issue169.html
 
-    @Around("call(* java.net.Socket.getInputStream()) && target(s)")
+    @Around("call(* java.net.Socket.getInputStream()) && target(s) && !within(shivector..*)")
     public Object wrapInputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
         InputStream in = (InputStream) joinPoint.proceed();
         return new ShivSocketInputStream(in, clock);
     }
 
-    @Around("call(* java.net.Socket.getOutputStream()) && target(s)")
+    @Around("call(* java.net.Socket.getOutputStream()) && target(s) && !within(shivector..*)")
     public Object wrapOutputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
         OutputStream out = (OutputStream) joinPoint.proceed();
         return new ShivSocketOutputStream(out, clock);
     }
 
-    @Around("call(void *.println(..)) && args(str)")
-    public Object interceptLogging(ProceedingJoinPoint joinPoint, String str)
-            throws Throwable {
-        String modifiedString = "Timestamp: " + clock.toString() + "\n" + str;
-        return joinPoint.proceed(new Object[] { modifiedString });
+    @Around("call(void *.println(..)) && args(str) && !within(shivector..*)")
+    public Object interceptPrintlnLogging(ProceedingJoinPoint joinPoint,
+            String str) throws Throwable {
+        if (options.usePrintln) {
+            String modifiedString = "Timestamp: " + clock.toString() + "\n"
+                    + str;
+            return joinPoint.proceed(new Object[] { modifiedString });
+        }
+        return joinPoint.proceed(new Object[] { str });
+    }
+
+    @Around("call(* org.apache.log4j.Logger.info(..)) && args(msg) && !within(shivector..*)")
+    public Object interceptLog4JLogging(ProceedingJoinPoint joinPoint,
+            Object msg) throws Throwable {
+        if (options.useLog4J) {
+            String modifiedString = "Timestamp: " + clock.toString() + "\n"
+                    + msg;
+            return joinPoint.proceed(new Object[] { modifiedString });
+        }
+        return joinPoint.proceed(new Object[] { msg });
     }
 }

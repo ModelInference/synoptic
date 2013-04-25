@@ -52,6 +52,7 @@
   <path id="sampleserver.depjars.classpath" >
     <pathelement location="${aspectj}/aspectjrt.jar" />
     <pathelement location="${shivector.lib}/junit-4.9b2.jar" />
+    <pathelement location="${shivector.lib}/plume.jar" />
   </path>
 
   <!-- The complete classpath for running the compiled SampleServer with
@@ -59,6 +60,7 @@
   <path id="sampleserver.withShiVector.classpath" >
     <pathelement location="bin" />
     <pathelement location="${aspectj}/aspectjrt.jar" />
+    <pathelement location="${shivector.lib}/plume.jar" />
   </path>
 
   <!-- Required AspectJ compiler taskdef -->

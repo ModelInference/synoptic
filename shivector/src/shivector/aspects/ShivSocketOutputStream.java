@@ -1,4 +1,4 @@
-package aspects;
+package shivector.aspects;
 
 import java.io.IOException;
 import java.io.OutputStream;

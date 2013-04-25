@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/junit-4.9b2.jar"/>
 	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/aspectjrt.jar"/>
+	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/plume.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

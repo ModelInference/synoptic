@@ -29,6 +29,7 @@
     <!-- The set of jars shivector depends on, in classpath format. -->
     <path id="shivector.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
         <pathelement location="${util.synoptic.libdir}/aspectjrt.jar"/>
     </path>
 
