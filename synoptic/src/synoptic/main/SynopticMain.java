@@ -672,9 +672,8 @@ public class SynopticMain {
      * 
      * @param pGraph
      *            The initial graph model to start refining.
-     * @throws Exception 
      */
-    public void runSynoptic(PartitionGraph pGraph) throws Exception {
+    public void runSynoptic(PartitionGraph pGraph) {
         long startTime;
 
         if (options.logLvlVerbose || options.logLvlExtraVerbose) {
@@ -703,7 +702,7 @@ public class SynopticMain {
         
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
-        
+
         // export the resulting graph
         if (options.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
