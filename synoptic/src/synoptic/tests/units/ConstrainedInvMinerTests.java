@@ -239,7 +239,7 @@ public class ConstrainedInvMinerTests extends SynopticTest {
         TempConstrainedInvariant<?> inv2 = getConstrainedInv(minedInvs2,
                 "a AFby b lower");
 
-        assertNotSame(inv1, inv2);
+        assertFalse(inv1.equals(inv2));
     }
 
     /**
