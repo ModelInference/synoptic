@@ -6,6 +6,8 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -54,36 +56,111 @@ public class BasicAspect {
     @Around("call(* java.net.Socket.getInputStream()) && target(s) && !within(shivector..*)")
     public Object wrapInputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
-        InputStream in = (InputStream) joinPoint.proceed();
-        return new ShivSocketInputStream(in, clock);
+        if (options.useSocketsAPI) {
+            InputStream in = (InputStream) joinPoint.proceed();
+            return new ShivSocketInputStream(in, clock);
+        }
+        return joinPoint.proceed();
     }
 
     @Around("call(* java.net.Socket.getOutputStream()) && target(s) && !within(shivector..*)")
     public Object wrapOutputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
-        OutputStream out = (OutputStream) joinPoint.proceed();
-        return new ShivSocketOutputStream(out, clock);
+        if (options.useSocketsAPI) {
+            OutputStream out = (OutputStream) joinPoint.proceed();
+            return new ShivSocketOutputStream(out, clock);
+        }
+        return joinPoint.proceed();
     }
 
-    @Around("call(void *.println(..)) && args(str) && !within(shivector..*)")
+    @Around("call(* java.nio.channels.SocketChannel.write(..)) && args(buf) && target(s) && !within(shivector.aspects..*)")
+    public Object interceptNioWrite(ProceedingJoinPoint joinPoint,
+            ByteBuffer buf, SocketChannel s) throws Throwable {
+        if (options.useNioAPI) {
+            clock.writeClock(s);
+        }
+        return joinPoint.proceed();
+    }
+
+    @Around("call(* java.nio.channels.SocketChannel.read(..)) && args(buf) && target(s) && !within(shivector.aspects..*)")
+    public Object interceptNioRead(ProceedingJoinPoint joinPoint,
+            ByteBuffer buf, SocketChannel s) throws Throwable {
+        if (options.useNioAPI) {
+            // NOTE(jennya): for now, we're going to assume that reads mirror
+            // writes
+            // so that we don't need to keep track of available bytes. Later
+            // we'll
+            // want to update this implementation to handle non-mirror behavior
+            // similar to how the ShivInputStream does by tracking available
+            // bytes.
+            clock.parseClock(s);
+        }
+        return joinPoint.proceed();
+    }
+
+    @Around("call(void *.println(String)) && args(str) && !within(shivector..*)")
     public Object interceptPrintlnLogging(ProceedingJoinPoint joinPoint,
             String str) throws Throwable {
-        if (options.usePrintln) {
-            String modifiedString = "Timestamp: " + clock.toString() + "\n"
-                    + str;
-            return joinPoint.proceed(new Object[] { modifiedString });
-        }
-        return joinPoint.proceed(new Object[] { str });
+        return print(joinPoint, str, options.usePrintln);
     }
 
-    @Around("call(* org.apache.log4j.Logger.info(..)) && args(msg) && !within(shivector..*)")
-    public Object interceptLog4JLogging(ProceedingJoinPoint joinPoint,
-            Object msg) throws Throwable {
-        if (options.useLog4J) {
-            String modifiedString = "Timestamp: " + clock.toString() + "\n"
-                    + msg;
-            return joinPoint.proceed(new Object[] { modifiedString });
+    private Object print(ProceedingJoinPoint joinPoint, Object obj, boolean flag)
+            throws Throwable {
+        if (flag) {
+            clock.incrementClock();
+            return joinPoint.proceed(new Object[] { obj.toString() + "\n"
+                    + clock });
         }
-        return joinPoint.proceed(new Object[] { msg });
+        return joinPoint.proceed();
     }
+
+    //
+    // @Around("call(void org.apache.log4j.Logger.*(*))&& args(obj) && !within(shivector..*)")
+    // public Object interceptLog4JObjectThrowableLogging(
+    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
+
+    @Around("call(void org.apache.log4j.Logger.info(*))&& args(obj) && !within(shivector..*)")
+    public Object interceptLog4JInfo(ProceedingJoinPoint joinPoint, Object obj)
+            throws Throwable {
+        return print(joinPoint, obj, options.useLog4J);
+    }
+
+    @Around("call(void org.apache.log4j.Logger.warn(*))&& args(obj) && !within(shivector..*)")
+    public Object interceptLog4JWarn(ProceedingJoinPoint joinPoint, Object obj)
+            throws Throwable {
+        return print(joinPoint, obj, options.useLog4J);
+    }
+
+    // @Around("call(void org.apache.log4j.Logger.*(Priority, Object)) && args(priority, obj) && !within(shivector..*)")
+    // public Object interceptLog4JPriorityObjectLogging(
+    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
+    //
+    // @Around("call(void org.apache.log4j.Logger.*(Priority, Object, Throwable))&& args(priority, obj, throwable) && !within(shivector..*)")
+    // public Object interceptLog4JPriorityObjectThrowableLogging(
+    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
+    //
+    // @Around("call(void org.apache.log4j.Logger.*(String, Priority, Object, Throwable))&& args(str, priority, obj, throwable) && !within(shivector..*)")
+    // public Object interceptLog4JStringPriorityObjectLogging(
+    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
+    //
+    // @Around("call(void org.apache.log4j.Logger.*(Object))&& args(obj) && !within(shivector..*)")
+    // public Object interceptLog4JObject(ProceedingJoinPoint joinPoint, Object
+    // obj)
+    // throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
+    //
+    // @Around("call(void org.apache.log4j.Logger.*(Object, Throwable))&& args(priority, obj) && !within(shivector..*)")
+    // public Object interceptLog4JObjectThrowableLogging(
+    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
+    // return print(joinPoint, obj, options.useLog4J);
+    // }
 }

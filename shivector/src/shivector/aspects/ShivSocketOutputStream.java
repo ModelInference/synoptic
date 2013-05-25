@@ -30,13 +30,13 @@ public class ShivSocketOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] b) throws IOException {
-        clock.writeVectorClock(out, b.length);
-        out.write(b);
+        this.write(b, 0, b.length);
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        clock.writeVectorClock(out, len);
+        clock.writeClock(out);
+        // clock.writeVectorClock(out, len);
         out.write(b, off, len);
     }
 

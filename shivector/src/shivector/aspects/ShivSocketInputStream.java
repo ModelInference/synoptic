@@ -40,45 +40,58 @@ public class ShivSocketInputStream extends InputStream {
         return in.markSupported();
     }
 
-    @Override
-    public int read() throws IOException {
-        if (emptyBuffer()) {
-            return -1;
-        }
-        int byteRead = in.read();
-        if (byteRead != -1) {
-            availableBytes -= 1;
-        }
-
-        return byteRead;
-    }
-
+    // @Override
+    // public int read() throws IOException {
+    // if (emptyBuffer()) {
+    // return -1;
+    // }
+    // int byteRead = in.read();
+    // if (byteRead != -1) {
+    // availableBytes -= 1;
+    // }
+    //
+    // return byteRead;
+    // }
+    //
     @Override
     public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
-    private boolean emptyBuffer() throws IOException {
-        if (availableBytes == 0) {
-            availableBytes = clock.parsePayloadAndMergeClocks(in);
-            if (availableBytes <= 0) {
-                availableBytes = 0;
-                return true;
-            }
-        }
-        return false;
+    //
+    // private boolean emptyBuffer() throws IOException {
+    // if (availableBytes == 0) {
+    // availableBytes = clock.parsePayloadAndMergeClocks(in);
+    // if (availableBytes <= 0) {
+    // availableBytes = 0;
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
+    //
+    // @Override
+    // public int read(byte[] b, int off, int len) throws IOException {
+    // if (emptyBuffer()) {
+    // return -1;
+    // }
+    // int bytesRead = in.read(b, off, Math.min(availableBytes, len));
+    // if (bytesRead >= 0) {
+    // availableBytes -= bytesRead;
+    // }
+    // return bytesRead;
+    // }
+
+    @Override
+    public int read() throws IOException {
+        clock.parseClock(in);
+        return in.read();
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        if (emptyBuffer()) {
-            return -1;
-        }
-        int bytesRead = in.read(b, off, Math.min(availableBytes, len));
-        if (bytesRead >= 0) {
-            availableBytes -= bytesRead;
-        }
-        return bytesRead;
+        clock.parseClock(in);
+        return in.read(b, off, len);
     }
 
     @Override
