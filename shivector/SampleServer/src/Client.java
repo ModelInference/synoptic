@@ -25,14 +25,17 @@ public class Client {
                 requestSocket.getInputStream());
 
         String message = (String) in.readObject();
-        System.out.println("server>" + message);
+        System.out.println("Message received:" + message);
 
         sendMessage(out, "Hi server");
-        System.out.println("server>" + in.readObject());
+        message = (String) in.readObject();
+        System.out.println("Message received:" + message);
 
         sendMessage(out, "bye");
-        System.out.println("server>" + in.readObject());
+        message = (String) in.readObject();
+        System.out.println("Message received:" + message);
 
+        System.out.println("Closing connection");
         in.close();
         out.close();
         requestSocket.close();
@@ -52,9 +55,9 @@ public class Client {
 
     public static void sendMessage(ObjectOutputStream out, String msg) {
         try {
+            System.out.println("sending>" + msg);
             out.writeObject(msg);
             out.flush();
-            System.out.println("client>" + msg);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }

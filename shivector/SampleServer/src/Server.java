@@ -33,11 +33,13 @@ public class Server {
 
         String message = "";
         while (!(message = (String) in.readObject()).equals("bye")) {
-            System.out.println("client>" + message);
+            System.out.println("Message received: " + message);
             sendMessage(out, "Thanks!");
         }
+        System.out.println("Message received: " + message);
         sendMessage(out, "bye");
 
+        System.out.println("Closing connection");
         in.close();
         out.close();
         providerSocket.close();
@@ -57,9 +59,9 @@ public class Server {
 
     public static void sendMessage(ObjectOutputStream out, String msg) {
         try {
+            System.out.println("sending>" + msg);
             out.writeObject(msg);
             out.flush();
-            System.out.println("server>" + msg);
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }

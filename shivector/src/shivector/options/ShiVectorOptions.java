@@ -67,5 +67,18 @@ public class ShiVectorOptions {
      * Whether to prepend log4j logging statements with vector clocks.
      */
     @Option("Whether to prepend log4j logging statements with vector clocks.")
-    public boolean useLog4J = false;
+    public boolean useLog4J = true;
+
+    /**
+     * Whether to intercept java.net.Socket streams
+     */
+    @OptionGroup("Network framework options")
+    @Option("Whether to intercept the Jjava.net.Socket streams.")
+    public boolean useSocketsAPI = true;
+
+    /**
+     * Whether to intercept the java.nio.Channel streams
+     */
+    @Option("Whether to intercept the java.nio.Channel streams.")
+    public boolean useNioAPI = true;
 }
