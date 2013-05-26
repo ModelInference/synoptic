@@ -125,7 +125,7 @@ Graph.prototype.toLiteral = function() {
   var literal = {};
   literal["nodes"] = this.nodes.toLiteral();
   literal["links"] = this.edges.toLiteral();
-  literal["hosts"] = this.nodes.getHosts();
+  literal["hosts"] = this.nodes.getSortedHosts();
   return literal;
 }
 
@@ -261,6 +261,13 @@ Nodes.prototype.add = function(node) {
   this.hosts[hostId][time] = node;
   this.hosts[hostId]['times'].push(time);
   this.hosts[hostId]['sorted'] = false;
+}
+
+Nodes.prototype.getSortedHosts = function () {
+  var hostCopy = this.hosts;
+  return this.getHosts().sort(function(a, b) {
+    return hostCopy[b]['times'].length - hostCopy[a]['times'].length;
+  });
 }
 
 Nodes.prototype.getHosts = function() {
