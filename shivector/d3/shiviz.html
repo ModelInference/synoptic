@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="canonical" href="http://www.jennyabrahamson.com/shiviz.html/">
+<title>ShiViz</title>
+<link href="style.css" type="text/css" rel="stylesheet">
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<header>‍
+  <b><a href="shiviz.html">Home</a></b>
+  <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/wiki/ShiVector">Documentation</a>
+  <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/">Source</a>
+</header>
+
+<div id="body">
+  <h1>ShiViz</h1>
+  <p><b>ShiViz</b> is a visualization engine that generates high level graphical
+  summaries of distributed systems from their execution logs.
+  These summaries can aid developers in quickly analyzing their systems.
+  </p>
+
+  <p>Try out ShiVector below, or learn more on the <a
+  href="https://code.google.com/p/synoptic/wiki/ShiVector">project wiki</a>.
+  </p>
+
+  <div id="info">
+    <h2>Execution logs</h2>
+    <textarea id='logField' ></textarea>
+    <input type='button' id='clearButton' value="clear" />
+    <input type='button' id='vizButton' value="visualize" />
+  </div>
+
+
+  <div id="graph" hidden=true>
+    <h2>Space Time Diagram</h2>
+    <p>Current event: <span id='curNode'>(click to view)</span></p>
+    <div id=spaceTime>
+    </div>
+  </div>
+
+</div>
+<script type="text/javascript" src="shiviz.js" ></script>	

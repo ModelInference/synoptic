@@ -1,0 +1,76 @@
+html {
+  min-width: 1040px;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  margin: 1em auto 4em auto;
+  width: 960px;
+}
+
+#body {
+  position: relative;
+}
+
+h1 {
+  font-size: 64px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  margin: .3em 0 .1em 0;
+}
+
+h2 {
+  margin-top: 2em;
+}
+
+h1, h2 {
+  text-rendering: optimizeLegibility;
+}
+
+h2 a {
+  color: #ccc;
+  left: -20px;
+  position: absolute;
+  width: 740px;
+}
+
+#body > p, li > p {
+  line-height: 1.5em;
+}
+
+a {
+  color: steelblue;
+}
+
+a:not(:hover) {
+  text-decoration: none;
+}
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+#curNode {
+  color: steelblue;
+}
+
+#logField {
+  width: 960px;
+  height: 200px;
+}
+
+#spaceTime {
+  height: 800px;
+  overflow: scroll;
+}
+
+.node text {
+  /*font: 10px sans-serif;*/
+  fill: black;
+}
