@@ -1,11 +1,13 @@
 html {
-  min-width: 1040px;
+  /*min-width: 1040px;*/
+  min-width: 1200px;
 }
 
 body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   margin: 1em auto 4em auto;
-  width: 960px;
+  /*width: 960px;*/
+  width: 1120px;
 }
 
 #body {
@@ -61,8 +63,19 @@ a:not(:hover) {
 }
 
 #logField {
-  width: 960px;
+  /*width: 960px;*/
+  width: 1120px;
   height: 200px;
+}
+
+#sideBar {
+  width: 160px;
+  float: left;
+}
+
+#vizContainer {
+  width: 960px;
+  float: left;
 }
 
 #spaceTime {
@@ -71,6 +84,5 @@ a:not(:hover) {
 }
 
 .node text {
-  /*font: 10px sans-serif;*/
-  fill: black;
+  stroke: black;
 }
