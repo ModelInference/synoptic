@@ -4,6 +4,7 @@
 <title>ShiViz</title>
 <link href="style.css" type="text/css" rel="stylesheet">
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<xml id="defaultTxt" src="defaultLog.xml"></xml>
 
 <header>‍
   <b><a href="shiviz.html">Home</a></b>
@@ -24,7 +25,7 @@
 
   <div id="info">
     <h2>Execution logs</h2>
-    <textarea id='logField' ></textarea>
+    <textarea id='logField' datasrc="#defaultTxt" datafld="Content" ></textarea>
     <input type='button' id='clearButton' value="clear" />
     <input type='button' id='vizButton' value="visualize" />
   </div>
@@ -33,10 +34,11 @@
   <div id="graph" hidden=true>
     <h2>Space Time Diagram</h2>
     <div id=sideBar></div>
-    <div id=vizContiner>
-      <p>Current event: <span id='curNode'>(click to view)</span></p>
+    <div id=vizContainer>
+      <p>Current node: <span id='curNode'>(click to view)</span></p>
       <div id=spaceTime></div>
     </div>
+    <div id=hosts></div>
   </div>
 
 </div>
