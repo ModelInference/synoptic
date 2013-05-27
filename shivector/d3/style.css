@@ -1,12 +1,10 @@
 html {
-  /*min-width: 1040px;*/
   min-width: 1200px;
 }
 
 body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   margin: 1em auto 4em auto;
-  /*width: 960px;*/
   width: 1120px;
 }
 
@@ -58,18 +56,24 @@ a:not(:hover) {
   stroke-opacity: .6;
 }
 
+.time {
+  stroke: #999;
+  stroke-opacity: .6;
+  fill: #999;
+  fill-opacity: .6;
+}
+
 #curNode {
   color: steelblue;
 }
 
 #logField {
-  /*width: 960px;*/
   width: 1120px;
   height: 200px;
 }
 
 #sideBar {
-  width: 160px;
+  width: 40px;
   float: left;
 }
 
@@ -78,8 +82,15 @@ a:not(:hover) {
   float: left;
 }
 
+#hosts {
+  width: 120px;
+  float: left;
+  height: 600px;
+}
+
 #spaceTime {
-  height: 800px;
+  height: 600px;
+  width: 960px;
   overflow: scroll;
 }
 

@@ -100,6 +100,11 @@ Graph.prototype.parseLog = function(logLines) {
   // and that timestamp format is hostId {hostId_1:time_1, ... ,
   // hostId_n:time_n}
 
+  if (logLines.length <= 1) {
+    alert("No logs to display :(");
+    return false;
+  }
+
   try {
     for (var i = 0; i < logLines.length; i+=2) {
       var log = logLines[i];
@@ -123,6 +128,7 @@ Graph.prototype.parseLog = function(logLines) {
     clearText();
     return false;
   }
+
   return true;
 }
 
@@ -297,6 +303,9 @@ var get = function (id) {
   return document.getElementById(id);
 };
 
+var devMode = false;
+loadExample();
+
 spaceTimeLayout = function () {
   var spaceTime = {},
       nodes = [],
@@ -408,7 +417,7 @@ function clearText() {
   get("curNode").innerHTML = "(click to view)"
 
   get("graph").hidden = true;
-  d3.select("svg").remove();
+  d3.selectAll("svg").remove();
 }
 
 get("clearButton").onclick = function() {
@@ -446,8 +455,139 @@ get("vizButton").onclick = function() {
     var host = graphObj.hosts[i];
     hostColors[host] = color(host);
   }
-  graph(graphObj);
+  draw(graphObj);
 };
+
+function makeArrow() {
+  var width = 40;
+  var height = 200;
+  var svg = d3.select("#sideBar").append("svg");
+
+  // Draw time arrow with label
+  var x = width - 20;
+  var y1 = 85;
+  var y2 = height - 30;
+  svg.append("line")
+    .attr("class", "time")
+    .attr("x1", x).attr("y1", y1 + 15)
+    .attr("x2", x).attr("y2", y2)
+    .style("stroke-width", 3);
+
+  svg.append("path")
+    .attr("class", "time")
+    .attr("d", "M " + (x - 5) + " " + y2 + 
+        " L " + (x + 5) + " " + y2 + 
+        " L " + x + " " + (y2 + 10) + " z");
+
+  svg.append("text")
+    .attr("class", "time")
+    .attr("x", x - 20).attr("y", y1 - 5)
+    .text("Time");
+
+  svg.attr("width", width);
+  svg.attr("height", height);
+}
+
+function drawHosts(label, subtext, hosts, svg) {
+  var x = 0;
+  var y = 65;
+
+  var text = svg.append("text")
+    .attr("class", "time")
+    .attr("x", x).attr("y", y)
+    .text(label);
+
+  text.append("title").text(subtext);
+
+  y += 15;
+
+  var xDelta = 5;
+  x = xDelta;
+/*  y += 20;
+  svg.append("text")
+    .attr("class", "time")
+    .attr("x", 0).attr("y", y)
+    .text(subtext);
+  y += 20;*/
+
+
+  var count = 0;
+
+  var rect = svg.selectAll()
+      .data(hosts)
+      .enter().append("rect")
+      .on("dblclick", function(e) { unhide(e); })
+      .style("stroke", "#fff")
+      .attr("width", 25).attr("height", 25)
+      .style("fill", function(host) { return hostColors[host]; })
+      .attr("y", function(host) {
+        if (count == 3) {
+          y += 30;
+          count = 0;
+        }
+        count += 1;
+        return y;
+      })
+      .attr("x", function(host) {
+        var curX = x;
+        x += 30;
+        if (x > 65) {
+          x = xDelta;
+        }
+        return curX;
+      });
+
+  rect.append("title").text(subtext);
+
+
+/*
+    x += 30;
+    if (x > 65) {
+      x = xDelta;
+      y += 30;
+    }
+
+    }
+
+/*
+    var host = hosts[i];
+    var g = svg.append("g")
+      .attr("transform", "translate(0, " + y + ")")
+      .on("dblclick", function(e) { unhide(e); });
+    g.append("rect")
+      .attr("x", x).attr("y", 0)
+      .attr("width", 25).attr("height", 25)
+      .style("stroke", "#fff")
+      .style("fill", hostColors[host]);
+
+    x += 30;
+    if (x > 65) {
+      x = xDelta;
+      y += 30;
+    }
+
+    g.append("title")
+      .text(subtext);
+  }*/
+}
+
+function makeSideBar(hosts) {
+  makeArrow();
+
+  var width = 95;
+  var height = 800;
+
+  var svg = d3.select("#hosts").append("svg");
+
+  // Draw the host nodes
+  // drawHosts("Hosts", "Click to hide", hosts, x, y, svg);
+  if (hiddenHosts.length > 0) {
+    drawHosts("Hidden hosts", "Double click to view", hiddenHosts, svg);
+  }
+
+  svg.attr("width", width);
+  svg.attr("height", height);
+}
 
 function graph(graph) {
   var spaceTime = spaceTimeLayout();
@@ -509,14 +649,40 @@ function graph(graph) {
 }
 
 
+function draw(graphObj) {
+  graphObj = graphObj || spaceGraph.toLiteral(hiddenHosts);
+  d3.selectAll("svg").remove();
+  graph(graphObj);
+  makeSideBar(graphObj.hosts);
+}
 
 function hideHost(e) {
   hiddenHosts.push(e.group);
-  var graphObj = spaceGraph.toLiteral(hiddenHosts);
-  d3.select("svg").remove();
-  graph(graphObj);
+  draw();
+}
+
+function unhide(e) {
+  var index = hiddenHosts.indexOf(e);
+  hiddenHosts.splice(index, 1);
+  draw();
 }
 
 function collapseEvent(e) {
   hideHost(e);
+}
+
+function loadExample() {
+  if (!devMode) {
+    var textfile;
+    if (window.XMLHttpRequest) {
+      textfile = new XMLHttpRequest();
+    }
+    textfile.onreadystatechange = function() {
+      if (textfile.readyState == 4 && textfile.status == 200) {
+        get("logField").value = textfile.responseText;
+      }
+    }
+    textfile.open("GET", "defaultLog.txt", true);
+    textfile.send();
+  }
 }
