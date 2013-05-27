@@ -6,25 +6,115 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <xml id="defaultTxt" src="defaultLog.xml"></xml>
 
-<header>‍
+<header>
   <b><a href="shiviz.html">Home</a></b>
+  <a href="javascript:void(0)" onclick="document.getElementById('help').style.display='block';document.getElementById('fade').style.display='block'">Help</a>
   <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/wiki/ShiVector">Documentation</a>
   <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/">Source</a>
 </header>
 
-<div id="body">
-  <h1>ShiViz</h1>
-  <p><b>ShiViz</b> is a visualization engine that generates high level graphical
-  summaries of distributed systems from their execution logs.
-  These summaries can aid developers in quickly analyzing their systems.
+<div id="fade" class="black_overlay"></div>
+
+<div id="help" class="overlay_content">
+  <div id="close_help">
+  <a href="javascript:void(0)" onclick="document.getElementById('help').style.display='none';document.getElementById('fade').style.display='none'"><b>X</b></a>
+  </div>
+
+  <p>
+    ShiViz creates visualizations to aid developers in analyzing
+    distributed traces. This page provides some quick help to get
+    started with the tool. For more information, see
+    the <a href="https://code.google.com/p/synoptic/wiki/ShiVector">project
+      wiki</a>.
+  </p>
+  
+  <h3>What am I looking at?</h3>
+  
+  <p>
+
+    In the diagram:
+    <ul>
+      <li>
+        Time flows from top to bottom.
+      </li>
+      <li>
+        A vertical line with a box at the top is a <b>process
+          timeline</b> and represents a single thread of execution (e.g.,
+        a q process on a host). There might be multiple such timelines.
+      </li>
+      <li>
+        Circles along a process timeline are <b>process events</b> that
+        were executed by the process.
+      </li>
+      <li>
+        Diagonal lines connecting two process events represent the
+        <a href="http://en.wikipedia.org/wiki/Happened-before">happened-before</a>
+        relation between the two events. That is, the higher of the two
+        events <i>happened before</i> the second process event.
+      </li>
+    </ul>
+
   </p>
 
-  <p>Try out ShiVector below, or learn more on the <a
+  <h3>How do I interact with the visualization?</h3>
+
+  <p>
+    
+    You can:
+    <ul>
+      <li>
+        <b>Hide a process timeline</b>: double click on a process event
+        or on the process box. To show the process timeline, double
+        click on the process box in the "hidden hosts" panel.
+      </li>
+      <li>
+        <b>Show event text associated with a circle</b>: mouse-over the
+        event and see the event text appear just above the diagram.
+      </li>
+    </ul>
+
+  </p>
+
+  <h3>What is the input log format?</h3>
+
+  <p>TODO: describe log format with a short 2-event example.</p>
+
+  <h3>How do I generate logs in this format?</h3>
+
+  <p>TODO: describe ShiVector</p>
+
+  <h3>How is this useful?</h3>
+  
+  <p>
+    You can use this tool to:
+    <ul>
+      <li>
+        <b>Understand the communication graph.</b> For example, to look
+        for presence or absence of certain communication patterns.
+      </li>
+      <li>
+        <b>Reason about time in a distributed setting</b>. For example,
+        to figure out whether two events occurred concurrently, or if
+        one happened before the other.
+      </li>
+    </ul>
+  </p>
+
+</div>
+
+
+
+<div id="body">
+  <h1>ShiViz</h1>
+  <p><b>ShiViz</b> is a visualization engine that generates high level
+  graphical summaries of distributed system execution logs.</p>
+
+  <p>Try out ShiViz below, or learn more on the <a
   href="https://code.google.com/p/synoptic/wiki/ShiVector">project wiki</a>.
   </p>
 
   <div id="info">
-    <h2>Execution logs</h2>
+    <h2>Execution log</h2>
     <textarea id='logField' datasrc="#defaultTxt" datafld="Content" ></textarea>
     <input type='button' id='clearButton' value="clear" />
     <input type='button' id='vizButton' value="visualize" />
@@ -32,7 +122,8 @@
 
 
   <div id="graph" hidden=true>
-    <h2>Space Time Diagram</h2>
+    <!-- <h2>Space Time Diagram</h2> -->
+    <br/>
     <div id=sideBar></div>
     <div id=vizContainer>
       <p>Current node: <span id='curNode'>(click to view)</span></p>
