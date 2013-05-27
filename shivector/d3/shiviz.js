@@ -590,7 +590,8 @@ function makeArrow() {
   svg.attr("height", height);
 }
 
-function drawHosts(label, subtext, hosts, svg) {
+/* Draws hosts down. */
+function drawHostsDown(label, subtext, hosts, svg) {
   var x = 0;
   var y = 65;
 
@@ -635,17 +636,67 @@ function drawHosts(label, subtext, hosts, svg) {
   rect.append("title").text(subtext);
 }
 
+/* Draws hosts across. */
+function drawHostsAcross(label, subtext, hosts, svg) {
+  var x = 0;
+  var y = 15;
+
+  var text = svg.append("text")
+    .attr("class", "time")
+    .attr("x", x).attr("y", y)
+    .text(label);
+
+  text.append("title").text(subtext);
+
+  y += 5;
+
+  var xDelta = 0;
+  x = xDelta;
+
+  var count = 0;
+
+  var rect = svg.selectAll()
+      .data(hosts)
+      .enter().append("rect")
+      .on("dblclick", function(e) { unhide(e); })
+      .style("stroke", "#fff")
+      .attr("width", 25).attr("height", 25)
+      .style("fill", function(host) { return hostColors[host]; })
+      .attr("y", function(host) {
+        if (count == 38) {
+          y += 30;
+          count = 0;
+        }
+        count += 1;
+        return y;
+      })
+      .attr("x", function(host) {
+        var curX = x;
+        x += 30;
+        if (x > 960) {
+          x = xDelta;
+        }
+        return curX;
+      });
+
+  rect.append("title").text(subtext);
+}
+
+
 function makeSideBar(hosts) {
   makeArrow();
 
-  var width = 95;
-  var height = 800;
+  var width = 960;
+  var height = 50;
 
   var svg = d3.select("#hosts").append("svg");
 
   // Draw the hidden host nodes
   if (hiddenHosts.length > 0) {
-    drawHosts("Hidden hosts", "Double click to view", hiddenHosts, svg);
+    drawHostsAcross("Hidden hosts:", "Double click to view", hiddenHosts, svg);
+    get("hosts").style.display='block';
+  } else {
+    get("hosts").style.display='none';
   }
 
   svg.attr("width", width);
@@ -683,7 +734,8 @@ function graph(graph) {
   var node = svg.selectAll(".node")
     .data(graph.nodes)
     .enter().append("circle")
-    .on("click", function(e) { get("curNode").innerHTML = e.name; })
+    // .on("click", function(e) { get("curNode").innerHTML = e.name; })
+    .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
     .on("dblclick", function(e) { collapseEvent(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; })
@@ -748,4 +800,22 @@ function loadExample() {
     textfile.open("GET", "defaultLog.txt", true);
     textfile.send();
   }
+}
+
+window.onscroll=function () {
+    var top = window.pageXOffset ? window.pageXOffset : document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop;
+    if(top > 500){
+        get("topBar").style.position = "fixed";
+        get("topBar").style.width="960px"
+        get("topBar").style.top="0px"
+
+        // Time flow div.
+        get("sideBar").style.position = "fixed";
+        get("sideBar").style.top="85px"
+        get("sideBar").style.width="40px"
+        
+    } else {
+        get("topBar").style.position = "relative";
+        get("sideBar").style.position = "relative";
+    }
 }
