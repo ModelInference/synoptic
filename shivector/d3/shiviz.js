@@ -7,6 +7,12 @@ function Node(log, hostId, clock) {
   this.clock = clock;
   this.time = clock[hostId];
   this.index = -1;
+
+  this.parents = {};
+  this.children = {};
+
+  this.syntheticParents = {};
+  this.syntheticChildren = {};
 }
 
 Node.prototype.id = function() {
@@ -37,6 +43,59 @@ Node.prototype.getIndex = function() {
   return this.index;
 }
 
+Node.prototype.addChild = function(child) {
+  this.children[child.getHostId()] = child;
+}
+
+Node.prototype.addParent = function(p) {
+  this.parents[p.getHostId()] = p;
+}
+
+Node.prototype.getChildren = function() {
+  return this.children;
+}
+
+Node.prototype.getParents = function() {
+  return this.parents;
+}
+
+Node.prototype.addSynChild = function(child) {
+  var host = child.getHostId();
+  if (!this.syntheticChildren.hasOwnProperty(host) ||
+      this.syntheticChildren[host].getTime() > child.getTime()) {
+    this.syntheticChildren[host] = child;
+  }
+}
+
+Node.prototype.addSynParent = function(p) {
+  var host = p.getHostId();
+  if (!this.syntheticParents.hasOwnProperty(host) ||
+      this.syntheticParents[host].getTime() < p.getTime()) {
+    this.syntheticParents[host] = p;
+  }
+}
+
+Node.prototype.getSynChildren = function() {
+  return this.syntheticChildren;
+}
+
+Node.prototype.getSynParents = function() {
+  return this.syntheticParents;
+}
+
+Node.prototype.clearLayoutState = function() {
+  this.syntheticChildren = {};
+  for (var host in this.children) {
+    this.syntheticChildren[host] = this.children[host];
+  }
+  this.syntheticParents = {};
+  for (var host in this.parents) {
+    this.syntheticParents[host] = this.parents[host];
+  }
+
+  this.index = -1;
+}
+
 /**
  * Edge class
  */
@@ -54,29 +113,60 @@ Edge.prototype.getDest = function() {
 }
 
 function Edges() {
-  this.edges = [];
 }
 
-Edges.prototype.add = function(edge) {
-  this.edges.push(edge);
-}
+Edges.prototype.toLiteral = function(hiddenHosts, nodes) {
+  var hosts = nodes.getHosts();
+  for (var i = 0; i < hosts.length; i++) {
+    var host = hosts[i];
+    var curNode = nodes.get(host, 0);
+    while (curNode != null) {
+      curNode = nodes.getNext(host, curNode.getTime() + 1);
+    }
+  }
 
-function isHidden(node) {
+  for (var i = 0; i < hiddenHosts.length; i++) {
+    var hiddenHost = hiddenHosts[i];
+    var curNode = nodes.get(hiddenHost, 0);
 
-}
+    while (curNode != null) {
+      var parents = curNode.getSynParents();
+      var children = curNode.getSynChildren();
 
-Edges.prototype.toLiteral = function(hiddenHosts) {
+      for (var parentHost in parents) {
+        var parentNode = parents[parentHost];
+        for (var childHost in children) {
+          var childNode = children[childHost];
+          parentNode.addSynChild(childNode);
+          childNode.addSynParent(parentNode);
+        }
+      }
+      curNode = nodes.getNext(hiddenHost, curNode.getTime() + 1);
+    }
+  }
+
   var literal = [];
-  for (var i = 0; i < this.edges.length; i++) {
-    // TODO: fix this to handle transitive causation later
-    if (hiddenHosts.indexOf(this.edges[i].getSrc().getHostId()) >= 0 ||
-          hiddenHosts.indexOf(this.edges[i].getDest().getHostId()) >= 0) {
+  var hosts = nodes.getHosts();
+  for (var i = 0; i < hosts.length; i++) {
+    var host = hosts[i];
+    if (hiddenHosts.indexOf(host) > -1) {
       continue;
     }
-    var edge = {};
-    edge["source"] = this.edges[i].getSrc().getIndex();
-    edge["target"] = this.edges[i].getDest().getIndex();
-    literal.push(edge);
+
+    var curNode = nodes.get(host, 0);
+    while (curNode != null) {
+      var children = curNode.getSynChildren();
+      for (var otherHost in children) {
+        if (hiddenHosts.indexOf(otherHost) > -1) {
+          continue;
+        }
+        var edge = {};
+        edge["source"] = curNode.getIndex();
+        edge["target"] = nodes.get(otherHost, children[otherHost].getTime()).getIndex();
+        literal.push(edge);
+      }
+      curNode = nodes.getNext(host, curNode.getTime() + 1);
+    }
   }
   return literal;
 }
@@ -116,12 +206,14 @@ Graph.prototype.parseLog = function(logLines) {
       var host = stamp.substring(0, spacer);
       var clock = JSON.parse(stamp.substring(spacer));
       
-      var index = log.indexOf("INFO");
+/*      var index = log.indexOf("INFO");
       if (index == -1) {
         index = log.indexOf("WARN");
       }
       var displayLog = log.substring(index + 4);
       this.nodes.add(new Node(displayLog, host, clock));
+    */
+      this.nodes.add(new Node(log, host, clock));
     }
   }catch (err) {
     alert("Error parsing input, malformed logs");
@@ -141,7 +233,7 @@ Graph.prototype.toLiteral = function(hiddenHosts) {
 
   var literal = {};
   literal["nodes"] = this.nodes.toLiteral(hiddenHosts);
-  literal["links"] = this.edges.toLiteral(hiddenHosts);
+  literal["links"] = this.edges.toLiteral(hiddenHosts, this.nodes);
  
   var sortedHosts = this.nodes.getSortedHosts();
   for (var i = 0; i < hiddenHosts.length; i++) {
@@ -161,7 +253,8 @@ Graph.prototype.generateEdges = function() {
   var hosts = this.nodes.getHosts();
   for (var i = 0; i < hosts.length; i++) {
     var host = hosts[i];
-    var name = "Host: " + host.substring(host.indexOf("[") + 1, host.indexOf("]"));
+    //var name = "Host: " + host.substring(host.indexOf("[") + 1, host.indexOf("]"));
+    var name = "Host: " + host;
     var startClock = {};
     startClock[host] = 0;
     var startNode = new Node(name, host, startClock);
@@ -176,7 +269,8 @@ Graph.prototype.generateEdges = function() {
     while (curNode != null) {
       if (prevNode != null) {
         // curNode has a parent on this host
-        this.edges.add(new Edge(prevNode, curNode));
+        prevNode.addChild(curNode);
+        curNode.addParent(prevNode);
       }
       clock[host] = curNode.getTime();
       var candidates = [];
@@ -209,7 +303,8 @@ Graph.prototype.generateEdges = function() {
       }
 
       for (var id in sourceNodes) {
-        this.edges.add(new Edge(sourceNodes[id], curNode));
+        sourceNodes[id].addChild(curNode);
+        curNode.addParent(sourceNodes[id]);
       }
 
       prevNode = curNode;
@@ -229,6 +324,13 @@ function Nodes() {
 Nodes.prototype.toLiteral = function(hiddenHosts) {
   var literal = [];
   var index = 0;
+  for (var host in this.hosts) {
+    var curNode = this.get(host, 0);
+    while (curNode != null) {
+      curNode.clearLayoutState();
+      curNode = this.get(host, curNode.getTime() + 1);
+    }
+  }
   for (var host in this.hosts) {
     if (hiddenHosts.indexOf(host) >= 0) {
       continue;
@@ -303,7 +405,7 @@ var get = function (id) {
   return document.getElementById(id);
 };
 
-var devMode = false;
+var devMode = true;
 loadExample();
 
 spaceTimeLayout = function () {
@@ -503,13 +605,6 @@ function drawHosts(label, subtext, hosts, svg) {
 
   var xDelta = 5;
   x = xDelta;
-/*  y += 20;
-  svg.append("text")
-    .attr("class", "time")
-    .attr("x", 0).attr("y", y)
-    .text(subtext);
-  y += 20;*/
-
 
   var count = 0;
 
@@ -538,37 +633,6 @@ function drawHosts(label, subtext, hosts, svg) {
       });
 
   rect.append("title").text(subtext);
-
-
-/*
-    x += 30;
-    if (x > 65) {
-      x = xDelta;
-      y += 30;
-    }
-
-    }
-
-/*
-    var host = hosts[i];
-    var g = svg.append("g")
-      .attr("transform", "translate(0, " + y + ")")
-      .on("dblclick", function(e) { unhide(e); });
-    g.append("rect")
-      .attr("x", x).attr("y", 0)
-      .attr("width", 25).attr("height", 25)
-      .style("stroke", "#fff")
-      .style("fill", hostColors[host]);
-
-    x += 30;
-    if (x > 65) {
-      x = xDelta;
-      y += 30;
-    }
-
-    g.append("title")
-      .text(subtext);
-  }*/
 }
 
 function makeSideBar(hosts) {
@@ -579,8 +643,7 @@ function makeSideBar(hosts) {
 
   var svg = d3.select("#hosts").append("svg");
 
-  // Draw the host nodes
-  // drawHosts("Hosts", "Click to hide", hosts, x, y, svg);
+  // Draw the hidden host nodes
   if (hiddenHosts.length > 0) {
     drawHosts("Hidden hosts", "Double click to view", hiddenHosts, svg);
   }
