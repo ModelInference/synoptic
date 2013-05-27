@@ -13,7 +13,7 @@ body {
  */
 .black_overlay{
     display: none;
-    position: absolute;
+    position: fixed;
     top: 0%;
     left: 0%;
     width: 100%;
@@ -27,7 +27,7 @@ body {
 
 .overlay_content {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 25%;
     left: 25%;
     width: 50%;
