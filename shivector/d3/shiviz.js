@@ -766,14 +766,14 @@ function graph(graph) {
     .style("stroke", "#fff")
     .attr("width", 25).attr("height", 25)
     .attr("x", function(d) { return d.x - (25/2); })
-    .attr("y", function(d) { return 0; })
+    .attr("y", function(d) { return 15; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
     .on("dblclick", function(e) { hideHost(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; });
 
   hostSvg.attr("width", 960);
-  hostSvg.attr("height", 40);
+  hostSvg.attr("height", 55);
 }
 
 
