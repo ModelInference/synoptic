@@ -733,32 +733,42 @@ function graph(graph) {
       .attr("y2", function(d) { return d.target.y; });
 
   var node = svg.selectAll(".node")
-    .data(graph.nodes)
-    .enter().append("circle")
+    .data(graph.nodes).enter().append("g");
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  var standardNodes = node.filter(function(d) {
+    var keep = !d.hasOwnProperty("startNode");
+    return !d.hasOwnProperty("startNode");
+  });
+
+  standardNodes.append("circle")
     // .on("click", function(e) { get("curNode").innerHTML = e.name; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
     .on("dblclick", function(e) { collapseEvent(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; })
-    .attr("cx", function(d) { return d.x; });
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })
+    .attr("r", function(d) { return 5; });
 
-  var standardNodes = node.filter(function(d) {
-    return !d.hasOwnProperty("startNode");
-  });
 
   var startNodes = node.filter(function(d) {
     return d.hasOwnProperty("startNode");
   });
 
-  standardNodes.attr("cy", function(d) { return d.y; })
-      .attr("r", function(d) { return 5; });
+  startNodes.append("rect")
+    .style("stroke", "#fff")
+    .attr("width", 25).attr("height", 25)
+    .attr("x", function(d) { return d.x - (25/2); })
+    .attr("y", function(d) { return d.y - 20; })
+    // .on("click", function(e) { get("curNode").innerHTML = e.name; })
+    .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
+    .on("dblclick", function(e) { collapseEvent(e); })
+    .attr("class", "node")
+    .style("fill", function(d) { return hostColors[d.group]; });
 
-  startNodes.attr("cy", function(d) { return d.y - 20; })
-      .attr("r", function(d) { return 15; });
-
-
-  node.append("title")
-      .text(function(d) { return d.name; });
 
   svg.attr("height", spaceTime.height());
   svg.attr("width", spaceTime.width());
