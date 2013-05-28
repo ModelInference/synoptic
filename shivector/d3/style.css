@@ -124,18 +124,18 @@ a:not(:hover) {
 #vizContainer {
   width: 960px; 
   float: left;
-  margin-left: 40px;
 }
 
 #hosts {
-  width: 100%
-  height: 50px;
+  width: 120px;
+  float: left;
+  float: left;
 }
 
 #topBar {
-  width: 100%;
+  width: 1120px;
   position: relative;
-  background-color: rgb(240,240,240);
+  background-color: white;
 }
 
 #spaceTime {
