@@ -126,9 +126,13 @@ a:not(:hover) {
   float: left;
 }
 
+#hostBar {
+  width: 960px;
+  float: left;
+}
+
 #hosts {
   width: 120px;
-  float: left;
   float: left;
 }
 
@@ -136,10 +140,6 @@ a:not(:hover) {
   width: 1120px;
   position: relative;
   background-color: white;
-}
-
-#spaceTime {
-  width: 960px;
 }
 
 .node text {

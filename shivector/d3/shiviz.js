@@ -679,8 +679,6 @@ function drawHostsAcross(label, subtext, hosts, svg) {
 function makeSideBar(hosts) {
   makeArrow();
 
-  /*var width = 960;
-  var height = 50;*/
   var width = 120;
   var height = 500;
 
@@ -689,10 +687,7 @@ function makeSideBar(hosts) {
   // Draw the hidden host nodes
   if (hiddenHosts.length > 0) {
     drawHostsDown("Hidden hosts:", "Double click to view", hiddenHosts, svg);
-//    get("hosts").style.display='block';
-  } else {
-//    get("hosts").style.display='none';
-  }
+  } 
 
   svg.attr("width", width);
   svg.attr("height", height);
@@ -707,7 +702,10 @@ function graph(graph) {
       .links(graph.links)
       .start();
 
-  var svg = d3.select("#spaceTime").append("svg");
+  var svg = d3.select("#vizContainer").append("svg");
+
+
+  var delta = 45;
 
   var link = svg.selectAll(".link")
       .data(graph.links)
@@ -719,12 +717,12 @@ function graph(graph) {
       .attr("y1", function(d) { 
         if (d.source.hasOwnProperty("startNode") &&
             d.source.x != d.target.x) {
-          return d.source.y + 10;   
+          return d.source.y + 10 - delta;   
         }
-        return d.source.y;
+        return d.source.y - delta;
       })
       .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+      .attr("y2", function(d) { return d.target.y - delta; });
 
   var node = svg.selectAll(".node")
     .data(graph.nodes).enter().append("g");
@@ -733,39 +731,49 @@ function graph(graph) {
       .text(function(d) { return d.name; });
 
   var standardNodes = node.filter(function(d) {
-    var keep = !d.hasOwnProperty("startNode");
     return !d.hasOwnProperty("startNode");
   });
 
   standardNodes.append("circle")
-    // .on("click", function(e) { get("curNode").innerHTML = e.name; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
     .on("dblclick", function(e) { hideHost(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; })
     .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; })
+    .attr("cy", function(d) { return d.y - delta; })
     .attr("r", function(d) { return 5; });
-
 
   var startNodes = node.filter(function(d) {
     return d.hasOwnProperty("startNode");
   });
 
-  startNodes.append("rect")
+  svg.attr("height", spaceTime.height());
+  svg.attr("width", spaceTime.width());
+
+  var starts = graph.nodes.filter(function(d) { 
+      return d.hasOwnProperty("startNode"); });
+  var hostSvg = d3.select("#hostBar").append("svg");
+
+  hostSvg.append("rect")
+    .style("stroke", "#fff")
+    .attr("width", 960).attr("height", 60)
+    .attr("x", 0)
+    .attr("y", 0)
+    .style("fill", "#fff");
+
+  hostSvg.selectAll().data(starts).enter()
+    .append("rect")
     .style("stroke", "#fff")
     .attr("width", 25).attr("height", 25)
     .attr("x", function(d) { return d.x - (25/2); })
-    .attr("y", function(d) { return d.y - 20; })
-    // .on("click", function(e) { get("curNode").innerHTML = e.name; })
+    .attr("y", function(d) { return 0; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
     .on("dblclick", function(e) { hideHost(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; });
 
-
-  svg.attr("height", spaceTime.height());
-  svg.attr("width", spaceTime.width());
+  hostSvg.attr("width", 960);
+  hostSvg.attr("height", 40);
 }
 
 
@@ -818,12 +826,19 @@ window.onscroll=function () {
         get("hosts").style.top="85px";
         get("hosts").style.marginLeft="1000px";
         
+        get("hostBar").style.position = "fixed";
+        get("hostBar").style.top= "50px";
+        get("hostBar").style.marginLeft="40px";
+
         get("vizContainer").style.marginLeft="40px";
     } else {
         get("topBar").style.position = "relative";
         get("sideBar").style.position = "relative";
         get("hosts").style.position = "relative";
         get("hosts").style.marginLeft="0px";
+        get("hostBar").style.position = "relative";
+        get("hostBar").style.marginLeft="0px";
+        get("hostBar").style.top= "0px";
         get("vizContainer").style.marginLeft = "0px";
     }
 }
