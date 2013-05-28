@@ -139,7 +139,6 @@ a:not(:hover) {
 
 #topBar {
   width: 1120px;
-  height: 40px;
   position: relative;
   background-color: white;
 }

@@ -836,6 +836,7 @@ window.onscroll=function () {
         get("sideBar").style.position = "relative";
         get("hosts").style.position = "relative";
         get("hosts").style.marginLeft="0px";
+        get("hosts").style.top="0px";
         get("hostBar").style.position = "relative";
         get("hostBar").style.marginLeft="0px";
         get("hostBar").style.top= "0px";
