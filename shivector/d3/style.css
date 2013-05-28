@@ -109,6 +109,7 @@ a:not(:hover) {
 
 #curNode {
   color: steelblue;
+  background-color: #fff;
 }
 
 #logField {
@@ -138,6 +139,7 @@ a:not(:hover) {
 
 #topBar {
   width: 1120px;
+  height: 40px;
   position: relative;
   background-color: white;
 }
