@@ -199,7 +199,8 @@ Graph.prototype.parseLog = function(logLines) {
     for (var i = 0; i < logLines.length; i+=2) {
       var log = logLines[i];
       if (log.length == 0) {
-        break;
+        i -= 1;
+        continue;
       }
       var stamp = logLines[i+1];
       var spacer = stamp.indexOf(" ");
