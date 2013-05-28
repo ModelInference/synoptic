@@ -116,15 +116,6 @@ function Edges() {
 }
 
 Edges.prototype.toLiteral = function(hiddenHosts, nodes) {
-  var hosts = nodes.getHosts();
-  for (var i = 0; i < hosts.length; i++) {
-    var host = hosts[i];
-    var curNode = nodes.get(host, 0);
-    while (curNode != null) {
-      curNode = nodes.getNext(host, curNode.getTime() + 1);
-    }
-  }
-
   for (var i = 0; i < hiddenHosts.length; i++) {
     var hiddenHost = hiddenHosts[i];
     var curNode = nodes.get(hiddenHost, 0);
@@ -614,6 +605,7 @@ function drawHostsDown(label, subtext, hosts, svg) {
       .data(hosts)
       .enter().append("rect")
       .on("dblclick", function(e) { unhide(e); })
+      .on("mouseover", function(e) { get("curNode").innerHTML = e; })
       .style("stroke", "#fff")
       .attr("width", 25).attr("height", 25)
       .style("fill", function(host) { return hostColors[host]; })
@@ -687,17 +679,19 @@ function drawHostsAcross(label, subtext, hosts, svg) {
 function makeSideBar(hosts) {
   makeArrow();
 
-  var width = 960;
-  var height = 50;
+  /*var width = 960;
+  var height = 50;*/
+  var width = 120;
+  var height = 500;
 
   var svg = d3.select("#hosts").append("svg");
 
   // Draw the hidden host nodes
   if (hiddenHosts.length > 0) {
-    drawHostsAcross("Hidden hosts:", "Double click to view", hiddenHosts, svg);
-    get("hosts").style.display='block';
+    drawHostsDown("Hidden hosts:", "Double click to view", hiddenHosts, svg);
+//    get("hosts").style.display='block';
   } else {
-    get("hosts").style.display='none';
+//    get("hosts").style.display='none';
   }
 
   svg.attr("width", width);
@@ -746,7 +740,7 @@ function graph(graph) {
   standardNodes.append("circle")
     // .on("click", function(e) { get("curNode").innerHTML = e.name; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
-    .on("dblclick", function(e) { collapseEvent(e); })
+    .on("dblclick", function(e) { hideHost(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; })
     .attr("cx", function(d) { return d.x; })
@@ -765,7 +759,7 @@ function graph(graph) {
     .attr("y", function(d) { return d.y - 20; })
     // .on("click", function(e) { get("curNode").innerHTML = e.name; })
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
-    .on("dblclick", function(e) { collapseEvent(e); })
+    .on("dblclick", function(e) { hideHost(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; });
 
@@ -793,10 +787,6 @@ function unhide(e) {
   draw();
 }
 
-function collapseEvent(e) {
-  hideHost(e);
-}
-
 function loadExample() {
   if (!devMode) {
     var textfile;
@@ -815,18 +805,25 @@ function loadExample() {
 
 window.onscroll=function () {
     var top = window.pageXOffset ? window.pageXOffset : document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop;
-    if(top > 500){
+    if(top > 630){
         get("topBar").style.position = "fixed";
-        get("topBar").style.width="960px"
-        get("topBar").style.top="0px"
+        get("topBar").style.top="0px";
 
         // Time flow div.
         get("sideBar").style.position = "fixed";
-        get("sideBar").style.top="85px"
-        get("sideBar").style.width="40px"
+        get("sideBar").style.top="85px";
+
+        // Hidden hosts div
+        get("hosts").style.position = "fixed";
+        get("hosts").style.top="85px";
+        get("hosts").style.marginLeft="1000px";
         
+        get("vizContainer").style.marginLeft="40px";
     } else {
         get("topBar").style.position = "relative";
         get("sideBar").style.position = "relative";
+        get("hosts").style.position = "relative";
+        get("hosts").style.marginLeft="0px";
+        get("vizContainer").style.marginLeft = "0px";
     }
 }
