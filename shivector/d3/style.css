@@ -56,6 +56,12 @@ body {
   position: relative;
 }
 
+#examplelogs {
+  font-size: 15px;
+  font-weight: 350;
+  margin-top: 0px;
+}
+
 h1 {
   font-size: 64px;
   font-weight: 300;
