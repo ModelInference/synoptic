@@ -8,7 +8,7 @@
 
 <header>
   <b><a href="shiviz.html">Home</a></b>
-  <a style="margin-left:1em;" href="javascript:void(0)" onclick="document.getElementById('help').style.display='block';document.getElementById('fade').style.display='block'">Help</a>
+  <a style="margin-left:1em;" href="javascript:void(0)" onclick="document.getElementById('help').style.display='block';document.getElementById('fade').style.display='block'">FAQ</a>
   <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/wiki/ShiVector">Documentation</a>
   <a style="margin-left:1em;" href="https://code.google.com/p/synoptic/">Source</a>
 </header>
@@ -19,83 +19,78 @@
   <div id="close_help">
   <a href="javascript:void(0)" onclick="document.getElementById('help').style.display='none';document.getElementById('fade').style.display='none'"><b>X</b></a>
   </div>
-
-  <p>
-    ShiViz creates visualizations to aid developers in analyzing
-    distributed traces. This page provides some quick help to get
-    started with the tool. For more information, see
-    the <a href="https://code.google.com/p/synoptic/wiki/ShiVector">project
-      wiki</a>.
-  </p>
-  
-  <h3>What am I looking at?</h3>
-  
+  <h3 style="margin-top:0px;" id="helpsectiontitle">What am I looking at?</h3>
+  <hr align=left width=80%>
   <p>
 
-    In the diagram:
+    In the visualization:
     <ul>
       <li>
         Time flows from top to bottom.
       </li>
       <li>
         A vertical line with a box at the top is a <b>process
-          timeline</b> and represents a single thread of execution (e.g.,
-        a q process on a host). There might be multiple such timelines.
+          timeline</b>. This represents a single thread of execution
+          (e.g., a process).
       </li>
       <li>
-        Circles along a process timeline are <b>process events</b> that
-        were executed by the process.
+        Circles on a process timeline are <b>events</b> that were
+        executed by the process.
       </li>
       <li>
-        Diagonal lines connecting two process events represent the
+        Diagonal lines connecting two events represent the
         <a href="http://en.wikipedia.org/wiki/Happened-before">happened-before</a>
-        relation between the two events. That is, the higher of the two
-        events <i>happened before</i> the second process event.
+        relation between the events: the higher of the two events
+        happened <i>before</i> the second event.
       </li>
     </ul>
 
   </p>
 
-  <h3>How do I interact with the visualization?</h3>
+  <h3 id="helpsectiontitle">How do I interact with the visualization?</h3>
+  <hr align=left width=80%>
 
   <p>
-    
-    You can:
+    The visualization supports the following actions:
     <ul>
       <li>
-        <b>Hide a process timeline</b>: double click on a process event
-        or on the process box. To show the process timeline, double
-        click on the process box in the "hidden hosts" panel.
+        <b>Hide a process timeline</b>: double click a process box. To
+        show the process timeline, double click on the process box in
+        the "hidden hosts" panel.
       </li>
       <li>
-        <b>Show event text associated with a circle</b>: mouse-over the
-        event and see the event text appear just above the diagram.
+        <b>Show event or process text</b>: hover over the event circle
+        or process box. The corresponding text will appear next to
+        "Current node:"
       </li>
     </ul>
-
   </p>
 
-  <h3>What is the input log format?</h3>
+  <h3 id="helpsectiontitle">What is the input log format?</h3>
+  <hr align=left width=80%>
 
   <p>TODO: describe log format with a short 2-event example.</p>
 
-  <h3>How do I generate logs in this format?</h3>
+  <h3 id="helpsectiontitle">How do I generate logs in this format?</h3>
+  <hr align=left width=80%>
 
   <p>TODO: describe ShiVector</p>
 
-  <h3>How is this useful?</h3>
-  
+  <h3 id="helpsectiontitle">How is this useful?</h3>
+  <hr align=left width=80%>
+
   <p>
-    You can use this tool to:
+    ShiViz is useful for:
     <ul>
       <li>
-        <b>Understand the communication graph.</b> For example, to look
-        for presence or absence of certain communication patterns.
+        <b>Understanding the communication graph.</b> For example, to
+        look for presence or absence of certain communication
+        patterns.
       </li>
       <li>
-        <b>Reason about time in a distributed setting</b>. For example,
-        to figure out whether two events occurred concurrently, or if
-        one happened before the other.
+        <b>Reasoning about ordering in a distributed setting</b>. For
+        example, to figure out whether two events occurred
+        concurrently, or if one happened before the other.
       </li>
     </ul>
   </p>
