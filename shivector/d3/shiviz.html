@@ -116,6 +116,11 @@
   <div id="info">
     <h2>Execution log</h2>
     <textarea id='logField' datasrc="#defaultTxt" datafld="Content" ></textarea>
+    <p id=examplelogs>
+    Examples:
+    <a href="javascript:void(0)" onclick="document.getElementById('logField').value='FB log'">Facebook data-center log</a>
+    <a style="margin-left:1em;" href="javascript:void(0)" onclick="document.getElementById('logField').value='Voldemort log'">Voldemort log</a>
+    </p>
     <input type='button' id='clearButton' value="clear" />
     <input type='button' id='vizButton' value="visualize" />
   </div>
