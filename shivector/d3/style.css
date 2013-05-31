@@ -1,11 +1,11 @@
 html {
-  min-width: 1200px;
+  min-width: 1000px;
 }
 
 body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   margin: 1em auto 4em auto;
-  width: 1120px;
+  width: 920px;
 }
 
 /**
@@ -113,8 +113,9 @@ a:not(:hover) {
 }
 
 #logField {
-  width: 1120px;
+  width: 920px;
   height: 200px;
+  font-family: monospace;
 }
 
 #sideBar {
@@ -123,12 +124,12 @@ a:not(:hover) {
 }
 
 #vizContainer {
-  width: 960px; 
+  width: 760px; 
   float: left;
 }
 
 #hostBar {
-  width: 960px;
+  width: 760px;
   float: left;
 }
 
@@ -138,7 +139,7 @@ a:not(:hover) {
 }
 
 #topBar {
-  width: 1120px;
+  width: 920px;
   position: relative;
   background-color: white;
 }

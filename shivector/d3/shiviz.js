@@ -1,7 +1,7 @@
 /**
  * Node class
  */
-function Node(log, hostId, clock) {
+function Node(log, hostId, clock, line) {
   this.log = log;
   this.hostId = hostId;
   this.clock = clock;
@@ -13,6 +13,19 @@ function Node(log, hostId, clock) {
 
   this.syntheticParents = {};
   this.syntheticChildren = {};
+ 
+  this.line = line || 0;
+
+/*
+  this.collapsible = false;
+  this.collapsedTarget = null;
+  this.collapsedChildren = [];
+  this.collapsedParent = null;
+  this.collapseToggleOn = true;*/
+}
+
+Node.prototype.getLine = function() {
+  return this.line;
 }
 
 Node.prototype.id = function() {
@@ -95,6 +108,58 @@ Node.prototype.clearLayoutState = function() {
 
   this.index = -1;
 }
+/*
+Node.prototype.getCollapsedTarget = function() {
+  return this.collapsedTarget;
+}
+
+Node.prototype.isCollapsed = function() {
+  return this.collapsible && this.collapseToggleOn;
+}
+
+Node.prototype.addCollapsedChild = function(child, target) {
+  if (this.collapsible) {
+    this.collapsedParent.addCollapsedChild(child, target);
+  } else {
+    this.collapsedChildren.push(child);
+    this.collapsedTarget = target;
+  }
+}
+
+Node.prototype.getCollapsedChildren = function() {
+  return this.collapsedChildren;
+}
+
+Node.prototype.assignCollapsible = function(nodes) {
+  if (this.getTime() <= 1) {
+    this.collapsible = false;
+    return;
+  }
+
+  for (var p in this.parents) {
+    if (p != this.getHostId()) {
+      this.collapsible = false;
+      return;
+    }
+  }
+  
+  for (var c in this.children) {
+    if (c != this.getHostId()) {
+      this.collapsible = false;
+      return;
+    }
+  }
+
+  // Yes collapsible!
+  this.collapsedParent = this.parents[this.hostId];
+  var c = null;
+  if (this.children.hasOwnProperty(this.hostId)) {
+    c = this.children[this.hostId];
+  }
+  this.collapsedParent.addCollapsedChild(this, c);
+
+  this.collapsible = true;
+}*/
 
 /**
  * Edge class
@@ -112,8 +177,7 @@ Edge.prototype.getDest = function() {
   return this.dest;
 }
 
-function Edges() {
-}
+function Edges() {}
 
 Edges.prototype.toLiteral = function(hiddenHosts, nodes) {
   for (var i = 0; i < hiddenHosts.length; i++) {
@@ -146,15 +210,27 @@ Edges.prototype.toLiteral = function(hiddenHosts, nodes) {
 
     var curNode = nodes.get(host, 0);
     while (curNode != null) {
+/*      if (curNode.isCollapsed()) {
+        curNode = nodes.getNext(host, curNode.getTime() + 1);
+        continue;
+      }*/
       var children = curNode.getSynChildren();
       for (var otherHost in children) {
         if (hiddenHosts.indexOf(otherHost) > -1) {
           continue;
         }
-        var edge = {};
-        edge["source"] = curNode.getIndex();
-        edge["target"] = nodes.get(otherHost, children[otherHost].getTime()).getIndex();
-        literal.push(edge);
+
+        var child = nodes.get(otherHost, children[otherHost].getTime());
+/*        if (child.isCollapsed()) {
+          child = curNode.getCollapsedTarget();
+        } */
+
+        if (child != null) {
+          var edge = {};
+          edge["source"] = curNode.getIndex();
+          edge["target"] = child.getIndex();
+          literal.push(edge);
+        }
       }
       curNode = nodes.getNext(host, curNode.getTime() + 1);
     }
@@ -205,7 +281,7 @@ Graph.prototype.parseLog = function(logLines) {
       var displayLog = log.substring(index + 4);
       this.nodes.add(new Node(displayLog, host, clock));
     */
-      this.nodes.add(new Node(log, host, clock));
+      this.nodes.add(new Node(log, host, clock, i));
     }
   }catch (err) {
     alert("Error parsing input, malformed logs");
@@ -213,6 +289,8 @@ Graph.prototype.parseLog = function(logLines) {
     return false;
   }
 
+//  this.generateEdges();
+//  this.nodes.computeCollapsible();
   return true;
 }
 
@@ -330,12 +408,16 @@ Nodes.prototype.toLiteral = function(hiddenHosts) {
     var arr = this.hosts[host]['times'];
     for (var i = 0; i < arr.length; i++) {
       var obj = this.get(host, arr[i]);
+/*      if (obj.isCollapsed()) {
+        continue;
+      }*/
       var node = {};
       node["name"] = obj.getLog();
       node["group"] = host;
       if (obj.getTime() == 0) {
         node["startNode"] = true;
       }
+      node["line"] = obj.getLine();
       obj.setIndex(index);
       index += 1;
       literal.push(node);
@@ -343,6 +425,16 @@ Nodes.prototype.toLiteral = function(hiddenHosts) {
   }
   return literal;
 }
+
+/*
+Nodes.prototype.computeCollapsible = function() {
+  for (var host in this.hosts) {
+    var arr = this.hosts[host]['times'];
+    for (var i = 0; i < arr.length; i++) {
+      this.get(host, arr[i]).assignCollapsible(this);
+    }
+  }
+}*/
 
 Nodes.prototype.get = function(hostId, time) {
   var node = this.hosts[hostId][time];
@@ -383,10 +475,11 @@ Nodes.prototype.add = function(node) {
 }
 
 Nodes.prototype.getSortedHosts = function () {
-  var hostCopy = this.hosts;
+  /* var hostCopy = this.hosts;
   return this.getHosts().sort(function(a, b) {
     return hostCopy[b]['times'].length - hostCopy[a]['times'].length;
-  });
+  });*/
+  return this.getHosts();
 }
 
 Nodes.prototype.getHosts = function() {
@@ -404,7 +497,7 @@ spaceTimeLayout = function () {
   var spaceTime = {},
       nodes = [],
       links = [],
-      width = 960,
+      width = 760,
       height = 0,
       hosts = [];
 
@@ -666,7 +759,7 @@ function drawHostsAcross(label, subtext, hosts, svg) {
       .attr("x", function(host) {
         var curX = x;
         x += 30;
-        if (x > 960) {
+        if (x > 760) {
           x = xDelta;
         }
         return curX;
@@ -736,7 +829,7 @@ function graph(graph) {
 
   standardNodes.append("circle")
     .on("mouseover", function(e) { get("curNode").innerHTML = e.name; })
-    .on("dblclick", function(e) { hideHost(e); })
+    .on("click", function(e) { showLog(e); })
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; })
     .attr("cx", function(d) { return d.x; })
@@ -756,7 +849,7 @@ function graph(graph) {
 
   hostSvg.append("rect")
     .style("stroke", "#fff")
-    .attr("width", 960).attr("height", 60)
+    .attr("width", 760).attr("height", 60)
     .attr("x", 0)
     .attr("y", 0)
     .style("fill", "#fff");
@@ -772,7 +865,7 @@ function graph(graph) {
     .attr("class", "node")
     .style("fill", function(d) { return hostColors[d.group]; });
 
-  hostSvg.attr("width", 960);
+  hostSvg.attr("width", 760);
   hostSvg.attr("height", 55);
 }
 
@@ -782,6 +875,10 @@ function draw(graphObj) {
   d3.selectAll("svg").remove();
   graph(graphObj);
   makeSideBar(graphObj.hosts);
+}
+
+function showLog(e) {
+  selectTextareaLine(get("logField"), e.line); 
 }
 
 function hideHost(e) {
@@ -842,4 +939,49 @@ window.onscroll=function () {
         get("hostBar").style.top= "0px";
         get("vizContainer").style.marginLeft = "0px";
     }
+}
+
+function selectTextareaLine(tarea,lineNum) {
+    var lineLength = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".length;
+
+    var lines = tarea.value.split("\n");
+
+    var numLines = 0;
+    // calculate start/end
+    var startPos = 0, endPos = tarea.value.length;
+    for(var x = 0; x < lines.length; x++) {
+        if(x == lineNum) {
+            break;
+        }
+        startPos += (lines[x].length+1);
+        
+        numLines += Math.ceil(lines[x].length / lineLength);
+    }
+
+    tarea.scrollTop = numLines * 13 - 20;
+    var endPos = lines[lineNum].length+startPos;
+
+    // do selection
+    // Chrome / Firefox
+
+    if(typeof(tarea.selectionStart) != "undefined") {
+        tarea.focus();
+        tarea.selectionStart = startPos;
+        tarea.selectionEnd = endPos;
+        return true;
+    }
+
+    // IE
+    if (document.selection && document.selection.createRange) {
+        tarea.focus();
+        tarea.select();
+        var range = document.selection.createRange();
+        range.collapse(true);
+        range.moveEnd("character", endPos);
+        range.moveStart("character", startPos);
+        range.select();
+        return true;
+    }
+
+    return false;
 }
