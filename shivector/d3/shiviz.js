@@ -490,7 +490,7 @@ var get = function (id) {
   return document.getElementById(id);
 };
 
-var devMode = true;
+var devMode = false;
 loadExample();
 
 spaceTimeLayout = function () {
@@ -892,7 +892,7 @@ function unhide(e) {
   draw();
 }
 
-function loadExample() {
+function loadExample(filename) {
   if (!devMode) {
     var textfile;
     if (window.XMLHttpRequest) {
@@ -903,7 +903,7 @@ function loadExample() {
         get("logField").value = textfile.responseText;
       }
     }
-    textfile.open("GET", "defaultLog.txt", true);
+    textfile.open("GET", filename, true);
     textfile.send();
   }
 }
