@@ -28,10 +28,10 @@ body {
 .overlay_content {
     display: none;
     position: fixed;
-    top: 25%;
+    top: 10%;
     left: 25%;
     width: 50%;
-    height: 50%;
+    height: 75%;
     z-index:1002;
     overflow: auto;
     background-color: white;
@@ -44,9 +44,11 @@ body {
 
 #close_help{
     position:fixed;
-    margin-left:480px;
+    margin-left:475px;
+    margin-top: -10px;
     background:white;
     padding:4px;
+    border: 1px steelblue solid;
 }
 
 /**
@@ -54,6 +56,16 @@ body {
  */
 #body {
   position: relative;
+}
+
+#helpsectiontitle {
+  margin-bottom: 3px;
+}
+
+#examplelogs {
+  font-size: 15px;
+  font-weight: 350;
+  margin-top: 0px;
 }
 
 h1 {
