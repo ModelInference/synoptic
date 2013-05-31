@@ -491,7 +491,6 @@ var get = function (id) {
 };
 
 var devMode = false;
-loadExample();
 
 spaceTimeLayout = function () {
   var spaceTime = {},
@@ -921,7 +920,7 @@ window.onscroll=function () {
         // Hidden hosts div
         get("hosts").style.position = "fixed";
         get("hosts").style.top="85px";
-        get("hosts").style.marginLeft="1000px";
+        get("hosts").style.marginLeft="800px";
         
         get("hostBar").style.position = "fixed";
         get("hostBar").style.top= "50px";
@@ -931,12 +930,15 @@ window.onscroll=function () {
     } else {
         get("topBar").style.position = "relative";
         get("sideBar").style.position = "relative";
+
         get("hosts").style.position = "relative";
         get("hosts").style.marginLeft="0px";
         get("hosts").style.top="0px";
+
         get("hostBar").style.position = "relative";
         get("hostBar").style.marginLeft="0px";
         get("hostBar").style.top= "0px";
+
         get("vizContainer").style.marginLeft = "0px";
     }
 }
