@@ -6,6 +6,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -133,34 +134,33 @@ public class BasicAspect {
         return print(joinPoint, obj, options.useLog4J);
     }
 
-    // @Around("call(void org.apache.log4j.Logger.*(Priority, Object)) && args(priority, obj) && !within(shivector..*)")
-    // public Object interceptLog4JPriorityObjectLogging(
-    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
-    //
-    // @Around("call(void org.apache.log4j.Logger.*(Priority, Object, Throwable))&& args(priority, obj, throwable) && !within(shivector..*)")
-    // public Object interceptLog4JPriorityObjectThrowableLogging(
-    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
-    //
-    // @Around("call(void org.apache.log4j.Logger.*(String, Priority, Object, Throwable))&& args(str, priority, obj, throwable) && !within(shivector..*)")
-    // public Object interceptLog4JStringPriorityObjectLogging(
-    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
-    //
-    // @Around("call(void org.apache.log4j.Logger.*(Object))&& args(obj) && !within(shivector..*)")
-    // public Object interceptLog4JObject(ProceedingJoinPoint joinPoint, Object
-    // obj)
-    // throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
-    //
-    // @Around("call(void org.apache.log4j.Logger.*(Object, Throwable))&& args(priority, obj) && !within(shivector..*)")
-    // public Object interceptLog4JObjectThrowableLogging(
-    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
+    @Around("call(* org.apache.mina.core.session.IoSession.write(Object)) && args(msg) && !within(shivector.aspects..*)")
+    public Object interceptMinaWrite(ProceedingJoinPoint joinPoint, Object msg)
+            throws Throwable {
+        if (options.useMinaAPI) {
+            byte[] message = clock.getMessageArray(msg);
+            return joinPoint.proceed(new Object[] { message });
+        }
+        return joinPoint.proceed();
+    }
+
+    @Around("call(* org.apache.mina.core.session.IoSession.write(Object, SocketAddress)) && args(msg, dest) && !within(shivector.aspects..*)")
+    public Object interceptMinaWriteDest(ProceedingJoinPoint joinPoint,
+            Object msg, SocketAddress dest) throws Throwable {
+        if (options.useMinaAPI) {
+            byte[] message = clock.getMessageArray(msg);
+            return joinPoint.proceed(new Object[] { message, dest });
+        }
+        return joinPoint.proceed();
+    }
+
+    @Around("execution(void *.messageReceived(.., Object)) && args(session, message) && !within(shivector.aspects..*)")
+    public Object interceptMinaRead(ProceedingJoinPoint joinPoint,
+            Object session, Object message) throws Throwable {
+        if (options.useMinaAPI) {
+            Object msg = clock.parseMessageArray((byte[]) message);
+            return joinPoint.proceed(new Object[] { session, msg });
+        }
+        return joinPoint.proceed();
+    }
 }

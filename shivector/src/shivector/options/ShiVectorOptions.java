@@ -74,11 +74,17 @@ public class ShiVectorOptions {
      */
     @OptionGroup("Network framework options")
     @Option("Whether to intercept the Jjava.net.Socket streams.")
-    public boolean useSocketsAPI = true;
+    public boolean useSocketsAPI = false;
 
     /**
      * Whether to intercept the java.nio.Channel streams
      */
     @Option("Whether to intercept the java.nio.Channel streams.")
-    public boolean useNioAPI = true;
+    public boolean useNioAPI = false;
+
+    /**
+     * Whether to intercept the mina API
+     */
+    @Option("Whether to intercept the Mina API.")
+    public boolean useMinaAPI = true;
 }
