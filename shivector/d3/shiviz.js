@@ -262,8 +262,9 @@ Graph.prototype.parseLog = function(logLines) {
     return false;
   }
 
+  var i;
   try {
-    for (var i = 0; i < logLines.length; i+=2) {
+    for (i = 0; i < logLines.length; i+=2) {
       var log = logLines[i];
       if (log.length == 0) {
         i -= 1;
@@ -284,7 +285,7 @@ Graph.prototype.parseLog = function(logLines) {
       this.nodes.add(new Node(log, host, clock, i));
     }
   }catch (err) {
-    alert("Error parsing input, malformed logs");
+    alert("Error parsing input, malformed logs: " + i);
     clearText();
     return false;
   }

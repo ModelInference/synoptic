@@ -42,7 +42,8 @@ public class ShivSocketOutputStream extends OutputStream {
 
     @Override
     public void write(int b) throws IOException {
-        clock.writeVectorClock(out, 1);
+        // clock.writeVectorClock(out, 1);
+        clock.writeClock(out);
         out.write(b);
     }
 }

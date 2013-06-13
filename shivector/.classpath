@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/junit-4.9b2.jar"/>
 	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/aspectjrt.jar"/>
 	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/research/synoptic/lib/plume.jar"/>
+	<classpathentry kind="lib" path="/Users/jennyabrahamson/Documents/classes/databases/CSE444-lab6/lib/mina-core-2.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

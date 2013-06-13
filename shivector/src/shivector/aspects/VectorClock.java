@@ -31,15 +31,22 @@ public class VectorClock {
         masterClock = new HashMap<String, Map<String, Integer>>();
         // this.clock = new HashMap<String, Integer>();
         // this.clock.put(node, 0);
+
+        // Now that we're no longer doing IDs by thread, intialize here
+        masterClock.put(node, new HashMap<String, Integer>());
+        Map<String, Integer> clock = masterClock.get(node);
+        clock.put(node, 0);
     }
 
     @Override
     public String toString() {
-        return this.node + Thread.currentThread() + " " + json();
+        // return this.node + Thread.currentThread() + " " + json();
+        return this.node + " " + json();
     }
 
     private String json() {
-        String id = node + Thread.currentThread();
+        // String id = node + Thread.currentThread();
+        String id = node;
         StringBuilder sb = new StringBuilder("{");
         for (Map.Entry<String, Integer> entry : this.masterClock.get(id)
                 .entrySet()) {
@@ -140,8 +147,9 @@ public class VectorClock {
     }
 
     public void writeClock(OutputStream out) throws IOException {
-        initializeClock();
-        String id = node + Thread.currentThread();
+        // initializeClock();
+        // String id = node + Thread.currentThread();
+        String id = node;
         // Convert Map to byte array
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
@@ -154,9 +162,66 @@ public class VectorClock {
         out.write(mapArray);
     }
 
+    public byte[] getMessageArray(Object message) throws IOException {
+        // initializeClock();
+        // String id = node + Thread.currentThread();
+        String id = node;
+
+        // Convert Map to byte array
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
+        objOut.writeObject(masterClock.get(id));
+
+        byte[] mapArray = byteOut.toByteArray();
+        byte[] mapLength = intToByteArray(mapArray.length);
+
+        ByteArrayOutputStream messageOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOutMsg = new ObjectOutputStream(messageOut);
+        objOutMsg.writeObject(message);
+
+        byte[] msgArray = messageOut.toByteArray();
+        byte[] msgLength = intToByteArray(msgArray.length);
+
+        byte[] out = new byte[mapLength.length + mapArray.length
+                + msgLength.length + msgArray.length];
+        ByteBuffer target = ByteBuffer.wrap(out);
+        target.put(mapLength);
+        target.put(mapArray);
+        target.put(msgLength);
+        target.put(msgArray);
+
+        return out;
+    }
+
+    public Object parseMessageArray(byte[] msg) throws IOException {
+        ByteBuffer source = ByteBuffer.wrap(msg);
+        byte[] mapLength = new byte[INT_LENGTH];
+        source.get(mapLength);
+        byte[] map = new byte[byteArrayToInt(mapLength)];
+        source.get(map);
+        readClock(new ByteArrayInputStream(map));
+
+        byte[] msgLength = new byte[INT_LENGTH];
+        source.get(msgLength);
+        byte[] msgArr = new byte[byteArrayToInt(msgLength)];
+        source.get(msgArr);
+
+        ObjectInputStream objIn = new ObjectInputStream(
+                new ByteArrayInputStream(msgArr));
+        try {
+            Object message = (Object) objIn.readObject();
+            return message;
+        } catch (ClassNotFoundException e) {
+            // Whelp we probably can't merge the clocks
+            System.out.println(e);
+            return null;
+        }
+    }
+
     public void writeClock(SocketChannel s) throws IOException {
-        initializeClock();
-        String id = node + Thread.currentThread();
+        // initializeClock();
+        // String id = node + Thread.currentThread();
+        String id = node;
         // Convert Map to byte array
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
@@ -201,8 +266,9 @@ public class VectorClock {
 
     /* Merges the given clock into our clock, taking the max time for each node */
     private void mergeClocks(Map<String, Integer> otherClock) {
-        initializeClock();
-        String id = node + Thread.currentThread();
+        // initializeClock();
+        // String id = node + Thread.current();
+        String id = node;
         Map<String, Integer> clock = masterClock.get(id);
         for (String nodeId : otherClock.keySet()) {
             if (clock.containsKey(nodeId)) {
@@ -225,26 +291,28 @@ public class VectorClock {
         return ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    private void initializeClock() {
-        synchronized (masterClock) {
-            String id = node + Thread.currentThread();
-            if (!masterClock.containsKey(id)) {
-                masterClock.put(id, new HashMap<String, Integer>());
-            }
-            Map<String, Integer> clock = masterClock.get(id);
-            if (!clock.containsKey(id)) {
-                clock.put(id, 0);
-            }
-        }
-    }
+    // private void initializeClock() {
+    // synchronized (masterClock) {
+    // // String id = node + Thread.currentThread();
+    // String id = node;
+    // if (!masterClock.containsKey(id)) {
+    // masterClock.put(node, new HashMap<String, Integer>());
+    // }
+    // Map<String, Integer> clock = masterClock.get(id);
+    // if (!clock.containsKey(id)) {
+    // clock.put(id, 0);
+    // }
+    // }
+    // }
 
-    public void incrementClock() {
-        initializeClock();
+    public synchronized void incrementClock() {
+        // initializeClock();
+
         // Increment this node's clock
-        synchronized (masterClock) {
-            String id = node + Thread.currentThread();
-            Map<String, Integer> clock = masterClock.get(id);
-            clock.put(id, clock.get(id) + 1);
-        }
+        // String id = node + Thread.currentThread();
+        String id = node;
+        Map<String, Integer> clock = masterClock.get(id);
+        clock.put(id, clock.get(id) + 1);
+
     }
 }
