@@ -12,6 +12,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Container for a vector clock mapping with methods to parse/prepend clocks
@@ -22,20 +23,20 @@ import java.util.Map;
 public class VectorClock {
     public static final int INT_LENGTH = 4;
 
-    private Map<String, Map<String, Integer>> masterClock;
+    private Map<String, Map<String, AtomicInteger>> masterClock;
     // private Map<String, Integer> clock;
     private String node;
 
     public VectorClock(String node) {
         this.node = node;
-        masterClock = new HashMap<String, Map<String, Integer>>();
+        masterClock = new HashMap<String, Map<String, AtomicInteger>>();
         // this.clock = new HashMap<String, Integer>();
         // this.clock.put(node, 0);
 
         // Now that we're no longer doing IDs by thread, intialize here
-        masterClock.put(node, new HashMap<String, Integer>());
-        Map<String, Integer> clock = masterClock.get(node);
-        clock.put(node, 0);
+        masterClock.put(node, new HashMap<String, AtomicInteger>());
+        Map<String, AtomicInteger> clock = masterClock.get(node);
+        clock.put(node, new AtomicInteger(0));
     }
 
     @Override
@@ -48,7 +49,7 @@ public class VectorClock {
         // String id = node + Thread.currentThread();
         String id = node;
         StringBuilder sb = new StringBuilder("{");
-        for (Map.Entry<String, Integer> entry : this.masterClock.get(id)
+        for (Map.Entry<String, AtomicInteger> entry : this.masterClock.get(id)
                 .entrySet()) {
             // for (Map.Entry<String, Integer> entry : this.clock.entrySet()) {
             sb.append("\"" + entry.getKey() + "\":" + entry.getValue() + ", ");
@@ -137,7 +138,7 @@ public class VectorClock {
     private void readClock(ByteArrayInputStream byteIn) throws IOException {
         ObjectInputStream objIn = new ObjectInputStream(byteIn);
         try {
-            Map<String, Integer> otherClock = (Map<String, Integer>) objIn
+            Map<String, AtomicInteger> otherClock = (Map<String, AtomicInteger>) objIn
                     .readObject();
             mergeClocks(otherClock);
         } catch (ClassNotFoundException e) {
@@ -265,15 +266,16 @@ public class VectorClock {
     // }
 
     /* Merges the given clock into our clock, taking the max time for each node */
-    private void mergeClocks(Map<String, Integer> otherClock) {
+    private synchronized void mergeClocks(Map<String, AtomicInteger> otherClock) {
         // initializeClock();
         // String id = node + Thread.current();
         String id = node;
-        Map<String, Integer> clock = masterClock.get(id);
+        Map<String, AtomicInteger> clock = masterClock.get(id);
         for (String nodeId : otherClock.keySet()) {
             if (clock.containsKey(nodeId)) {
-                clock.put(nodeId,
-                        Math.max(clock.get(nodeId), otherClock.get(nodeId)));
+                int val = Math.max(clock.get(nodeId).get(),
+                        otherClock.get(nodeId).get());
+                clock.get(nodeId).set(val);
             } else {
                 clock.put(nodeId, otherClock.get(nodeId));
             }
@@ -311,8 +313,7 @@ public class VectorClock {
         // Increment this node's clock
         // String id = node + Thread.currentThread();
         String id = node;
-        Map<String, Integer> clock = masterClock.get(id);
-        clock.put(id, clock.get(id) + 1);
-
+        Map<String, AtomicInteger> clock = masterClock.get(id);
+        clock.get(id).incrementAndGet();
     }
 }
