@@ -16,8 +16,10 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 
 /**
  * Implements two different finite-state-machine based synoptic.model checkers.
@@ -62,7 +64,7 @@ public class FsmModelChecker {
         // Add initial node to the worklist.
         Node node = graph.getDummyInitialNode();
         workList.add(node);
-        states.get(node).setInitial(node);
+        states.get(node).setInitial(node, null);
 
         // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
@@ -80,7 +82,7 @@ public class FsmModelChecker {
             for (Node target : graph.getAdjacentNodes(node)) {
                 StateSet oldTargetStates = states.get(target);
                 StateSet updatesToTargetStates = current.copy();
-                updatesToTargetStates.transition(target);
+                updatesToTargetStates.transition(target, null);
 
                 // Evaluate isSubset _before_ the merge.
                 boolean isSubset = updatesToTargetStates

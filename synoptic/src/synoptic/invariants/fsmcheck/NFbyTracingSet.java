@@ -1,8 +1,11 @@
 package synoptic.invariants.fsmcheck;
 
+import java.util.List;
+
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 
 /**
  * Represents a set of "A never followed by B" synoptic.invariants to simulate,
@@ -31,9 +34,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public void setInitial(T x) {
-        EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
+    public <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions) {
+        EventType name = input.getEType();
+        HistoryNode newHistory = new HistoryNode(input, null, 1);
         aNotSeen = aSeen = bSeenAfter = null;
         if (a.equals(name)) {
             aSeen = newHistory;
@@ -43,8 +46,8 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public void transition(T x) {
-        EventType name = x.getEType();
+    public <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions) {
+        EventType name = input.getEType();
 
         if (b.equals(name)) {
             bSeenAfter = preferShorter(aSeen, bSeenAfter);
@@ -60,9 +63,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         }
 
         // Advance history for all states.
-        aNotSeen = extend(x, aNotSeen);
-        aSeen = extend(x, aSeen);
-        bSeenAfter = extend(x, bSeenAfter);
+        aNotSeen = extend(input, aNotSeen);
+        aSeen = extend(input, aSeen);
+        bSeenAfter = extend(input, bSeenAfter);
     }
 
     @Override
