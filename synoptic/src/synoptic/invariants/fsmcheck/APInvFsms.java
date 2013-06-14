@@ -50,7 +50,8 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void setInitial(T input,
+            List<? extends ITransition<Node>> transitions) {
         BitSet isA = getInputInvariantsDependencies(0, input);
         BitSet isB = getInputInvariantsDependencies(1, input);
         BitSet neither = nor(isA, isB, count);
@@ -60,7 +61,8 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void transition(T input,
+            List<? extends ITransition<Node>> transitions) {
         // Inputs cloned so that they can be mutated.
         BitSet isA = getInputCopy(0, input);
         BitSet isB = getInputCopy(1, input);

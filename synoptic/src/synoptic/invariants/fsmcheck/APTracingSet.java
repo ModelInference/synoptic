@@ -37,7 +37,8 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void setInitial(T input,
+            List<? extends ITransition<Node>> transitions) {
         EventType name = input.getEType();
         HistoryNode newHistory = new HistoryNode(input, null, 1);
         neitherSeen = firstA = firstB = null;
@@ -51,7 +52,8 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void transition(T input,
+            List<? extends ITransition<Node>> transitions) {
         EventType name = input.getEType();
         if (a.equals(name)) {
             firstA = preferShorter(neitherSeen, firstA);

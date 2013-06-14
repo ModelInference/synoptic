@@ -48,7 +48,8 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void setInitial(T input,
+            List<? extends ITransition<Node>> transitions) {
         BitSet isA = getInputCopy(0, input);
         sets.set(1, (BitSet) isA.clone());
         isA.flip(0, count);
@@ -56,7 +57,8 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void transition(T input,
+            List<? extends ITransition<Node>> transitions) {
         /*
          * NOTE: unlike the other synoptic.invariants, isA and isB can be
          * simultaneously 1 (simultaneous assignment - order not significant) s1

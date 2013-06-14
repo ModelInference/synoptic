@@ -34,7 +34,8 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void setInitial(T input,
+            List<? extends ITransition<Node>> transitions) {
         EventType name = input.getEType();
         HistoryNode newHistory = new HistoryNode(input, null, 1);
         aNotSeen = aSeen = bSeenAfter = null;
@@ -46,7 +47,8 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions) {
+    public <Node extends INode<Node>> void transition(T input,
+            List<? extends ITransition<Node>> transitions) {
         EventType name = input.getEType();
 
         if (b.equals(name)) {
