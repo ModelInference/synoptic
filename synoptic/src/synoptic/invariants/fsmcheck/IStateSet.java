@@ -14,7 +14,8 @@ public interface IStateSet<T, StateSetType> {
      *            This partition's list of transitions, currently only used for
      *            constrained invariant FSM state sets
      */
-    <Node extends INode<Node>> void setInitial(T input, List<? extends ITransition<Node>> transitions);
+    <Node extends INode<Node>> void setInitial(T input,
+            List<? extends ITransition<Node>> transitions);
 
     /**
      * Mutates the StateSet, according to which states could be inhabited after
@@ -26,7 +27,8 @@ public interface IStateSet<T, StateSetType> {
      *            This partition's list of transitions, currently only used for
      *            constrained invariant FSM state sets
      */
-    <Node extends INode<Node>> void transition(T input, List<? extends ITransition<Node>> transitions);
+    <Node extends INode<Node>> void transition(T input,
+            List<? extends ITransition<Node>> transitions);
 
     /**
      * Merges this stateset with another, such that all states inhabited by
