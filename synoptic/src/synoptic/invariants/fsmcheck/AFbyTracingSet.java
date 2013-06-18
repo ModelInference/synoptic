@@ -1,11 +1,8 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.List;
-
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * Represents a "A always followed by B" synoptic.invariants to simulate,
@@ -37,10 +34,9 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input,
-            List<? extends ITransition<Node>> transitions) {
-        EventType name = input.getEType();
-        HistoryNode newHistory = new HistoryNode(input, null, 1);
+    public void setInitial(T x) {
+        EventType name = x.getEType();
+        HistoryNode newHistory = new HistoryNode(x, null, 1);
         if (name.equals(a)) {
             wasB = null;
             wasA = newHistory;
@@ -51,9 +47,8 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input,
-            List<? extends ITransition<Node>> transitions) {
-        EventType name = input.getEType();
+    public void transition(T x) {
+        EventType name = x.getEType();
         if (a.equals(name)) {
             wasA = preferShorter(wasB, wasA);
             wasB = null;
@@ -61,8 +56,8 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             wasB = preferShorter(wasA, wasB);
             wasA = null;
         }
-        wasA = extend(input, wasA);
-        wasB = extend(input, wasB);
+        wasA = extend(x, wasA);
+        wasB = extend(x, wasB);
     }
 
     @Override
