@@ -160,9 +160,9 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z (initial) != a (initial)
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
         assertTrue(!f1.isFail());
@@ -171,63 +171,63 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z (initial) == b (initial)
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a (initial z and then transition by a) == a (initial
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->z == z
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgZ, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgZ, null);
+        f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b != a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // a->b is not fail
         assertTrue(!f1.isFail());
 
         // a->b->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b->a->b == a->b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
-        f1.transition(msgA, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
-        f2.transition(msgB, null);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // TODO: test multiple simultaneous AFby machines
@@ -256,9 +256,9 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z != a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
         assertTrue(!f1.isFail());
@@ -267,81 +267,81 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z == b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->b == z
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->z == z
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgZ, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgZ, null);
+        f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b != a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // a->b is fail
         assertTrue(f1.isFail());
 
         // a->b->a == a->b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
-        f2.transition(msgB, null);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // a->b->b == a->b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
-        f2.transition(msgB, null);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // a->b->z == a->b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
-        f1.transition(msgZ, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
-        f2.transition(msgB, null);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // TODO: test multiple simultaneous NFby machines
@@ -370,9 +370,9 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z != a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
         assertTrue(!f1.isFail());
@@ -381,90 +381,90 @@ public class FsmStateSetTests extends SynopticTest {
 
         // z != b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
+        f1.setInitial(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(!f1.equals(f2));
         // b is fail
         assertTrue(f2.isFail());
 
         // a != b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
+        f1.setInitial(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(!f1.equals(f2));
 
         // z->b == b
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgB, null);
+        f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->z == z
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgZ, null);
-        f1.transition(msgZ, null);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgZ, null);
+        f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgA, null);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgB, null);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->z == a
         f1 = initStateSet("1 1", invGen);
-        f1.setInitial(msgA, null);
-        f1.transition(msgZ, null);
+        f1.setInitial(msgA);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.setInitial(msgA, null);
+        f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // b->a == b
         f1 = initStateSet("1 1", invGen);
-        f1.transition(msgB, null);
-        f1.transition(msgA, null);
+        f1.transition(msgB);
+        f1.transition(msgA);
         f2 = initStateSet("1 1", invGen);
-        f2.transition(msgB, null);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // b->b == b
         f1 = initStateSet("1 1", invGen);
-        f1.transition(msgB, null);
-        f1.transition(msgB, null);
+        f1.transition(msgB);
+        f1.transition(msgB);
         f2 = initStateSet("1 1", invGen);
-        f2.transition(msgB, null);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // b->z == b
         f1 = initStateSet("1 1", invGen);
-        f1.transition(msgB, null);
-        f1.transition(msgZ, null);
+        f1.transition(msgB);
+        f1.transition(msgZ);
         f2 = initStateSet("1 1", invGen);
-        f2.transition(msgB, null);
+        f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // TODO: test multiple simultaneous AP machines

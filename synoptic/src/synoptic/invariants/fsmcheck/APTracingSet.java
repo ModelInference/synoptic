@@ -1,11 +1,8 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.List;
-
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * Represents a set of "A always precedes B" synoptic.invariants to simulate,
@@ -37,10 +34,9 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input,
-            List<? extends ITransition<Node>> transitions) {
-        EventType name = input.getEType();
-        HistoryNode newHistory = new HistoryNode(input, null, 1);
+    public void setInitial(T x) {
+        EventType name = x.getEType();
+        HistoryNode newHistory = new HistoryNode(x, null, 1);
         neitherSeen = firstA = firstB = null;
         if (a.equals(name)) {
             firstA = newHistory;
@@ -52,9 +48,8 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input,
-            List<? extends ITransition<Node>> transitions) {
-        EventType name = input.getEType();
+    public void transition(T x) {
+        EventType name = x.getEType();
         if (a.equals(name)) {
             firstA = preferShorter(neitherSeen, firstA);
             neitherSeen = null;
@@ -62,9 +57,9 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             firstB = preferShorter(neitherSeen, firstB);
             neitherSeen = null;
         }
-        neitherSeen = extend(input, neitherSeen);
-        firstA = extend(input, firstA);
-        firstB = extend(input, firstB);
+        neitherSeen = extend(x, neitherSeen);
+        firstA = extend(x, firstA);
+        firstB = extend(x, firstB);
     }
 
     @Override

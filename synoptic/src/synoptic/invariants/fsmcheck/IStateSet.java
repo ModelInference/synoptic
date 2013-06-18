@@ -1,21 +1,11 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.List;
-
-import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
-
 public interface IStateSet<T, StateSetType> {
     /**
      * Resets the stateset to be as if it started on the passed node. This
      * should be called for all initial statesets.
-     * 
-     * @param transitions
-     *            This partition's list of transitions, currently only used for
-     *            constrained invariant FSM state sets
      */
-    <Node extends INode<Node>> void setInitial(T input,
-            List<? extends ITransition<Node>> transitions);
+    void setInitial(T x);
 
     /**
      * Mutates the StateSet, according to which states could be inhabited after
@@ -23,12 +13,8 @@ public interface IStateSet<T, StateSetType> {
      * 
      * @param input
      *            The input event to transition the FSM.
-     * @param transitions
-     *            This partition's list of transitions, currently only used for
-     *            constrained invariant FSM state sets
      */
-    <Node extends INode<Node>> void transition(T input,
-            List<? extends ITransition<Node>> transitions);
+    void transition(T input);
 
     /**
      * Merges this stateset with another, such that all states inhabited by

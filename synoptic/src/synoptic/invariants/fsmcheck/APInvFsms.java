@@ -5,7 +5,6 @@ import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * FSM for a set of invariants of the form "A always precedes B". The FSM enters
@@ -50,8 +49,7 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input,
-            List<? extends ITransition<Node>> transitions) {
+    public void setInitial(T input) {
         BitSet isA = getInputInvariantsDependencies(0, input);
         BitSet isB = getInputInvariantsDependencies(1, input);
         BitSet neither = nor(isA, isB, count);
@@ -61,8 +59,7 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input,
-            List<? extends ITransition<Node>> transitions) {
+    public void transition(T input) {
         // Inputs cloned so that they can be mutated.
         BitSet isA = getInputCopy(0, input);
         BitSet isB = getInputCopy(1, input);

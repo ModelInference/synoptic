@@ -5,7 +5,6 @@ import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * FSM for a set of invariants of the form "A never followed by B". The FSM
@@ -48,8 +47,7 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void setInitial(T input,
-            List<? extends ITransition<Node>> transitions) {
+    public void setInitial(T input) {
         BitSet isA = getInputCopy(0, input);
         sets.set(1, (BitSet) isA.clone());
         isA.flip(0, count);
@@ -57,8 +55,7 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
     }
 
     @Override
-    public <Node extends INode<Node>> void transition(T input,
-            List<? extends ITransition<Node>> transitions) {
+    public void transition(T input) {
         /*
          * NOTE: unlike the other synoptic.invariants, isA and isB can be
          * simultaneously 1 (simultaneous assignment - order not significant) s1
