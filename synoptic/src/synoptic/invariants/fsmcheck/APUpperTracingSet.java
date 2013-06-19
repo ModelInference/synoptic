@@ -97,7 +97,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         HistoryNode s2Old = s2;
         HistoryNode s3Old = s3;
 
-        // Final state notes after this transition will be stored in these
+        // Final state nodes after this transition will be stored in these
         s0 = s1 = s2 = s3 = null;
 
         // s0 -> s0
@@ -172,7 +172,9 @@ public class APUpperTracingSet<T extends INode<T>> extends
         s1 = preferShorter(s1, casted.s1);
         s2 = preferShorter(s2, casted.s2);
         s3 = preferShorter(s3, casted.s3);
-        // Use smaller tDelta and larger tBound?
+        if (t.lessThan(casted.t)) {
+            t = casted.t;
+        }
     }
 
     @Override
