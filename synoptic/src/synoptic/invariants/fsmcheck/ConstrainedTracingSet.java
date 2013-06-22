@@ -8,6 +8,7 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
 
 public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
@@ -57,24 +58,28 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Get the largest time delta of all transitions in a list
+     * Get the largest time delta out of all time delta series of one
+     * Partition's Transitions in a list
      * 
      * @param transitions
-     *            A list of transitions with time deltas
+     *            A list of one Partition's Transitions with time delta series
      * @return Largest ITime time delta
      */
     protected <Node extends INode<Node>> ITime getMaxTimeDelta(
             List<? extends ITransition<Node>> transitions) {
+        
+        if(transitions.isEmpty())
+            return new ITotalTime(0);
 
-        assert !transitions.isEmpty();
-
-        // Get first transition's time delta
-        ITime maxTime = transitions.get(0).getTimeDelta();
+        // Get first transition's first time delta as a tentative max
+        ITime maxTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
 
         // Find and store the max time delta
         for (ITransition<Node> trans : transitions) {
-            if (maxTime.lessThan(trans.getTimeDelta())) {
-                maxTime = trans.getTimeDelta();
+            for (ITime delta : trans.getDeltaSeries().getAllDeltas()) {
+                if (maxTime.lessThan(delta)) {
+                    maxTime = delta;
+                }
             }
         }
 
@@ -82,24 +87,28 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Get the smallest time delta of all transitions in a list
+     * Get the smallest time delta out of all time delta series of one
+     * Partition's Transitions in a list
      * 
      * @param transitions
-     *            A list of transitions with time deltas
+     *            A list of one Partition's Transitions with time delta series
      * @return Smallest ITime time delta
      */
     protected <Node extends INode<Node>> ITime getMinTimeDelta(
             List<? extends ITransition<Node>> transitions) {
+        
+        if(transitions.isEmpty())
+            return new ITotalTime(0);
 
-        assert !transitions.isEmpty();
+        // Get first transition's first time delta as a tentative min
+        ITime minTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
 
-        // Get first transition's time delta
-        ITime minTime = transitions.get(0).getTimeDelta();
-
-        // Find and store the max time delta
+        // Find and store the min time delta
         for (ITransition<Node> trans : transitions) {
-            if (trans.getTimeDelta().lessThan(minTime)) {
-                minTime = trans.getTimeDelta();
+            for (ITime delta : trans.getDeltaSeries().getAllDeltas()) {
+                if (delta.lessThan(minTime)) {
+                    minTime = delta;
+                }
             }
         }
 
