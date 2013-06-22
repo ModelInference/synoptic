@@ -39,44 +39,28 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     public void setInitial(T input) {
 
-        EventType name = input.getEType();
+        // Should only be called on INITIAL nodes
+        assert(input.isInitial());
 
-        // Get max time delta of all transitions
-        ITime tNew = getMaxTimeDelta(input.getAllTransitions());
-        
         HistoryNode newHistory = new HistoryNode(input, null, 1);
-        s0 = s1 = s2 = s3 = null;
-
-        // A  =>  s0 -> s1
-        if (a.equals(name)) {
-            s1 = newHistory;
-            t = tNew;
-            
-        // B  =>  s0 -> s3
-        } else if (b.equals(name)) {
-            s3 = newHistory;
-            
-        // ![A,B]  =>  s0 -> s0
-        } else {
-            s0 = newHistory;
-        }
+        
+        // Always start on State0
+        s0 = newHistory;
+        s1 = s2 = s3 = null;
     }
 
     @Override
     public void transition(T input) {
 
         EventType name = input.getEType();
-
+        
         // Get max time delta of all transitions
         ITime tNew = getMaxTimeDelta(input.getAllTransitions());
-
-        // Increment running time delta by incoming one (tNew)
-        t = t.incrBy(tNew);
 
         // Check if the new time delta is larger than the upper-bound time
         // constraint (tBound)
         boolean overTime;
-        if (t.compareTo(tBound) <= 0) {
+        if ((t.incrBy(tNew)).compareTo(tBound) <= 0) {
             overTime = false;
         } else {
             overTime = true;
