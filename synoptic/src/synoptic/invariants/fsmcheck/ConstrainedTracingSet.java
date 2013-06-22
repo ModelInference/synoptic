@@ -16,7 +16,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * Running time stored by the state machine since t=0 state
      */
-    ITime t;
+    ITime t = new ITotalTime(0);
 
     /**
      * Upper- or lower-bound time constraint
