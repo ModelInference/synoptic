@@ -1,0 +1,202 @@
+######################
+# one get
+######################
+
+# client get to r1
+1,0,0 cr1!get
+1,1,0 cr1?get
+
+# r1 response to client
+1,2,0 r1c!get_re
+2,2,0 r1c?get_re
+
+# client get to r2
+3,2,0 cr2!get
+3,2,1 cr2?get
+
+# r2 response to client
+3,2,2 r2c!get_re
+4,2,2 r2c?get_re
+
+--
+
+######################
+# one put
+######################
+
+# client put to r1
+1,0,0 cr1!put
+1,1,0 cr1?put
+
+# r1 response to client
+1,2,0 r1c!put_re
+2,2,0 r1c?put_re
+
+# client put to r2
+3,2,0 cr2!put
+3,2,1 cr2?put
+
+# r2 response to client
+3,2,2 r2c!put_re
+4,2,2 r2c?put_re
+
+--
+
+######################
+# one get and then one put
+######################
+
+# client get to r1
+1,0,0 cr1!get
+1,1,0 cr1?get
+
+# r1 response to client
+1,2,0 r1c!get_re
+2,2,0 r1c?get_re
+
+# client get to r2
+3,2,0 cr2!get
+3,2,1 cr2?get
+
+# r2 response to client
+3,2,2 r2c!get_re
+4,2,2 r2c?get_re
+
+# client put to r1
+5,2,2 cr1!put
+5,3,2 cr1?put
+
+# r1 response to client
+5,4,2 r1c!put_re
+6,4,2 r1c?put_re
+
+# client put to r2
+7,4,2 cr2!put
+7,4,3 cr2?put
+
+# r2 response to client
+7,4,4 r2c!put_re
+8,4,4 r2c?put_re
+
+
+--
+
+######################
+# one get and then one more get
+######################
+
+# client get to r1
+1,0,0 cr1!get
+1,1,0 cr1?get
+
+# r1 response to client
+1,2,0 r1c!get_re
+2,2,0 r1c?get_re
+
+# client get to r2
+3,2,0 cr2!get
+3,2,1 cr2?get
+
+# r2 response to client
+3,2,2 r2c!get_re
+4,2,2 r2c?get_re
+
+
+####### get #2
+
+# client get to r1
+5,2,2 cr1!get
+5,3,2 cr1?get
+
+# r1 response to client
+5,4,2 r1c!get_re
+6,4,2 r1c?get_re
+
+# client get to r2
+7,4,2 cr2!get
+7,4,3 cr2?get
+
+# r2 response to client
+7,4,4 r2c!get_re
+8,4,4 r2c?get_re
+
+--
+
+######################
+# one put and then one more put
+######################
+
+# client put to r1
+1,0,0 cr1!put
+1,1,0 cr1?put
+
+# r1 response to client
+1,2,0 r1c!put_re
+2,2,0 r1c?put_re
+
+# client put to r2
+3,2,0 cr2!put
+3,2,1 cr2?put
+
+# r2 response to client
+3,2,2 r2c!put_re
+4,2,2 r2c?put_re
+
+####### put #2
+
+# client put to r1
+5,2,2 cr1!put
+5,3,2 cr1?put
+
+# r1 response to client
+5,4,2 r1c!put_re
+6,4,2 r1c?put_re
+
+# client put to r2
+7,4,2 cr2!put
+7,4,3 cr2?put
+
+# r2 response to client
+7,4,4 r2c!put_re
+8,4,4 r2c?put_re
+
+--
+
+
+######################
+# one put and then one get
+######################
+
+# client put to r1
+1,0,0 cr1!put
+1,1,0 cr1?put
+
+# r1 response to client
+1,2,0 r1c!put_re
+2,2,0 r1c?put_re
+
+# client put to r2
+3,2,0 cr2!put
+3,2,1 cr2?put
+
+# r2 response to client
+3,2,2 r2c!put_re
+4,2,2 r2c?put_re
+
+####### get
+
+# client get to r1
+5,2,2 cr1!get
+5,3,2 cr1?get
+
+# r1 response to client
+5,4,2 r1c!get_re
+6,4,2 r1c?get_re
+
+# client get to r2
+7,4,2 cr2!get
+7,4,3 cr2?get
+
+# r2 response to client
+7,4,4 r2c!get_re
+8,4,4 r2c?get_re
