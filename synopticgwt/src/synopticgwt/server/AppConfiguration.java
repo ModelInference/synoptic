@@ -75,9 +75,9 @@ public class AppConfiguration {
      * @throws SQLException
      * @throws IOException
      */
-    private AppConfiguration(ServletContext context) throws SQLException,
-            InstantiationException, IllegalAccessException,
-            ClassNotFoundException {
+    private AppConfiguration(String synopticGWTChangesetID)
+            throws SQLException, InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
         analyticsTrackerID = System.getProperty("analyticsTrackerID", null);
 
         if (System.getProperty("userVoiceEnabled", null) != null) {
@@ -122,17 +122,7 @@ public class AppConfiguration {
             }
         }
 
-        try {
-            // Extract the hg changeset id from war archive MANIFEST.MF
-            Properties prop = new Properties();
-            prop.load(context.getResourceAsStream("/META-INF/MANIFEST.MF"));
-            synopticGWTChangesetID = prop.getProperty("ChangesetID");
-        } catch (Exception e) {
-            synopticGWTChangesetID = "unknown";
-        }
-        if (synopticGWTChangesetID == null) {
-            synopticGWTChangesetID = "unknown";
-        }
+        this.synopticGWTChangesetID = synopticGWTChangesetID;
 
         try {
             synopticChangesetID = SynopticJar.getHgChangesetID();
@@ -145,13 +135,33 @@ public class AppConfiguration {
         }
     }
 
+    public static AppConfiguration getInstance() throws SQLException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
+        return getInstance(null);
+    }
+
     public static AppConfiguration getInstance(ServletContext context)
             throws SQLException, InstantiationException,
             IllegalAccessException, ClassNotFoundException {
         if (instance != null) {
             return instance;
         }
-        return new AppConfiguration(context);
+
+        String synopticGWTChangesetID = "unknown";
+        if (context != null) {
+            try {
+                // Extract the hg changeset id from war archive MANIFEST.MF
+                Properties prop = new Properties();
+                prop.load(context.getResourceAsStream("/META-INF/MANIFEST.MF"));
+                synopticGWTChangesetID = prop.getProperty("ChangesetID");
+            } catch (Exception e) {
+                synopticGWTChangesetID = "unknown";
+            }
+        }
+
+        instance = new AppConfiguration(synopticGWTChangesetID);
+        return instance;
     }
 
     /**
@@ -165,4 +175,11 @@ public class AppConfiguration {
             super.finalize();
         }
     }
+
+    // Used to reset the internal instance of AppConfiguration to allow for
+    // testing.
+    static void resetInstance() {
+        instance = null;
+    }
+
 }
