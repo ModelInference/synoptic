@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.junit.Test;
@@ -82,6 +83,30 @@ public class ConstrainedInvMinerTests extends SynopticTest {
     }
 
     /**
+     * Retrieve a specific constrained invariant from a TemporalInvariantSet
+     * requested using the form "a AFby b upper" or "c AP d lower".
+     * 
+     * @param minedInvs
+     *            Set of mined invariants
+     * @param desiredInv
+     *            A string describing the requested invariant
+     * @return The requested invariant if it exists in the set, else null
+     */
+    private TempConstrainedInvariant<?> getConstrainedInv(
+            TemporalInvariantSet minedInvs, String desiredInv) {
+
+        for (ITemporalInvariant genericInv : minedInvs.getSet()) {
+            TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) genericInv;
+            if ((inv.getFirst() + " " + inv.getShortName() + " "
+                    + inv.getSecond() + " " + inv.getConstraint().toString()
+                    .substring(0, 5)).equals(desiredInv))
+                return inv;
+        }
+
+        return null;
+    }
+
+    /**
      * Compose a log in which "a AP b" is the only true invariant. But, instead
      * of comparing the mined constrained invariants against the true
      * constrained AP invariant, we compare against the standard AP invariant,
@@ -134,14 +159,12 @@ public class ConstrainedInvMinerTests extends SynopticTest {
                 genITimeParser());
         logger.info("minedInvs: " + minedInvs.toString());
 
-        Iterator<ITemporalInvariant> iter = minedInvs.getSet().iterator();
-
         // a AFby b (lower bound)
-        TempConstrainedInvariant<?> lowerInv = (TempConstrainedInvariant<?>) iter
-                .next();
+        TempConstrainedInvariant<?> lowerInv = getConstrainedInv(minedInvs,
+                "a AFby b lower");
         // a AFby b (upper bound)
-        TempConstrainedInvariant<?> upperInv = (TempConstrainedInvariant<?>) iter
-                .next();
+        TempConstrainedInvariant<?> upperInv = getConstrainedInv(minedInvs,
+                "a AFby b upper");
 
         ITime actualTime = new ITotalTime(3);
 
@@ -151,31 +174,46 @@ public class ConstrainedInvMinerTests extends SynopticTest {
 
     /**
      * Tests that computed lower and upper bounds are correct for a log with
-     * multiple time deltas for a AFby b.
+     * multiple time deltas for a AFby b and a AP c.
      * 
      * @throws Exception
      */
     @Test
     public void testCorrectLowerUpperBounds() throws Exception {
-        String[] log = new String[] { "a 1.0", "b 10.0", "--", "a 11.0",
-                "b 13.5", "--", "a 20.0", "b 25.0" };
+        String[] log = new String[] { "a 1.0", "c 2.0", "b 10.0", "--",
+                "a 11.0", "b 13.5", "--", "a 20.0", "b 25.0", "c 26.0" };
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
 
-        Iterator<ITemporalInvariant> iter = minedInvs.getSet().iterator();
-
         // a AFby b (lower bound)
-        TempConstrainedInvariant<?> lowerInv = (TempConstrainedInvariant<?>) iter
-                .next();
+        TempConstrainedInvariant<?> lowerInvAFby = getConstrainedInv(minedInvs,
+                "a AFby b lower");
         // a AFby b (upper bound)
-        TempConstrainedInvariant<?> upperInv = (TempConstrainedInvariant<?>) iter
-                .next();
+        TempConstrainedInvariant<?> upperInvAFby = getConstrainedInv(minedInvs,
+                "a AFby b upper");
 
-        ITime actualLowerBound = new DTotalTime(2.5);
-        ITime actualUpperBound = new DTotalTime(9.0);
+        // a AP c (lower bound)
+        TempConstrainedInvariant<?> lowerInvAP = getConstrainedInv(minedInvs,
+                "a AP c lower");
+        // a AP c (upper bound)
+        TempConstrainedInvariant<?> upperInvAP = getConstrainedInv(minedInvs,
+                "a AP c upper");
 
-        assertEquals(actualLowerBound, lowerInv.getConstraint().getThreshold());
-        assertEquals(actualUpperBound, upperInv.getConstraint().getThreshold());
+        ITime actualLowerBoundAFby = new DTotalTime(2.5);
+        ITime actualUpperBoundAFby = new DTotalTime(9.0);
+
+        ITime actualLowerBoundAP = new DTotalTime(1.0);
+        ITime actualUpperBoundAP = new DTotalTime(6.0);
+
+        assertEquals(actualLowerBoundAFby, lowerInvAFby.getConstraint()
+                .getThreshold());
+        assertEquals(actualUpperBoundAFby, upperInvAFby.getConstraint()
+                .getThreshold());
+
+        assertEquals(actualLowerBoundAP, lowerInvAP.getConstraint()
+                .getThreshold());
+        assertEquals(actualUpperBoundAP, upperInvAP.getConstraint()
+                .getThreshold());
     }
 
     /**
@@ -195,13 +233,13 @@ public class ConstrainedInvMinerTests extends SynopticTest {
                 genDTimeParser());
 
         // a AFby b w/ lowerbound = 2.9
-        TempConstrainedInvariant<?> inv1 = (TempConstrainedInvariant<?>) minedInvs1
-                .getSet().toArray()[0];
+        TempConstrainedInvariant<?> inv1 = getConstrainedInv(minedInvs1,
+                "a AFby b lower");
         // a AFby b w/ lowerbound = 3.0
-        TempConstrainedInvariant<?> inv2 = (TempConstrainedInvariant<?>) minedInvs2
-                .getSet().toArray()[0];
+        TempConstrainedInvariant<?> inv2 = getConstrainedInv(minedInvs2,
+                "a AFby b lower");
 
-        assertNotSame(inv1, inv2);
+        assertFalse(inv1.equals(inv2));
     }
 
     /**
@@ -218,12 +256,12 @@ public class ConstrainedInvMinerTests extends SynopticTest {
                 genDTimeParser());
 
         // All of these constraints are lower bounds.
-        TempConstrainedInvariant<?> aAFbyb = (TempConstrainedInvariant<?>) minedInvs
-                .getSet().toArray()[0];
-        TempConstrainedInvariant<?> aAFbyc = (TempConstrainedInvariant<?>) minedInvs
-                .getSet().toArray()[4];
-        TempConstrainedInvariant<?> bAFbyc = (TempConstrainedInvariant<?>) minedInvs
-                .getSet().toArray()[8];
+        TempConstrainedInvariant<?> aAFbyb = getConstrainedInv(minedInvs,
+                "a AFby b lower");
+        TempConstrainedInvariant<?> aAFbyc = getConstrainedInv(minedInvs,
+                "a AFby c lower");
+        TempConstrainedInvariant<?> bAFbyc = getConstrainedInv(minedInvs,
+                "b AFby c lower");
 
         ITime aAFbyb_time = aAFbyb.getConstraint().getThreshold();
         ITime aAFbyc_time = aAFbyc.getConstraint().getThreshold();

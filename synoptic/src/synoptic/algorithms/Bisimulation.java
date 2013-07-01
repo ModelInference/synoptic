@@ -602,21 +602,23 @@ public class Bisimulation {
                     continue;
                 }
 
+                logger.fine("Attempting to merge: " + p + " + " + q);
+
                 // 2. Only merge partitions that are k-equivalent
                 if (!KTails.kEquals(p, q, k, false)) {
+                    logger.fine("Partitions are not k-equivalent(k=" + k + ")");
                     continue;
                 }
 
                 // 3. Ignore partition pairs that were previously tried (are
                 // in blacklist)
-                if (mergeBlacklist.containsKey(p)
-                        && mergeBlacklist.get(p).contains(q)
-                        || mergeBlacklist.containsKey(q)
-                        && mergeBlacklist.get(q).contains(p)) {
+                if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
+                        .contains(q))
+                        || (mergeBlacklist.containsKey(q) && mergeBlacklist
+                                .get(q).contains(p))) {
+                    logger.fine("Partitions are in the merge blacklist.");
                     continue;
                 }
-
-                // logger.fine("Attempting merge: " + p + " + " + q);
 
                 Set<Partition> parts = new LinkedHashSet<Partition>();
                 parts.addAll(pGraph.getNodes());
@@ -632,6 +634,9 @@ public class Bisimulation {
                 if (cExample != null) {
                     // The merge created a violation. Remember this pair of
                     // partitions so that we don't try it again.
+                    logger.fine("Merge violates invariant: "
+                            + cExample.toString());
+
                     if (!mergeBlacklist.containsKey(p)) {
                         mergeBlacklist.put(p, new LinkedHashSet<Partition>());
                     }
@@ -655,7 +660,7 @@ public class Bisimulation {
                     }
 
                 } else {
-                    // logger.fine("Merge maintains invs, continuing");
+                    logger.fine("Merge maintains invs, accepted.");
                     return true;
                 }
             }
