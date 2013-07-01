@@ -50,7 +50,7 @@ public class EndToEndMainTests extends SynopticTest {
                 "shopping-cart-example", "ticket-reservation-example" };
         
         // Examples for test generation.
-        String[] testGenerationPaths = { "turnstile-example" };
+        String[] testGenerationPaths = { "turnstile-example", "verify-pin" };
 
         // Determine where the input traces/args are located -- try two options:
         // tracesPath1 and tracesPath2. Test using testPaths[0].
@@ -101,10 +101,10 @@ public class EndToEndMainTests extends SynopticTest {
         Object[] testCase;
         if (enableTestGen) {
             testCase = new Object[] { new String[] { "-o", tPath, "-c",
-                    argsFilename, traceFilename, "-t" } };
+                    argsFilename, traceFilename, "-i", "-t" } };
         } else {
             testCase = new Object[] { new String[] { "-o", tPath, "-c",
-                    argsFilename, traceFilename } };
+                    argsFilename, traceFilename, "-i" } };
         }
         argsList.add(testCase);
     }
