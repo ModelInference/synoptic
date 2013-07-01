@@ -10,24 +10,9 @@ import org.junit.Test;
 /**
  * Tests the server-side configuration object.
  */
-public class AppConfigurationTests {
+public class AppConfigurationTestWithDB {
     public static String dbPath = "." + File.separator + "test-output"
             + File.separator + "AppConfigurationTests.derby";
-
-    @Test
-    public void testGetInstanceNoDB() throws SQLException,
-            InstantiationException, IllegalAccessException,
-            ClassNotFoundException {
-        AppConfiguration conf = AppConfiguration.getInstance(null);
-        // NOTE: conf.analyticsTrackerID is allowed to be null.
-        assertTrue(conf.modelExportsDir != null);
-        assertTrue(conf.modelExportsURLprefix != null);
-        assertTrue(conf.uploadedLogFilesDir != null);
-        assertTrue(conf.synopticGWTChangesetID != null);
-        assertTrue(conf.synopticChangesetID != null);
-        // derbyDB is null because System property with derby db dir is not set.
-        assertTrue(conf.derbyDB == null);
-    }
 
     @Test
     public void testGetInstanceWithDB() throws SQLException,
@@ -35,8 +20,9 @@ public class AppConfigurationTests {
             ClassNotFoundException {
         // First, set the derby db dir location.
         System.setProperty("derbyDBDir", dbPath);
-        AppConfiguration conf = AppConfiguration.getInstance(null);
-        // NOTE: conf.analyticsTrackerID is allowed to be null.
+        AppConfiguration conf = AppConfiguration.getInstance();
+        // NOTE: conf.analyticsTrackerID is allowed to be null, so we don't test
+        // it here.
         assertTrue(conf.modelExportsDir != null);
         assertTrue(conf.modelExportsURLprefix != null);
         assertTrue(conf.uploadedLogFilesDir != null);
