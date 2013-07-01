@@ -278,13 +278,6 @@ public class KTails {
             NodeType n1, NodeType n2, int k,
             LinkedHashMap<NodeType, NodeType> allVisitedMatches) {
 
-        // ////////////////
-        // Documented in Issue 258.
-        // FIXME: this comparison should be independent of topology -- i.e., we
-        // should be comparing the set of k-length strings generated from n1 and
-        // n2, regardless of the paths that we took to generate them.
-        // ////////////////
-
         // The labels must match.
         if (!n1.getEType().equals(n2.getEType())) {
             return false;

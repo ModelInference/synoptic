@@ -10,5 +10,14 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Daikonizer"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/daikon.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/collections-generic-4.01.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/aspectjrt.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/automaton.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/derby-10.8.2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
