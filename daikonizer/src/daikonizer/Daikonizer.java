@@ -1,6 +1,8 @@
 package daikonizer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -95,6 +97,8 @@ public class Daikonizer {
         // enter = filter_invs(enter);
         // exit = filter_invs(exit);
         // flow = filter_invs(flow);
+        
+        deleteDaikonFiles();
     }
 
     // private List<Invariant> filter_invs(List<Invariant> invs) throws
@@ -145,6 +149,28 @@ public class Daikonizer {
             return false;
         }
         return true;
+    }
+    
+    private void deleteDaikonFiles() {
+        File currDir = new File(".");
+        FileFilter filter = new DaikonFileFilter();
+        File[] daikonFiles = currDir.listFiles(filter);
+        
+        for (File daikonFile : daikonFiles) {
+            daikonFile.delete();
+        }
+    }
+    
+    public static class DaikonFileFilter implements FileFilter {
+        private static final String dtraceExtension = ".dtrace";
+        private static final String invExtension = ".inv.gz";
+        
+        @Override
+        public boolean accept(File pathname) {
+            String fileName = pathname.getName();
+            return fileName.endsWith(dtraceExtension) ||
+                    fileName.endsWith(invExtension);
+        }
     }
 
     public String toDtraceString() {
