@@ -203,18 +203,18 @@ public class FsmModelChecker {
             IThresholdConstraint constInvConst = ((TempConstrainedInvariant<?>) invariant).getConstraint();
             
             // TODO: When other constrained tracing sets are implemented, change
-            // the following code to use the proper ones rather than always
-            // using APUpperTracingSet
+            // the following code to use the proper tracing set rather than
+            // returning null
 
             if (constInvInv instanceof AlwaysFollowedInvariant) {
                 // AFby Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
-                    stateset = new APUpperTracingSet<Node>(invariant);
+                    return null;
 //                    stateset = new AFbyUpperTracingSet<Node>(invariant);
                     
                 // AFby Lower
                 } else if (constInvConst instanceof LowerBoundConstraint) {
-                    stateset = new APUpperTracingSet<Node>(invariant);
+                    return null;
 //                    stateset = new AFbyLowerTracingSet<Node>(invariant);
                 }
             } else if (constInvInv instanceof AlwaysPrecedesInvariant) {
@@ -224,7 +224,7 @@ public class FsmModelChecker {
                     
                 // AP Lower
                 } else if (constInvConst instanceof LowerBoundConstraint) {
-                    stateset = new APUpperTracingSet<Node>(invariant);
+                    return null;
 //                    stateset = new APLowerTracingSet<Node>(invariant);
                 }
             }
