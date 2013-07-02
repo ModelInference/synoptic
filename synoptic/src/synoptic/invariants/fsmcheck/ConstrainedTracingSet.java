@@ -16,6 +16,21 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
 
     /**
+     * An extension of a HistoryNode which also records time deltas
+     */
+    public class ConstrainedHistoryNode extends HistoryNode {
+        ConstrainedHistoryNode constrPrevious;
+        ITime tDelta;
+        
+        public ConstrainedHistoryNode(
+                T node,
+                HistoryNode previous,
+                int count) {
+            super(node, previous, count);
+        }
+    }
+
+    /**
      * Running time stored by the state machine since t=0 state
      */
     ITime t;
@@ -97,12 +112,13 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     protected <Node extends INode<Node>> ITime getMaxTimeDelta(
             List<? extends ITransition<Node>> transitions) {
-        
-        if(transitions.isEmpty())
+
+        if (transitions.isEmpty())
             return getZeroTime();
 
         // Get first transition's first time delta as a tentative max
-        ITime maxTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
+        ITime maxTime = transitions.get(0).getDeltaSeries().getAllDeltas()
+                .get(0);
 
         // Find and store the max time delta
         for (ITransition<Node> trans : transitions) {
@@ -126,12 +142,13 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     protected <Node extends INode<Node>> ITime getMinTimeDelta(
             List<? extends ITransition<Node>> transitions) {
-        
-        if(transitions.isEmpty())
+
+        if (transitions.isEmpty())
             return getZeroTime();
 
         // Get first transition's first time delta as a tentative min
-        ITime minTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
+        ITime minTime = transitions.get(0).getDeltaSeries().getAllDeltas()
+                .get(0);
 
         // Find and store the min time delta
         for (ITransition<Node> trans : transitions) {
