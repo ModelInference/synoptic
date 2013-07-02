@@ -130,6 +130,10 @@ public class TimeSeries<TimeType extends ITime> implements
         assert deltas != null;
         times.addAll(deltas);
     }
+    
+    public List<TimeType> getAllDeltas() {
+        return times;
+    }
 
     @Override
     public int compareTo(TimeSeries<ITime> o) {
