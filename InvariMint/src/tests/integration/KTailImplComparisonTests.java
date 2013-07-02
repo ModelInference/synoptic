@@ -24,19 +24,19 @@ public class KTailImplComparisonTests extends InvariMintTest {
     public void compareFinalModels() throws Exception {
 
         Map<String, String[]> configs = new HashMap<String, String[]>();
-        configs.put("ktail-simple-model-example", new String[] { "-r",
+        configs.put("simple-model", new String[] { "-r",
                 "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>" });
-        configs.put("osx-login-example", new String[] { "-r", "(?<TYPE>.+)",
-                "-s", "--" });
+        // configs.put("osx-login-example", new String[] { "-r", "(?<TYPE>.+)",
+        // "-s", "--" });
 
         // for (int k = 0; k < 5; k++) {
-        int k = 3;
+        int k = 10;
         for (Entry<String, String[]> testCase : configs.entrySet()) {
             String dir = testCase.getKey();
             String[] parsingArgs = testCase.getValue();
 
             String tPath = ".." + File.separator + "traces" + File.separator;
-            String path = tPath + "abstract" + File.separator + "simple-model"
+            String path = tPath + "abstract" + File.separator + dir
                     + File.separator;
 
             String[] args = (String[]) ArrayUtils.addAll(parsingArgs,

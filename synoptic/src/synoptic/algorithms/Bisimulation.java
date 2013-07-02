@@ -605,7 +605,7 @@ public class Bisimulation {
                 logger.fine("Attempting to merge: " + p + " + " + q);
 
                 // 2. Only merge partitions that are k-equivalent
-                if (!KTails.kEquals(p, q, k, false)) {
+                if (!KTails.kEquals(p, q, k)) {
                     logger.fine("Partitions are not k-equivalent(k=" + k + ")");
                     continue;
                 }
