@@ -7,6 +7,8 @@ import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.DTotalTime;
+import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
 
@@ -16,7 +18,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * Running time stored by the state machine since t=0 state
      */
-    ITime t = new ITotalTime(0);
+    ITime t;
 
     /**
      * Upper- or lower-bound time constraint
@@ -35,6 +37,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         this.a = a;
         this.b = b;
         this.tBound = tBound;
+        t = getZeroTime();
     }
 
     /**
@@ -55,6 +58,33 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         a = inv.getFirst();
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
+        t = getZeroTime();
+    }
+    
+    /**
+     * Get a new zero ITime of the appropriate type, the same type as the
+     * constrained invariant's upper or lower time bound
+     * 
+     * @return
+     *          A new zero ITime
+     */
+    private ITime getZeroTime() {
+        
+        // Integer time
+        if (tBound instanceof ITotalTime) {
+            return new ITotalTime(0);
+            
+        // Floating-point time
+        } else if (tBound instanceof FTotalTime) {
+            return new FTotalTime(0.0f);
+            
+        // Double-precision floating-point time
+        } else if (tBound instanceof DTotalTime) {
+            return new DTotalTime(0.0);
+            
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -69,7 +99,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             List<? extends ITransition<Node>> transitions) {
         
         if(transitions.isEmpty())
-            return new ITotalTime(0);
+            return getZeroTime();
 
         // Get first transition's first time delta as a tentative max
         ITime maxTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
@@ -98,7 +128,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             List<? extends ITransition<Node>> transitions) {
         
         if(transitions.isEmpty())
-            return new ITotalTime(0);
+            return getZeroTime();
 
         // Get first transition's first time delta as a tentative min
         ITime minTime = transitions.get(0).getDeltaSeries().getAllDeltas().get(0);
