@@ -11,22 +11,22 @@ public class APUpperTracingSet<T extends INode<T>> extends
     /**
      * State0: Neither A nor B seen
      */
-    HistoryNode s0;
+    ConstrainedHistoryNode s0;
 
     /**
      * State1: A seen
      */
-    HistoryNode s1;
+    ConstrainedHistoryNode s1;
 
     /**
      * State2: A seen, then B seen within time bound
      */
-    HistoryNode s2;
+    ConstrainedHistoryNode s2;
 
     /**
      * State3: B seen first or after A but out of time bound
      */
-    HistoryNode s3;
+    ConstrainedHistoryNode s3;
 
     public APUpperTracingSet(EventType a, EventType b, ITime tBound) {
         super(a, b, tBound);
@@ -42,13 +42,14 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // Should only be called on INITIAL nodes
         assert(input.isInitial());
 
-        HistoryNode newHistory = new HistoryNode(input, null, 1);
+        ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input, null, 1, null);
         
         // Always start on State0
         s0 = newHistory;
         s1 = s2 = s3 = null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void transition(T input) {
 
@@ -76,10 +77,10 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Store old state nodes
-        HistoryNode s0Old = s0;
-        HistoryNode s1Old = s1;
-        HistoryNode s2Old = s2;
-        HistoryNode s3Old = s3;
+        ConstrainedHistoryNode s0Old = s0;
+        ConstrainedHistoryNode s1Old = s1;
+        ConstrainedHistoryNode s2Old = s2;
+        ConstrainedHistoryNode s3Old = s3;
 
         // Final state nodes after this transition will be stored in these
         s0 = s1 = s2 = s3 = null;
@@ -103,7 +104,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s2 -> s2
         if (s2Old != null && (isB && !overTime || !isB && !isA)) {
-            s2 = preferShorter(s2Old, s2);
+            s2 = (ConstrainedHistoryNode) preferShorter(s2Old, s2);
             t.incrBy(tNew);
         }
 
@@ -114,23 +115,23 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s1 -> s3
         if (s1Old != null && isB && overTime) {
-            s3 = preferShorter(s1Old, s3);
+            s3 = (ConstrainedHistoryNode) preferShorter(s1Old, s3);
         }
 
         // s2 -> s3
         if (s2Old != null && isB && overTime) {
-            s3 = preferShorter(s2Old, s3);
+            s3 = (ConstrainedHistoryNode) preferShorter(s2Old, s3);
         }
 
         // s3 -> s3
         if (s3Old != null) {
-            s3 = preferShorter(s3Old, s3);
+            s3 = (ConstrainedHistoryNode) preferShorter(s3Old, s3);
         }
 
-        s0 = extend(input, s0);
-        s1 = extend(input, s1);
-        s2 = extend(input, s2);
-        s3 = extend(input, s3);
+        s0 = extend(input, s0, t.incrBy(tNew));
+        s1 = extend(input, s1, t.incrBy(tNew));
+        s2 = extend(input, s2, t.incrBy(tNew));
+        s3 = extend(input, s3, t.incrBy(tNew));
     }
 
     @Override
@@ -149,13 +150,14 @@ public class APUpperTracingSet<T extends INode<T>> extends
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-        s0 = preferShorter(s0, casted.s0);
-        s1 = preferShorter(s1, casted.s1);
-        s2 = preferShorter(s2, casted.s2);
-        s3 = preferShorter(s3, casted.s3);
+        s0 = (ConstrainedHistoryNode) preferShorter(s0, casted.s0);
+        s1 = (ConstrainedHistoryNode) preferShorter(s1, casted.s1);
+        s2 = (ConstrainedHistoryNode) preferShorter(s2, casted.s2);
+        s3 = (ConstrainedHistoryNode) preferShorter(s3, casted.s3);
         if (t.lessThan(casted.t)) {
             t = casted.t;
         }
