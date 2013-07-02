@@ -10,35 +10,41 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.KTails;
+import synoptic.algorithms.TopologicalKTails;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
-import synoptic.util.InternalSynopticException;
 
 /**
- * Tests the standard KTails algorithm in synoptic.algorithms.bisim.KTails <br />
+ * Tests the Topological variant of the KTails algorithm.
  * 
  * @author ivan
  */
-public class KTailsTests extends SynopticTest {
+public class TopologicalKTailsTests extends SynopticTest {
 
-    private static void testKEqual(EventNode e1, EventNode e2, int k) {
-        // e1 =k= e2 should imply e2 =k= e1
-        assertTrue(KTails.kEquals(e1, e2, k));
-        assertTrue(KTails.kEquals(e2, e1, k));
+    private static void testTrueBothSubsumingAndNotSubsuming(EventNode e1,
+            EventNode e2, int k) {
+        // TODO: implement subsumption
+        // assertTrue(KTails.kEquals(e1, e2, k, true));
+
+        // Without subsumption e1 =k= e2 should imply e2 =k= e1
+        assertTrue(TopologicalKTails.kEquals(e1, e2, k, false));
+        assertTrue(TopologicalKTails.kEquals(e2, e1, k, false));
     }
 
-    private static void testNotKEqual(EventNode e1, EventNode e2, int k) {
-        // e1 !=k= e2 should imply e2 !=k= e1
-        assertFalse(KTails.kEquals(e1, e2, k));
-        assertFalse(KTails.kEquals(e2, e1, k));
+    private static void testFalseBothSubsumingAndNotSubsuming(EventNode e1,
+            EventNode e2, int k) {
+        // TODO: implement subsumption
+        // assertFalse(KTails.kEquals(e1, e2, k, true));
+
+        // Without subsumption e1 !=k= e2 should imply e2 !=k= e1
+        assertFalse(TopologicalKTails.kEquals(e1, e2, k, false));
+        assertFalse(TopologicalKTails.kEquals(e2, e1, k, false));
     }
 
     // Returns a parser to simplify graph generation from string expressions.
@@ -47,66 +53,6 @@ public class KTailsTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         return parser;
-    }
-
-    /**
-     * Tests the k=0 case, and the case with two graphs with one node each.
-     * Tests performKTails with k = 0
-     * 
-     * @throws ParseException
-     * @throws InternalSynopticException
-     */
-    @Test
-    public void performKTails0Test() throws InternalSynopticException,
-            ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
-        // All a's and b's should be merged + initial + terminal.
-        assertTrue(pGraph.getNodes().size() == 4);
-    }
-
-    /**
-     * Tests performKTails with k = 1
-     * 
-     * @throws ParseException
-     * @throws InternalSynopticException
-     */
-    @Test
-    public void performKTails1Test() throws InternalSynopticException,
-            ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
-        // Only the two b nodes should be merged.
-        assertTrue(pGraph.getNodes().size() == 6);
-    }
-
-    /**
-     * Tests performKTails with k = 2
-     * 
-     * @throws ParseException
-     * @throws InternalSynopticException
-     */
-    @Test
-    public void performKTails2Test() throws InternalSynopticException,
-            ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
-        // Only the b nodes should be merged.
-        assertTrue(pGraph.getNodes().size() == 6);
-    }
-
-    /**
-     * Returns a simple trace graph with three short chains.
-     * 
-     * @throws ParseException
-     * @throws InternalSynopticException
-     */
-    private static ChainsTraceGraph makeSimpleGraph()
-            throws InternalSynopticException, ParseException {
-
-        String[] logArr = new String[] { "a", "a", "--", "b", "--", "a", "b" };
-        TraceParser defParser = SynopticTest.genDefParser();
-
-        ChainsTraceGraph ret = (ChainsTraceGraph) genChainsTraceGraph(logArr,
-                defParser);
-        return ret;
     }
 
     /**
@@ -121,12 +67,12 @@ public class KTailsTests extends SynopticTest {
         EventNode e2 = new EventNode(a2);
 
         // Subsumption or not should not matter for k = 0.
-        testKEqual(e1, e2, 0);
+        testTrueBothSubsumingAndNotSubsuming(e1, e2, 0);
 
         a2 = new Event("label2");
         e2 = new EventNode(a2);
         // Subsumption or not should not matter for k = 0.
-        testNotKEqual(e1, e2, 0);
+        testFalseBothSubsumingAndNotSubsuming(e1, e2, 0);
     }
 
     /**
@@ -141,9 +87,9 @@ public class KTailsTests extends SynopticTest {
         EventNode e2 = new EventNode(a2);
         // If k exceeds the depth of the graph, if they are equivalent to max
         // existing depth then they are equal. Regardless of subsumption.
-        testKEqual(e1, e2, 100);
+        testTrueBothSubsumingAndNotSubsuming(e1, e2, 100);
         // A node should always be k-equivalent to itself.
-        testKEqual(e1, e1, 100);
+        testTrueBothSubsumingAndNotSubsuming(e1, e1, 100);
     }
 
     /**
@@ -168,8 +114,8 @@ public class KTailsTests extends SynopticTest {
             e1 = g1Nodes[i];
             e2 = g2Nodes[i];
             for (int k = 0; k < 5; k++) {
-                testKEqual(e1, e2, k);
-                testKEqual(e1, e1, k);
+                testTrueBothSubsumingAndNotSubsuming(e1, e2, k);
+                testTrueBothSubsumingAndNotSubsuming(e1, e1, k);
             }
         }
     }
@@ -226,31 +172,31 @@ public class KTailsTests extends SynopticTest {
         // respectively, but no further. Subsumption follows the same pattern.
 
         // "INITIAL" not at root:
-        testKEqual(g1Nodes[0], g2Nodes[0], 0);
-        testKEqual(g1Nodes[0], g2Nodes[0], 1);
-        testKEqual(g1Nodes[0], g2Nodes[0], 2);
-        testKEqual(g1Nodes[0], g2Nodes[0], 3);
-        testNotKEqual(g1Nodes[0], g2Nodes[0], 4);
-        testNotKEqual(g1Nodes[0], g2Nodes[0], 5);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 1);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 2);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 3);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 4);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 5);
 
         // "a" node at root:
-        testKEqual(g1Nodes[1], g2Nodes[1], 0);
-        testKEqual(g1Nodes[1], g2Nodes[1], 1);
-        testKEqual(g1Nodes[1], g2Nodes[1], 2);
-        testNotKEqual(g1Nodes[1], g2Nodes[1], 3);
-        testNotKEqual(g1Nodes[1], g2Nodes[1], 4);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 1);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 2);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 3);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 4);
 
         // "b" node at root:
-        testKEqual(g1Nodes[2], g2Nodes[2], 0);
-        testKEqual(g1Nodes[2], g2Nodes[2], 1);
-        testNotKEqual(g1Nodes[2], g2Nodes[2], 2);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 1);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 2);
 
         // "c" node at root:
-        testKEqual(g1Nodes[3], g2Nodes[3], 0);
-        testNotKEqual(g1Nodes[3], g2Nodes[3], 1);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[3], g2Nodes[3], 0);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[3], g2Nodes[3], 1);
 
         // "d" and "e" nodes at root:
-        testNotKEqual(g1Nodes[4], g2Nodes[4], 0);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[4], g2Nodes[4], 0);
     }
 
     /**
@@ -281,7 +227,7 @@ public class KTailsTests extends SynopticTest {
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
-            testKEqual(firstA, secondA, k);
+            testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
 
         // In this tree the firstA and secondA should _not_ be 1-equivalent (one
@@ -299,8 +245,8 @@ public class KTailsTests extends SynopticTest {
         initNodeTransitions = initNode.getAllTransitions();
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
-        testKEqual(firstA, secondA, 0);
-        testNotKEqual(firstA, secondA, 1);
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 1);
     }
 
     /**
@@ -325,7 +271,7 @@ public class KTailsTests extends SynopticTest {
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
-            testKEqual(firstA, secondA, k);
+            testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
     }
 
@@ -352,12 +298,12 @@ public class KTailsTests extends SynopticTest {
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
 
-        testKEqual(firstA, secondA, 0);
-        testKEqual(firstA, secondA, 1);
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 1);
 
         // The 'd' in g2 makes it different from g1 at k >= 2.
-        testNotKEqual(firstA, secondA, 2);
-        testNotKEqual(firstA, secondA, 3);
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 2);
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 3);
     }
 
     /**
@@ -413,10 +359,10 @@ public class KTailsTests extends SynopticTest {
         g2Nodes.get(1).addTransition(g2Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 0);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 1);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 2);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 3);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 1);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 2);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 3);
 
         ChainsTraceGraph g3 = new ChainsTraceGraph();
         List<EventNode> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
@@ -424,18 +370,10 @@ public class KTailsTests extends SynopticTest {
         g3Nodes.get(0).addTransition(g3Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g3, 2);
 
-        testKEqual(g3Nodes.get(0), g2Nodes.get(0), 0);
-        testKEqual(g3Nodes.get(0), g2Nodes.get(0), 1);
-        testKEqual(g3Nodes.get(0), g2Nodes.get(0), 2);
+        testTrueBothSubsumingAndNotSubsuming(g3Nodes.get(0), g2Nodes.get(0), 0);
+        testFalseBothSubsumingAndNotSubsuming(g3Nodes.get(0), g2Nodes.get(0), 1);
+        testFalseBothSubsumingAndNotSubsuming(g3Nodes.get(0), g2Nodes.get(0), 2);
 
-        ChainsTraceGraph g4 = new ChainsTraceGraph();
-        List<EventNode> g4Nodes = addNodesToGraph(g2, new String[] { "a" });
-        exportTestGraph(g4, 2);
-
-        testKEqual(g4Nodes.get(0), g2Nodes.get(0), 0);
-        testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 1);
-        testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 2);
-        testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 3);
     }
 
     /**
@@ -461,7 +399,8 @@ public class KTailsTests extends SynopticTest {
 
         // g1.a is k-equivalent to g1.a for all k
         for (int k = 0; k < 5; k++) {
-            testKEqual(g1Nodes.get(0), g1Nodes.get(0), k);
+            testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0),
+                    g1Nodes.get(0), k);
         }
 
         ChainsTraceGraph g2 = new ChainsTraceGraph();
@@ -474,14 +413,11 @@ public class KTailsTests extends SynopticTest {
         g2Nodes.get(3).addTransition(g2Nodes.get(4), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 0);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 1);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 2);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 3);
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 4);
-
-        testNotKEqual(g1Nodes.get(0), g2Nodes.get(0), 5);
-        testNotKEqual(g1Nodes.get(0), g2Nodes.get(0), 6);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 1);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 2);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 3);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 4);
     }
 
     /**
@@ -538,7 +474,8 @@ public class KTailsTests extends SynopticTest {
         // initial node.
 
         for (int k = 0; k < 6; k++) {
-            testKEqual(g1Nodes.get(0), g2Nodes.get(0), k);
+            testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0),
+                    g2Nodes.get(0), k);
         }
     }
 
