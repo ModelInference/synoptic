@@ -19,15 +19,24 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * An extension of a HistoryNode which also records time deltas
      */
     public class ConstrainedHistoryNode extends HistoryNode {
-        ConstrainedHistoryNode constrPrevious;
         ITime tDelta;
         
-        public ConstrainedHistoryNode(
-                T node,
-                HistoryNode previous,
-                int count) {
+        public ConstrainedHistoryNode(T node, HistoryNode previous, int count,
+                ITime tDelta) {
             super(node, previous, count);
+            this.tDelta = tDelta;
         }
+    }
+    
+    /**
+     * Extend this node with another
+     */
+    public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
+            ITime tDelta) {
+        if (prior == null) {
+            return null;
+        }
+        return new ConstrainedHistoryNode(node, prior, prior.count + 1, tDelta);
     }
 
     /**
