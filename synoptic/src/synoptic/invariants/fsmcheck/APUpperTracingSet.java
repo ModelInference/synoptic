@@ -55,13 +55,20 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         EventType name = input.getEType();
         
-        // Get max time delta of all transitions
-        ITime tNew = getMaxTimeDelta(input.getAllTransitions());
+        // Get max time delta of all transitions, compute difference between it
+        // and starting t
+        ITime tCurrent = getMaxTimeDelta(input.getAllTransitions());
+        ITime tNew = getZeroTime();
+
+        // TODO: Learn why tCurrent is able to be less than t and what this
+        // means
+        if (!tCurrent.lessThan(t))
+            tNew = tCurrent.computeDelta(t);
 
         // Check if the new time delta is larger than the upper-bound time
         // constraint (tBound)
         boolean overTime;
-        if ((t.incrBy(tNew)).compareTo(tBound) <= 0) {
+        if (tNew.compareTo(tBound) <= 0) {
             overTime = false;
         } else {
             overTime = true;
@@ -93,19 +100,19 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // s0 -> s1
         if (s0Old != null && isA) {
             s1 = s0Old;
-            t = tNew;
+            t = tCurrent;
         }
 
         // s1 -> s2
         if (s1Old != null && (isB && !overTime || !isB && !isA)) {
             s2 = s1Old;
-            t.incrBy(tNew);
+            t = tNew;
         }
 
         // s2 -> s2
         if (s2Old != null && (isB && !overTime || !isB && !isA)) {
             s2 = (ConstrainedHistoryNode) preferShorter(s2Old, s2);
-            t.incrBy(tNew);
+            t = tNew;
         }
 
         // s0 -> s3
@@ -128,10 +135,10 @@ public class APUpperTracingSet<T extends INode<T>> extends
             s3 = (ConstrainedHistoryNode) preferShorter(s3Old, s3);
         }
 
-        s0 = extend(input, s0, t.incrBy(tNew));
-        s1 = extend(input, s1, t.incrBy(tNew));
-        s2 = extend(input, s2, t.incrBy(tNew));
-        s3 = extend(input, s3, t.incrBy(tNew));
+        s0 = extend(input, s0, tNew);
+        s1 = extend(input, s1, tNew);
+        s2 = extend(input, s2, tNew);
+        s3 = extend(input, s3, tNew);
     }
 
     @Override

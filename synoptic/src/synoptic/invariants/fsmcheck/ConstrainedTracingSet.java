@@ -92,7 +92,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * @return
      *          A new zero ITime
      */
-    private ITime getZeroTime() {
+    protected ITime getZeroTime() {
         
         // Integer time
         if (tBound instanceof ITotalTime) {
