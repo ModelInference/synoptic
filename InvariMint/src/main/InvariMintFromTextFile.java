@@ -123,7 +123,7 @@ public class InvariMintFromTextFile {
             for (ITemporalInvariant invariant : invariants) {
                 InvModel invDFA = new InvModel(invariant, encodings);
                 dfa.intersectWith(invDFA);
-                dfa.minimize();
+                // dfa.minimize();
             }
             return dfa;
         } catch (FileNotFoundException e) {

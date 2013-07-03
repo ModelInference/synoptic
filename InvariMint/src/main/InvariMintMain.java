@@ -50,8 +50,13 @@ public class InvariMintMain {
         runStandardAlg(invMintAlg);
         InvsModel dfa = runInvariMint(invMintAlg);
 
-        // TODO (jenny): remove exports after bugs are fixed!
+        // Export the FINAL partition graph for standard alg.
+        invMintAlg.exportStdAlgPGraph();
+
+        // Export standard algorithm DFA.
         invMintAlg.exportStdAlgDFA();
+
+        // Export InvariMint-StdAlg DFA.
         String exportFname = opts.outputPathPrefix + "."
                 + invMintAlg.getInvMintAlgName() + ".dfa.dot";
         dfa.exportDotAndPng(exportFname);
@@ -90,7 +95,6 @@ public class InvariMintMain {
         // Convert nanoseconds to seconds
         double duration_secs = (endTime - startTime) / 1000000000.0;
         logger.info("DONE Running Standard Alg. Duration = " + duration_secs);
-        // assert false;
     }
 
     private static InvsModel runInvariMint(PGraphInvariMint invMintAlg)

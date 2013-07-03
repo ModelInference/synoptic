@@ -24,31 +24,38 @@ public class KTailImplComparisonTests extends InvariMintTest {
     public void compareFinalModels() throws Exception {
 
         Map<String, String[]> configs = new HashMap<String, String[]>();
+        // Parsing args:
         configs.put("simple-model", new String[] { "-r",
                 "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>" });
-        // configs.put("osx-login-example", new String[] { "-r", "(?<TYPE>.+)",
-        // "-s", "--" });
+        configs.put("osx-login-example", new String[] { "-r", "(?<TYPE>.+)",
+                "-s", "--" });
 
-        // for (int k = 0; k < 5; k++) {
-        int k = 10;
-        for (Entry<String, String[]> testCase : configs.entrySet()) {
-            String dir = testCase.getKey();
-            String[] parsingArgs = testCase.getValue();
+        int k;
+        for (k = 1; k < 5; k++) {
+            logger.info("Comparing kTails and InvMint-kTails with k = " + k);
 
-            String tPath = ".." + File.separator + "traces" + File.separator;
-            String path = tPath + "abstract" + File.separator + dir
-                    + File.separator;
+            for (Entry<String, String[]> testCase : configs.entrySet()) {
+                String dir = testCase.getKey();
+                String[] parsingArgs = testCase.getValue();
 
-            String[] args = (String[]) ArrayUtils.addAll(parsingArgs,
-                    new String[] { "--invMintKTails=true", "--kTailLength",
-                            k + "", "-o", testOutputDir + dir,
-                            path + "trace.txt" });
+                String tPath = ".." + File.separator + "traces"
+                        + File.separator;
+                String path = tPath + "abstract" + File.separator + dir
+                        + File.separator;
 
-            assertTrue("Failure on " + dir + " when k = " + k,
-                    InvariMintMain
-                            .compareInvariMintSynoptic(new InvariMintOptions(
-                                    args)));
+                String[] args = (String[]) ArrayUtils.addAll(parsingArgs,
+                        new String[] { "--minimizeIntersections",
+                                "--logLvlVerbose", "--invMintKTails=true",
+                                "--kTailLength", k + "", "-o",
+                                testOutputDir + dir, path + "trace.txt" });
+
+                assertTrue(
+                        "Failure on " + dir + " when k = " + k,
+                        InvariMintMain
+                                .compareInvariMintSynoptic(new InvariMintOptions(
+                                        args)));
+
+            }
         }
-        // }
     }
 }

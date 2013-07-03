@@ -44,7 +44,7 @@ public class EndToEndKTailsMainTests extends InvariMintTest {
                 + "simple-model" + File.separator;
 
         String[] args = new String[] { "--invMintKTails=true", "--kTailLength",
-                "2", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
+                "3", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
                 "\\k<nodename>", "-o",
                 testOutputDir + "ktail-simple-model-example",
                 simpleModelPath + "trace.txt" };

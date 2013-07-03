@@ -59,7 +59,7 @@ public class KTailsTests extends SynopticTest {
     @Test
     public void performKTails0Test() throws InternalSynopticException,
             ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
         // All a's and b's should be merged + initial + terminal.
         assertTrue(pGraph.getNodes().size() == 4);
     }
@@ -73,7 +73,7 @@ public class KTailsTests extends SynopticTest {
     @Test
     public void performKTails1Test() throws InternalSynopticException,
             ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
         // Only the two b nodes should be merged.
         assertTrue(pGraph.getNodes().size() == 6);
     }
@@ -87,7 +87,7 @@ public class KTailsTests extends SynopticTest {
     @Test
     public void performKTails2Test() throws InternalSynopticException,
             ParseException {
-        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 3);
         // Only the b nodes should be merged.
         assertTrue(pGraph.getNodes().size() == 6);
     }
@@ -121,12 +121,12 @@ public class KTailsTests extends SynopticTest {
         EventNode e2 = new EventNode(a2);
 
         // Subsumption or not should not matter for k = 0.
-        testKEqual(e1, e2, 0);
+        testKEqual(e1, e2, 1);
 
         a2 = new Event("label2");
         e2 = new EventNode(a2);
         // Subsumption or not should not matter for k = 0.
-        testNotKEqual(e1, e2, 0);
+        testNotKEqual(e1, e2, 1);
     }
 
     /**
@@ -167,7 +167,7 @@ public class KTailsTests extends SynopticTest {
         for (int i = 0; i < (events.length + 2); i++) {
             e1 = g1Nodes[i];
             e2 = g2Nodes[i];
-            for (int k = 0; k < 5; k++) {
+            for (int k = 1; k < 6; k++) {
                 testKEqual(e1, e2, k);
                 testKEqual(e1, e1, k);
             }
@@ -226,31 +226,31 @@ public class KTailsTests extends SynopticTest {
         // respectively, but no further. Subsumption follows the same pattern.
 
         // "INITIAL" not at root:
-        testKEqual(g1Nodes[0], g2Nodes[0], 0);
         testKEqual(g1Nodes[0], g2Nodes[0], 1);
         testKEqual(g1Nodes[0], g2Nodes[0], 2);
         testKEqual(g1Nodes[0], g2Nodes[0], 3);
-        testNotKEqual(g1Nodes[0], g2Nodes[0], 4);
+        testKEqual(g1Nodes[0], g2Nodes[0], 4);
         testNotKEqual(g1Nodes[0], g2Nodes[0], 5);
+        testNotKEqual(g1Nodes[0], g2Nodes[0], 6);
 
         // "a" node at root:
-        testKEqual(g1Nodes[1], g2Nodes[1], 0);
         testKEqual(g1Nodes[1], g2Nodes[1], 1);
         testKEqual(g1Nodes[1], g2Nodes[1], 2);
-        testNotKEqual(g1Nodes[1], g2Nodes[1], 3);
+        testKEqual(g1Nodes[1], g2Nodes[1], 3);
         testNotKEqual(g1Nodes[1], g2Nodes[1], 4);
+        testNotKEqual(g1Nodes[1], g2Nodes[1], 5);
 
         // "b" node at root:
-        testKEqual(g1Nodes[2], g2Nodes[2], 0);
         testKEqual(g1Nodes[2], g2Nodes[2], 1);
-        testNotKEqual(g1Nodes[2], g2Nodes[2], 2);
+        testKEqual(g1Nodes[2], g2Nodes[2], 2);
+        testNotKEqual(g1Nodes[2], g2Nodes[2], 3);
 
         // "c" node at root:
-        testKEqual(g1Nodes[3], g2Nodes[3], 0);
-        testNotKEqual(g1Nodes[3], g2Nodes[3], 1);
+        testKEqual(g1Nodes[3], g2Nodes[3], 1);
+        testNotKEqual(g1Nodes[3], g2Nodes[3], 2);
 
         // "d" and "e" nodes at root:
-        testNotKEqual(g1Nodes[4], g2Nodes[4], 0);
+        testNotKEqual(g1Nodes[4], g2Nodes[4], 1);
     }
 
     /**
@@ -280,7 +280,7 @@ public class KTailsTests extends SynopticTest {
                 .getAllTransitions();
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
-        for (int k = 0; k < 3; k++) {
+        for (int k = 1; k < 4; k++) {
             testKEqual(firstA, secondA, k);
         }
 
@@ -299,8 +299,8 @@ public class KTailsTests extends SynopticTest {
         initNodeTransitions = initNode.getAllTransitions();
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
-        testKEqual(firstA, secondA, 0);
-        testNotKEqual(firstA, secondA, 1);
+        testKEqual(firstA, secondA, 1);
+        testNotKEqual(firstA, secondA, 2);
     }
 
     /**
@@ -324,7 +324,7 @@ public class KTailsTests extends SynopticTest {
                 .getDummyInitialNode().getAllTransitions();
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
-        for (int k = 0; k < 3; k++) {
+        for (int k = 1; k < 4; k++) {
             testKEqual(firstA, secondA, k);
         }
     }
@@ -352,12 +352,12 @@ public class KTailsTests extends SynopticTest {
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
 
-        testKEqual(firstA, secondA, 0);
         testKEqual(firstA, secondA, 1);
+        testKEqual(firstA, secondA, 2);
 
-        // The 'd' in g2 makes it different from g1 at k >= 2.
-        testNotKEqual(firstA, secondA, 2);
+        // The 'd' in g2 makes it different from g1 at k >= 3.
         testNotKEqual(firstA, secondA, 3);
+        testNotKEqual(firstA, secondA, 4);
     }
 
     /**
@@ -413,10 +413,10 @@ public class KTailsTests extends SynopticTest {
         g2Nodes.get(1).addTransition(g2Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 0);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 1);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 2);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 3);
+        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 4);
 
         ChainsTraceGraph g3 = new ChainsTraceGraph();
         List<EventNode> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
@@ -424,18 +424,18 @@ public class KTailsTests extends SynopticTest {
         g3Nodes.get(0).addTransition(g3Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g3, 2);
 
-        testKEqual(g3Nodes.get(0), g2Nodes.get(0), 0);
         testKEqual(g3Nodes.get(0), g2Nodes.get(0), 1);
         testKEqual(g3Nodes.get(0), g2Nodes.get(0), 2);
+        testKEqual(g3Nodes.get(0), g2Nodes.get(0), 3);
 
         ChainsTraceGraph g4 = new ChainsTraceGraph();
         List<EventNode> g4Nodes = addNodesToGraph(g2, new String[] { "a" });
         exportTestGraph(g4, 2);
 
-        testKEqual(g4Nodes.get(0), g2Nodes.get(0), 0);
-        testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 1);
+        testKEqual(g4Nodes.get(0), g2Nodes.get(0), 1);
         testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 2);
         testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 3);
+        testNotKEqual(g4Nodes.get(0), g2Nodes.get(0), 4);
     }
 
     /**
@@ -460,7 +460,7 @@ public class KTailsTests extends SynopticTest {
         exportTestGraph(g1, 0);
 
         // g1.a is k-equivalent to g1.a for all k
-        for (int k = 0; k < 5; k++) {
+        for (int k = 1; k < 6; k++) {
             testKEqual(g1Nodes.get(0), g1Nodes.get(0), k);
         }
 
@@ -474,14 +474,14 @@ public class KTailsTests extends SynopticTest {
         g2Nodes.get(3).addTransition(g2Nodes.get(4), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
-        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 0);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 1);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 2);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 3);
         testKEqual(g1Nodes.get(0), g2Nodes.get(0), 4);
+        testKEqual(g1Nodes.get(0), g2Nodes.get(0), 5);
 
-        testNotKEqual(g1Nodes.get(0), g2Nodes.get(0), 5);
         testNotKEqual(g1Nodes.get(0), g2Nodes.get(0), 6);
+        testNotKEqual(g1Nodes.get(0), g2Nodes.get(0), 7);
     }
 
     /**
@@ -537,7 +537,7 @@ public class KTailsTests extends SynopticTest {
         // Now test that the two graphs are identical for all k starting at the
         // initial node.
 
-        for (int k = 0; k < 6; k++) {
+        for (int k = 1; k < 7; k++) {
             testKEqual(g1Nodes.get(0), g2Nodes.get(0), k);
         }
     }

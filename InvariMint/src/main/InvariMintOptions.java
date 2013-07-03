@@ -164,7 +164,7 @@ public class InvariMintOptions extends Options {
      * intersections.
      */
     @Option(value = "Minimize afer each intersection and the final model")
-    public boolean minimizeIntersections = true;
+    public boolean minimizeIntersections = false;
 
     // end option group "InvariMint Options"
 
@@ -206,7 +206,7 @@ public class InvariMintOptions extends Options {
      * Whether to export every mined invariant DFA
      */
     @Option(value = "Export every mined invariant DFA")
-    public boolean exportMinedInvariantDFAs = false;
+    public boolean exportMinedInvariantDFAs = true;
 
     /**
      * What level of logging to use.

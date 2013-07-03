@@ -30,17 +30,23 @@ public class KTails {
      * the given k value to the given trace graph
      */
     public static PartitionGraph performKTails(ChainsTraceGraph g, int k) {
+        // Note: at k == 0, all "states" should be considered equal, but an
+        // event-based model cannot express this, thus the assert.
+        assert (k > 0);
+
         PartitionGraph pGraph = new PartitionGraph(g, false, null);
-        attemptMerge(pGraph, k);
+        kTails(pGraph, k);
         return pGraph;
     }
 
     /**
-     * Finds all possible merges in pGraph. Requires making a new call to
-     * attemptMerge after every merge in case previously un-merge-able pairs
-     * become merge-able.
+     * Finds and executes all possible k-equivalent merges in pGraph.
      */
-    private static void attemptMerge(PartitionGraph pGraph, int k) {
+    private static void kTails(PartitionGraph pGraph, int k) {
+        // Note: at k == 0, all "states" should be considered equal, but an
+        // event-based model cannot express this, thus the assert.
+        assert (k > 0);
+
         // Keeps track of the merges that we want to perform.
         Set<PartitionMultiMerge> merges = new LinkedHashSet<PartitionMultiMerge>();
 
@@ -67,6 +73,8 @@ public class KTails {
             Set<List<EventType>> ret = getNodeKStrings(P, k);
             kStringsMap.put(P, ret);
         }
+
+        logger.fine("Pre-computed map: " + kStringsMap.toString());
 
         // remaining = partitions.size();
         logger.fine("Finding sets of nodes that are k-equivalent.");
@@ -100,9 +108,12 @@ public class KTails {
                     continue;
                 }
 
-                if (!PiKStrings.equals(kStringsMap.get(Pj))) {
+                Set<List<EventType>> PjKStrings = kStringsMap.get(Pj);
+                if (!PiKStrings.equals(PjKStrings)) {
                     continue;
                 }
+
+                logger.fine("Merging " + Pi + " and " + Pj);
 
                 if (m == null) {
                     List<Partition> list = new ArrayList<Partition>();
@@ -119,7 +130,7 @@ public class KTails {
             }
         }
 
-        logger.fine("Merging k-equivalent nodes.");
+        logger.fine("Applying merges.");
         for (PartitionMultiMerge merge : merges) {
             pGraph.apply(merge);
         }
@@ -130,11 +141,17 @@ public class KTails {
 
     static public <NodeType extends INode<NodeType>> boolean kEquals(
             NodeType n1, NodeType n2, int k) {
+        // Note: at k == 0, all "states" should be considered equal, but an
+        // event-based model cannot express this, thus the assert.
+        assert (k > 0);
+
+        if (k == 1) {
+            return n1.getEType().equals(n2.getEType());
+        }
+
+        // Optimization.
         if (!n1.getEType().equals(n2.getEType())) {
             return false;
-        }
-        if (k == 0) {
-            return n1.getEType().equals(n2.getEType());
         }
 
         Set<List<EventType>> n1Strings = getNodeKStrings(n1, k);
@@ -150,34 +167,24 @@ public class KTails {
      * @param P
      * @return
      */
-    // private static Set<List<EventType>> getPartitionKStrings(int k, Partition
-    // P) {
     private static <NodeType extends INode<NodeType>> Set<List<EventType>> getNodeKStrings(
             NodeType P, int k) {
-        // NodeType n1, NodeType n2, int k) {
+        assert (k >= 0);
+
+        if (k == 0) {
+            return Collections.emptySet();
+        }
+
         Set<List<EventType>> prefixes = new LinkedHashSet<List<EventType>>();
         List<EventType> prefix = new ArrayList<EventType>();
         prefix.add(P.getEType());
         prefixes.add(prefix);
 
-        Set<List<EventType>> ret = null;
-        if (k == 0) {
-            // For k=0, use singleton prefixes set containing P's event
-            // type.
-            ret = prefixes;
-        } else {
-            for (NodeType child : P.getAllSuccessors()) {
-                if (ret == null) {
-                    ret = getNodeKStringHelper(child, k - 1, prefixes);
-                } else {
-                    ret.addAll(getNodeKStringHelper(child, k - 1, prefixes));
-                }
-            }
-        }
-        // If we have not explored anything below P because it is a leaf
-        // then use singleton prefix set.
-        if (ret == null) {
-            ret = prefixes;
+        Set<List<EventType>> ret = new LinkedHashSet<List<EventType>>();
+        ret.addAll(prefixes);
+        for (NodeType child : P.getAllSuccessors()) {
+            // note: prefixes cannot mutate during this loop.
+            ret.addAll(getNodeKStringHelper(child, k - 1, prefixes));
         }
         return ret;
     }
@@ -190,14 +197,14 @@ public class KTails {
      * @param P
      * @param k
      * @param parentPrefixes
+     *            : cannot be modified.
      * @return
      */
-    // private static Set<List<EventType>> getKString(Partition P, int k,
-    // Set<List<EventType>> parentPrefixes) {
     private static <NodeType extends INode<NodeType>> Set<List<EventType>> getNodeKStringHelper(
             NodeType P, int k, Set<List<EventType>> parentPrefixes) {
+        assert (k >= 0);
 
-        if (k < 0) {
+        if (k == 0) {
             return Collections.emptySet();
         }
 
@@ -211,17 +218,14 @@ public class KTails {
             newPrefixes.add(prefixCopy);
         }
 
-        if (k == 0) {
+        if (k == 1) {
             return newPrefixes;
         }
 
-        Set<List<EventType>> ret = null;
+        // We always return at least the new prefixes we've constructed.
+        Set<List<EventType>> ret = newPrefixes;
         for (NodeType child : P.getAllSuccessors()) {
-            if (ret == null) {
-                ret = getNodeKStringHelper(child, k - 1, newPrefixes);
-            } else {
-                ret.addAll(getNodeKStringHelper(child, k - 1, newPrefixes));
-            }
+            ret.addAll(getNodeKStringHelper(child, k - 1, newPrefixes));
         }
 
         return ret;

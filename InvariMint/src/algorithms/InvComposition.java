@@ -33,33 +33,25 @@ public class InvComposition {
 
         // Intersect invariants into model.
         int remaining = invariants.numInvariants();
+
         for (ITemporalInvariant invariant : invariants) {
             // logger.info("Create new invDFA instance, remaining" + remaining);
             InvModel invDFA = new InvModel(invariant, model.getEventEncodings());
             model.intersectWith(invDFA);
             invDFA = null;
 
-            if (minimizeDFAIntersections) {
-                // logger.info("Minimizing intersection");
-                // Optimize by minimizing the model.
+            // Optimize by minimizing the model every 100 intersections.
+            if ((remaining % 100 == 0) && minimizeDFAIntersections) {
                 model.minimize();
             }
 
-            if (remaining % 100 == 0) {
-                // logger.info("Minimizing intersection % 100");
-                // Optimize by minimizing the model.
-                model.minimize();
-            }
             remaining -= 1;
-
         }
 
         if (minimizeDFAIntersections) {
-            // Optimize by minimizing the model.
             model.minimize();
         }
 
         return model;
     }
-
 }

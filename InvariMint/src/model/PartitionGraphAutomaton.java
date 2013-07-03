@@ -16,36 +16,38 @@ import synoptic.model.PartitionGraph;
  */
 public class PartitionGraphAutomaton extends EncodedAutomaton {
 
-    public PartitionGraphAutomaton(PartitionGraph pGraph, EventTypeEncodings encodings) {
+    public PartitionGraphAutomaton(PartitionGraph pGraph,
+            EventTypeEncodings encodings) {
         super(encodings);
 
         // The set of partitions we've visited, mapped to the source state for
         // each partition's generated transition.
         Map<Partition, State> preEventStates = new HashMap<Partition, State>();
 
-        // We manually construct the DFA from this initial state.
+        // We manually construct the DFA from the initial state.
         State initial = new State();
 
         // Convert all partitions starting from the INITIAL node.
         Partition initialPartition = pGraph.getDummyInitialNode();
-        convert(initialPartition, initial, preEventStates, encodings);
+        convert(initialPartition, initial, preEventStates);
 
         // Set the automaton to our newly constructed model.
         super.setInitialState(initial);
 
         // This minimization step will first determinize the model -- from
         // the dk brics documentation.
-        this.minimize();
+        // this.minimize();
     }
 
     /**
      * Converts the given partition into a transition from the given prev state
-     * to either a fresh state or if we've explored this partition before the
-     * state that this partition's original transition led to. If we have not
-     * explored this partition before we then explore this partition's children.
+     * to either a fresh state or if we have not explored this partition before,
+     * otherwise transition to the state that this partition's original
+     * transition led to. And, if we have not explored this partition before,
+     * then we explore this partition's children.
      */
     private void convert(Partition eventNode, State prev,
-            Map<Partition, State> preEventStates, EventTypeEncodings encodings) {
+            Map<Partition, State> preEventStates) {
 
         if (preEventStates.containsKey(eventNode)) {
 
@@ -59,8 +61,8 @@ public class PartitionGraphAutomaton extends EncodedAutomaton {
 
         } else {
 
-            // We haven't seen this partition before, and so should transition
-            // to a new state.
+            // We haven't seen this partition before, and so we should
+            // transition to a new state.
             State next = new State();
             dk.brics.automaton.Transition t = new dk.brics.automaton.Transition(
                     encodings.getEncoding(eventNode.getEType()), next);
@@ -77,8 +79,8 @@ public class PartitionGraphAutomaton extends EncodedAutomaton {
 
             // Convert child partitions, who should transition from the 'next'
             // state.
-            for (Partition target : eventNode.getAllSuccessors()) {
-                convert(target, next, preEventStates, encodings);
+            for (Partition child : eventNode.getAllSuccessors()) {
+                convert(child, next, preEventStates);
             }
         }
     }

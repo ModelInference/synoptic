@@ -267,7 +267,7 @@ public class Bisimulation {
      */
     public static void mergePartitions(PartitionGraph pGraph) {
         TemporalInvariantSet invariants = pGraph.getInvariants();
-        mergePartitions(pGraph, invariants, 0);
+        mergePartitions(pGraph, invariants, 1);
     }
 
     /**************************************************************************/

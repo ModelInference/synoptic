@@ -102,7 +102,6 @@ public class InvariantRegexTests {
 
     @Test
     public void testKTailRegex() {
-
         List<Character> tailEvents = new ArrayList<Character>();
         List<Character> followEvents = new ArrayList<Character>();
 
@@ -118,6 +117,11 @@ public class InvariantRegexTests {
 
         assertTrue(model.run("abcx"));
         assertFalse(model.run("abc"));
+        assertFalse(model.run("aabc"));
+        assertFalse(model.run("abcf"));
+        assertFalse(model.run("aabcf"));
+        assertFalse(model.run("ababcf"));
+        assertFalse(model.run("abcxabcf"));
 
         followEvents.add('a');
         model = new RegExp(KTailInvariant.getRegex(tailEvents, followEvents))
@@ -147,5 +151,27 @@ public class InvariantRegexTests {
         model.minimize();
         assertTrue(model.run("abbx"));
         assertFalse(model.run("abbb"));
+    }
+
+    @Test
+    public void testKTailOverlappingRegex() {
+        List<Character> tailEvents = new ArrayList<Character>();
+        tailEvents.add('b');
+        tailEvents.add('a');
+        tailEvents.add('b');
+
+        List<Character> followSet = new ArrayList<Character>();
+        followSet.add('a');
+        String re = KTailInvariant.getRegex(tailEvents, followSet);
+
+        Automaton a = new RegExp(re).toAutomaton();
+        assertTrue(a.run("baba"));
+        assertFalse(a.run("babc"));
+        assertFalse(a.run("Ibabc"));
+        assertFalse(a.run("Ibabcd"));
+        assertFalse(a.run("IbabababcT"));
+        assertFalse(a.run("IabababcT"));
+        assertTrue(a.run("IababaT"));
+        assertTrue(a.run("IabababaT"));
     }
 }
