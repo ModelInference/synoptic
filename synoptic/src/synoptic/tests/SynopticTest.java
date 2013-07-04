@@ -1,5 +1,6 @@
 package synoptic.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,9 @@ import synoptic.util.InternalSynopticException;
  * @author ivan
  */
 public abstract class SynopticTest extends SynopticLibTest {
+
+    protected static final String testOutputDir = "." + File.separator
+            + "test-output" + File.separator;
 
     static {
         // Set up static SynopticLib state.
@@ -102,28 +106,28 @@ public abstract class SynopticTest extends SynopticLibTest {
         parser.addPartitionsSeparator("^--$");
         return parser;
     }
-    
+
     /**
-     * Constructs a parser used by tests concerning an integer time. Note: the 
+     * Constructs a parser used by tests concerning an integer time. Note: the
      * parser may not be re-used for parsing different traces (it is stateful).
      */
     public static TraceParser genITimeParser() {
-    	 TraceParser parser = new TraceParser();
-         try {
-             parser.addRegex("^(?<TYPE>)(?<TIME>)$");
-         } catch (ParseException e) {
-             throw new InternalSynopticException(e);
-         }
-         parser.addPartitionsSeparator("^--$");
-         return parser;
+        TraceParser parser = new TraceParser();
+        try {
+            parser.addRegex("^(?<TYPE>)(?<TIME>)$");
+        } catch (ParseException e) {
+            throw new InternalSynopticException(e);
+        }
+        parser.addPartitionsSeparator("^--$");
+        return parser;
     }
-    
+
     /**
-     * Constructs a parser used by tests concerning a double time. Note: the 
+     * Constructs a parser used by tests concerning a double time. Note: the
      * parser may not be re-used for parsing different traces (it is stateful).
      */
     public static TraceParser genDTimeParser() {
-   	 TraceParser parser = new TraceParser();
+        TraceParser parser = new TraceParser();
         try {
             parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
         } catch (ParseException e) {
@@ -131,7 +135,7 @@ public abstract class SynopticTest extends SynopticLibTest {
         }
         parser.addPartitionsSeparator("^--$");
         return parser;
-   }
+    }
 
     /**
      * Creates a single string out of an array of strings, joined together and
@@ -236,8 +240,7 @@ public abstract class SynopticTest extends SynopticLibTest {
             EventNode logEvent = new EventNode(act);
             ret.add(logEvent);
             if (prevEvent != null) {
-                prevEvent.addTransition(logEvent,
-                        Event.defTimeRelationStr);
+                prevEvent.addTransition(logEvent, Event.defTimeRelationStr);
             }
             prevEvent = logEvent;
         }

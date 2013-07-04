@@ -19,8 +19,8 @@ public class InvariMintTest extends SynopticLibTest {
     protected static final String testOutputDir = "." + File.separator
             + "test-output" + File.separator;
 
-    protected static final String exampleTracesDir = ".." + File.separator
-            + "traces" + File.separator;
+    protected static final String tracesBasePath = File.separator + "traces"
+            + File.separator;
 
     static {
         // Set up static SynopticLib state.

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -33,19 +34,21 @@ public class SynopticModelTests extends InvariMintTest {
 
     @Test
     public void testConversion() throws Exception {
+        // Two paths that we will test to find traces/args files.
+        List<String> possibleTracesPaths = Arrays.asList(new String[] {
+                "." + tracesBasePath, ".." + tracesBasePath });
+        String testTraceFName = "abstract" + File.separator
+                + "osx-login-example" + File.separator + "trace.txt";
+
+        // Determine where the input traces/args are located -- try two options:
+        String tracesPath = findWorkingPath(possibleTracesPaths, testTraceFName);
+
         // Testing correctness for a known model.
-        String[] args = new String[] {
-                "--dumpInitialPartitionGraph=false",
+        String[] args = new String[] { "--dumpInitialPartitionGraph=false",
                 "--dumpTraceGraphDotFile=false",
-                "--dumpTraceGraphPngFile=false",
-                "-o",
-                testOutputDir + "syn-model-osx-login-test.png",
-                "-r",
-                "(?<TYPE>.+)",
-                "-s",
-                "--",
-                exampleTracesDir + "abstract" + File.separator
-                        + "osx-login-example" + File.separator + "trace.txt" };
+                "--dumpTraceGraphPngFile=false", "-o",
+                testOutputDir + "syn-model-osx-login-test.png", "-r",
+                "(?<TYPE>.+)", "-s", "--", tracesPath + testTraceFName };
 
         // Set up Synoptic.
         SynopticMain synMain = SynopticMain.processArgs(args);
@@ -57,7 +60,8 @@ public class SynopticModelTests extends InvariMintTest {
                 pGraph.getTraceGraph());
         Set<EventType> allEvents = miner.getEventTypes();
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        EncodedAutomaton convertedDfa = new PartitionGraphAutomaton(pGraph, encodings);
+        EncodedAutomaton convertedDfa = new PartitionGraphAutomaton(pGraph,
+                encodings);
 
         List<EventType> validSequence = new ArrayList<EventType>();
         validSequence.add(new StringEventType("INITIAL"));

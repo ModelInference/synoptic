@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -63,6 +64,36 @@ public abstract class SynopticLibTest {
         String[] testClassesAr = new String[testClasses.size()];
         testClassesAr = testClasses.toArray(testClassesAr);
         JUnitCore.main(testClassesAr);
+    }
+
+    /**
+     * Whether or not fname exists on disk.
+     * 
+     * @param fname
+     * @return
+     */
+    public static boolean fileExists(String fname) {
+        File f = new File(fname);
+        return f.exists();
+    }
+
+    /**
+     * For each prefix in prefixes, returns the first prefix for which
+     * prefix+fname exists on disk.
+     * 
+     * @param prefixes
+     * @param fname
+     * @return
+     */
+    public static String findWorkingPath(List<String> prefixes, String fname) {
+        for (String prefix : prefixes) {
+            if (fileExists(prefix + fname)) {
+                return prefix;
+            }
+        }
+        Assert.fail("Unable to find a working path with prefixes "
+                + prefixes.toString() + " and file " + fname);
+        return null;
     }
 
     /**
