@@ -32,8 +32,8 @@ public class BasicAspect {
     private static final String macAddress = getMacAddress();
 
     public BasicAspect() {
-        this.clock = new VectorClock(processId + macAddress);
         this.options = ShiVectorOptions.getOptions();
+        this.clock = new VectorClock(processId + macAddress, options);
     }
 
     private static String getMacAddress() {
@@ -52,8 +52,9 @@ public class BasicAspect {
         }
     }
 
-    // Adopted from http://www.javaspecialists.eu/archive/Issue169.html
+    /******************************* Network Aspects *******************************/
 
+    // Adopted from http://www.javaspecialists.eu/archive/Issue169.html
     @Around("call(* java.net.Socket.getInputStream()) && target(s) && !within(shivector..*)")
     public Object wrapInputStream(ProceedingJoinPoint joinPoint, Socket s)
             throws Throwable {
@@ -99,41 +100,6 @@ public class BasicAspect {
         return joinPoint.proceed();
     }
 
-    @Around("call(void *.println(String)) && args(str) && !within(shivector..*)")
-    public Object interceptPrintlnLogging(ProceedingJoinPoint joinPoint,
-            String str) throws Throwable {
-        return print(joinPoint, str, options.usePrintln);
-    }
-
-    private Object print(ProceedingJoinPoint joinPoint, Object obj, boolean flag)
-            throws Throwable {
-        if (flag) {
-            clock.incrementClock();
-            return joinPoint.proceed(new Object[] { obj.toString() + "\n"
-                    + clock });
-        }
-        return joinPoint.proceed();
-    }
-
-    //
-    // @Around("call(void org.apache.log4j.Logger.*(*))&& args(obj) && !within(shivector..*)")
-    // public Object interceptLog4JObjectThrowableLogging(
-    // ProceedingJoinPoint joinPoint, Object obj) throws Throwable {
-    // return print(joinPoint, obj, options.useLog4J);
-    // }
-
-    @Around("call(void org.apache.log4j.Logger.info(*))&& args(obj) && !within(shivector..*)")
-    public Object interceptLog4JInfo(ProceedingJoinPoint joinPoint, Object obj)
-            throws Throwable {
-        return print(joinPoint, obj, options.useLog4J);
-    }
-
-    @Around("call(void org.apache.log4j.Logger.warn(*))&& args(obj) && !within(shivector..*)")
-    public Object interceptLog4JWarn(ProceedingJoinPoint joinPoint, Object obj)
-            throws Throwable {
-        return print(joinPoint, obj, options.useLog4J);
-    }
-
     @Around("call(* org.apache.mina.core.session.IoSession.write(Object)) && args(msg) && !within(shivector.aspects..*)")
     public Object interceptMinaWrite(ProceedingJoinPoint joinPoint, Object msg)
             throws Throwable {
@@ -154,7 +120,8 @@ public class BasicAspect {
         return joinPoint.proceed();
     }
 
-    @Around("execution(void *.messageReceived(.., Object)) && args(session, message) && !within(shivector.aspects..*)")
+    // org.apache.mina.core.service.IoHandlerAdapter.messageReceived
+    @Around("execution(void org.apache.mina.core.service.IoHandlerAdapter.messageReceived(.., Object)) && args(session, message) && !within(shivector.aspects..*)")
     public Object interceptMinaRead(ProceedingJoinPoint joinPoint,
             Object session, Object message) throws Throwable {
         if (options.useMinaAPI) {
@@ -162,5 +129,35 @@ public class BasicAspect {
             return joinPoint.proceed(new Object[] { session, msg });
         }
         return joinPoint.proceed();
+    }
+
+    /******************************* Logging Aspects *******************************/
+
+    private Object print(ProceedingJoinPoint joinPoint, Object obj, boolean flag)
+            throws Throwable {
+        if (flag) {
+            clock.incrementClock();
+            return joinPoint.proceed(new Object[] { obj.toString() + "\n"
+                    + clock });
+        }
+        return joinPoint.proceed();
+    }
+
+    @Around("call(void *.println(String)) && args(str) && !within(shivector..*)")
+    public Object interceptPrintlnLogging(ProceedingJoinPoint joinPoint,
+            String str) throws Throwable {
+        return print(joinPoint, str, options.usePrintln);
+    }
+
+    @Around("call(void org.apache.log4j.Logger.info(*))&& args(obj) && !within(shivector..*)")
+    public Object interceptLog4JInfo(ProceedingJoinPoint joinPoint, Object obj)
+            throws Throwable {
+        return print(joinPoint, obj, options.useLog4J);
+    }
+
+    @Around("call(void org.apache.log4j.Logger.warn(*))&& args(obj) && !within(shivector..*)")
+    public Object interceptLog4JWarn(ProceedingJoinPoint joinPoint, Object obj)
+            throws Throwable {
+        return print(joinPoint, obj, options.useLog4J);
     }
 }

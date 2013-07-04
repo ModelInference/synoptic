@@ -87,4 +87,10 @@ public class ShiVectorOptions {
      */
     @Option("Whether to intercept the Mina API.")
     public boolean useMinaAPI = true;
+
+    /**
+     * Whether to use a clock per thread instead of per process.
+     */
+    @Option("Whether to use a clock per thread instead of per process.")
+    public boolean useThreadsAsHosts = false;
 }
