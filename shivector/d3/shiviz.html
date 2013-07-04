@@ -4,7 +4,6 @@
 <title>ShiViz</title>
 <link href="style.css" type="text/css" rel="stylesheet">
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<xml id="defaultTxt" src="defaultLog.xml"></xml>
 
 <header>
   <b><a href="shiviz.html">Home</a></b>
@@ -113,8 +112,8 @@
     <textarea id='logField' ></textarea>
     <p id=examplelogs>
     Examples:
-    <a href="javascript:void(0)" onclick="loadExample('exampleShiVector.log')">Facebook data-center log</a>
-    <a style="margin-left:1em;" href="javascript:void(0)" onclick="loadExample('defaultLog.txt')">Voldemort log</a>
+    <a href="javascript:void(0)" onclick="loadExample('facebook.log')">Facebook data-center log</a>
+    <a style="margin-left:1em;" href="javascript:void(0)" onclick="loadExample('voldemort.log')">Voldemort log</a>
     <a style="margin-left:1em;" href="javascript:void(0)" onclick="loadExample('simpledb.log')">SimpleDB log</a>
     </p>
     <input type='button' id='clearButton' value="clear" />
