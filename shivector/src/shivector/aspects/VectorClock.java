@@ -102,6 +102,18 @@ public class VectorClock {
         }
     }
 
+    // Socket read
+    public void parseClock(InputStream in) throws IOException {
+        byte[] buf = new byte[INT_LENGTH];
+        in.read(buf);
+        int mapLength = byteArrayToInt(buf);
+        byte[] map = new byte[mapLength];
+        in.read(map);
+
+        // Parse byte array to Map
+        readClock(new ByteArrayInputStream(map));
+    }
+
     // Nio read
     public void parseClock(SocketChannel s) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(INT_LENGTH);
@@ -123,18 +135,6 @@ public class VectorClock {
         readClock(new ByteArrayInputStream(clockArray));
     }
 
-    // Socket read
-    public void parseClock(InputStream in) throws IOException {
-        byte[] buf = new byte[INT_LENGTH];
-        in.read(buf);
-        int mapLength = byteArrayToInt(buf);
-        byte[] map = new byte[mapLength];
-        in.read(map);
-
-        // Parse byte array to Map
-        readClock(new ByteArrayInputStream(map));
-    }
-
     // Mina read
     public Object parseMessageArray(byte[] msg) throws IOException {
         ByteBuffer source = ByteBuffer.wrap(msg);
@@ -152,10 +152,9 @@ public class VectorClock {
         ObjectInputStream objIn = new ObjectInputStream(
                 new ByteArrayInputStream(msgArr));
         try {
-            Object message = (Object) objIn.readObject();
-            return message;
+            return objIn.readObject();
         } catch (ClassNotFoundException e) {
-            // Whelp we probably can't merge the clocks
+            // Error reading message
             System.out.println(e);
             return null;
         }
@@ -174,6 +173,21 @@ public class VectorClock {
     }
 
     /** Write protocol: map length, map array, msg length, msg */
+    // Socket write
+    public void writeClock(OutputStream out) throws IOException {
+        initializeClock();
+
+        // Convert Map to byte array
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
+        objOut.writeObject(masterClock.get(hostId()));
+
+        byte[] mapArray = byteOut.toByteArray();
+        byte[] mapLength = intToByteArray(mapArray.length);
+
+        out.write(mapLength);
+        out.write(mapArray);
+    }
 
     // Nio write
     public void writeClock(SocketChannel s) throws IOException {
@@ -195,22 +209,6 @@ public class VectorClock {
         buf.put(mapArray);
         buf.rewind();
         s.write(buf);
-    }
-
-    // Socket write
-    public void writeClock(OutputStream out) throws IOException {
-        initializeClock();
-
-        // Convert Map to byte array
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
-        objOut.writeObject(masterClock.get(hostId()));
-
-        byte[] mapArray = byteOut.toByteArray();
-        byte[] mapLength = intToByteArray(mapArray.length);
-
-        out.write(mapLength);
-        out.write(mapArray);
     }
 
     // Mina write
@@ -241,6 +239,8 @@ public class VectorClock {
         return out;
     }
 
+    /******************* Old logic that tracked available bytes *******************/
+
     /*
      * Attempts to read exactly b.length bytes into b. If all goes well, returns
      * b.length. If less than b.length bytes are available, assumes an error has
@@ -262,8 +262,7 @@ public class VectorClock {
 
     /**
      * Parses a vector clock from the input stream, merges with this vector
-     * clock, increments the recorded time for the given node, and returns the
-     * length of the next payload.
+     * clock, and returns the length of the next payload.
      */
     // public int parsePayloadAndMergeClocks(InputStream in) throws IOException
     // {
@@ -286,8 +285,7 @@ public class VectorClock {
     // }
 
     /**
-     * Increments the recorded time for the given node and writes this vector
-     * clock to the output stream.
+     * Writes this vector clock to the output stream.
      */
     // public void writeVectorClock(OutputStream out, int payloadSize)
     // throws IOException {

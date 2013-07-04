@@ -120,7 +120,6 @@ public class BasicAspect {
         return joinPoint.proceed();
     }
 
-    // org.apache.mina.core.service.IoHandlerAdapter.messageReceived
     @Around("execution(void org.apache.mina.core.service.IoHandlerAdapter.messageReceived(.., Object)) && args(session, message) && !within(shivector.aspects..*)")
     public Object interceptMinaRead(ProceedingJoinPoint joinPoint,
             Object session, Object message) throws Throwable {
