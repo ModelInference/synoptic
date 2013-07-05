@@ -14,11 +14,11 @@
     <!-- Where to create the shivector.jar file. -->
     <property name="shivector.jarpath" value="${util.synoptic.libdir}/shivector.jar"/>
 
-	<property name="junit.output.dir" value="junit"/>
+	  <property name="junit.output.dir" value="junit"/>
 
-	<property name="debuglevel" value="source,lines,vars"/>
+    <property name="debuglevel" value="source,lines,vars"/>
 
-	<property name="target" value="1.6"/>
+    <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
 
     <!-- Where to find the generated shivector classes. -->
@@ -29,6 +29,7 @@
     <!-- The set of jars shivector depends on, in classpath format. -->
     <path id="shivector.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
         <pathelement location="${util.synoptic.libdir}/aspectjrt.jar"/>
     </path>
 
@@ -38,7 +39,7 @@
         <path refid="shivector.depjars.classpath"/>
     </path>
 
-	<manifestclasspath property="jar.liblist" jarfile="${shivector.jarpath}">
+    <manifestclasspath property="jar.liblist" jarfile="${shivector.jarpath}">
       <classpath refid="shivector.depjars.classpath" />
     </manifestclasspath>
 
@@ -93,13 +94,13 @@
            basedir="./bin/"
            includes="**/*.class">
         <manifest>
-	  <attribute name="Manifest-Version" value="1.0" />
-	  <attribute name="Implementation-Title" value="ShiVector" />
-	  <attribute name="Implementation-Version" value="0.0.1" />
-	  <attribute name="Main-Class" value="main.ShiVectorMain" />
-      <attribute name="Class-Path" value="${jar.liblist}" />
-	  <attribute name="ChangesetID" value="${util.hg.revision}" />
-	</manifest>
+          <attribute name="Manifest-Version" value="1.0" />
+	        <attribute name="Implementation-Title" value="ShiVector" />
+	        <attribute name="Implementation-Version" value="0.0.1" />
+	        <attribute name="Main-Class" value="main.ShiVectorMain" />
+          <attribute name="Class-Path" value="${jar.liblist}" />
+	        <attribute name="ChangesetID" value="${util.hg.revision}" />
+        </manifest>
       </jar>
     </target>
 
