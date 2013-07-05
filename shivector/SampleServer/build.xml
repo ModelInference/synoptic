@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="compile" name="SampleServer">
+  <property environment="env" />
+  <property name="debuglevel" value="source,lines,vars"/>
+
+  <!-- The complete classpath for running the compiled SampleServer. -->
+  <path id="sampleserver.classpath" >
+    <pathelement location="bin" />
+  </path>
+
+  <!--=====================================================================-->
+  <target name="init">
+    <mkdir dir="bin"/>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="compile" depends="init">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+    <javac includeantruntime="false" srcdir="src" destDir="bin">
+    </javac>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="clean">
+    <delete dir="bin"/>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runServer" depends="compile">
+    <java classname="Server">
+      <classpath refid="sampleserver.classpath" />
+    </java>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runClient" depends="compile">
+    <java classname="Client">
+      <classpath refid="sampleserver.classpath" />
+    </java>
+  </target>
+
+  <!--=====================================================================-->
+  <!-- Additions for compiling and running with ShiVector -->
+  <!--=====================================================================-->
+
+  <!-- Required ShiVector and AspectJ properties -->
+  <property name="shivector.lib" value="/Users/jennyabrahamson/Documents/research/synoptic/lib" />
+  <property name="aspectj" value="/Users/jennyabrahamson/Applications/aspectj1.7/lib" />
+
+  <!-- The jars ShiVector depends on, in classpath form. -->
+  <path id="sampleserver.depjars.classpath" >
+    <pathelement location="${aspectj}/aspectjrt.jar" />
+    <pathelement location="${shivector.lib}/junit-4.9b2.jar" />
+    <pathelement location="${shivector.lib}/plume.jar" />
+  </path>
+
+  <!-- The complete classpath for running the compiled SampleServer with
+  ShiVector. -->
+  <path id="sampleserver.withShiVector.classpath" >
+    <pathelement location="bin" />
+    <pathelement location="${aspectj}/aspectjrt.jar" />
+    <pathelement location="${shivector.lib}/plume.jar" />
+  </path>
+
+  <!-- Required AspectJ compiler taskdef -->
+  <taskdef 
+      resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+    <classpath>
+      <pathelement location="${aspectj}/aspectjtools.jar"/>
+    </classpath>
+  </taskdef>
+
+  <!-- Compile target for SampleServer with ShiVector -->
+  <target name="compileWithShiVector" depends="init">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+    <iajc sourceroots="src" destDir="bin">
+      <classpath refid="sampleserver.depjars.classpath" />
+      <inpath>
+        <pathelement location="${shivector.lib}/shivector.jar" />
+      </inpath>
+    </iajc>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runServerWithShiVector" depends="compileWithShiVector">
+    <java classname="Server">
+      <classpath refid="sampleserver.withShiVector.classpath" />
+    </java>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="runClientWithShiVector" depends="compileWithShiVector">
+    <java classname="Client">
+      <classpath refid="sampleserver.withShiVector.classpath" />
+    </java>
+  </target>
+
+
+</project>
