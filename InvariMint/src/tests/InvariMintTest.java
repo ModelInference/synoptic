@@ -2,6 +2,10 @@ package tests;
 
 import java.io.File;
 
+import main.InvariMintMain;
+import main.InvariMintOptions;
+import model.EncodedAutomaton;
+
 import org.junit.Before;
 import org.junit.rules.TestName;
 
@@ -40,6 +44,22 @@ public class InvariMintTest extends SynopticLibTest {
     // //////////////////////////////////////////////
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
+
+    /**
+     * Runs invarimint with given command line args and returns the derived
+     * EncodedAutomaton model.
+     * 
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    public EncodedAutomaton runInvariMintWithArgs(String[] args)
+            throws Exception {
+        InvariMintOptions opts = new InvariMintOptions(args);
+        InvariMintMain main = new InvariMintMain(opts);
+        main.runInvariMint();
+        return main.getInvariMintModel();
+    }
 
     /**
      * Exposes SynopticLibTest's testName to derived classes.

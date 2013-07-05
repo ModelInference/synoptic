@@ -44,16 +44,22 @@ public class KTailImplComparisonTests extends InvariMintTest {
                         + File.separator;
 
                 String[] args = (String[]) ArrayUtils.addAll(parsingArgs,
-                        new String[] { "--minimizeIntersections",
-                                "--logLvlVerbose", "--invMintKTails=true",
-                                "--kTailLength", k + "", "-o",
-                                testOutputDir + dir, path + "trace.txt" });
+                        new String[] { // "--exportStdAlgPGraph",
+                                // "--exportStdAlgDFA",
+                                "--compareToStandardAlg",
+                                "--minimizeIntersections", "--logLvlVerbose",
+                                "--invMintKTails=true", "--kTailLength",
+                                k + "", "-o", testOutputDir + dir,
+                                path + "trace.txt" });
 
-                assertTrue(
-                        "Failure on " + dir + " when k = " + k,
-                        InvariMintMain
-                                .compareInvariMintSynoptic(new InvariMintOptions(
-                                        args)));
+                InvariMintOptions opts = new InvariMintOptions(args);
+                InvariMintMain main = new InvariMintMain(opts);
+                main.runInvariMint();
+
+                // Assert that the invarimint model and the standard algorithm
+                // models are identical.
+                assertTrue("Failure on " + dir + " when k = " + k,
+                        main.isEqualToStandardAlg());
 
             }
         }

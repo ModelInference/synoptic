@@ -4,8 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import main.InvariMintMain;
-import main.InvariMintOptions;
 import model.CustomModel;
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
@@ -48,9 +46,7 @@ public class EndToEndKTailsMainTests extends InvariMintTest {
                 "\\k<nodename>", "-o",
                 testOutputDir + "ktail-simple-model-example",
                 simpleModelPath + "trace.txt" };
-
-        InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
+        EncodedAutomaton dfa = runInvariMintWithArgs(args);
 
         // Create expected model:
         EventTypeEncodings encodings = dfa.getEventEncodings();

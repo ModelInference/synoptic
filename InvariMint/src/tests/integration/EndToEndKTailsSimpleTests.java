@@ -7,8 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import main.InvariMintMain;
-import main.InvariMintOptions;
 import model.EncodedAutomaton;
 
 import org.junit.Test;
@@ -46,8 +44,7 @@ public class EndToEndKTailsSimpleTests extends InvariMintTest {
                 "\\k<nodename>", "-o", testOutputDir + "ktails-example",
                 tPath + "trace.txt" };
 
-        InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
+        EncodedAutomaton dfa = runInvariMintWithArgs(args);
 
         List<EventType> sequence = new ArrayList<EventType>();
         sequence.add(initial);

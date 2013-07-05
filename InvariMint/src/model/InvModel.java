@@ -52,7 +52,7 @@ public class InvModel extends EncodedAutomaton {
             }
 
             re = KTailInvariant.getRegex(tailEncodings, followEncodings);
-            logger.fine("Intersecting model with re: " + re);
+            // logger.fine("Intersecting model with re: " + re);
         }
 
         super.intersectWithRE(re, "Intersecting model with " + invariant);
