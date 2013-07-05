@@ -206,7 +206,7 @@ public class InvariMintOptions extends Options {
      * Whether to export every mined invariant DFA
      */
     @Option(value = "Export every mined invariant DFA")
-    public boolean exportMinedInvariantDFAs = true;
+    public boolean exportMinedInvariantDFAs = false;
 
     /**
      * What level of logging to use.

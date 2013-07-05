@@ -7,8 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import main.InvariMintMain;
-import main.InvariMintOptions;
 import model.EncodedAutomaton;
 
 import org.junit.Test;
@@ -46,8 +44,8 @@ public class EndToEndOSXLoginMainTests extends InvariMintTest {
         String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-o",
                 testOutputDir + "osx-login-example", "-invMintSynoptic=true",
                 loginExamplePath + "trace.txt" };
-        InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
+
+        EncodedAutomaton dfa = runInvariMintWithArgs(args);
 
         List<EventType> sequence = new ArrayList<EventType>();
         sequence.add(initial);

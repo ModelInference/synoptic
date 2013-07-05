@@ -3,7 +3,6 @@ package main;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import model.EncodedAutomaton;
 import model.InvModel;
 import model.InvsModel;
 import algorithms.InvariMintKTails;
@@ -26,7 +25,20 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
  * @author Jenny
  */
 public class InvariMintMain {
-    public static Logger logger = null;
+    public Logger logger = null;
+
+    // Options that configure this InvariMint instance.
+    private InvariMintOptions opts = null;
+
+    // Instance of the invarimint algorithm that will execute.
+    private PGraphInvariMint invMintAlg = null;
+
+    // The invarimint model derived with call to runInvariMint()
+    private InvsModel invmintDfa = null;
+
+    // Whether or not the invarmint model is identical to the model derived
+    // using the standard algorithm.
+    private boolean equalToStdAlg;
 
     /**
      * Main entrance into the application. See InvariMintOptions for expected
@@ -37,40 +49,23 @@ public class InvariMintMain {
      */
     public static void main(String[] args) throws Exception {
         try {
-            runInvariMint(new InvariMintOptions(args));
+            InvariMintOptions opts = new InvariMintOptions(args);
+            InvariMintMain main = new InvariMintMain(opts);
+            main.runInvariMint();
         } catch (OptionException e) {
             // During OptionExceptions, the problem has already been printed.
             return;
         }
     }
 
-    public static boolean compareInvariMintSynoptic(InvariMintOptions opts)
-            throws Exception {
-        PGraphInvariMint invMintAlg = setUpAndGetAlg(opts);
-        runStandardAlg(invMintAlg);
-        InvsModel dfa = runInvariMint(invMintAlg);
+    // //////////////////////////////////////////////////////////////////////////
 
-        // Export the FINAL partition graph for standard alg.
-        invMintAlg.exportStdAlgPGraph();
+    public InvariMintMain(InvariMintOptions opts) throws Exception {
+        this.opts = opts;
 
-        // Export standard algorithm DFA.
-        invMintAlg.exportStdAlgDFA();
+        setUpLogging();
+        handleOptions();
 
-        // Export InvariMint-StdAlg DFA.
-        String exportFname = opts.outputPathPrefix + "."
-                + invMintAlg.getInvMintAlgName() + ".dfa.dot";
-        dfa.exportDotAndPng(exportFname);
-
-        return invMintAlg.compareToStandardAlg();
-    }
-
-    private static PGraphInvariMint setUpAndGetAlg(InvariMintOptions opts)
-            throws Exception {
-
-        setUpLogging(opts);
-        handleOptions(opts);
-
-        PGraphInvariMint invMintAlg;
         if (opts.invMintSynoptic) {
             // Instantiate a Synoptic version of InvariMint.
             invMintAlg = new InvariMintSynoptic(opts);
@@ -80,51 +75,14 @@ public class InvariMintMain {
         } else {
             throw new Exception("InvariMint algorithm not specified.");
         }
-        return invMintAlg;
-    }
-
-    private static void runStandardAlg(PGraphInvariMint invMintAlg) {
-        logger.info("Running Standard Alg.");
-        long startTime = System.nanoTime();
-        long endTime;
-        try {
-            invMintAlg.runStdAlg();
-        } finally {
-            endTime = System.nanoTime();
-        }
-        // Convert nanoseconds to seconds
-        double duration_secs = (endTime - startTime) / 1000000000.0;
-        logger.info("DONE Running Standard Alg. Duration = " + duration_secs);
-    }
-
-    private static InvsModel runInvariMint(PGraphInvariMint invMintAlg)
-            throws Exception {
-        InvsModel dfa;
-        logger.info("Running InvariMint Alg.");
-        long startTime = System.nanoTime();
-        long endTime;
-        try {
-            // Run the appropriate version of InvariMint.
-            dfa = invMintAlg.runInvariMint();
-        } finally {
-            endTime = System.nanoTime();
-        }
-        // Convert nanoseconds to seconds
-        double duration_secs = (endTime - startTime) / 1000000000.0;
-        logger.info("DONE Running InvariMint Alg. Duration = " + duration_secs);
-
-        return dfa;
     }
 
     /**
-     * Performs InvariMint with the given set of options, returns the final dfa.
+     * Runs InvariMint with the given set of options.
      */
-    public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
-            throws Exception {
-
-        PGraphInvariMint invMintAlg = setUpAndGetAlg(opts);
-        runStandardAlg(invMintAlg);
-        InvsModel dfa = runInvariMint(invMintAlg);
+    public void runInvariMint() throws Exception {
+        // This sets the invmintDfa instance.
+        runAlg(false);
 
         // Optionally remove paths from the model not found in any input trace.
         if (opts.removeSpuriousEdges) {
@@ -136,13 +94,13 @@ public class InvariMintMain {
         // Export final model.
         String exportFname = opts.outputPathPrefix + "."
                 + invMintAlg.getInvMintAlgName() + ".dfa.dot";
-        dfa.exportDotAndPng(exportFname);
+        invmintDfa.exportDotAndPng(exportFname);
 
         // Export each of the mined DFAs (except NIFby invariants).
         if (opts.exportMinedInvariantDFAs) {
             int invID = 0;
             String path;
-            for (InvModel invDFA : dfa.getInvariants()) {
+            for (InvModel invDFA : invmintDfa.getInvariants()) {
                 if (!(invDFA.getInvariant() instanceof NeverImmediatelyFollowedInvariant)) {
                     path = opts.outputPathPrefix + "."
                             + invMintAlg.getInvMintAlgName() + ".InvDFA"
@@ -162,30 +120,31 @@ public class InvariMintMain {
         }
 
         if (opts.compareToStandardAlg) {
-            invMintAlg.compareToStandardAlg();
+            // Run the standard algorithm.
+            runAlg(true);
+            // Compare the two models: InvariMint model and the standard
+            // algorithm model.
+            equalToStdAlg = invMintAlg.compareToStandardAlg();
         }
-
-        return dfa;
     }
 
-    public static void setUpLogging(InvariMintOptions opts) {
-        // Get the top Logger instance
-        logger = Logger.getLogger("InvariMintMain");
+    public InvsModel getInvariMintModel() {
+        // Make sure that the model was created.
+        assert invmintDfa != null;
 
-        // Set the logger's log level based on command line arguments
-        if (opts.logLvlQuiet) {
-            logger.setLevel(Level.WARNING);
-        } else if (opts.logLvlVerbose) {
-            logger.setLevel(Level.FINE);
-        } else if (opts.logLvlExtraVerbose) {
-            logger.setLevel(Level.FINEST);
-        } else {
-            logger.setLevel(Level.INFO);
-        }
-        return;
+        return invmintDfa;
     }
 
-    public static void handleOptions(InvariMintOptions opts) throws Exception {
+    public boolean isEqualToStandardAlg() {
+        // Make sure that the comparison was actually performed.
+        assert opts.compareToStandardAlg;
+
+        return equalToStdAlg;
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////////
+
+    private void handleOptions() throws Exception {
         String err = null;
 
         // Display help for all option groups, including unpublicized ones
@@ -222,4 +181,44 @@ public class InvariMintMain {
             throw new OptionException();
         }
     }
+
+    private void setUpLogging() {
+        // Get the top Logger instance
+        logger = Logger.getLogger("InvariMintMain");
+
+        // Set the logger's log level based on command line arguments
+        if (opts.logLvlQuiet) {
+            logger.setLevel(Level.WARNING);
+        } else if (opts.logLvlVerbose) {
+            logger.setLevel(Level.FINE);
+        } else if (opts.logLvlExtraVerbose) {
+            logger.setLevel(Level.FINEST);
+        } else {
+            logger.setLevel(Level.INFO);
+        }
+        return;
+    }
+
+    private void runAlg(boolean standardAlg) throws Exception {
+        String strAlg = "InvariMint Alg";
+        if (standardAlg) {
+            strAlg = "Standard Alg";
+        }
+        logger.info("Running " + strAlg);
+        long startTime = System.nanoTime();
+        long endTime;
+        try {
+            if (standardAlg) {
+                invMintAlg.runStdAlg();
+            } else {
+                invmintDfa = invMintAlg.runInvariMint();
+            }
+        } finally {
+            endTime = System.nanoTime();
+        }
+        // Convert nanoseconds to seconds
+        double duration_secs = (endTime - startTime) / 1000000000.0;
+        logger.info("DONE Running " + strAlg + ". Duration = " + duration_secs);
+    }
+
 }
