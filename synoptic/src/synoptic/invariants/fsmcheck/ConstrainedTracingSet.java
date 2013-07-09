@@ -29,7 +29,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
     
     /**
-     * Extend this node with another
+     * Extends this node with another
      */
     public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
             ITime tDelta) {
@@ -37,6 +37,46 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             return null;
         }
         return new ConstrainedHistoryNode(node, prior, prior.count + 1, tDelta);
+    }
+
+    /**
+     * Yields the shorter (smaller time delta) or longer (larger time delta)
+     * path of the two passed in
+     * 
+     * @param first
+     *            First history node
+     * @param second
+     *            Second history node
+     * @param findLonger
+     *            If TRUE, find longer path. If FALSE, find shorter path.
+     * @return The shorter or longer path, whichever was requested
+     */
+    public ConstrainedHistoryNode preferShorterOrLonger(
+            ConstrainedHistoryNode first, ConstrainedHistoryNode second,
+            boolean findLonger) {
+
+        // If either node is null, return the other
+        if (second == null) {
+            return first;
+        }
+        if (first == null) {
+            return second;
+        }
+
+        // Return the node with the smaller or larger time delta, whichever was
+        // requested
+        if (first.tDelta.lessThan(second.tDelta)) {
+            if (findLonger) {
+                return second;
+            }
+            return first;
+        }
+
+        // Else if first is longer...
+        if (findLonger) {
+            return first;
+        }
+        return second;
     }
 
     /**
@@ -115,10 +155,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * Get the smallest or largest time delta out of all time delta series of
      * one Partition's Transitions in a list
      * 
-     * @param transitions 
-     *              A list of one Partition's Transitions with time delta series
+     * @param transitions
+     *            A list of one Partition's Transitions with time delta series
      * @param findMax
-     *              If TRUE, find max time delta. If FALSE, find min.
+     *            If TRUE, find max time delta. If FALSE, find min.
      * @return Smallest or largest ITime time delta
      */
     protected <Node extends INode<Node>> ITime getMinMaxTimeDelta(
