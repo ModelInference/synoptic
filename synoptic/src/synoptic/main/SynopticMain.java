@@ -24,6 +24,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.ConstrainedInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.IPOInvariantMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
@@ -535,6 +536,13 @@ public class SynopticMain {
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
                 options.multipleRelations);
+        
+        // Mine time-constrained invariants if requested
+        if (options.enablePerfDebugging) {
+            ConstrainedInvMiner constMiner = new ConstrainedInvMiner();
+            minedInvs = constMiner.computeInvariants(traceGraph,
+                    options.multipleRelations, minedInvs);
+        }
 
         loggerInfoEnd("Mining took ", startTime);
 
