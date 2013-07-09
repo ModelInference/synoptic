@@ -13,9 +13,9 @@ digraph {
 1->6 [label="",];
 2->7 [label="",];
 3->8 [label="",];
-4->0 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-5->1 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-6->2 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-7->3 [label="KEY == \"1234\"\nKEY == KEY\nKEY == pin",];
+4->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+5->1 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+6->2 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+7->3 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\nKEY == pin\n",];
 9->4 [label="",];
 } // digraph {

@@ -19,11 +19,11 @@ digraph {
 3->10 [label="",];
 4->11 [label="",];
 5->12 [label="",];
-6->0 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-7->1 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-8->2 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-9->3 [label="KEY == \"1234\"\nKEY == KEY\nKEY == pin",];
-10->4 [label="KEY == \"1234\"\nKEY == KEY\nKEY == pin",];
-11->5 [label="KEY == \"1234\"\nKEY == KEY\nKEY == pin",];
+6->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+7->1 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+8->2 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+9->3 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\nKEY == pin\n",];
+10->4 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\nKEY == pin\n",];
+11->5 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\nKEY == pin\n",];
 13->6 [label="",];
 } // digraph {

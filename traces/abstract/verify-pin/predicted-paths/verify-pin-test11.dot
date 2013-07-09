@@ -11,10 +11,10 @@ digraph {
   9 [label="INITIAL",shape=box];
 0->3 [label="",];
 1->4 [label="",];
-2->0 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-3->1 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-4->6 [label="pin one of { \"0000\", \"1234\", \"9999\" }\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
-5->7 [label="pin one of { \"0000\", \"1234\", \"9999\" }\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
+2->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+3->1 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+4->6 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+5->7 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
 6->5 [label="",];
 7->8 [label="",];
 9->2 [label="",];

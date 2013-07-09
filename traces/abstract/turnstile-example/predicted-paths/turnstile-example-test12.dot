@@ -6,10 +6,10 @@ digraph {
   4 [label="push"];
   5 [label="TERMINAL",shape=diamond];
   6 [label="INITIAL",shape=box];
-0->1 [label="locked == false\ncoinCount == 3\ncoinCount != 0\ncoinCount >= 0\n0 <= coinCount <= 63\nentryCount == 2\nentryCount != 0\nentryCount >= 0\nentryCount is a power of 2\n0 <= entryCount <= 63\nlocked == locked\ncoinCount == coinCount\ncoinCount > entryCount\nentryCount == entryCount",];
-1->3 [label="coinCount one of { 1, 2, 4 }\ncoinCount != 0\ncoinCount >= 0\ncoinCount is a power of 2\n0 <= coinCount <= 63\nentryCount one of { 0, 1, 2 }\nentryCount >= 0\n0 <= entryCount <= 63\ncoinCount == coinCount\ncoinCount > entryCount\nentryCount == entryCount\nlocked == false\nlocked == locked",];
-2->4 [label="coinCount one of { 1, 2, 4 }\ncoinCount != 0\ncoinCount >= 0\ncoinCount is a power of 2\n0 <= coinCount <= 63\nentryCount one of { 0, 1, 2 }\nentryCount >= 0\n0 <= entryCount <= 63\ncoinCount == coinCount\ncoinCount > entryCount\nentryCount == entryCount\nlocked == false\nlocked == locked",];
-3->2 [label="locked == true\nlocked != 0\ncoinCount == 1\ncoinCount != 0\ncoinCount == 1\ncoinCount >= 0\ncoinCount is boolean\ncoinCount is a power of 2\n0 <= coinCount <= 63\nlocked == locked\ncoinCount == coinCount\ncoinCount == coinCount**2\ncoinCount == coinCount**2\ncoinCount == entryCount",];
-4->5 [label="coinCount one of { 2, 4 }\ncoinCount != 0\ncoinCount >= 0\ncoinCount is a power of 2\n0 <= coinCount <= 63\nentryCount one of { 2, 3 }\nentryCount != 0\nentryCount >= 0\n0 <= entryCount <= 63\ncoinCount == coinCount\ncoinCount >= entryCount\nentryCount == entryCount\nlocked == true\nlocked != 0\nlocked == locked",];
-6->0 [label="coinCount one of { 0, 2 }\ncoinCount >= 0\n0 <= coinCount <= 63\ncoinCount == coinCount\nlocked == true\nlocked != 0\nlocked == locked\ncoinCount == entryCount",];
+0->1 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount == 3\nentryCount == 2\n",];
+1->3 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount one of { 1, 2, 4 }\nentryCount one of { 0, 1, 2 }\n",];
+2->4 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount one of { 1, 2, 4 }\nentryCount one of { 0, 1, 2 }\n",];
+3->2 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount == 1\n",];
+4->5 [label="SynopticPoint:::ENTER\nlocked == true\ncoinCount one of { 2, 4 }\nentryCount one of { 2, 3 }\n",];
+6->0 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount one of { 0, 2 }\n",];
 } // digraph {
