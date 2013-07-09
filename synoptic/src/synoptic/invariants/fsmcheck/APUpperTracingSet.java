@@ -49,7 +49,6 @@ public class APUpperTracingSet<T extends INode<T>> extends
         s1 = s2 = s3 = null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void transition(T input) {
 
@@ -111,7 +110,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s2 -> s2
         if (s2Old != null && (isB && !overTime || !isB && !isA)) {
-            s2 = (ConstrainedHistoryNode) preferShorter(s2Old, s2);
+            s2 = preferShorterOrLonger(s2Old, s2, false);
             t = tNew;
         }
 
@@ -122,17 +121,17 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s1 -> s3
         if (s1Old != null && isB && overTime) {
-            s3 = (ConstrainedHistoryNode) preferShorter(s1Old, s3);
+            s3 = preferShorterOrLonger(s1Old, s3, false);
         }
 
         // s2 -> s3
         if (s2Old != null && isB && overTime) {
-            s3 = (ConstrainedHistoryNode) preferShorter(s2Old, s3);
+            s3 = preferShorterOrLonger(s2Old, s3, false);
         }
 
         // s3 -> s3
         if (s3Old != null) {
-            s3 = (ConstrainedHistoryNode) preferShorter(s3Old, s3);
+            s3 = preferShorterOrLonger(s3Old, s3, false);
         }
 
         s0 = extend(input, s0, tNew);
