@@ -444,6 +444,20 @@ public class Partition implements INode<Partition> {
     public void setParent(Partition parent) {
         throw new UnsupportedOperationException();
     }
+    
+    /**
+     * Return a set containing the timestamp of every Event in this Partition
+     */
+    public Set<ITime> getAllTimes() {
+
+        HashSet<ITime> allDeltas = new HashSet<ITime>();
+
+        for (EventNode ev : events) {
+            allDeltas.add(ev.getTime());
+        }
+
+        return allDeltas;
+    }
 
     private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
