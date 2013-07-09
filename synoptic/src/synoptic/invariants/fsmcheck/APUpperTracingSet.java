@@ -57,7 +57,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         
         // Get max time delta of all transitions, compute difference between it
         // and starting t
-        ITime tCurrent = getMaxTimeDelta(input.getAllTransitions());
+        ITime tCurrent = getMinMaxTimeDelta(input.getAllTransitions(), true);
         ITime tNew = getZeroTime();
 
         // TODO: Learn why tCurrent is able to be less than t and what this
