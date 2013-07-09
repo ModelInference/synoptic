@@ -4,6 +4,6 @@ digraph {
   2 [label="TERMINAL",shape=diamond];
   3 [label="INITIAL",shape=box];
 0->2 [label="",];
-1->0 [label="pin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\npin == pin\nKEY == \"1234\"\nKEY == KEY",];
+1->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
 3->1 [label="",];
 } // digraph {
