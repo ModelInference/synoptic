@@ -79,11 +79,14 @@ public class SynDaikonizer {
         List<Invariant> exitInvs = new Vector<Invariant>();
         List<Invariant> flow = new Vector<Invariant>();
         
+        // invariants that Daikon would output
+        String printedInvs = "";
+        
         // Only run Daikon when there are state instances.
         if (daikonizer != null) {
-            daikonizer.genDaikonInvariants(enterInvs, exitInvs, flow, false);
+            printedInvs = daikonizer.genDaikonInvariants(enterInvs, exitInvs, flow, false);
         }
-        DaikonInvariants invs = new DaikonInvariants(enterInvs);
+        DaikonInvariants invs = new DaikonInvariants(enterInvs, printedInvs);
         return invs;
     }
 }
