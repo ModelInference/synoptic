@@ -170,13 +170,17 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                             + this.getClass());
         }
         
+        ITime tMax = null;
+        ITime tMin;
+        Set<ITime> times = ((Partition)input).getAllTimes();
+        
         // Get min (if lower constraint) or max (if upper constraint) time delta
         // of all events in input Partition
-        ITime tNew;
         if (isUpper) {
-            tNew = getMaxTime(((Partition)input).getAllTimes());
+            tMax = getMaxTime(times);
+            tMin = getMinTime(times);
         } else {
-            tNew = getMinTime(((Partition)input).getAllTimes());
+            tMin = getMinTime(times);
         }
         
         // Whether current running time will be outside the time bound at each
@@ -192,7 +196,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             
             // TODO: Fix. This is specific to upper bounds now.
             // Negative time delta
-            if (!t.get(i).lessThan(tNew)) {
+            if (!t.get(i).lessThan(tMax)) {
                 outOfBound.set(i, false);
             }
 
@@ -200,10 +204,15 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             else {
                 
                 // Compare new running time to time bound
-                int tNewComparison = tNew.computeDelta(t.get(i)).compareTo(tBound);
+                int tComparison;
+                if (isUpper) {
+                    tComparison = tMax.computeDelta(t.get(i)).compareTo(tBound);
+                } else {
+                    tComparison = tMin.computeDelta(t.get(i)).compareTo(tBound);
+                }
                 
                 // Within bound if upper and <= bound or if lower >= bound
-                if (isUpper && tNewComparison <= 0 || !isUpper && tNewComparison >= 0) {
+                if (isUpper && tComparison <= 0 || !isUpper && tComparison >= 0) {
                     outOfBound.set(i, false);
                 }
                 
@@ -224,11 +233,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Call transition code specific to each invariant
-        transition(input, isA, isB, outOfBound, sOld, tNew);
+        transition(input, isA, isB, outOfBound, sOld, tMin);
         
         // Extend histories for each state
         for (int i = 0; i < numStates; ++i) {
-            s.set(i, extend(input, s.get(i), tNew));
+            s.set(i, extend(input, s.get(i), tMax));
         }
     }
     

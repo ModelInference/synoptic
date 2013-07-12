@@ -56,7 +56,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     protected void transition(T input, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tNew) {
+            ITime tMin) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -66,7 +66,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // s.get(0) -> s.get(1)
         if (sOld.get(0) != null && isA) {
             s.set(1, sOld.get(0));
-            t.set(1, tNew);
+            t.set(1, tMin);
         }
 
         // s.get(1) -> s.get(2)
