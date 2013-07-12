@@ -172,7 +172,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         
         // Get min (if lower constraint) or max (if upper constraint) time delta
         // of all events in input Partition
-        ITime tNew = getMinMaxTimeDelta(((Partition)input).getAllTimes(), isUpper);
+        ITime tNew;
+        if (isUpper) {
+            tNew = getMaxTime(((Partition)input).getAllTimes());
+        } else {
+            tNew = getMinTime(((Partition)input).getAllTimes());
+        }
         
         // Whether current running time will be outside the time bound at each
         // state
@@ -227,7 +232,9 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
     }
     
-    protected abstract void transition(T input, boolean isA, boolean isB, List<Boolean> overTime, List<ConstrainedHistoryNode> sOld, ITime outOfBound);
+    protected abstract void transition(T input, boolean isA, boolean isB,
+            List<Boolean> overTime, List<ConstrainedHistoryNode> sOld,
+            ITime outOfBound);
     
     /**
      * Get a new zero ITime of the appropriate type, the same type as the
@@ -256,25 +263,44 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Get the smallest or largest time delta out of all time delta series of
-     * one Partition's Transitions in a list
+     * Get the smallest time in a time series
      * 
-     * @param transitions
-     *            A list of one Partition's Transitions with time delta series
-     * @param findMax
-     *            If TRUE, find max time delta. If FALSE, find min.
-     * @return Smallest or largest ITime time delta
+     * @param times
+     *            The time series
+     * @return Smallest time
      */
-    protected ITime getMinMaxTimeDelta(
-            Set<ITime> times, boolean findMax) {
+    private ITime getMinTime(Set<ITime> times) {
+        return getMinMaxTime(times, false);
+    }
+    
+    /**
+     * Get the largest time in a time series
+     * 
+     * @param times
+     *            The time series
+     * @return Largest time
+     */
+    private ITime getMaxTime(Set<ITime> times) {
+        return getMinMaxTime(times, true);
+    }
+    
+    /**
+     * Get smallest or largest time
+     * 
+     * @param times
+     *            The time series
+     * @param findMax
+     *            If TRUE, find max time. If FALSE, find min.
+     */
+    private ITime getMinMaxTime(Set<ITime> times, boolean findMax) {
 
         ITime minMaxTime = null;
 
-        // Find and store the min or max time delta
-        for (ITime delta : times) {
-            if (minMaxTime == null || findMax && minMaxTime.lessThan(delta)
-                    || !findMax && delta.lessThan(minMaxTime)) {
-                minMaxTime = delta;
+        // Find and store the min or max time
+        for (ITime time : times) {
+            if (minMaxTime == null || findMax && minMaxTime.lessThan(time)
+                    || !findMax && time.lessThan(minMaxTime)) {
+                minMaxTime = time;
             }
         }
 
