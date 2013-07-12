@@ -1,39 +1,44 @@
 package synoptic.invariants.fsmcheck;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import synoptic.invariants.BinaryInvariant;
-import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.ITime;
 
+/**
+ * NFA state set for the APUpper constrained invariant which keeps the shortest
+ * path justifying a given state being inhabited. <br /><br />
+ * 
+ * State0: Neither A nor B seen <br />
+ * State1: A seen <br />
+ * State2: A seen, then B seen within time bound <br />
+ * State3: B seen first or after A but out of time bound
+ * 
+ * @author Tony Ohmann (ohmann@cs.umass.edu)
+ * @param <T>
+ *            The node type, used as an input, and stored in path-history.
+ */
 public class APUpperTracingSet<T extends INode<T>> extends
         ConstrainedTracingSet<T> {
 
     /**
      * State0: Neither A nor B seen
-     */
-    ConstrainedHistoryNode s0;
-
-    /**
      * State1: A seen
-     */
-    ConstrainedHistoryNode s1;
-
-    /**
      * State2: A seen, then B seen within time bound
-     */
-    ConstrainedHistoryNode s2;
-
-    /**
      * State3: B seen first or after A but out of time bound
      */
-    ConstrainedHistoryNode s3;
 
-    public APUpperTracingSet(EventType a, EventType b, ITime tBound) {
-        super(a, b, tBound);
+    /**
+     * Empty constructor for copy()
+     */
+    private APUpperTracingSet() {
+
     }
 
     public APUpperTracingSet(BinaryInvariant inv) {
-        super(inv);
+        super(inv, 4);
     }
 
     @Override
@@ -45,114 +50,71 @@ public class APUpperTracingSet<T extends INode<T>> extends
         ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input, null, 1, null);
         
         // Always start on State0
-        s0 = newHistory;
-        s1 = s2 = s3 = null;
+        s.set(0, newHistory);
     }
 
     @Override
-    public void transition(T input) {
+    protected void transition(T input, boolean isA, boolean isB, List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld, ITime tNew) {
 
-        EventType name = input.getEType();
-        
-        // Get max time delta of all transitions, compute difference between it
-        // and starting t
-        ITime tCurrent = getMinMaxTimeDelta(input.getAllTransitions(), true);
-        ITime tNew = getZeroTime();
-
-        // TODO: Learn why tCurrent is able to be less than t and what this
-        // means
-        if (!tCurrent.lessThan(t))
-            tNew = tCurrent.computeDelta(t);
-
-        // Check if the new time delta is larger than the upper-bound time
-        // constraint (tBound)
-        boolean overTime;
-        if (tNew.compareTo(tBound) <= 0) {
-            overTime = false;
-        } else {
-            overTime = true;
+        // s.get(0) -> s.get(0)
+        if (sOld.get(0) != null && !isA && !isB) {
+            s.set(0, sOld.get(0));
         }
 
-        // Precompute whether this event is the A or B of this invariant
-        boolean isA = false;
-        boolean isB = false;
-        if (a.equals(name)) {
-            isA = true;
-        } else if (b.equals(name)) {
-            isB = true;
+        // s.get(0) -> s.get(1)
+        if (sOld.get(0) != null && isA) {
+            s.set(1, sOld.get(0));
+            t.set(1, tNew);
         }
 
-        // Store old state nodes
-        ConstrainedHistoryNode s0Old = s0;
-        ConstrainedHistoryNode s1Old = s1;
-        ConstrainedHistoryNode s2Old = s2;
-        ConstrainedHistoryNode s3Old = s3;
-
-        // Final state nodes after this transition will be stored in these
-        s0 = s1 = s2 = s3 = null;
-
-        // s0 -> s0
-        if (s0Old != null && !isA && !isB) {
-            s0 = s0Old;
+        // s.get(1) -> s.get(2)
+        if (sOld.get(1) != null && (isB && !outOfBound.get(1) || !isB && !isA)) {
+            s.set(2, sOld.get(1));
         }
 
-        // s0 -> s1
-        if (s0Old != null && isA) {
-            s1 = s0Old;
-            t = tCurrent;
+        // s.get(2) -> s.get(2)
+        if (sOld.get(2) != null && (isB && !outOfBound.get(2) || !isB && !isA)) {
+            s.set(2, preferShorterOrLonger(sOld.get(2), s.get(2), false));
         }
 
-        // s1 -> s2
-        if (s1Old != null && (isB && !overTime || !isB && !isA)) {
-            s2 = s1Old;
-            t = tNew;
+        // s.get(0) -> s.get(3)
+        if (sOld.get(0) != null && isB) {
+            s.set(3, sOld.get(0));
         }
 
-        // s2 -> s2
-        if (s2Old != null && (isB && !overTime || !isB && !isA)) {
-            s2 = preferShorterOrLonger(s2Old, s2, false);
-            t = tNew;
+        // s.get(1) -> s.get(3)
+        if (sOld.get(1) != null && isB && outOfBound.get(1)) {
+            s.set(3, preferShorterOrLonger(sOld.get(1), s.get(3), false));
         }
 
-        // s0 -> s3
-        if (s0Old != null && isB) {
-            s3 = s0Old;
+        // s.get(2) -> s.get(3)
+        if (sOld.get(2) != null && isB && outOfBound.get(2)) {
+            s.set(3, preferShorterOrLonger(sOld.get(2), s.get(3), false));
         }
 
-        // s1 -> s3
-        if (s1Old != null && isB && overTime) {
-            s3 = preferShorterOrLonger(s1Old, s3, false);
+        // s.get(3) -> s.get(3)
+        if (sOld.get(3) != null) {
+            s.set(3, preferShorterOrLonger(sOld.get(3), s.get(3), false));
         }
-
-        // s2 -> s3
-        if (s2Old != null && isB && overTime) {
-            s3 = preferShorterOrLonger(s2Old, s3, false);
-        }
-
-        // s3 -> s3
-        if (s3Old != null) {
-            s3 = preferShorterOrLonger(s3Old, s3, false);
-        }
-
-        s0 = extend(input, s0, tNew);
-        s1 = extend(input, s1, tNew);
-        s2 = extend(input, s2, tNew);
-        s3 = extend(input, s3, tNew);
     }
 
     @Override
     public HistoryNode failpath() {
-        return s3;
+        return s.get(3);
     }
 
     @Override
     public APUpperTracingSet<T> copy() {
-        APUpperTracingSet<T> result = new APUpperTracingSet<T>(a, b, tBound);
-        result.s0 = s0;
-        result.s1 = s1;
-        result.s2 = s2;
-        result.s3 = s3;
-        result.t = t;
+        
+        APUpperTracingSet<T> result = new APUpperTracingSet<T>();
+        
+        result.a = a;
+        result.b = b;
+        result.tBound = tBound;
+        result.numStates = numStates;
+        result.s = new ArrayList<ConstrainedHistoryNode>(s);
+        result.t = new ArrayList<ITime>(t);
+        
         return result;
     }
 
@@ -160,25 +122,29 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-        s0 = (ConstrainedHistoryNode) preferShorter(s0, casted.s0);
-        s1 = (ConstrainedHistoryNode) preferShorter(s1, casted.s1);
-        s2 = (ConstrainedHistoryNode) preferShorter(s2, casted.s2);
-        s3 = (ConstrainedHistoryNode) preferShorter(s3, casted.s3);
-        if (t.lessThan(casted.t)) {
-            t = casted.t;
+        s.set(0, (ConstrainedHistoryNode) preferShorter(s.get(0), casted.s.get(0)));
+        s.set(1, (ConstrainedHistoryNode) preferShorter(s.get(1), casted.s.get(1)));
+        s.set(2, (ConstrainedHistoryNode) preferShorter(s.get(2), casted.s.get(2)));
+        s.set(3, (ConstrainedHistoryNode) preferShorter(s.get(3), casted.s.get(3)));
+        
+        // Keep the lowest initial t for each state
+        for (int i = 0; i < numStates; ++i) {
+            if (casted.t.get(i).lessThan(t.get(i))) {
+                t = casted.t;
+            }
         }
     }
 
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
         APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-        if (casted.s0 == null && s0 != null) {
+        if (casted.s.get(0) == null && s.get(0) != null) {
             return false;
-        } else if (casted.s1 == null && s1 != null) {
+        } else if (casted.s.get(1) == null && s.get(1) != null) {
             return false;
-        } else if (casted.s2 == null && s2 != null) {
+        } else if (casted.s.get(2) == null && s.get(2) != null) {
             return false;
-        } else if (casted.s3 == null && s3 != null) {
+        } else if (casted.s.get(3) == null && s.get(3) != null) {
             return false;
         } else {
             return true;
@@ -189,13 +155,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("APUpper: ");
-        appendWNull(result, s3); // Failure case first.
+        appendWNull(result, s.get(3)); // Failure case first.
         result.append(" | ");
-        appendWNull(result, s2);
+        appendWNull(result, s.get(2));
         result.append(" | ");
-        appendWNull(result, s1);
+        appendWNull(result, s.get(1));
         result.append(" | ");
-        appendWNull(result, s0);
+        appendWNull(result, s.get(0));
         return result.toString();
     }
 }

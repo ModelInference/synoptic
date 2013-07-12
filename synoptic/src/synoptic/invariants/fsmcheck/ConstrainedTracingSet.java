@@ -1,12 +1,15 @@
 package synoptic.invariants.fsmcheck;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.model.Partition;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
@@ -80,28 +83,32 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Running time stored by the state machine since t=0 state
+     * Time stored by the state machine from when t=0 state was first
+     * encountered
      */
-    ITime t;
+    List<ITime> t;
 
     /**
      * Upper- or lower-bound time constraint
      */
     ITime tBound;
     EventType a, b;
+    
+    /**
+     * Number of states in the state machine
+     */
+    int numStates;
+    
+    /**
+     * A path for each state in the appropriate state machine
+     */
+    List<ConstrainedHistoryNode> s;
 
     /**
-     * Create a new time-constrained tracing state set
-     * 
-     * @param a
-     * @param b
-     * @param tBound
+     * Empty constructor for copy()
      */
-    public ConstrainedTracingSet(EventType a, EventType b, ITime tBound) {
-        this.a = a;
-        this.b = b;
-        this.tBound = tBound;
-        t = getZeroTime();
+    protected ConstrainedTracingSet() {
+
     }
 
     /**
@@ -110,9 +117,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * 
      * @param inv
      *            Must be a constrained BinaryInvariant
+     * @param numStates
+     *            Number of states in the state machine
      */
     @SuppressWarnings("unchecked")
-    public ConstrainedTracingSet(BinaryInvariant inv) {
+    public ConstrainedTracingSet(BinaryInvariant inv, int numStates) {
 
         // Constrained tracing state sets can only be used with constrained
         // invariants
@@ -122,8 +131,103 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         a = inv.getFirst();
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
-        t = getZeroTime();
+        this.numStates = numStates;
+        
+        s = new ArrayList<ConstrainedHistoryNode>(numStates);
+        t = new ArrayList<ITime>(numStates);
+        
+        // Set up states and state times
+        for (int i = 0; i < numStates; ++i) {
+            s.add(null);
+            t.add(getZeroTime());
+        }
     }
+    
+    @Override
+    public void transition(T input) {
+
+        EventType name = input.getEType();
+        
+        // Whether this event is the A or B of this invariant
+        boolean isA = false;
+        boolean isB = false;
+
+        // Precompute whether this event is the A or B of this invariant
+        if (a.equals(name)) {
+            isA = true;
+        } else if (b.equals(name)) {
+            isB = true;
+        }
+        
+        // TODO: Add checks for the other 3 constrained invariants when they're
+        // implemented
+        boolean isUpper;
+        if (this instanceof APUpperTracingSet) {
+            isUpper = true;
+        } else {
+            throw new InternalSynopticException(
+                    "ConstrainedTracingSet not updated to handle this subtype: "
+                            + this.getClass());
+        }
+        
+        // Get min (if lower constraint) or max (if upper constraint) time delta
+        // of all events in input Partition
+        ITime tNew = getMinMaxTimeDelta(((Partition)input).getAllTimes(), isUpper);
+        
+        // Whether current running time will be outside the time bound at each
+        // state
+        List<Boolean> outOfBound = new ArrayList<Boolean>(numStates);
+        
+        for (int i = 0; i < numStates; ++i) {
+            outOfBound.add(null);
+        }
+        
+        // Check for times outside time bound
+        for (int i = 0; i < numStates; ++i) {
+            
+            // TODO: Fix. This is specific to upper bounds now.
+            // Negative time delta
+            if (!t.get(i).lessThan(tNew)) {
+                outOfBound.set(i, false);
+            }
+
+            // Check if positive time delta is within time bound
+            else {
+                
+                // Compare new running time to time bound
+                int tNewComparison = tNew.computeDelta(t.get(i)).compareTo(tBound);
+                
+                // Within bound if upper and <= bound or if lower >= bound
+                if (isUpper && tNewComparison <= 0 || !isUpper && tNewComparison >= 0) {
+                    outOfBound.set(i, false);
+                }
+                
+                // Outside of bound
+                else {
+                    outOfBound.set(i, true);
+                }
+            }
+        }
+
+        // Keep old paths before this transition
+        List<ConstrainedHistoryNode> sOld = s;
+
+        // Final state nodes after the transition will be stored in s
+        s = new ArrayList<ConstrainedHistoryNode>(numStates);
+        for (int i = 0; i < numStates; ++i) {
+            s.add(null);
+        }
+
+        // Call transition code specific to each invariant
+        transition(input, isA, isB, outOfBound, sOld, tNew);
+        
+        // Extend histories for each state
+        for (int i = 0; i < numStates; ++i) {
+            s.set(i, extend(input, s.get(i), tNew));
+        }
+    }
+    
+    protected abstract void transition(T input, boolean isA, boolean isB, List<Boolean> overTime, List<ConstrainedHistoryNode> sOld, ITime outOfBound);
     
     /**
      * Get a new zero ITime of the appropriate type, the same type as the
@@ -161,18 +265,16 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      *            If TRUE, find max time delta. If FALSE, find min.
      * @return Smallest or largest ITime time delta
      */
-    protected <Node extends INode<Node>> ITime getMinMaxTimeDelta(
-            List<? extends ITransition<Node>> transitions, boolean findMax) {
+    protected ITime getMinMaxTimeDelta(
+            Set<ITime> times, boolean findMax) {
 
         ITime minMaxTime = null;
 
         // Find and store the min or max time delta
-        for (ITransition<Node> trans : transitions) {
-            for (ITime delta : trans.getDeltaSeries().getAllDeltas()) {
-                if (minMaxTime == null || findMax && minMaxTime.lessThan(delta)
-                        || !findMax && delta.lessThan(minMaxTime)) {
-                    minMaxTime = delta;
-                }
+        for (ITime delta : times) {
+            if (minMaxTime == null || findMax && minMaxTime.lessThan(delta)
+                    || !findMax && delta.lessThan(minMaxTime)) {
+                minMaxTime = delta;
             }
         }
 
