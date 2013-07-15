@@ -76,7 +76,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s.get(2) -> s.get(2)
         if (sOld.get(2) != null && (isB && !outOfBound.get(2) || !isB && !isA)) {
-            s.set(2, preferShorterOrLonger(sOld.get(2), s.get(2), false));
+            s.set(2, preferShorter(sOld.get(2), s.get(2)));
         }
 
         // s.get(0) -> s.get(3)
@@ -86,17 +86,17 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s.get(1) -> s.get(3)
         if (sOld.get(1) != null && isB && outOfBound.get(1)) {
-            s.set(3, preferShorterOrLonger(sOld.get(1), s.get(3), false));
+            s.set(3, preferShorter(sOld.get(1), s.get(3)));
         }
 
         // s.get(2) -> s.get(3)
         if (sOld.get(2) != null && isB && outOfBound.get(2)) {
-            s.set(3, preferShorterOrLonger(sOld.get(2), s.get(3), false));
+            s.set(3, preferShorter(sOld.get(2), s.get(3)));
         }
 
         // s.get(3) -> s.get(3)
         if (sOld.get(3) != null) {
-            s.set(3, preferShorterOrLonger(sOld.get(3), s.get(3), false));
+            s.set(3, preferShorter(sOld.get(3), s.get(3)));
         }
     }
 
@@ -120,14 +120,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-        s.set(0, (ConstrainedHistoryNode) preferShorter(s.get(0), casted.s.get(0)));
-        s.set(1, (ConstrainedHistoryNode) preferShorter(s.get(1), casted.s.get(1)));
-        s.set(2, (ConstrainedHistoryNode) preferShorter(s.get(2), casted.s.get(2)));
-        s.set(3, (ConstrainedHistoryNode) preferShorter(s.get(3), casted.s.get(3)));
+        s.set(0, preferShorter(s.get(0), casted.s.get(0)));
+        s.set(1, preferShorter(s.get(1), casted.s.get(1)));
+        s.set(2, preferShorter(s.get(2), casted.s.get(2)));
+        s.set(3, preferShorter(s.get(3), casted.s.get(3)));
         
         // Keep the lowest initial t for each state
         for (int i = 0; i < numStates; ++i) {
