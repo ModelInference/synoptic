@@ -120,7 +120,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
     /*
      * Helper to yield the shortest non-null path of the two passed in.
      */
-    public HistoryNode preferShorter(HistoryNode a, HistoryNode b) {
+    public <HNode extends HistoryNode> HNode preferShorter(HNode a, HNode b) {
         if (b == null) {
             return a;
         }

@@ -43,46 +43,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Yields the shorter (smaller time delta) or longer (larger time delta)
-     * path of the two passed in
-     * 
-     * @param first
-     *            First history node
-     * @param second
-     *            Second history node
-     * @param findLonger
-     *            If TRUE, find longer path. If FALSE, find shorter path.
-     * @return The shorter or longer path, whichever was requested
-     */
-    public ConstrainedHistoryNode preferShorterOrLonger(
-            ConstrainedHistoryNode first, ConstrainedHistoryNode second,
-            boolean findLonger) {
-
-        // If either node is null, return the other
-        if (second == null) {
-            return first;
-        }
-        if (first == null) {
-            return second;
-        }
-
-        // Return the node with the smaller or larger time delta, whichever was
-        // requested
-        if (first.tDelta.lessThan(second.tDelta)) {
-            if (findLonger) {
-                return second;
-            }
-            return first;
-        }
-
-        // Else if first is longer...
-        if (findLonger) {
-            return first;
-        }
-        return second;
-    }
-
-    /**
      * Time stored by the state machine from when t=0 state was first
      * encountered
      */
