@@ -193,17 +193,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Call transition code specific to each invariant
-        transition(input, isA, isB, outOfBound, sOld, tMin);
-        
-        // Extend histories for each state
-        for (int i = 0; i < numStates; ++i) {
-            s.set(i, extend(input, s.get(i), tMax));
-        }
+        transition(input, isA, isB, outOfBound, sOld, tMin, tMax);
     }
     
     protected abstract void transition(T input, boolean isA, boolean isB,
-            List<Boolean> overTime, List<ConstrainedHistoryNode> sOld,
-            ITime outOfBound);
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
+            ITime tMin, ITime tMax);
     
     /**
      * Get a new zero ITime of the appropriate type, the same type as the

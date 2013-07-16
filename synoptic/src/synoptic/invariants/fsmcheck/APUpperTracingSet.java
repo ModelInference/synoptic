@@ -56,7 +56,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     protected void transition(T input, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tMin) {
+            ITime tMin, ITime tMax) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -97,6 +97,16 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // s.get(3) -> s.get(3)
         if (sOld.get(3) != null) {
             s.set(3, preferShorter(sOld.get(3), s.get(3)));
+        }
+        
+        // Extend histories for each state
+        s.set(0, extend(input, s.get(0), tMax));
+        s.set(1, extend(input, s.get(1), tMax));
+        s.set(2, extend(input, s.get(2), tMax));
+        // Do not extend permanent failure state State3 except to add a
+        // finishing terminal node
+        if (input.isTerminal()) {
+            s.set(3, extend(input, s.get(3), tMax));
         }
     }
 
