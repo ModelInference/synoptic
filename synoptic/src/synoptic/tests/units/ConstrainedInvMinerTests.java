@@ -2,10 +2,6 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-
-import java.util.HashMap;
-import java.util.Iterator;
 
 import org.junit.Test;
 
@@ -92,7 +88,7 @@ public class ConstrainedInvMinerTests extends SynopticTest {
      *            A string describing the requested invariant
      * @return The requested invariant if it exists in the set, else null
      */
-    private TempConstrainedInvariant<?> getConstrainedInv(
+    public static TempConstrainedInvariant<?> getConstrainedInv(
             TemporalInvariantSet minedInvs, String desiredInv) {
 
         for (ITemporalInvariant genericInv : minedInvs.getSet()) {
