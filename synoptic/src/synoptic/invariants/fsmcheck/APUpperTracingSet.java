@@ -103,9 +103,11 @@ public class APUpperTracingSet<T extends INode<T>> extends
         s.set(0, extend(input, s.get(0), tMax));
         s.set(1, extend(input, s.get(1), tMax));
         s.set(2, extend(input, s.get(2), tMax));
-        // Do not extend permanent failure state State3 except to add a
-        // finishing terminal node
-        if (input.isTerminal()) {
+        // Do not extend permanent failure state State3 except (1) to add a
+        // finishing terminal node or (2) if we just got to State3 for the first
+        // time, i.e., from another state
+        if (input.isTerminal() || s.get(3) != null
+                && !s.get(3).equals(sOld.get(3))) {
             s.set(3, extend(input, s.get(3), tMax));
         }
     }

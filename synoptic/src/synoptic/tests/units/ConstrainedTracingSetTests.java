@@ -127,8 +127,14 @@ public class ConstrainedTracingSetTests extends SynopticTest {
                 stdEvents, "a AP b upper");
         Partition[] partitions = getPartitions();
 
-        // State machine should not at partition 'a'
+        // State machine should be at an accept state at partition 'a'
         assert !counterEx.get(partitions[0]).isFail();
+
+        // State machine should be at a failure state at partition 'b'
         assert counterEx.get(partitions[1]).isFail();
+
+        // Counter-example path should be (INITIAL -> a -> b)
+        assert counterEx.get(partitions[1]).failpath().toCounterexample(inv).path
+                .size() == 3;
     }
 }
