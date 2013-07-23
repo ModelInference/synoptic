@@ -1,5 +1,8 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Map;
 
 import org.junit.Test;
@@ -23,7 +26,7 @@ import synoptic.tests.SynopticTest;
  */
 public class ConstrainedTracingSetTests extends SynopticTest {
 
-    private String[] stdEvents = { "a 1", "b 3", "--", "a 2", "b 5" };
+    private String[] stdEvents = { "a 0", "b 11", "c 71", "--", "a 100", "b 110", "c 169", "--", "a 200", "b 260", "c 271", "--", "a 300", "b 359", "c 369"};
     PartitionGraph graph;
     TempConstrainedInvariant<?> inv;
 
@@ -124,17 +127,17 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Get counter-example paths and partitions corresponding to 'a' and 'b'
         // events
         Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
-                stdEvents, "a AP b upper");
+                stdEvents, "a AP c upper");
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'a'
-        assert !counterEx.get(partitions[0]).isFail();
+        assertFalse(counterEx.get(partitions[0]).isFail());
 
-        // State machine should be at a failure state at partition 'b'
-        assert counterEx.get(partitions[1]).isFail();
+        // State machine should be at a failure state at partition 'c'
+        assertTrue(counterEx.get(partitions[1]).isFail());
 
-        // Counter-example path should be (INITIAL -> a -> b)
-        assert counterEx.get(partitions[1]).failpath().toCounterexample(inv).path
-                .size() == 3;
+        // Counter-example path should be (INITIAL -> a -> b -> c)
+        assertTrue(counterEx.get(partitions[1]).failpath()
+                .toCounterexample(inv).path.size() == 4);
     }
 }
