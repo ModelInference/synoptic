@@ -56,7 +56,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     protected void transition(T input, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tMin, ITime tMax) {
+            ITime tMinMax) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -66,7 +66,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // s.get(0) -> s.get(1)
         if (sOld.get(0) != null && isA) {
             s.set(1, sOld.get(0));
-            t.set(1, tMin);
+            t.set(1, getZeroTime());
         }
 
         // s.get(1) -> s.get(2)
@@ -100,15 +100,15 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
         
         // Extend histories for each state
-        s.set(0, extend(input, s.get(0), tMax));
-        s.set(1, extend(input, s.get(1), tMax));
-        s.set(2, extend(input, s.get(2), tMax));
+        s.set(0, extend(input, s.get(0), tMinMax));
+        s.set(1, extend(input, s.get(1), tMinMax));
+        s.set(2, extend(input, s.get(2), tMinMax));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
         if (input.isTerminal() || s.get(3) != null
                 && !s.get(3).equals(sOld.get(3))) {
-            s.set(3, extend(input, s.get(3), tMax));
+            s.set(3, extend(input, s.get(3), tMinMax));
         }
     }
 
@@ -128,6 +128,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         result.numStates = numStates;
         result.s = new ArrayList<ConstrainedHistoryNode>(s);
         result.t = new ArrayList<ITime>(t);
+        result.previous = previous;
         
         return result;
     }
@@ -140,9 +141,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
         s.set(2, preferShorter(s.get(2), casted.s.get(2)));
         s.set(3, preferShorter(s.get(3), casted.s.get(3)));
         
-        // Keep the lowest initial t for each state
+        if (previous == null) {
+            previous = casted.previous;
+        }
+        
+        // Keep the highest running t for each state
         for (int i = 0; i < numStates; ++i) {
-            if (casted.t.get(i).lessThan(t.get(i))) {
+            if (t.get(i).lessThan(casted.t.get(i))) {
                 t = casted.t;
             }
         }
