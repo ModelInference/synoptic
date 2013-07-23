@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.Partition;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
@@ -63,6 +65,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * A path for each state in the appropriate state machine
      */
     List<ConstrainedHistoryNode> s;
+    
+    /**
+     * The node (usually Partition) being transitioned _from_
+     */
+    T previous;
 
     /**
      * Empty constructor for copy()
@@ -80,12 +87,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * @param numStates
      *            Number of states in the state machine
      */
-    @SuppressWarnings("unchecked")
     public ConstrainedTracingSet(BinaryInvariant inv, int numStates) {
 
         // Constrained tracing state sets can only be used with constrained
         // invariants
         assert inv instanceof TempConstrainedInvariant<?>;
+        @SuppressWarnings("unchecked")
         TempConstrainedInvariant<BinaryInvariant> constInv = (TempConstrainedInvariant<BinaryInvariant>) inv;
 
         a = inv.getFirst();
@@ -118,7 +125,23 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         } else if (b.equals(name)) {
             isB = true;
         }
-        
+
+        // Get all time deltas from the transition between "previous" and
+        // "input" nodes
+        List<ITime> times = null;
+        if (previous != null) {
+
+            // TODO: Find a reasonable way to get the true relation here.
+            // Current best option seems to be
+            // input.getAllTransitions().get(0).getRelation(), which is
+            // extremely inefficient
+            Set<String> relation = new HashSet<String>(1);
+            relation.add("t");
+            ITransition<Partition> trans = ((Partition) previous)
+                    .getTransitionWithExactRelation((Partition) input, relation);
+            times = trans.getDeltaSeries().getAllDeltas();
+        }
+
         // TODO: Add checks for the other 3 constrained invariants when they're
         // implemented
         boolean isUpper;
@@ -129,18 +152,14 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                     "ConstrainedTracingSet not updated to handle this subtype: "
                             + this.getClass());
         }
-        
-        ITime tMax = null;
-        ITime tMin;
-        Set<ITime> times = ((Partition)input).getAllTimes();
-        
+
+        ITime tMinMax = null;
+
         // Get min (if lower constraint) or max (if upper constraint) time delta
-        // of all events in input Partition
         if (isUpper) {
-            tMax = getMaxTime(times);
-            tMin = getMinTime(times);
+            tMinMax = getMaxTime(times);
         } else {
-            tMin = getMinTime(times);
+            tMinMax = getMinTime(times);
         }
         
         // Whether current running time will be outside the time bound at each
@@ -153,33 +172,20 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
-            
-            // TODO: Fix. This is specific to upper bounds now.
-            // Negative time delta
-            if (!t.get(i).lessThan(tMax)) {
+
+            // Increment running time and compare to time bound
+            ITime newTime = t.get(i).incrBy(tMinMax);
+            t.set(i, newTime);
+            int tComparison = newTime.compareTo(tBound);
+
+            // Within bound if upper and <= bound or if lower >= bound
+            if (isUpper && tComparison <= 0 || !isUpper && tComparison >= 0) {
                 outOfBound.set(i, false);
             }
 
-            // Check if positive time delta is within time bound
+            // Outside of bound
             else {
-                
-                // Compare new running time to time bound
-                int tComparison;
-                if (isUpper) {
-                    tComparison = tMax.computeDelta(t.get(i)).compareTo(tBound);
-                } else {
-                    tComparison = tMin.computeDelta(t.get(i)).compareTo(tBound);
-                }
-                
-                // Within bound if upper and <= bound or if lower >= bound
-                if (isUpper && tComparison <= 0 || !isUpper && tComparison >= 0) {
-                    outOfBound.set(i, false);
-                }
-                
-                // Outside of bound
-                else {
-                    outOfBound.set(i, true);
-                }
+                outOfBound.set(i, true);
             }
         }
 
@@ -193,12 +199,16 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Call transition code specific to each invariant
-        transition(input, isA, isB, outOfBound, sOld, tMin, tMax);
+        transition(input, isA, isB, outOfBound, sOld, tMinMax);
+
+        // The node we just transitioned _to_ is our new previous node (for
+        // future transitions)
+        previous = input;
     }
     
     protected abstract void transition(T input, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tMin, ITime tMax);
+            ITime tMinMax);
     
     /**
      * Get a new zero ITime of the appropriate type, the same type as the
@@ -227,38 +237,44 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Get the smallest time in a time series
+     * Get the smallest time in a time delta series
      * 
      * @param times
-     *            The time series
-     * @return Smallest time
+     *            The time delta series
+     * @return Smallest time delta or a zero-time ITime if times is empty or
+     *         null
      */
-    private ITime getMinTime(Set<ITime> times) {
+    private ITime getMinTime(List<ITime> times) {
         return getMinMaxTime(times, false);
     }
-    
+
     /**
-     * Get the largest time in a time series
+     * Get the largest time in a time delta series
      * 
      * @param times
-     *            The time series
-     * @return Largest time
+     *            The time delta series
+     * @return Largest time delta or a zero-time ITime if times is empty or null
      */
-    private ITime getMaxTime(Set<ITime> times) {
+    private ITime getMaxTime(List<ITime> times) {
         return getMinMaxTime(times, true);
     }
     
     /**
-     * Get smallest or largest time
+     * Get smallest or largest time delta
      * 
      * @param times
-     *            The time series
+     *            The time delta series
      * @param findMax
      *            If TRUE, find max time. If FALSE, find min.
      */
-    private ITime getMinMaxTime(Set<ITime> times, boolean findMax) {
+    private ITime getMinMaxTime(List<ITime> times, boolean findMax) {
 
         ITime minMaxTime = null;
+        
+        // Return zero-time if times is empty or null
+        if (times == null || times.size() == 0) {
+            return getZeroTime();
+        }
 
         // Find and store the min or max time
         for (ITime time : times) {
@@ -267,9 +283,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                 minMaxTime = time;
             }
         }
-
-        if (minMaxTime == null)
-            return getZeroTime();
+        
         return minMaxTime;
     }
 }
