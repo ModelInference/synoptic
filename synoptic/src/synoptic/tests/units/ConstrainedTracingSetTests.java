@@ -27,7 +27,9 @@ import synoptic.tests.SynopticTest;
  */
 public class ConstrainedTracingSetTests extends SynopticTest {
 
-    private String[] stdEvents = { "a 0", "b 11", "c 71", "--", "a 100", "b 110", "c 169", "--", "a 200", "b 260", "c 271", "--", "a 300", "b 359", "c 369"};
+    private String[] stdEvents = { "a 0", "b 11", "c 71", "--", "a 100",
+            "b 110", "c 169", "--", "a 200", "b 260", "c 271", "--", "a 300",
+            "b 359", "c 369" };
     PartitionGraph graph;
     TempConstrainedInvariant<?> inv;
 
@@ -51,7 +53,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Generate trace graph from passed events
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, genITimeParser());
-        
+
         // Enable performance debugging
         SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
 
@@ -67,6 +69,10 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         return new PartitionGraph(inputGraph, true, invs);
     }
 
+    private enum TracingSet {
+        APUpper, APLower, AFbyUpper, AFbyLower
+    }
+
     /**
      * Create partition graph from passed log of events, then generate and
      * return counter-example paths using the tracing state set corresponding to
@@ -79,7 +85,8 @@ public class ConstrainedTracingSetTests extends SynopticTest {
      * @return Map of counter-example traces by partition
      */
     private Map<Partition, TracingStateSet<Partition>> genCounterExamples(
-            String[] events, String invString) throws Exception {
+            String[] events, String invString, TracingSet type)
+            throws Exception {
 
         // Get partition graph
         graph = genConstrainedPartitionGraph(events);
@@ -88,10 +95,22 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         inv = ConstrainedInvMinerTests.getConstrainedInv(graph.getInvariants(),
                 invString);
 
+        // Set up the appropriate ConstrainedTracingSet subtype
+        // TODO: Uncomment appropriate lines when other ConstrainedTracingSets
+        // are implemented
+        TracingStateSet<Partition> tracingSet = null;
+        if (type == TracingSet.APUpper) {
+            tracingSet = new APUpperTracingSet<Partition>(inv);
+        } else if (type == TracingSet.APLower) {
+            // tracingSet = new APLowerTracingSet<Partition>(inv);
+        } else if (type == TracingSet.AFbyUpper) {
+            // tracingSet = new AFbyUpperTracingSet<Partition>(inv);
+        } else if (type == TracingSet.AFbyLower) {
+            // tracingSet = new AFbyLowerTracingSet<Partition>(inv);
+        }
+
         // Run initial partition graph through the state machine for the
         // retrieved constrained invariant, get counter-examples
-        TracingStateSet<Partition> tracingSet = new APUpperTracingSet<Partition>(
-                inv);
         return FsmModelChecker.runChecker(tracingSet, graph, true);
     }
 
@@ -131,7 +150,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Get counter-example paths and partitions corresponding to 'a' and 'b'
         // events
         Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
-                stdEvents, "a AP c upper");
+                stdEvents, "a AP c upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'a'
