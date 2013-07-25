@@ -19,20 +19,22 @@ import synoptic.util.time.ITotalTime;
 
 public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
+    
+    public static boolean TEMPDEBUG = true;
 
     /**
      * An extension of a HistoryNode which also records time deltas
      */
     public class ConstrainedHistoryNode extends HistoryNode {
         ITime tDelta;
-        
+
         public ConstrainedHistoryNode(T node, HistoryNode previous, int count,
                 ITime tDelta) {
             super(node, previous, count);
             this.tDelta = tDelta;
         }
     }
-    
+
     /**
      * Extends this node with another
      */
@@ -45,6 +47,61 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
+     * Return the non-null path with the smaller running time delta
+     */
+    public ConstrainedHistoryNode preferMinTime(ConstrainedHistoryNode first,
+            ConstrainedHistoryNode second) {
+        return preferMinMaxTime(first, second, false);
+    }
+
+    /**
+     * Return the non-null path with the larger running time delta
+     */
+    public ConstrainedHistoryNode preferMaxTime(ConstrainedHistoryNode first,
+            ConstrainedHistoryNode second) {
+        return preferMinMaxTime(first, second, true);
+    }
+
+    /**
+     * Return the non-null path with the smaller or larger (whichever is
+     * requested) running time delta
+     * 
+     * @param findMax
+     *            If TRUE, find path with larger time delta. If FALSE, smaller.
+     */
+    private ConstrainedHistoryNode preferMinMaxTime(
+            ConstrainedHistoryNode first, ConstrainedHistoryNode second,
+            boolean findMax) {
+
+        // If one path is null, return the other
+        if (second == null) {
+            return first;
+        }
+        if (first == null) {
+            return second;
+        }
+
+        // Return the path with higher/max or lower/min running time, whichever
+        // was requested
+
+        // "Second" running time is greater
+        if (first.tDelta.lessThan(second.tDelta)) {
+            if (findMax) {
+                return second;
+            }
+            return first;
+        }
+
+        // "First" running time is greater
+        {
+            if (findMax) {
+                return first;
+            }
+            return second;
+        }
+    }
+
+    /**
      * Time stored by the state machine from when t=0 state was first
      * encountered
      */
@@ -54,18 +111,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * Upper- or lower-bound time constraint
      */
     ITime tBound;
-    EventType a, b;
-    
+    public EventType a, b;
+
     /**
      * Number of states in the state machine
      */
     int numStates;
-    
+
     /**
      * A path for each state in the appropriate state machine
      */
     List<ConstrainedHistoryNode> s;
-    
+
     /**
      * The node (usually Partition) being transitioned _from_
      */
@@ -99,22 +156,22 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
         this.numStates = numStates;
-        
+
         s = new ArrayList<ConstrainedHistoryNode>(numStates);
         t = new ArrayList<ITime>(numStates);
-        
+
         // Set up states and state times
         for (int i = 0; i < numStates; ++i) {
             s.add(null);
             t.add(getZeroTime());
         }
     }
-    
+
     @Override
     public void transition(T input) {
 
         EventType name = input.getEType();
-        
+
         // Whether this event is the A or B of this invariant
         boolean isA = false;
         boolean isB = false;
@@ -161,21 +218,24 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         } else {
             tMinMax = getMinTime(times);
         }
-        
+
+        if (TEMPDEBUG) {
+            System.err.println(previous + " -> " + input + " : " + tMinMax);
+        }
+
         // Whether current running time will be outside the time bound at each
         // state
         List<Boolean> outOfBound = new ArrayList<Boolean>(numStates);
-        
+
         for (int i = 0; i < numStates; ++i) {
             outOfBound.add(null);
         }
-        
+
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
 
             // Increment running time and compare to time bound
             ITime newTime = t.get(i).incrBy(tMinMax);
-            t.set(i, newTime);
             int tComparison = newTime.compareTo(tBound);
 
             // Within bound if upper and <= bound or if lower >= bound
@@ -201,36 +261,43 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // Call transition code specific to each invariant
         transition(input, isA, isB, outOfBound, sOld, tMinMax);
 
+        if (TEMPDEBUG) {
+            System.err.print("  [states] ");
+            for (ConstrainedHistoryNode ss : s)
+                System.err.print(ss != null ? "1" : "0");
+            System.err.println();
+        }
+
         // The node we just transitioned _to_ is our new previous node (for
         // future transitions)
         previous = input;
     }
-    
+
     protected abstract void transition(T input, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tMinMax);
-    
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld, ITime tMinMax);
+
     /**
      * Get a new zero ITime of the appropriate type, the same type as the
      * constrained invariant's upper or lower time bound
      * 
-     * @return
-     *          A new zero ITime
+     * @return A new zero ITime
      */
     protected ITime getZeroTime() {
-        
+
         // Integer time
         if (tBound instanceof ITotalTime) {
             return new ITotalTime(0);
-            
+        }
+
         // Floating-point time
-        } else if (tBound instanceof FTotalTime) {
+        else if (tBound instanceof FTotalTime) {
             return new FTotalTime(0.0f);
-            
+        }
+
         // Double-precision floating-point time
-        } else if (tBound instanceof DTotalTime) {
+        else if (tBound instanceof DTotalTime) {
             return new DTotalTime(0.0);
-            
+
         } else {
             return null;
         }
@@ -258,7 +325,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     private ITime getMaxTime(List<ITime> times) {
         return getMinMaxTime(times, true);
     }
-    
+
     /**
      * Get smallest or largest time delta
      * 
@@ -270,7 +337,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     private ITime getMinMaxTime(List<ITime> times, boolean findMax) {
 
         ITime minMaxTime = null;
-        
+
         // Return zero-time if times is empty or null
         if (times == null || times.size() == 0) {
             return getZeroTime();
@@ -283,7 +350,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                 minMaxTime = time;
             }
         }
-        
+
         return minMaxTime;
     }
 }

@@ -14,6 +14,7 @@ import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
+import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
@@ -50,6 +51,9 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Generate trace graph from passed events
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, genITimeParser());
+        
+        // Enable performance debugging
+        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
 
         // Set up invariant miners
         ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner();
@@ -84,8 +88,8 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         inv = ConstrainedInvMinerTests.getConstrainedInv(graph.getInvariants(),
                 invString);
 
-        // Run initial partition graph (with merged a's and b's) through the
-        // APUpper state machine, get counter-examples
+        // Run initial partition graph through the state machine for the
+        // retrieved constrained invariant, get counter-examples
         TracingStateSet<Partition> tracingSet = new APUpperTracingSet<Partition>(
                 inv);
         return FsmModelChecker.runChecker(tracingSet, graph, true);
@@ -136,7 +140,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // State machine should be at a failure state at partition 'c'
         assertTrue(counterEx.get(partitions[1]).isFail());
 
-        // Counter-example path should be (INITIAL -> a -> b -> c)
+        // Counter-example path should be (c <- b <- a <- INITIAL)
         assertTrue(counterEx.get(partitions[1]).failpath()
                 .toCounterexample(inv).path.size() == 4);
     }
