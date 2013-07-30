@@ -12,10 +12,7 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
-import synoptic.util.time.ITotalTime;
 
 public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
@@ -163,7 +160,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // Set up states and state times
         for (int i = 0; i < numStates; ++i) {
             s.add(null);
-            t.add(getZeroTime());
+            t.add(tBound.getZeroTime());
         }
     }
 
@@ -277,33 +274,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld, ITime tMinMax);
 
     /**
-     * Get a new zero ITime of the appropriate type, the same type as the
-     * constrained invariant's upper or lower time bound
-     * 
-     * @return A new zero ITime
-     */
-    protected ITime getZeroTime() {
-
-        // Integer time
-        if (tBound instanceof ITotalTime) {
-            return new ITotalTime(0);
-        }
-
-        // Floating-point time
-        else if (tBound instanceof FTotalTime) {
-            return new FTotalTime(0.0f);
-        }
-
-        // Double-precision floating-point time
-        else if (tBound instanceof DTotalTime) {
-            return new DTotalTime(0.0);
-
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Get the smallest time in a time delta series
      * 
      * @param times
@@ -340,7 +310,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Return zero-time if times is empty or null
         if (times == null || times.size() == 0) {
-            return getZeroTime();
+            return tBound.getZeroTime();
         }
 
         // Find and store the min or max time
