@@ -392,9 +392,7 @@ public class Bisimulation {
 
                 // The time delta between firstPart and secondPart in the
                 // original counter-example path
-                // TODO: Refactor ConstrainedTracingSet.getZeroTime() out into
-                // ITime so that we can get a zero-time of the proper type here
-                ITime oldSubpathTime = new ITotalTime(0);
+                ITime oldSubpathTime = tBound.getZeroTime();
                 for (int k = i; k < j; ++k) {
                     // TODO: Refactor counter-example paths (or something else?)
                     // so that we can get appropriate time-deltas here
@@ -420,11 +418,10 @@ public class Bisimulation {
 
                     currentEv = firstPartEv;
 
-                    // Initialize the this current, ongoing subpath and its time
+                    // Initialize the current, ongoing subpath and its time
                     List<EventNode> currentSubpath = new ArrayList<EventNode>();
                     currentSubpath.add(currentEv);
-                    // TODO: Same getZeroTime() message as above
-                    ITime currentSubpathTime = new ITotalTime(0);
+                    ITime currentSubpathTime = tBound.getZeroTime();
 
                     // Walk the path of this particular EventNode until an
                     // EventNode within secondPart is encountered or the path

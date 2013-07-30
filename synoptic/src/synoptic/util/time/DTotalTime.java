@@ -102,4 +102,9 @@ public class DTotalTime implements ITime {
         }
         return new DTotalTime(this.time / divisor);
     }
+    
+    @Override
+    public ITime getZeroTime() {
+        return new DTotalTime(0.0);
+    }
 }
