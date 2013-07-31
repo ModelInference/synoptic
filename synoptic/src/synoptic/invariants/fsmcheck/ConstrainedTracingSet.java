@@ -1,11 +1,14 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.CExamplePath;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.Partition;
 import synoptic.model.event.EventType;
@@ -24,11 +27,42 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     public class ConstrainedHistoryNode extends HistoryNode {
         ITime tDelta;
+        ConstrainedHistoryNode previousConst;
 
-        public ConstrainedHistoryNode(T node, HistoryNode previous, int count,
+        public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous, int count,
                 ITime tDelta) {
             super(node, previous, count);
             this.tDelta = tDelta;
+            previousConst = previous;
+        }
+
+        /**
+         * Converts this chain into a RelationPath list with time deltas
+         */
+        @Override
+        public CExamplePath<T> toCounterexample(ITemporalInvariant inv) {
+
+            List<T> path = new ArrayList<T>();
+            List<ITime> tDeltas = new ArrayList<ITime>();
+            ConstrainedHistoryNode cur = this;
+
+            // TODO: why do we require isTerminal here?
+            assert (cur.node).isTerminal();
+
+            // Traverse the path of ConstrainedHistoryNodes recording T nodes
+            // and time deltas in lists
+            while (cur != null) {
+                path.add(cur.node);
+                tDeltas.add(cur.tDelta);
+                cur = cur.previousConst;
+            }
+            Collections.reverse(path);
+
+            // Constrained invariants only keep the shortest path to failure and
+            // do not need to be shortened but do require storing of time deltas
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, path);
+
+            return rpath;
         }
     }
 
