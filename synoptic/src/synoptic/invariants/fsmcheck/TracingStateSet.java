@@ -85,15 +85,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             }
             Collections.reverse(path);
 
-            // Constrained invariants only keep the shortest path to failure and
-            // do not need to be shortened, so only attempt to shorten the path
-            // if the invariant is not constrained.
-            CExamplePath<T> rpath;
-            if (inv instanceof TempConstrainedInvariant<?>) {
-                rpath = new CExamplePath<T>(inv, path);
-            } else {
-                rpath = new CExamplePath<T>(inv, inv.shorten(path));
-            }
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, inv.shorten(path));
             
             if (rpath.path == null) {
                 throw new InternalSynopticException(

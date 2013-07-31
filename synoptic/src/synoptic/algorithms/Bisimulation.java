@@ -341,16 +341,16 @@ public class Bisimulation {
         // subpath where the violation occurs
         boolean inViolationPathOuterLoop = false;
 
-        // Retrieve the counter-example path, the total time that path took, and
-        // the time bound which was violated
+        // Retrieve the counter-example path and its size
         List<Partition> cExPath = counterexampleTrace.path;
-        // TODO: Refactor existing counter-example path code to make it possible
-        // to retrieve this
-        ITime totalPathTime = new ITotalTime(0);
+        int pathSize = counterexampleTrace.path.size() - 1;
+
+        // Retrieve the total time that path took and the violated time bound
+        List<ITime> tDeltas = counterexampleTrace.tDeltas;
+        ITime totalPathTime = tDeltas.get(pathSize - 1);
         ITime tBound = inv.getConstraint().getThreshold();
 
         // Walk along the path, skipping the final terminal node
-        int pathSize = cExPath.size() - 1;
         for (int i = 0; i < pathSize; ++i) {
 
             // Get first partition
@@ -393,9 +393,8 @@ public class Bisimulation {
                 // The time delta between firstPart and secondPart in the
                 // original counter-example path
                 ITime oldSubpathTime = tBound.getZeroTime();
-                for (int k = i; k < j; ++k) {
-                    // TODO: Refactor counter-example paths (or something else?)
-                    // so that we can get appropriate time-deltas here
+                for (int k = i + 1; k < j + 1; ++k) {
+                    oldSubpathTime = oldSubpathTime.incrBy(tDeltas.get(k));
                 }
 
                 // Unless totalT-oldSubpathT<bound, it's impossible to find a
@@ -428,22 +427,45 @@ public class Bisimulation {
                     // ends
                     while (!currentEv.isTerminal()) {
 
+                        // Get the first and only transition out of this event.
+                        // There is exactly one, as there is only one relation
+                        // in relationSet: the relation of the invariant we're
+                        // currently dealing with.
                         ITransition<EventNode> trans = firstPartEv
                                 .getTransitionsWithIntersectingRelations(
                                         relationSet).get(0);
+
+                        // Move to the next event and update the subpath and
+                        // running subpath time
                         currentEv = trans.getTarget();
                         currentSubpath.add(currentEv);
+                        currentSubpathTime = currentSubpathTime.incrBy(trans
+                                .getTimeDelta());
 
+                        // If this EventNode is in secondPart, we've found a
+                        // firstPart->secondPart path
                         if (currentEv.getParent() == secondPart) {
+                            
+                            // Legal path which would resolve the violation
                             if (!targetSubpathTime.lessThan(currentSubpathTime)) {
                                 legalSubpaths.add(currentSubpath);
-                            } else {
+                            }
+                            
+                            // Illegal path which would not resolve the violation
+                            else {
                                 illegalSubpaths.add(currentSubpath);
                             }
                             break;
                         }
                     }
                 }
+                
+                // Check if a split is possible
+                if (legalSubpaths.isEmpty() || illegalSubpaths.isEmpty()) {
+                    continue;
+                }
+                
+                // Either split here, or re-run the above in reverse
             }
         }
 
@@ -481,13 +503,13 @@ public class Bisimulation {
         {
             EventType innerEType = part.getEType();
 
-            // Whenever an A is encountered, we are
+            // Whenever an A is encountered, we are in it
             if (innerEType.equals(a)) {
                 inViolationPathRet = true;
             }
 
             // Whenever a B is encountered and this is a lower-bound
-            // invariant, we are not
+            // invariant, we are not in it
             else if (innerEType.equals(b) && isLower) {
                 inViolationPathRet = false;
             }

@@ -3,6 +3,7 @@ package synoptic.invariants;
 import java.util.List;
 
 import synoptic.model.Partition;
+import synoptic.util.time.ITime;
 
 /**
  * Represents a counter-example path in a model -- e.g., a PartitionGraph.
@@ -14,10 +15,36 @@ import synoptic.model.Partition;
 public class CExamplePath<T> {
     public ITemporalInvariant invariant;
     public List<T> path;
+    public List<ITime> tDeltas;
 
+    /**
+     * Create a counter-example path
+     * 
+     * @param inv
+     *            The invariant violated by this counter-example path
+     * @param p
+     *            The list of nodes in the path
+     */
     public CExamplePath(ITemporalInvariant inv, List<T> p) {
         invariant = inv;
         path = p;
+        tDeltas = null;
+    }
+
+    /**
+     * Create a counter-example path with time deltas
+     * 
+     * @param inv
+     *            The invariant violated by this counter-example path
+     * @param p
+     *            Nodes in the path
+     * @param deltas
+     *            Time deltas in the path
+     */
+    public CExamplePath(ITemporalInvariant inv, List<T> p, List<ITime> deltas) {
+        invariant = inv;
+        path = p;
+        tDeltas = deltas;
     }
 
     @Override
