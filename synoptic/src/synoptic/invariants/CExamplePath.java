@@ -2,6 +2,7 @@ package synoptic.invariants;
 
 import java.util.List;
 
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.util.time.ITime;
 
@@ -15,6 +16,7 @@ import synoptic.util.time.ITime;
 public class CExamplePath<T> {
     public ITemporalInvariant invariant;
     public List<T> path;
+    public List<EventNode> events;
     public List<ITime> tDeltas;
 
     /**
@@ -28,6 +30,7 @@ public class CExamplePath<T> {
     public CExamplePath(ITemporalInvariant inv, List<T> p) {
         invariant = inv;
         path = p;
+        events = null;
         tDeltas = null;
     }
 
@@ -38,12 +41,15 @@ public class CExamplePath<T> {
      *            The invariant violated by this counter-example path
      * @param p
      *            Nodes in the path
+     * @param evs
+     *            Specific events which were visited from Nodes in p
      * @param deltas
      *            Time deltas in the path
      */
-    public CExamplePath(ITemporalInvariant inv, List<T> p, List<ITime> deltas) {
+    public CExamplePath(ITemporalInvariant inv, List<T> p, List<EventNode> evs, List<ITime> deltas) {
         invariant = inv;
         path = p;
+        events = evs;
         tDeltas = deltas;
     }
 
