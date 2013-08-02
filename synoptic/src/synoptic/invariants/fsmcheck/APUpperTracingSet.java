@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.EventNode;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.ITime;
 
@@ -41,16 +42,16 @@ public class APUpperTracingSet<T extends INode<T>> extends
         assert (input.isInitial());
 
         ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input,
-                null, 1, null);
+                null, 1, null, null);
 
         // Always start on State0
         s.set(0, newHistory);
     }
 
     @Override
-    protected void transition(T input, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld,
-            ITime tMax) {
+    protected void transition(T input, EventNode event, boolean isA,
+            boolean isB, List<Boolean> outOfBound,
+            List<ConstrainedHistoryNode> sOld, ITime tMax) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -103,15 +104,15 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Extend histories for each state
-        s.set(0, extend(input, s.get(0), t.get(0)));
-        s.set(1, extend(input, s.get(1), t.get(1)));
-        s.set(2, extend(input, s.get(2), t.get(2)));
+        s.set(0, extend(input, event, s.get(0), t.get(0)));
+        s.set(1, extend(input, event, s.get(1), t.get(1)));
+        s.set(2, extend(input, event, s.get(2), t.get(2)));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
         if (input.isTerminal() || s.get(3) != null
                 && !s.get(3).equals(sOld.get(3))) {
-            s.set(3, extend(input, s.get(3), t.get(3)));
+            s.set(3, extend(input, event, s.get(3), t.get(3)));
         }
     }
 

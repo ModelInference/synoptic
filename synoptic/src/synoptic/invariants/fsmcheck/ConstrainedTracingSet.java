@@ -10,6 +10,7 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -26,12 +27,14 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * An extension of a HistoryNode which also records time deltas
      */
     public class ConstrainedHistoryNode extends HistoryNode {
+        EventNode event;
         ITime tDelta;
         ConstrainedHistoryNode previousConst;
 
-        public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous, int count,
+        public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous, int count, EventNode event,
                 ITime tDelta) {
             super(node, previous, count);
+            this.event = event;
             this.tDelta = tDelta;
             previousConst = previous;
         }
@@ -43,6 +46,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         public CExamplePath<T> toCounterexample(ITemporalInvariant inv) {
 
             List<T> path = new ArrayList<T>();
+            List<EventNode> events = new ArrayList<EventNode>();
             List<ITime> tDeltas = new ArrayList<ITime>();
             ConstrainedHistoryNode cur = this;
 
@@ -53,28 +57,43 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             // and time deltas in lists
             while (cur != null) {
                 path.add(cur.node);
+                events.add(cur.event);
                 tDeltas.add(cur.tDelta);
                 cur = cur.previousConst;
             }
             Collections.reverse(path);
 
             // Constrained invariants only keep the shortest path to failure and
-            // do not need to be shortened but do require storing of time deltas
-            CExamplePath<T> rpath = new CExamplePath<T>(inv, path);
+            // do not need to be shortened but do require events and time deltas
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, path, events, tDeltas);
 
             return rpath;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            ConstrainedHistoryNode cur = this;
+            while (cur != null) {
+                sb.append(cur.node.getEType());
+                sb.append("(t=");
+                sb.append(cur.tDelta);
+                sb.append(") <- ");
+                cur = cur.previousConst;
+            }
+            return sb.toString();
         }
     }
 
     /**
      * Extends this node with another
      */
-    public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
+    public ConstrainedHistoryNode extend(T node, EventNode event, ConstrainedHistoryNode prior,
             ITime tDelta) {
         if (prior == null) {
             return null;
         }
-        return new ConstrainedHistoryNode(node, prior, prior.count + 1, tDelta);
+        return new ConstrainedHistoryNode(node, prior, prior.count + 1, event, tDelta);
     }
 
     /**
@@ -158,6 +177,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * The node (usually Partition) being transitioned _from_
      */
     T previous;
+    
+    /**
+     * The (single) relation of the invariant
+     */
+    Set<String> relation;
 
     /**
      * Empty constructor for copy()
@@ -187,6 +211,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
         this.numStates = numStates;
+        
+        // Get the invariant's relation
+        relation = new HashSet<String>(1);
+        relation.add(inv.getRelation());
 
         s = new ArrayList<ConstrainedHistoryNode>(numStates);
         t = new ArrayList<ITime>(numStates);
@@ -214,17 +242,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             isB = true;
         }
 
-        // Get all time deltas from the transition between "previous" and
+        // Get and all time deltas from the transition between "previous" and
         // "input" nodes
         List<ITime> times = null;
         if (previous != null) {
-
-            // TODO: Find a reasonable way to get the true relation here.
-            // Current best option seems to be
-            // input.getAllTransitions().get(0).getRelation(), which is
-            // extremely inefficient
-            Set<String> relation = new HashSet<String>(1);
-            relation.add("t");
             ITransition<Partition> trans = ((Partition) previous)
                     .getTransitionWithExactRelation((Partition) input, relation);
             times = trans.getDeltaSeries().getAllDeltas();
@@ -289,8 +310,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             s.add(null);
         }
 
+        // Find the specific event corresponding to the min/max time found
+        EventNode event = findMinMaxEvent(input, tMinMax);
+
         // Call transition code specific to each invariant
-        transition(input, isA, isB, outOfBound, sOld, tMinMax);
+        transition(input, event, isA, isB, outOfBound, sOld, tMinMax);
 
         if (TEMPDEBUG) {
             System.err.print("  [states] ");
@@ -303,9 +327,31 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // future transitions)
         previous = input;
     }
+    
+    private EventNode findMinMaxEvent(T input, ITime tMinMax) {
+        if (input instanceof Partition && previous instanceof Partition) {
+            // Look at all pairs of events between previous and input
+            for (EventNode prevEv : ((Partition) previous).getEventNodes()) {
+                for (EventNode inputEv : ((Partition) input).getEventNodes()) {
+                    
+                    // Find the transition between this pair
+                    ITransition<EventNode> prevToInput = prevEv
+                            .getTransitionsWithExactRelations(relation).get(0);
+                    
+                    // Check if this was the min/max time found earlier
+                    if (prevToInput != null
+                            && prevToInput.getTimeDelta() == tMinMax) {
+                        return inputEv;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-    protected abstract void transition(T input, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld, ITime tMinMax);
+    protected abstract void transition(T input, EventNode event, boolean isA,
+            boolean isB, List<Boolean> outOfBound,
+            List<ConstrainedHistoryNode> sOld, ITime tMinMax);
 
     /**
      * Get the smallest time in a time delta series
