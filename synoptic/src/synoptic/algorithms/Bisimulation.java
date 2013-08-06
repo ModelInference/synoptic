@@ -423,6 +423,7 @@ public class Bisimulation {
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
                     if (ev.getParent() == endPart) {
+                        // TODO: Make this lower-bound-friendly
 
                         // Illegal path which would not resolve the violation
                         if (targetSubpathTime.lessThan(currentSubpathTime)) {
@@ -443,7 +444,7 @@ public class Bisimulation {
                 continue;
             }
 
-            // Split on curPart
+            // TODO: Split on curPart
         }
 
         return candidateSplits;

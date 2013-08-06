@@ -188,13 +188,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("APUpper: ");
-        appendWNull(result, s.get(3)); // Failure case first.
-        result.append(" | ");
-        appendWNull(result, s.get(2));
+        appendWNull(result, s.get(0));
         result.append(" | ");
         appendWNull(result, s.get(1));
         result.append(" | ");
-        appendWNull(result, s.get(0));
+        appendWNull(result, s.get(2));
+        result.append(" | ");
+        appendWNull(result, s.get(3));
         return result.toString();
     }
 }
