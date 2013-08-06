@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
@@ -20,6 +21,8 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
+import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
 
 /**
  * Tests for finding counter-example paths using TracingStateSets for
@@ -126,18 +129,28 @@ public class ConstrainedTracingSetTests extends SynopticTest {
      */
     private Partition[] getPartitions() {
 
-        Partition[] partitions = new Partition[2];
+        Partition[] partitions = {null, null};
 
         for (Partition part : graph.getNodes()) {
 
             // Get partition of first invariant predicate ("A")
             if (part.getEType().equals(inv.getFirst())) {
                 partitions[0] = part;
+                
+                // If second partition was previously found, we're done
+                if (partitions[1] != null) {
+                    break;
+                }
             }
 
             // Get partition of second invariant predicate ("B")
             if (part.getEType().equals(inv.getSecond())) {
                 partitions[1] = part;
+                
+                // If first partition was previously found, we're done
+                if (partitions[0] != null) {
+                    break;
+                }
             }
         }
 
@@ -145,14 +158,13 @@ public class ConstrainedTracingSetTests extends SynopticTest {
     }
 
     /**
-     * Check that APUpperTracingSet reaches a fail state when the time
-     * constraint is violated
+     * Check that APUpperTracingSet reaches a failure state when (and only when)
+     * the time constraint is violated
      */
     @Test
-    public void APUpperCounterExamplesTest() throws Exception {
+    public void APUpperFailureStateTest() throws Exception {
 
-        // Get counter-example paths and partitions corresponding to 'a' and 'b'
-        // events
+        // Get tracing sets and partitions corresponding to 'a' and 'b' events
         Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
                 stdEvents, "a AP c upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
@@ -162,10 +174,33 @@ public class ConstrainedTracingSetTests extends SynopticTest {
 
         // State machine should be at a failure state at partition 'c'
         assertTrue(counterEx.get(partitions[1]).isFail());
+        
+        tearDown();
+    }
 
-        // Counter-example path should be (c <- b <- a <- INITIAL)
-        assertTrue(counterEx.get(partitions[1]).failpath()
-                .toCounterexample(inv).path.size() == 4);
+    /**
+     * Check that APUpperTracingSet returns the correct counter-example path
+     * when the time contraint is violated
+     */
+    @Test
+    public void APUpperCounterExamplePathTest() throws Exception {
+
+        // Get tracing sets and partitions corresponding to 'a' and 'b' events
+        Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
+                stdEvents, "a AP c upper", TracingSet.APUpper);
+        Partition[] partitions = getPartitions();
+
+        // Get counter-example path for partition 'c'
+        CExamplePath<Partition> cExPath = counterEx.get(partitions[1])
+                .failpath().toCounterexample(inv);
+
+        // Counter-example path should be (INITIAL -> a -> b -> c)
+        assertTrue(cExPath.path.size() == 4);
+
+        // Counter-example path should store time at failure state as 120 after
+        // taking all max time transitions ( a --60--> b --60--> c )
+        ITime t120 = new ITotalTime(120);
+        assertTrue(cExPath.tDeltas.get(3).compareTo(t120) == 0);
         
         tearDown();
     }
