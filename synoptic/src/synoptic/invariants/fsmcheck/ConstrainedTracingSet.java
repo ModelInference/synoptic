@@ -63,6 +63,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                 cur = cur.previousConst;
             }
             Collections.reverse(path);
+            Collections.reverse(transitions);
+            Collections.reverse(tDeltas);
 
             // Constrained invariants only keep the shortest path to failure and
             // do not need to be shortened but do require transitions and
@@ -79,9 +81,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             ConstrainedHistoryNode cur = this;
             while (cur != null) {
                 sb.append(cur.node.getEType());
-                sb.append("(t=");
-                sb.append(cur.transition.getTimeDelta());
-                sb.append(") <- ");
+                sb.append("(");
+                if (cur.transition != null && cur.transition.getTimeDelta() != null) {
+                    sb.append(cur.transition.getTimeDelta());
+                }
+                sb.append(")<-");
                 cur = cur.previousConst;
             }
             return sb.toString();
@@ -269,6 +273,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         ITime tMinMax = null;
 
         // Get min (if lower constraint) or max (if upper constraint) time delta
+        // TODO: After adding something like Partition.getAllEventTransitions(),
+        // do this at the level of event transitions rather than only times
         if (isUpper) {
             tMinMax = getMaxTime(times);
         } else {
@@ -285,6 +291,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
+            // TODO: Make this process correct for lower-bound invariants
 
             // Increment running time and compare to time bound
             ITime newTime = t.get(i).incrBy(tMinMax);
