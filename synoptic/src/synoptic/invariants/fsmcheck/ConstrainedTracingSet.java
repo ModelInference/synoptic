@@ -344,11 +344,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                         .getTransitionsWithExactRelations(relation).get(0);
 
                 // Check if this was the min/max time found earlier
-                if (prevToInput != null
-                        && ( prevToInput.getTimeDelta() != null
-                        && prevToInput.getTimeDelta().equals(tMinMax)
-                        || prevToInput.getTarget().isTerminal() )) {
-                    return prevToInput;
+                if (prevToInput != null) {
+                    if (tMinMax.equals(prevToInput.getTimeDelta())
+                            || prevToInput.getTarget().isTerminal()
+                            && tMinMax.equals(tMinMax.getZeroTime())) {
+                        return prevToInput;
+                    }
                 }
             }
         }
