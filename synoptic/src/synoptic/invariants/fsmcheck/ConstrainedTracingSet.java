@@ -20,8 +20,6 @@ import synoptic.util.time.ITime;
 
 public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
-    
-    public static boolean TEMPDEBUG = true;
 
     /**
      * An extension of a HistoryNode which also records time deltas
@@ -277,10 +275,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             tMinMax = getMinTime(times);
         }
 
-        if (TEMPDEBUG) {
-            System.err.println(previous + " -> " + input + " : " + tMinMax);
-        }
-
         // Whether current running time will be outside the time bound at each
         // state
         List<Boolean> outOfBound = new ArrayList<Boolean>(numStates);
@@ -321,13 +315,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Call transition code specific to each invariant
         transition(input, transition, isA, isB, outOfBound, sOld);
-
-        if (TEMPDEBUG) {
-            System.err.print("  [states] ");
-            for (ConstrainedHistoryNode ss : s)
-                System.err.print(ss != null ? "1" : "0");
-            System.err.println();
-        }
 
         // The node we just transitioned _to_ is our new previous node (for
         // future transitions)
