@@ -94,7 +94,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
             s.set(3, preferMaxTime(sOld.get(3), s.get(3)));
         }
         
-        ITime tMax = transition.getTimeDelta();
+        // Retrieve the previously-found max time delta
+        ITime tMax;
+        if (transition != null) {
+            tMax = transition.getTimeDelta();
+        } else {
+            tMax = tBound.getZeroTime();
+        }
 
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
@@ -136,6 +142,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         result.s = new ArrayList<ConstrainedHistoryNode>(s);
         result.t = new ArrayList<ITime>(t);
         result.previous = previous;
+        result.relation = relation;
 
         return result;
     }
