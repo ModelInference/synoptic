@@ -6,6 +6,7 @@ import java.util.List;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
 
 /**
@@ -49,9 +50,9 @@ public class APUpperTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    protected void transition(T input, EventNode event, boolean isA,
-            boolean isB, List<Boolean> outOfBound,
-            List<ConstrainedHistoryNode> sOld, ITime tMax) {
+    protected void transition(T input, ITransition<EventNode> transition,
+            boolean isA, boolean isB, List<Boolean> outOfBound,
+            List<ConstrainedHistoryNode> sOld) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -92,6 +93,8 @@ public class APUpperTracingSet<T extends INode<T>> extends
         if (sOld.get(3) != null) {
             s.set(3, preferMaxTime(sOld.get(3), s.get(3)));
         }
+        
+        ITime tMax = transition.getTimeDelta();
 
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
@@ -104,15 +107,15 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Extend histories for each state
-        s.set(0, extend(input, event, s.get(0), t.get(0)));
-        s.set(1, extend(input, event, s.get(1), t.get(1)));
-        s.set(2, extend(input, event, s.get(2), t.get(2)));
+        s.set(0, extend(input, s.get(0), transition, t.get(0)));
+        s.set(1, extend(input, s.get(1), transition, t.get(1)));
+        s.set(2, extend(input, s.get(2), transition, t.get(2)));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
         if (input.isTerminal() || s.get(3) != null
                 && !s.get(3).equals(sOld.get(3))) {
-            s.set(3, extend(input, event, s.get(3), t.get(3)));
+            s.set(3, extend(input, s.get(3), transition, t.get(3)));
         }
     }
 
