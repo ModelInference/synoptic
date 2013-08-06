@@ -38,7 +38,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                 int count, ITransition<EventNode> transition, ITime tDelta) {
             super(node, previous, count);
             this.transition = transition;
-            this.tDelta = tDelta;
+            this.tDelta = (tDelta != null ? tDelta : tBound.getZeroTime());
             previousConst = previous;
         }
 
@@ -344,8 +344,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                         .getTransitionsWithExactRelations(relation).get(0);
 
                 // Check if this was the min/max time found earlier
-                if (prevToInput != null
-                        && prevToInput.getTimeDelta() == tMinMax) {
+                if (prevToInput != null && prevToInput.getTimeDelta() != null
+                        && prevToInput.getTimeDelta().equals(tMinMax)) {
                     return prevToInput;
                 }
             }
