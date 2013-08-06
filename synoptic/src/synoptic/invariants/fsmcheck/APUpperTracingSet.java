@@ -163,13 +163,6 @@ public class APUpperTracingSet<T extends INode<T>> extends
                 t.set(i, s.get(i).tDelta);
             }
         }
-
-        if (TEMPDEBUG) {
-            System.err.print("  [times]  ");
-            for (ITime tt : t)
-                System.err.print(tt + ",");
-            System.err.println();
-        }
     }
 
     @Override

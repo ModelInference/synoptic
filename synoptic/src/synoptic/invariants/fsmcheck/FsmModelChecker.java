@@ -52,12 +52,6 @@ public class FsmModelChecker {
             IStateSet<Node, StateSet> initial, IGraph<Node> graph,
             boolean earlyExit) {
 
-        if (ConstrainedTracingSet.TEMPDEBUG) {
-            System.err.println("\n\n==== "
-                    + ((ConstrainedTracingSet) initial).a + " AP "
-                    + ((ConstrainedTracingSet) initial).b + " ====\n");
-        }
-
         // A queue of nodes that we should process.
         Queue<Node> workList = new LinkedList<Node>();
 
