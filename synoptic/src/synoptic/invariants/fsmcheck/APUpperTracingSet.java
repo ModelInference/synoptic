@@ -95,10 +95,11 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
         
         // Retrieve the previously-found max time delta
-        ITime tMax;
+        ITime tMax = null;
         if (transition != null) {
             tMax = transition.getTimeDelta();
-        } else {
+        }
+        if (tMax == null) {
             tMax = tBound.getZeroTime();
         }
 
