@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,11 +36,9 @@ import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.time.ITime;
-import synoptic.util.time.ITotalTime;
 
 /**
  * Partition graphs can be transformed using two algorithms -- coarsening and
@@ -313,8 +312,8 @@ public class Bisimulation {
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
 
         // Our position while traversing the counter-example path
-        Partition firstPart = null;
-        Partition secondPart = null;
+        Partition curPart = null;
+        Partition endPart = null;
 
         // This method must only be passed counter-example paths for
         // constrained invariants
@@ -325,197 +324,130 @@ public class Bisimulation {
         boolean isLower = false;
         // TODO: Uncomment when the lower-bound subtypes are implemented
         // if (inv instanceof APLowerTracingSet || inv instanceof
-        //  AFbyLowerTracingSet) {
-        //  isLower = true;
+        // AFbyLowerTracingSet) {
+        // isLower = true;
         // }
 
-        // Get the first ("a") and second ("b") invariant predicates
-        EventType a = inv.getFirst();
-        EventType b = inv.getSecond();
-
         // Get the set of relations
-        Set<String> relationSet = new LinkedHashSet<String>();
-        relationSet.add(inv.getRelation());
+        Set<String> invRelation = new HashSet<String>(1);
+        invRelation.add(inv.getRelation());
 
-        // Whether, in the outer loop, we've seen "a" and are therefore in the
-        // subpath where the violation occurs
-        boolean inViolationPathOuterLoop = false;
-
-        // Retrieve the counter-example path and its size
+        // Retrieve the counter-example path, its size (excluding terminal)
         List<Partition> cExPath = counterexampleTrace.path;
         int pathSize = counterexampleTrace.path.size() - 1;
 
-        // Retrieve the total time that path took and the violated time bound
-        List<ITime> tDeltas = counterexampleTrace.tDeltas;
-        ITime totalPathTime = tDeltas.get(pathSize - 1);
-        ITime tBound = inv.getConstraint().getThreshold();
-
-        // Walk along the path, skipping the final terminal node
-        for (int i = 0; i < pathSize; ++i) {
-
-            // Get first partition
-            firstPart = cExPath.get(i);
-
-            // Check if first partition is null and whether it's in the
-            // violation subpath
-            inViolationPathOuterLoop = checkNullAndViolationPath(firstPart,
-                    inViolationPathOuterLoop, a, b, isLower);
-
-            if (!inViolationPathOuterLoop) {
-                continue;
-            }
-
-            // Now run through the remainder of the path trying to find some
-            // firstPart where there is at least one firstPart->secondPart path
-            // that would make this entire counter-example path no longer
-            // violate the invariant. This would mean that we know of >=1 legal
-            // and >=1 illegal subpaths (firstPart->secondPart) which need to
-            // be split apart.
-            boolean inViolationPathSecond = true;
-            Set<List<EventNode>> legalSubpaths = new HashSet<List<EventNode>>();
-            Set<List<EventNode>> illegalSubpaths = new HashSet<List<EventNode>>();
-
-            // Walk along the path starting from where the first partition is
-            for (int j = i + 1; j < pathSize; ++j) {
-
-                // Get second partition
-                secondPart = cExPath.get(j);
-
-                // Check if second partition is null and whether it's in the
-                // violation subpath
-                inViolationPathSecond = checkNullAndViolationPath(secondPart,
-                        inViolationPathSecond, a, b, isLower);
-
-                if (!inViolationPathSecond) {
-                    continue;
-                }
-
-                // The time delta between firstPart and secondPart in the
-                // original counter-example path
-                ITime oldSubpathTime = tBound.getZeroTime();
-                for (int k = i + 1; k < j + 1; ++k) {
-                    oldSubpathTime = oldSubpathTime.incrBy(tDeltas.get(k));
-                }
-
-                // Unless totalT-oldSubpathT<bound, it's impossible to find a
-                // new legal subpath (it would have negative time)
-                if (!totalPathTime.computeDelta(oldSubpathTime)
-                        .lessThan(tBound)) {
-                    continue;
-                }
-
-                // Any subpath <= this target time is legal (would resolve the
-                // violation)
-                ITime targetSubpathTime = totalPathTime.computeDelta(tBound);
-
-                EventNode currentEv = null;
-
-                // Walk through paths of EventNodes, finding any that run from
-                // firstPart to secondPart and placing them in the list of
-                // either legal or illegal subpaths
-                for (EventNode firstPartEv : firstPart.getEventNodes()) {
-
-                    currentEv = firstPartEv;
-
-                    // Initialize the current, ongoing subpath and its time
-                    List<EventNode> currentSubpath = new ArrayList<EventNode>();
-                    currentSubpath.add(currentEv);
-                    ITime currentSubpathTime = tBound.getZeroTime();
-
-                    // Walk the path of this particular EventNode until an
-                    // EventNode within secondPart is encountered or the path
-                    // ends
-                    while (!currentEv.isTerminal()) {
-
-                        // Get the first and only transition out of this event.
-                        // There is exactly one, as there is only one relation
-                        // in relationSet: the relation of the invariant we're
-                        // currently dealing with.
-                        ITransition<EventNode> trans = firstPartEv
-                                .getTransitionsWithIntersectingRelations(
-                                        relationSet).get(0);
-
-                        // Move to the next event and update the subpath and
-                        // running subpath time
-                        currentEv = trans.getTarget();
-                        currentSubpath.add(currentEv);
-                        currentSubpathTime = currentSubpathTime.incrBy(trans
-                                .getTimeDelta());
-
-                        // If this EventNode is in secondPart, we've found a
-                        // firstPart->secondPart path
-                        if (currentEv.getParent() == secondPart) {
-                            
-                            // Legal path which would resolve the violation
-                            if (!targetSubpathTime.lessThan(currentSubpathTime)) {
-                                legalSubpaths.add(currentSubpath);
-                            }
-                            
-                            // Illegal path which would not resolve the violation
-                            else {
-                                illegalSubpaths.add(currentSubpath);
-                            }
-                            break;
-                        }
-                    }
-                }
-                
-                // Check if a split is possible
-                if (legalSubpaths.isEmpty() || illegalSubpaths.isEmpty()) {
-                    continue;
-                }
-                
-                // Either split here, or re-run the above in reverse
-            }
-        }
-
-        return candidateSplits;
-    }
-
-    /**
-     * Check if the partition is null, and update whether we're currently in the
-     * violation subpath
-     * 
-     * @param part
-     *            Current partition (is checked for null)
-     * @param inViolationPath
-     *            Whether we're currently in the violation subpath
-     * @param a
-     *            First invariant predicate
-     * @param b
-     *            Second invariant predicate
-     * @param isLower
-     *            Whether current invariant is a lower-bound
-     * @return New inViolationPath value
-     */
-    private static boolean checkNullAndViolationPath(Partition part,
-            boolean inViolationPath, EventType a, EventType b, boolean isLower) {
-
-        // Check if partition is null
-        if (part == null) {
+        // Get the last non-terminal partition, and check for null
+        endPart = cExPath.get(pathSize - 1);
+        if (endPart == null) {
             throw new InternalSynopticException(
                     "Counter-example path with a null Partition");
         }
 
-        boolean inViolationPathRet = inViolationPath;
+        // Retrieve the time deltas and the violated time bound
+        List<ITime> tDeltas = counterexampleTrace.tDeltas;
+        ITime tBound = inv.getConstraint().getThreshold();
 
-        // Update whether we're in the violation subpath
-        {
-            EventType innerEType = part.getEType();
+        // Event paths between curPart and endPart which, if replacing the old
+        // curPart->endPart, would resolve the violation
+        Set<List<EventNode>> legalSubpaths;
+        // Event paths between curPart and endPart which retain the violation
+        Set<List<EventNode>> illegalSubpaths;
 
-            // Whenever an A is encountered, we are in it
-            if (innerEType.equals(a)) {
-                inViolationPathRet = true;
+        // Walk the path in reverse
+        for (int i = pathSize - 2; i > 0; --i) {
+
+            // Get the current partition, and check for null
+            curPart = cExPath.get(i);
+            if (curPart == null) {
+                throw new InternalSynopticException(
+                        "Counter-example path with a null Partition");
             }
 
-            // Whenever a B is encountered and this is a lower-bound
-            // invariant, we are not in it
-            else if (innerEType.equals(b) && isLower) {
-                inViolationPathRet = false;
+            // If there is no stitch here (the c.ex. path arrived at and
+            // departed from this partition using 2 different events), splitting
+            // cannot resolve the violation
+            {
+                ITransition<EventNode> incomingTransition = counterexampleTrace.transitions
+                        .get(i - 1);
+                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitions
+                        .get(i);
+
+                if (incomingTransition.getTarget() == outgoingTransition
+                        .getSource()) {
+                    continue;
+                }
             }
+
+            legalSubpaths = new HashSet<List<EventNode>>();
+            illegalSubpaths = new HashSet<List<EventNode>>();
+
+            // Time to get to current partition from t=0 state
+            ITime curTime = tDeltas.get(i);
+
+            // Check if we're already over the time bound
+            if (tBound.lessThan(curTime)) {
+                continue;
+            }
+
+            // Any subpath <= this target time is legal
+            ITime targetSubpathTime = tBound.computeDelta(curTime);
+            curTime = null;
+
+            // Walk through paths of EventNodes, finding any that run from
+            // firstPart to secondPart and placing them in the list of
+            // either legal or illegal subpaths
+            for (EventNode curEv : curPart.getEventNodes()) {
+                EventNode ev = curEv;
+
+                // Initialize the current, ongoing subpath and its time
+                List<EventNode> currentSubpath = new ArrayList<EventNode>();
+                currentSubpath.add(ev);
+                ITime currentSubpathTime = tBound.getZeroTime();
+
+                // Walk the event path until an event within endPart is
+                // encountered or the path ends
+                while (!ev.isTerminal()) {
+
+                    // Get the only transition out of this event with the
+                    // relation of this invariant
+                    ITransition<EventNode> trans = ev
+                            .getTransitionsWithExactRelations(invRelation).get(
+                                    0);
+
+                    // Move to the next event, and update the subpath and
+                    // running subpath time
+                    ev = trans.getTarget();
+                    currentSubpath.add(ev);
+                    currentSubpathTime = currentSubpathTime.incrBy(trans
+                            .getTimeDelta());
+
+                    // We've found a curPart->endPart path if the new event is
+                    // in endPart
+                    if (ev.getParent() == endPart) {
+
+                        // Illegal path which would not resolve the violation
+                        if (targetSubpathTime.lessThan(currentSubpathTime)) {
+                            illegalSubpaths.add(currentSubpath);
+                        }
+
+                        // Legal path which would resolve the violation
+                        else {
+                            legalSubpaths.add(currentSubpath);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Both lists must be non-empty for a valid split to exist
+            if (legalSubpaths.isEmpty() || illegalSubpaths.isEmpty()) {
+                continue;
+            }
+
+            // Split on curPart
         }
 
-        return inViolationPathRet;
+        return candidateSplits;
     }
 
     /**
