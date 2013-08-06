@@ -4,6 +4,7 @@ import java.util.List;
 
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
 
 /**
@@ -16,7 +17,7 @@ import synoptic.util.time.ITime;
 public class CExamplePath<T> {
     public ITemporalInvariant invariant;
     public List<T> path;
-    public List<EventNode> events;
+    public List<ITransition<EventNode>> transitions;
     public List<ITime> tDeltas;
 
     /**
@@ -30,26 +31,28 @@ public class CExamplePath<T> {
     public CExamplePath(ITemporalInvariant inv, List<T> p) {
         invariant = inv;
         path = p;
-        events = null;
+        transitions = null;
         tDeltas = null;
     }
 
     /**
-     * Create a counter-example path with time deltas
+     * Create a counter-example path including concrete transitions and time
+     * deltas
      * 
      * @param inv
      *            The invariant violated by this counter-example path
      * @param p
      *            Nodes in the path
-     * @param evs
-     *            Specific events which were visited from Nodes in p
+     * @param trans
+     *            Concrete transitions followed in this counter-example path
      * @param deltas
-     *            Time deltas in the path
+     *            Running time deltas for each node since t=0 state
      */
-    public CExamplePath(ITemporalInvariant inv, List<T> p, List<EventNode> evs, List<ITime> deltas) {
+    public CExamplePath(ITemporalInvariant inv, List<T> p,
+            List<ITransition<EventNode>> trans, List<ITime> deltas) {
         invariant = inv;
         path = p;
-        events = evs;
+        transitions = trans;
         tDeltas = deltas;
     }
 
