@@ -36,6 +36,13 @@ public class ConstrainedTracingSetTests extends SynopticTest {
     @Override
     public void setUp() throws ParseException {
         super.setUp();
+        // Enable performance debugging
+        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
+    }
+    
+    private void tearDown() {
+        // Disable performance debugging
+        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
     }
 
     /**
@@ -53,9 +60,6 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Generate trace graph from passed events
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, genITimeParser());
-
-        // Enable performance debugging
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
 
         // Set up invariant miners
         ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner();
@@ -162,5 +166,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Counter-example path should be (c <- b <- a <- INITIAL)
         assertTrue(counterEx.get(partitions[1]).failpath()
                 .toCounterexample(inv).path.size() == 4);
+        
+        tearDown();
     }
 }
