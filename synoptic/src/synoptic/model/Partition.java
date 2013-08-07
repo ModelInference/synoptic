@@ -395,6 +395,38 @@ public class Partition implements INode<Partition> {
         return null;
     }
 
+    /**
+     * Get all event transitions with specified relations and which are from
+     * this partition to partition p
+     * 
+     * @param p
+     *            The partition to which desired transitions should go
+     * @param relations
+     *            Get event transitions with these relations
+     * @return Event transitions with specified relations and with source in
+     *         this partition and target in partition p
+     */
+    public Set<ITransition<EventNode>> getEventTransitionsWithExactRelations(
+            Partition p, Set<String> relations) {
+
+        // Set of event transitions to be returned
+        Set<ITransition<EventNode>> evTransitions = new HashSet<ITransition<EventNode>>();
+
+        // Consider all transitions out of this partition's events
+        for (EventNode thisEv : events) {
+            for (ITransition<EventNode> thisEvTrans : thisEv
+                    .getTransitionsWithExactRelations(relations)) {
+
+                // This transition's target event is in partition p
+                if (thisEvTrans.getTarget().getParent().equals(p)) {
+                    evTransitions.add(thisEvTrans);
+                }
+            }
+        }
+
+        return evTransitions;
+    }
+
     @Override
     public int compareTo(Partition other) {
         assert initialized;
