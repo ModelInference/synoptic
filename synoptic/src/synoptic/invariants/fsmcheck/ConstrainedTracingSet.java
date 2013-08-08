@@ -26,16 +26,17 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     public class ConstrainedHistoryNode extends HistoryNode {
         /**
-         * Concrete edge used to arrive at this node
+         * Concrete edge(s) used to arrive at this node
          */
-        ITransition<EventNode> transition;
+        List<ITransition<EventNode>> transitions;
         ITime tDelta;
         ConstrainedHistoryNode previousConst;
 
         public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous,
-                int count, ITransition<EventNode> transition, ITime tDelta) {
+                int count, List<ITransition<EventNode>> transitions,
+                ITime tDelta) {
             super(node, previous, count);
-            this.transition = transition;
+            this.transitions = transitions;
             this.tDelta = (tDelta != null ? tDelta : tBound.getZeroTime());
             previousConst = previous;
         }
@@ -47,7 +48,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         public CExamplePath<T> toCounterexample(ITemporalInvariant inv) {
 
             List<T> path = new ArrayList<T>();
-            List<ITransition<EventNode>> transitions = new ArrayList<ITransition<EventNode>>();
+            List<List<ITransition<EventNode>>> transitionsList = new ArrayList<List<ITransition<EventNode>>>();
             List<ITime> tDeltas = new ArrayList<ITime>();
             ConstrainedHistoryNode cur = this;
 
@@ -58,18 +59,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             // transitions, and running time deltas in lists
             while (cur != null) {
                 path.add(cur.node);
-                transitions.add(cur.transition);
+                transitionsList.add(cur.transitions);
                 tDeltas.add(cur.tDelta);
                 cur = cur.previousConst;
             }
             Collections.reverse(path);
-            Collections.reverse(transitions);
+            Collections.reverse(transitionsList);
             Collections.reverse(tDeltas);
 
             // Constrained invariants only keep the shortest path to failure and
             // do not need to be shortened but do require transitions and
             // running time deltas
-            CExamplePath<T> rpath = new CExamplePath<T>(inv, path, transitions,
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, path, transitionsList,
                     tDeltas);
 
             return rpath;
@@ -82,9 +83,19 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             while (cur != null) {
                 sb.append(cur.node.getEType());
                 sb.append("(");
-                if (cur.transition != null && cur.transition.getTimeDelta() != null) {
-                    sb.append(cur.transition.getTimeDelta());
+
+                // Include time if it's available
+                if (cur.transitions != null && cur.transitions.get(0) != null) {
+                    ITransition<EventNode> trans = cur.transitions.get(0);
+                    if (trans.getTimeDelta() != null
+                            && !trans.getSource().isInitial()
+                            && !trans.getSource().isTerminal()
+                            && !trans.getTarget().isInitial()
+                            && !trans.getTarget().isTerminal()) {
+                        sb.append(cur.transitions.get(0).getTimeDelta());
+                    }
                 }
+
                 sb.append(")<-");
                 cur = cur.previousConst;
             }
@@ -96,12 +107,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * Extends this node with another
      */
     public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
-            ITransition<EventNode> transition, ITime tDelta) {
+            List<ITransition<EventNode>> transitions, ITime tDelta) {
         if (prior == null) {
             return null;
         }
         return new ConstrainedHistoryNode(node, prior, prior.count + 1,
-                transition, tDelta);
+                transitions, tDelta);
     }
 
     /**
@@ -252,11 +263,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Get and all time deltas from the transition between "previous" and
         // "input" nodes
-        List<ITime> times = null;
+        Set<ITransition<EventNode>> evTransitions = null;
         if (previous != null) {
-            ITransition<Partition> trans = ((Partition) previous)
-                    .getTransitionWithExactRelation((Partition) input, relation);
-            times = trans.getDeltaSeries().getAllDeltas();
+            // Get transitions
+            evTransitions = ((Partition) previous)
+                    .getEventTransitionsWithExactRelations((Partition) input,
+                            relation);
+
+            // Transitions should not be empty or null
+            if (evTransitions == null || evTransitions.size() == 0) {
+                throw new InternalSynopticException(
+                        "Model-checker transitioned along non-existent edge");
+            }
         }
 
         // TODO: Add checks for the other 3 constrained invariants when they're
@@ -270,16 +288,17 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
                             + this.getClass());
         }
 
-        ITime tMinMax = null;
-
-        // Get min (if lower constraint) or max (if upper constraint) time delta
-        // TODO: After adding something like Partition.getAllEventTransitions(),
-        // do this at the level of event transitions rather than only times
+        // Get transition(s) with min (if lower constraint) or max (if upper
+        // constraint) time delta
+        List<ITransition<EventNode>> minMaxTrans = null;
         if (isUpper) {
-            tMinMax = getMaxTime(times);
+            minMaxTrans = getMaxTransitions(evTransitions);
         } else {
-            tMinMax = getMinTime(times);
+            minMaxTrans = getMinTransitions(evTransitions);
         }
+        
+        // Store min/max time for convenience
+        ITime minMaxTime = minMaxTrans.get(0).getTimeDelta();
 
         // Whether current running time will be outside the time bound at each
         // state
@@ -294,7 +313,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             // TODO: Make this process correct for lower-bound invariants
 
             // Increment running time and compare to time bound
-            ITime newTime = t.get(i).incrBy(tMinMax);
+            ITime newTime = t.get(i).incrBy(minMaxTime);
             int tComparison = newTime.compareTo(tBound);
 
             // Within bound if upper and <= bound or if lower >= bound
@@ -317,91 +336,102 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             s.add(null);
         }
 
-        // Find the specific event corresponding to the min/max time found
-        ITransition<EventNode> transition = findMinMaxTransition(tMinMax);
-
         // Call transition code specific to each invariant
-        transition(input, transition, isA, isB, outOfBound, sOld);
+        transition(input, minMaxTrans, isA, isB, outOfBound, sOld);
 
         // The node we just transitioned _to_ is our new previous node (for
         // future transitions)
         previous = input;
     }
-    
-    private ITransition<EventNode> findMinMaxTransition(ITime tMinMax) {
-        if (previous instanceof Partition) {
-            // Look at all events in previous
-            for (EventNode prevEv : ((Partition) previous).getEventNodes()) {
 
-                // Find the single transition out of this event
-                ITransition<EventNode> prevToInput = prevEv
-                        .getTransitionsWithExactRelations(relation).get(0);
+    protected abstract void transition(T input,
+            List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld);
 
-                // Check if this was the min/max time found earlier
-                if (prevToInput != null) {
-                    if (tMinMax.equals(prevToInput.getTimeDelta())
-                            || prevToInput.getTarget().isTerminal()
-                            && tMinMax.equals(tMinMax.getZeroTime())) {
-                        return prevToInput;
+    /**
+     * Get the event transition(s) with the smallest time delta
+     * 
+     * @param transitions
+     *            The event transitions
+     * @return Smallest time delta transitions
+     */
+    private List<ITransition<EventNode>> getMinTransitions(Set<ITransition<EventNode>> transitions) {
+        return getMinMaxTransitions(transitions, false);
+    }
+
+    /**
+     * Get the event transition(s) with the largest time delta
+     * 
+     * @param transitions
+     *            The event transitions
+     * @return Largest time delta transitions
+     */
+    private List<ITransition<EventNode>> getMaxTransitions(Set<ITransition<EventNode>> transitions) {
+        return getMinMaxTransitions(transitions, true);
+    }
+
+    /**
+     * Get transition(s) with min or max time delta
+     */
+    private List<ITransition<EventNode>> getMinMaxTransitions(
+            Set<ITransition<EventNode>> transitions, boolean findMax) {
+
+        // Min/max transitions to be returned
+        List<ITransition<EventNode>> minMaxTransitions = new ArrayList<ITransition<EventNode>>();
+
+        // Find and store transitions with min or max time delta
+        for (ITransition<EventNode> curTrans : transitions) {
+
+            // Check if there is no min/max yet
+            if (minMaxTransitions.isEmpty()
+                    || minMaxTransitions.get(0).getTimeDelta() == null) {
+
+                minMaxTransitions.clear();
+                minMaxTransitions.add(curTrans);
+
+            } else {
+
+                // Compare current transition's time with min/max time
+                ITime curTime = curTrans.getTimeDelta();
+                ITime minMaxTime = minMaxTransitions.get(0).getTimeDelta();
+                int timeComparison = curTime.compareTo(minMaxTime);
+
+                // Finding MAX time delta
+                if (findMax) {
+                    // Current time is less than max: ignore
+                    if (timeComparison < 0) {
+                        continue;
+                    }
+                    // Current time ties the max: add to list
+                    else if (timeComparison == 0) {
+                        minMaxTransitions.add(curTrans);
+                    }
+                    // Current time is more than max: replace list
+                    else {
+                        minMaxTransitions.clear();
+                        minMaxTransitions.add(curTrans);
+                    }
+                }
+
+                // Finding MIN time delta
+                else {
+                    // Current time is less than min: replace list
+                    if (timeComparison < 0) {
+                        minMaxTransitions.clear();
+                        minMaxTransitions.add(curTrans);
+                    }
+                    // Current time ties the min: add to list
+                    else if (timeComparison == 0) {
+                        minMaxTransitions.add(curTrans);
+                    }
+                    // Current time is more than min: ignore
+                    else {
+                        continue;
                     }
                 }
             }
         }
-        return null;
-    }
 
-    protected abstract void transition(T input,
-            ITransition<EventNode> transition, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld);
-
-    /**
-     * Get the smallest time in a time delta series
-     * 
-     * @param times
-     *            The time delta series
-     * @return Smallest time delta or a zero-time ITime if times is empty or
-     *         null
-     */
-    private ITime getMinTime(List<ITime> times) {
-        return getMinMaxTime(times, false);
-    }
-
-    /**
-     * Get the largest time in a time delta series
-     * 
-     * @param times
-     *            The time delta series
-     * @return Largest time delta or a zero-time ITime if times is empty or null
-     */
-    private ITime getMaxTime(List<ITime> times) {
-        return getMinMaxTime(times, true);
-    }
-
-    /**
-     * Get smallest or largest time delta
-     * 
-     * @param times
-     *            The time delta series
-     * @param findMax
-     *            If TRUE, find max time. If FALSE, find min.
-     */
-    private ITime getMinMaxTime(List<ITime> times, boolean findMax) {
-
-        ITime minMaxTime = null;
-
-        // Return zero-time if times is empty or null
-        if (times == null || times.size() == 0) {
-            return tBound.getZeroTime();
-        }
-
-        // Find and store the min or max time
-        for (ITime time : times) {
-            if (minMaxTime == null || findMax && minMaxTime.lessThan(time)
-                    || !findMax && time.lessThan(minMaxTime)) {
-                minMaxTime = time;
-            }
-        }
-
-        return minMaxTime;
+        return minMaxTransitions;
     }
 }
