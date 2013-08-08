@@ -75,24 +75,39 @@ public class KTailInvariant implements ITemporalInvariant {
      */
     public static String getRegex(List<Character> tailEvents,
             List<Character> followSet) {
-        StringBuilder expression = new StringBuilder("(");
 
-        String last = "";
-        last += tailEvents.get(0);
-        expression.append("[^" + last + "]");
-        for (int i = 1; i < tailEvents.size(); i++) {
-            char next = tailEvents.get(i);
-            expression.append("|" + last + "[^" + next + "]");
-            last += next;
+        // Build the events that make up the contiguous tail.
+        String tail = "";
+        for (int i = 0; i < tailEvents.size(); i++) {
+            tail += tailEvents.get(i);
         }
 
-        expression.append("|" + last + "(" + followSet.get(0));
-        for (int i = 1; i < followSet.size(); i++) {
-            expression.append("|" + followSet.get(i));
+        // Build up a set of events that can potentially follow the tail.
+        String follows = "";
+        for (int i = 0; i < followSet.size(); i++) {
+            follows += followSet.get(i);
+            if (i != followSet.size() - 1) {
+                follows += " | ";
+            }
         }
 
-        expression.append("))*");
-        return expression.toString();
+        String ret;
+
+        // 1. Build the negation of the language we want to accept.
+        ret = "~(";
+        // 2. The negation is a tail followed by something that is not in the
+        // follows set of events (and this must occur at least once). We also
+        // allow arbitrary strings before and after this pattern -- thus the .*
+        // at start and end.
+        ret += "(.*(" + tail + "([^ " + follows + "]))+.*)";
+
+        // 3. The pattern above does not capture a tail followed by an empty
+        // string (i.e., a trace terminating in just tail), so we add this.
+        ret += "|" + ".*" + tail;
+
+        ret += ")"; // match 1.
+        return ret;
+
     }
 
     @Override

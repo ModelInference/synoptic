@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<project basedir="." default="build" name="Synoptic">
+<project basedir="." default="build" name="AllProjects">
     <description>
       Builds sub-projects tracked by this repository. This is useful
       since each of the build.xml file for each sub-projects depends
@@ -16,7 +16,6 @@
 
     <!--=====================================================================-->
     <target name="clean">
-      <ant inheritAll="false" antfile="./shivector/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
@@ -26,12 +25,9 @@
     </target>
 
     <!--=====================================================================-->
-    <target name="shivector">
-      <ant inheritAll="false" antfile="./shivector/build.xml" target="clean"/>
-      <ant inheritAll="false" antfile="./shivector/build.xml" target="build"/>
-      <ant inheritAll="false" antfile="./shivector/build.xml" target="jar"/>
+    <target name="build" depends="synoptic, dynoptic, invarimint, synopticgwt, synopticjung">
+      <echo message="Built all projects in the repository." />
     </target>
-
 
     <!--=====================================================================-->
     <target name="daikonizer">

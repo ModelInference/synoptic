@@ -32,12 +32,12 @@ public class KTailInvariantMinerTests extends SynopticTest {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
 
-        KTailInvariantMiner miner = new KTailInvariantMiner(3);
+        KTailInvariantMiner miner = new KTailInvariantMiner(4);
         TemporalInvariantSet invars = miner.computeInvariants(inputGraph);
 
-        // The trace graph composed of three traces above contains 18 tails for
+        // The trace graph composed of three traces above contains 25 tails for
         // k == 3.
-        int expectedNumInvars = 18;
+        int expectedNumInvars = 25;
 
         assertEquals("Number of kTail invariants", expectedNumInvars,
                 invars.numInvariants());
@@ -57,12 +57,12 @@ public class KTailInvariantMinerTests extends SynopticTest {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
 
-        KTailInvariantMiner miner = new KTailInvariantMiner(2);
+        KTailInvariantMiner miner = new KTailInvariantMiner(3);
         TemporalInvariantSet invars = miner.computeInvariants(inputGraph);
 
-        // The trace graph composed of three traces above contains 13 tails for
+        // The trace graph composed of three traces above contains 20 tails for
         // k == 2.
-        int expectedNumInvars = 13;
+        int expectedNumInvars = 20;
 
         assertEquals("Number of kTail invariants", expectedNumInvars,
                 invars.numInvariants());

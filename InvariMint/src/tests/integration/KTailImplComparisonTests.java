@@ -24,31 +24,44 @@ public class KTailImplComparisonTests extends InvariMintTest {
     public void compareFinalModels() throws Exception {
 
         Map<String, String[]> configs = new HashMap<String, String[]>();
-        configs.put("ktail-simple-model-example", new String[] { "-r",
+        // Parsing args:
+        configs.put("simple-model", new String[] { "-r",
                 "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>" });
         configs.put("osx-login-example", new String[] { "-r", "(?<TYPE>.+)",
                 "-s", "--" });
 
-        // for (int k = 0; k < 5; k++) {
-        int k = 3;
-        for (Entry<String, String[]> testCase : configs.entrySet()) {
-            String dir = testCase.getKey();
-            String[] parsingArgs = testCase.getValue();
+        int k;
+        for (k = 1; k < 5; k++) {
+            logger.info("Comparing kTails and InvMint-kTails with k = " + k);
 
-            String tPath = ".." + File.separator + "traces" + File.separator;
-            String path = tPath + "abstract" + File.separator + "simple-model"
-                    + File.separator;
+            for (Entry<String, String[]> testCase : configs.entrySet()) {
+                String dir = testCase.getKey();
+                String[] parsingArgs = testCase.getValue();
 
-            String[] args = (String[]) ArrayUtils.addAll(parsingArgs,
-                    new String[] { "--invMintKTails=true", "--kTailLength",
-                            k + "", "-o", testOutputDir + dir,
-                            path + "trace.txt" });
+                String tPath = ".." + File.separator + "traces"
+                        + File.separator;
+                String path = tPath + "abstract" + File.separator + dir
+                        + File.separator;
 
-            assertTrue("Failure on " + dir + " when k = " + k,
-                    InvariMintMain
-                            .compareInvariMintSynoptic(new InvariMintOptions(
-                                    args)));
+                String[] args = (String[]) ArrayUtils.addAll(parsingArgs,
+                        new String[] { // "--exportStdAlgPGraph",
+                                // "--exportStdAlgDFA",
+                                "--compareToStandardAlg",
+                                "--minimizeIntersections", "--logLvlVerbose",
+                                "--invMintKTails=true", "--kTailLength",
+                                k + "", "-o", testOutputDir + dir,
+                                path + "trace.txt" });
+
+                InvariMintOptions opts = new InvariMintOptions(args);
+                InvariMintMain main = new InvariMintMain(opts);
+                main.runInvariMint();
+
+                // Assert that the invarimint model and the standard algorithm
+                // models are identical.
+                assertTrue("Failure on " + dir + " when k = " + k,
+                        main.isEqualToStandardAlg());
+
+            }
         }
-        // }
     }
 }

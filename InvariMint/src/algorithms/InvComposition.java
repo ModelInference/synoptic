@@ -32,34 +32,29 @@ public class InvComposition {
             InvsModel model) throws IOException {
 
         // Intersect invariants into model.
-        int remaining = invariants.numInvariants();
+        int total = invariants.numInvariants();
+        int numDone = 0;
+
         for (ITemporalInvariant invariant : invariants) {
             // logger.info("Create new invDFA instance, remaining" + remaining);
             InvModel invDFA = new InvModel(invariant, model.getEventEncodings());
             model.intersectWith(invDFA);
             invDFA = null;
 
-            if (minimizeDFAIntersections) {
-                // logger.info("Minimizing intersection");
-                // Optimize by minimizing the model.
+            // Optimize by minimizing the model every 100 intersections.
+            if ((numDone % 20 == 0) && minimizeDFAIntersections) {
+                logger.info("Intersected " + numDone + " / " + total
+                        + " invariants.");
                 model.minimize();
             }
 
-            if (remaining % 100 == 0) {
-                // logger.info("Minimizing intersection % 100");
-                // Optimize by minimizing the model.
-                model.minimize();
-            }
-            remaining -= 1;
-
+            numDone += 1;
         }
 
         if (minimizeDFAIntersections) {
-            // Optimize by minimizing the model.
             model.minimize();
         }
 
         return model;
     }
-
 }

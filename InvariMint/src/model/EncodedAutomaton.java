@@ -27,7 +27,7 @@ import synoptic.model.export.GraphExporter;
  * 
  * @author Jenny
  */
-public abstract class EncodedAutomaton {
+public class EncodedAutomaton {
 
     public static Logger logger;
     static {
@@ -38,7 +38,7 @@ public abstract class EncodedAutomaton {
     private Automaton model;
 
     // The encoding scheme for the Automaton.
-    private EventTypeEncodings encodings;
+    protected EventTypeEncodings encodings;
 
     /**
      * Constructs a new EncodedAutomaton using the given encodings. The initial
@@ -49,6 +49,16 @@ public abstract class EncodedAutomaton {
         this.encodings = encodings;
         model = encodings.getInitialModel();
     }
+
+    /**
+     * Creates a new EncodedAutomaton based on an existing model and encoding.
+     */
+    public EncodedAutomaton(Automaton model, EventTypeEncodings encodings) {
+        this.model = model;
+        this.encodings = encodings;
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////
 
     public boolean subsetOf(EncodedAutomaton other) {
         return model.subsetOf(other.model);
@@ -114,6 +124,18 @@ public abstract class EncodedAutomaton {
     }
 
     /**
+     * Returns a new EncodedAutomaton instance that is equal to (this - other).
+     * 
+     * @return
+     */
+    public EncodedAutomaton differenceWith(EncodedAutomaton other) {
+        Automaton diff = BasicOperations.minus(model, other.model);
+        // Create a new encoded automaton using the encodings of this -- this
+        // encoding is sufficient, though it could be made smaller.
+        return new EncodedAutomaton(diff, encodings);
+    }
+
+    /**
      * Intersects this Automaton with the given Automaton, such that this
      * Automaton is the result of intersection. Visible for testing.
      * 
@@ -140,16 +162,18 @@ public abstract class EncodedAutomaton {
          */
     }
 
-    /*
+    // //////////////////////////////////////////////////////////////////////////////
+
+    /**
      * Throws an IllegalStateException if model is empty, attaches errorHint to
      * the exception if errorHint != null
      */
     private void checkEmptyLanguage(String errorHint) {
-        /*
-         * if (model.isEmpty()) { throw new IllegalStateException(
-         * "DFA intersection generated the empty language" + (errorHint == null
-         * ? "" : ": " + errorHint)); }
-         */
+        if (model.isEmpty()) {
+            throw new IllegalStateException(
+                    "DFA intersection generated the empty language"
+                            + (errorHint == null ? "" : ": " + errorHint));
+        }
     }
 
     /**

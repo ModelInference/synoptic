@@ -63,7 +63,8 @@ public class ObsFifoSysStateTests extends DynopticTest {
     }
 
     @Test
-    public void checkCreate() {
+    public void checkCreateAndTxns() {
+        // checkCreate:
         assertTrue(s1.isAccept());
         assertTrue(s1.isAcceptForPid(0));
         assertTrue(s1.isAcceptForPid(1));
@@ -81,10 +82,8 @@ public class ObsFifoSysStateTests extends DynopticTest {
         assertTrue(s1.equals(s2));
 
         assertFalse(s3.equals(s1));
-    }
 
-    @Test
-    public void checkTxns() {
+        // checkTxns:
         DistEventType e = DistEventType.LocalEvent("e", 0);
         ObsDistEventType obsE = new ObsDistEventType(e, 0);
         s1.addTransition(obsE, s3);

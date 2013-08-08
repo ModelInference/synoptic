@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import main.InvariMintOptions;
+import model.EncodedAutomaton;
 import model.EventTypeEncodings;
 import model.InvModel;
 import model.InvsModel;
@@ -39,7 +40,10 @@ public abstract class PGraphInvariMint {
     public static Logger logger;
     InvariMintOptions opts;
     ChainsTraceGraph traceGraph;
+
+    // The final partition graph derived with the standard algorithm.
     PartitionGraph stdAlgPGraph;
+
     PartitionGraphAutomaton stdAlgDFA;
     EventTypeEncodings encodings;
     InvsModel invMintModel;
@@ -126,7 +130,7 @@ public abstract class PGraphInvariMint {
         assert stdAlgPGraph != null;
 
         String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
-                + ".pGraph.dot";
+                + ".pGraph-final.dot";
         GraphExporter.exportGraph(exportPrefix, stdAlgPGraph, false);
         GraphExporter.generatePngFileFromDotFile(exportPrefix);
     }
@@ -154,6 +158,29 @@ public abstract class PGraphInvariMint {
 
         logger.info("L(stdAlgDFA) subsetOf L(invMintDFA): " + stdSubset);
         logger.info("L(invMintDFA) subsetOf L(stdAlgDFA): " + invSubset);
+
+        EncodedAutomaton modelDiff = null;
+        String exportDiffFname = "";
+        if (stdSubset && !invSubset) {
+            // Output traces in invMintDFA that are not in stdAlgDFA:
+            modelDiff = invMintModel.differenceWith(stdAlgDFA);
+            exportDiffFname = opts.outputPathPrefix + "." + "InvMint-Std"
+                    + ".dfa.dot";
+        } else if (!stdSubset && invSubset) {
+            // Output traces in stdAlgDFA that are not in invMintDFA:
+            modelDiff = invMintModel.differenceWith(stdAlgDFA);
+            exportDiffFname = opts.outputPathPrefix + "." + "Std-InvMint"
+                    + ".dfa.dot";
+        }
+
+        if (modelDiff != null) {
+            assert (exportDiffFname != "");
+            try {
+                modelDiff.exportDotAndPng(exportDiffFname);
+            } catch (IOException e) {
+                logger.info("Unable to export model difference.");
+            }
+        }
 
         return stdSubset && invSubset;
     }
@@ -189,17 +216,22 @@ public abstract class PGraphInvariMint {
     private void initializeModelWithNIFby() throws IOException {
         assert invMintModel == null;
 
+        logger.fine("Mining NIFby invariant(s).");
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(traceGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
         // logger.fine(NIFbys.toPrettyString());
 
+        logger.fine("Creating EvenType encoding.");
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
         encodings = new EventTypeEncodings(allEvents);
 
         // Initial model will accept all Strings.
+        logger.fine("Creating an initial, all-accepting, model.");
         invMintModel = new InvsModel(encodings);
 
+        logger.fine("Intersecting model with mined NIFby invariants (minimizeIntersections="
+                + opts.minimizeIntersections + ")");
         invMintModel = InvComposition.intersectModelWithInvs(NIFbys,
                 opts.minimizeIntersections, invMintModel);
     }

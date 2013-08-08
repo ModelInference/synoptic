@@ -60,7 +60,7 @@ public class TraceFiltering {
         dfa.setInitialState(replicate(seenTransitions, dfa.getInitialState(),
                 new HashMap<State, State>(), encodings));
 
-        dfa.minimize();
+        // dfa.minimize();
     }
 
     /**

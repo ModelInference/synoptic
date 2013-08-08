@@ -27,6 +27,8 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
     private int k;
 
     public KTailInvariantMiner(int k) {
+        assert (k > 0);
+
         this.k = k;
     }
 
@@ -49,14 +51,22 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
         // Set of all kTail invariants already created
         Map<List<EventType>, Set<EventType>> tails = new HashMap<List<EventType>, Set<EventType>>();
 
-        // k equal to 0 handled by immediate invariants
-        if (k > 0) {
-
-            // Mine kTails for all values from 1 to k
-            for (int i = 1; i <= k; i++) {
-                computeInvariants(g, i, tails);
-            }
+        // Mine kTails for all values from 0 to k
+        for (int i = 0; i < k; i++) {
+            computeInvariants(g, i, tails);
         }
+        /*
+         * if (k == 2) { computeInvariants(g, 1, tails); } if (k == 3) {
+         * computeInvariants(g, 1, tails); computeInvariants(g, 2, tails); //
+         * computeInvariants(g, 3, tails);
+         * 
+         * 
+         * 
+         * } if (k == 4) { computeInvariants(g, 1, tails); computeInvariants(g,
+         * 2, tails); computeInvariants(g, 3, tails); // computeInvariants(g, 4,
+         * tails); }
+         */
+        // computeInvariants(g, k, tails);
 
         // Construct a KTailInvariant for each tail in tails
         TemporalInvariantSet invars = new TemporalInvariantSet();

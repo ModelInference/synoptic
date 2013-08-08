@@ -164,7 +164,7 @@ public class InvariMintOptions extends Options {
      * intersections.
      */
     @Option(value = "Minimize afer each intersection and the final model")
-    public boolean minimizeIntersections = true;
+    public boolean minimizeIntersections = false;
 
     // end option group "InvariMint Options"
 

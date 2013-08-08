@@ -73,18 +73,6 @@ dynoptic/test-output/*
 # Ignore the compiled jar
 lib/dynoptic.jar
 
-#####################
-# ShiVector 
-#####################
-
-# Ignore directories with auto-generated files
-shivector/bin/*
-shivector/junit/*
-shivector/src/*.classes
-
-# Ignore the compiled jar
-lib/shivector.jar
-
 
 #####################
 # Daikonizer

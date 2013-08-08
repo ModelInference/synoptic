@@ -267,7 +267,7 @@ public class Bisimulation {
      */
     public static void mergePartitions(PartitionGraph pGraph) {
         TemporalInvariantSet invariants = pGraph.getInvariants();
-        mergePartitions(pGraph, invariants, 0);
+        mergePartitions(pGraph, invariants, 1);
     }
 
     /**************************************************************************/
@@ -564,6 +564,7 @@ public class Bisimulation {
             }
             outerItters++;
 
+            logger.fine("--------------------------------");
             if (!mergePartitions(pGraph, mergeBlacklist, invariants, k)) {
                 break;
             }
@@ -602,23 +603,25 @@ public class Bisimulation {
                     continue;
                 }
 
-                logger.fine("Attempting to merge: " + p + " + " + q);
+                logger.fine("Attempting to merge: " + p + "(hash: "
+                        + p.hashCode() + ") + " + q + "(hash: " + q.hashCode()
+                        + ")");
 
                 // 2. Only merge partitions that are k-equivalent
-                if (!KTails.kEquals(p, q, k, false)) {
+                if (!KTails.kEquals(p, q, k)) {
                     logger.fine("Partitions are not k-equivalent(k=" + k + ")");
                     continue;
                 }
 
                 // 3. Ignore partition pairs that were previously tried (are
                 // in blacklist)
-                if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
-                        .contains(q))
-                        || (mergeBlacklist.containsKey(q) && mergeBlacklist
-                                .get(q).contains(p))) {
-                    logger.fine("Partitions are in the merge blacklist.");
-                    continue;
-                }
+                /*
+                 * if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
+                 * .contains(q)) || (mergeBlacklist.containsKey(q) &&
+                 * mergeBlacklist .get(q).contains(p))) {
+                 * logger.fine("Partitions are in the merge blacklist.");
+                 * continue; }
+                 */
 
                 Set<Partition> parts = new LinkedHashSet<Partition>();
                 parts.addAll(pGraph.getNodes());
@@ -637,10 +640,11 @@ public class Bisimulation {
                     logger.fine("Merge violates invariant: "
                             + cExample.toString());
 
-                    if (!mergeBlacklist.containsKey(p)) {
-                        mergeBlacklist.put(p, new LinkedHashSet<Partition>());
-                    }
-                    mergeBlacklist.get(p).add(q);
+                    /*
+                     * if (!mergeBlacklist.containsKey(p)) {
+                     * mergeBlacklist.put(p, new LinkedHashSet<Partition>()); }
+                     * mergeBlacklist.get(p).add(q);
+                     */
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 
@@ -660,7 +664,8 @@ public class Bisimulation {
                     }
 
                 } else {
-                    logger.fine("Merge maintains invs, accepted.");
+                    logger.fine("Merge of partitions " + p.getEType()
+                            + " nodes maintains invs, accepted.");
                     return true;
                 }
             }
