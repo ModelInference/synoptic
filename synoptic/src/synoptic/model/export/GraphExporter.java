@@ -19,9 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.main.SynopticMain;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.Partition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -198,9 +201,19 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                // If perf debugging isn't enabled, then output weights, else
-                // add the edge labels later.
-                if (outputEdgeLabels && !syn.options.enablePerfDebugging) {
+                if (syn.options.stateProcessing
+                        && node instanceof Partition) {
+                    // We need to do these castings because INode<T> doesn't
+                    // have getTransitionsWithDaikonInvariants method, but
+                    // Partition has.
+                    Partition partition = (Partition) node;
+                    transitions = (List<? extends ITransition<T>>) partition
+                        .getTransitionsWithDaikonInvariants();
+                } 
+                // If perf debugging and state processing aren't enabled,
+                // then output weights, else add the edge labels later.
+                else if (outputEdgeLabels && !syn.options.enablePerfDebugging
+                        && !syn.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -237,7 +250,16 @@ public class GraphExporter {
                     } else {
                         if (outputEdgeLabels) {
 
-                            if (syn.options.enablePerfDebugging) {
+                            if (syn.options.stateProcessing) {
+                                // Label Daikon invariants on this transition.
+                                DaikonInvariants daikonInvs = trans.getLabels()
+                                        .getDaikonInvariants();
+                                assert (daikonInvs != null);
+                                s = syn.graphExportFormatter
+                                        .edgeToStringWithDaikonInvs(nodeSrc, nodeDst,
+                                                daikonInvs, trans.getRelation());
+                                
+                            } else if (syn.options.enablePerfDebugging) {
                                 // TODO Simply calculate the mean for now, but
                                 // this should be more robust and conform to
                                 // what the

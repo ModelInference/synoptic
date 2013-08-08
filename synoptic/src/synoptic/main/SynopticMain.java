@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -41,6 +42,7 @@ import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.InternalSynopticException;
@@ -697,7 +699,7 @@ public class SynopticMain {
         // //////////////////
 
         // At this point, we have the final model in the pGraph object.
-
+        
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
 
@@ -711,6 +713,19 @@ public class SynopticMain {
 
             logger.info("Exporting took "
                     + (System.currentTimeMillis() - startTime) + "ms");
+            
+            // if test generation is enabled, export all bounded, predicted
+            // abstract tests
+            if (options.testGeneration) {
+                Set<AbstractTestCase> testSuite = SynopticTestGeneration
+                    .deriveAbstractTests(pGraph);
+                int testID = 0;
+                for (AbstractTestCase testCase : testSuite) {
+                    String baseFilename = options.outputPathPrefix + "-test" + testID;
+                    exportNonInitialGraph(baseFilename, testCase);
+                    testID++;
+                }
+            }
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
                     + options.getOptDesc("outputPathPrefix"));
