@@ -46,7 +46,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
                 null, 1, null, null);
 
         // Always start on State0
-        s.set(0, newHistory);
+        states.set(0, newHistory);
     }
 
     @Override
@@ -56,44 +56,44 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
-            s.set(0, sOld.get(0));
+            states.set(0, sOld.get(0));
         }
 
         // s.get(0) -> s.get(1)
         if (sOld.get(0) != null && isA) {
-            s.set(1, sOld.get(0));
+            states.set(1, sOld.get(0));
         }
 
         // s.get(1) -> s.get(2)
         if (sOld.get(1) != null && (isB && !outOfBound.get(1) || !isB && !isA)) {
-            s.set(2, sOld.get(1));
+            states.set(2, sOld.get(1));
         }
 
         // s.get(2) -> s.get(2)
         if (sOld.get(2) != null && (isB && !outOfBound.get(2) || !isB && !isA)) {
-            s.set(2, preferMaxTime(sOld.get(2), s.get(2)));
+            states.set(2, preferMaxTime(sOld.get(2), states.get(2)));
         }
 
         // s.get(0) -> s.get(3)
         if (sOld.get(0) != null && isB) {
-            s.set(3, sOld.get(0));
+            states.set(3, sOld.get(0));
         }
 
         // s.get(1) -> s.get(3)
         if (sOld.get(1) != null && isB && outOfBound.get(1)) {
-            s.set(3, preferMaxTime(sOld.get(1), s.get(3)));
+            states.set(3, preferMaxTime(sOld.get(1), states.get(3)));
         }
 
         // s.get(2) -> s.get(3)
         if (sOld.get(2) != null && isB && outOfBound.get(2)) {
-            s.set(3, preferMaxTime(sOld.get(2), s.get(3)));
+            states.set(3, preferMaxTime(sOld.get(2), states.get(3)));
         }
 
         // s.get(3) -> s.get(3)
         if (sOld.get(3) != null) {
-            s.set(3, preferMaxTime(sOld.get(3), s.get(3)));
+            states.set(3, preferMaxTime(sOld.get(3), states.get(3)));
         }
-        
+
         // Retrieve the previously-found max time delta
         ITime tMax = null;
         if (transition != null) {
@@ -106,29 +106,29 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
         // State2,3 require updates.
-        if (s.get(2) != null) {
-            t.set(2, tMax.incrBy(s.get(2).tDelta));
+        if (states.get(2) != null) {
+            tRunning.set(2, tMax.incrBy(states.get(2).tDelta));
         }
-        if (s.get(3) != null) {
-            t.set(3, tMax.incrBy(s.get(3).tDelta));
+        if (states.get(3) != null) {
+            tRunning.set(3, tMax.incrBy(states.get(3).tDelta));
         }
 
         // Extend histories for each state
-        s.set(0, extend(input, s.get(0), transition, t.get(0)));
-        s.set(1, extend(input, s.get(1), transition, t.get(1)));
-        s.set(2, extend(input, s.get(2), transition, t.get(2)));
+        states.set(0, extend(input, states.get(0), transition, tRunning.get(0)));
+        states.set(1, extend(input, states.get(1), transition, tRunning.get(1)));
+        states.set(2, extend(input, states.get(2), transition, tRunning.get(2)));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
-        if (input.isTerminal() || s.get(3) != null
-                && !s.get(3).equals(sOld.get(3))) {
-            s.set(3, extend(input, s.get(3), transition, t.get(3)));
+        if (input.isTerminal() || states.get(3) != null
+                && !states.get(3).equals(sOld.get(3))) {
+            states.set(3, extend(input, states.get(3), transition, tRunning.get(3)));
         }
     }
 
     @Override
     public HistoryNode failpath() {
-        return s.get(3);
+        return states.get(3);
     }
 
     @Override
@@ -140,8 +140,8 @@ public class APUpperTracingSet<T extends INode<T>> extends
         result.b = b;
         result.tBound = tBound;
         result.numStates = numStates;
-        result.s = new ArrayList<ConstrainedHistoryNode>(s);
-        result.t = new ArrayList<ITime>(t);
+        result.states = new ArrayList<ConstrainedHistoryNode>(states);
+        result.tRunning = new ArrayList<ITime>(tRunning);
         result.previous = previous;
         result.relation = relation;
 
@@ -158,27 +158,27 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // For each state, keep the one with the higher running time
         for (int i = 0; i < numStates; ++i) {
-            s.set(i, preferMaxTime(s.get(i), casted.s.get(i)));
-            if (s.get(i) != null) {
-                t.set(i, s.get(i).tDelta);
+            states.set(i, preferMaxTime(states.get(i), casted.states.get(i)));
+            if (states.get(i) != null) {
+                tRunning.set(i, states.get(i).tDelta);
             }
         }
     }
 
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
-//        APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-//        if (casted.s.get(0) == null && s.get(0) != null) {
-//            return false;
-//        } else if (casted.s.get(1) == null && s.get(1) != null) {
-//            return false;
-//        } else if (casted.s.get(2) == null && s.get(2) != null) {
-//            return false;
-//        } else if (casted.s.get(3) == null && s.get(3) != null) {
-//            return false;
-//        } else {
-//            return true;
-//        }
+        // APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
+        // if (casted.s.get(0) == null && s.get(0) != null) {
+        // return false;
+        // } else if (casted.s.get(1) == null && s.get(1) != null) {
+        // return false;
+        // } else if (casted.s.get(2) == null && s.get(2) != null) {
+        // return false;
+        // } else if (casted.s.get(3) == null && s.get(3) != null) {
+        // return false;
+        // } else {
+        // return true;
+        // }
 
         // TODO: Find out what "subset" means for constrained tracing sets
         return false;
@@ -188,13 +188,13 @@ public class APUpperTracingSet<T extends INode<T>> extends
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("APUpper: ");
-        appendWNull(result, s.get(0));
+        appendWNull(result, states.get(0));
         result.append(" | ");
-        appendWNull(result, s.get(1));
+        appendWNull(result, states.get(1));
         result.append(" | ");
-        appendWNull(result, s.get(2));
+        appendWNull(result, states.get(2));
         result.append(" | ");
-        appendWNull(result, s.get(3));
+        appendWNull(result, states.get(3));
         return result.toString();
     }
 }
