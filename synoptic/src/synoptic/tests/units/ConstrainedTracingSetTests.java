@@ -123,34 +123,30 @@ public class ConstrainedTracingSetTests extends SynopticTest {
 
     /**
      * Get partitions corresponding to the 'a' and 'b' predicates of the current
-     * constrained invariant
+     * constrained invariant. This method is only guaranteed to give _some_
+     * partition with the label of 'a' and of 'b', so behavior is not guaranteed
+     * if there exists more than one 'a' or 'b' partition in the partition
+     * graph.
      * 
      * @return 2-element array of partitions: [0] is 'a', [1] is 'b'
      */
     private Partition[] getPartitions() {
 
-        Partition[] partitions = { null, null };
+        Partition[] partitions = new Partition[2];
 
+        // Get partition of first invariant predicate ("A")
         for (Partition part : graph.getNodes()) {
-
-            // Get partition of first invariant predicate ("A")
             if (part.getEType().equals(inv.getFirst())) {
                 partitions[0] = part;
-
-                // If second partition was previously found, we're done
-                if (partitions[1] != null) {
-                    break;
-                }
+                break;
             }
+        }
 
-            // Get partition of second invariant predicate ("B")
+        // Get partition of second invariant predicate ("B")
+        for (Partition part : graph.getNodes()) {
             if (part.getEType().equals(inv.getSecond())) {
                 partitions[1] = part;
-
-                // If first partition was previously found, we're done
-                if (partitions[0] != null) {
-                    break;
-                }
+                break;
             }
         }
 
