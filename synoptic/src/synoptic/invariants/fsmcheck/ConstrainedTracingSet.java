@@ -82,7 +82,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             while (cur != null) {
                 sb.append(cur.node.getEType());
                 sb.append("(");
-                if (cur.transition != null && cur.transition.getTimeDelta() != null) {
+                if (cur.transition != null
+                        && cur.transition.getTimeDelta() != null) {
                     sb.append(cur.transition.getTimeDelta());
                 }
                 sb.append(")<-");
@@ -185,7 +186,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * The node (usually Partition) being transitioned _from_
      */
     T previous;
-    
+
     /**
      * The (single) relation of the invariant
      */
@@ -219,7 +220,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
         this.numStates = numStates;
-        
+
         // Get the invariant's relation
         relation = new HashSet<String>(1);
         relation.add(inv.getRelation());
@@ -327,7 +328,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // future transitions)
         previous = input;
     }
-    
+
     private ITransition<EventNode> findMinMaxTransition(ITime tMinMax) {
         if (previous instanceof Partition) {
             // Look at all events in previous

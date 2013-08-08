@@ -42,7 +42,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // Enable performance debugging
         SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
     }
-    
+
     private void tearDown() {
         // Disable performance debugging
         SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
@@ -129,14 +129,14 @@ public class ConstrainedTracingSetTests extends SynopticTest {
      */
     private Partition[] getPartitions() {
 
-        Partition[] partitions = {null, null};
+        Partition[] partitions = { null, null };
 
         for (Partition part : graph.getNodes()) {
 
             // Get partition of first invariant predicate ("A")
             if (part.getEType().equals(inv.getFirst())) {
                 partitions[0] = part;
-                
+
                 // If second partition was previously found, we're done
                 if (partitions[1] != null) {
                     break;
@@ -146,7 +146,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
             // Get partition of second invariant predicate ("B")
             if (part.getEType().equals(inv.getSecond())) {
                 partitions[1] = part;
-                
+
                 // If first partition was previously found, we're done
                 if (partitions[0] != null) {
                     break;
@@ -174,13 +174,13 @@ public class ConstrainedTracingSetTests extends SynopticTest {
 
         // State machine should be at a failure state at partition 'c'
         assertTrue(counterEx.get(partitions[1]).isFail());
-        
+
         tearDown();
     }
 
     /**
      * Check that APUpperTracingSet returns the correct counter-example path
-     * when the time contraint is violated
+     * when the time constraint is violated
      */
     @Test
     public void APUpperCounterExamplePathTest() throws Exception {
@@ -201,7 +201,7 @@ public class ConstrainedTracingSetTests extends SynopticTest {
         // taking all max time transitions ( a --60--> b --60--> c )
         ITime t120 = new ITotalTime(120);
         assertTrue(cExPath.tDeltas.get(3).compareTo(t120) == 0);
-        
+
         tearDown();
     }
 }
