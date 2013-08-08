@@ -17,7 +17,7 @@ import synoptic.util.time.ITime;
 public class CExamplePath<T> {
     public ITemporalInvariant invariant;
     public List<T> path;
-    public List<ITransition<EventNode>> transitions;
+    public List<List<ITransition<EventNode>>> transitionsList;
     public List<ITime> tDeltas;
 
     /**
@@ -31,7 +31,7 @@ public class CExamplePath<T> {
     public CExamplePath(ITemporalInvariant inv, List<T> p) {
         invariant = inv;
         path = p;
-        transitions = null;
+        transitionsList = null;
         tDeltas = null;
     }
 
@@ -43,16 +43,16 @@ public class CExamplePath<T> {
      *            The invariant violated by this counter-example path
      * @param p
      *            Nodes in the path
-     * @param trans
+     * @param transList
      *            Concrete transitions followed in this counter-example path
      * @param deltas
      *            Running time deltas for each node since t=0 state
      */
     public CExamplePath(ITemporalInvariant inv, List<T> p,
-            List<ITransition<EventNode>> trans, List<ITime> deltas) {
+            List<List<ITransition<EventNode>>> transList, List<ITime> deltas) {
         invariant = inv;
         path = p;
-        transitions = trans;
+        transitionsList = transList;
         tDeltas = deltas;
     }
 

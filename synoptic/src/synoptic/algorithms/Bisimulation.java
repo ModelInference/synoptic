@@ -366,10 +366,9 @@ public class Bisimulation {
             // departed from this partition using 2 different events), splitting
             // cannot resolve the violation
             {
-                ITransition<EventNode> incomingTransition = counterexampleTrace.transitions
-                        .get(i - 1);
-                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitions
-                        .get(i);
+                // TODO: Make this consider all transitions, not just one of each (Issue 332)
+                ITransition<EventNode> incomingTransition = counterexampleTrace.transitionsList.get(i).get(0);
+                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitionsList.get(i+1).get(0);
 
                 if (incomingTransition.getTarget() == outgoingTransition
                         .getSource()) {

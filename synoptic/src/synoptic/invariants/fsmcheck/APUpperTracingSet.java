@@ -47,12 +47,15 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // Always start on State0
         s.set(0, newHistory);
+
+        // This node is our new previous node (for future transitions)
+        previous = input;
     }
 
     @Override
-    protected void transition(T input, ITransition<EventNode> transition,
-            boolean isA, boolean isB, List<Boolean> outOfBound,
-            List<ConstrainedHistoryNode> sOld) {
+    protected void transition(T input,
+            List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld) {
 
         // s.get(0) -> s.get(0)
         if (sOld.get(0) != null && !isA && !isB) {
@@ -95,10 +98,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
         
         // Retrieve the previously-found max time delta
-        ITime tMax = null;
-        if (transition != null) {
-            tMax = transition.getTimeDelta();
-        }
+        ITime tMax = transitions.get(0).getTimeDelta();
         if (tMax == null) {
             tMax = tBound.getZeroTime();
         }
@@ -114,15 +114,15 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Extend histories for each state
-        s.set(0, extend(input, s.get(0), transition, t.get(0)));
-        s.set(1, extend(input, s.get(1), transition, t.get(1)));
-        s.set(2, extend(input, s.get(2), transition, t.get(2)));
+        s.set(0, extend(input, s.get(0), transitions, t.get(0)));
+        s.set(1, extend(input, s.get(1), transitions, t.get(1)));
+        s.set(2, extend(input, s.get(2), transitions, t.get(2)));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
         if (input.isTerminal() || s.get(3) != null
                 && !s.get(3).equals(sOld.get(3))) {
-            s.set(3, extend(input, s.get(3), transition, t.get(3)));
+            s.set(3, extend(input, s.get(3), transitions, t.get(3)));
         }
     }
 
