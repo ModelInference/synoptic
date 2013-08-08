@@ -786,13 +786,13 @@ public class Bisimulation {
 
                 // 3. Ignore partition pairs that were previously tried (are
                 // in blacklist)
-                /*
-                 * if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
-                 * .contains(q)) || (mergeBlacklist.containsKey(q) &&
-                 * mergeBlacklist .get(q).contains(p))) {
-                 * logger.fine("Partitions are in the merge blacklist.");
-                 * continue; }
-                 */
+                if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
+                        .contains(q))
+                        || (mergeBlacklist.containsKey(q) && mergeBlacklist
+                                .get(q).contains(p))) {
+                    logger.fine("Partitions are in the merge blacklist.");
+                    continue;
+                }
 
                 Set<Partition> parts = new LinkedHashSet<Partition>();
                 parts.addAll(pGraph.getNodes());
@@ -811,11 +811,11 @@ public class Bisimulation {
                     logger.fine("Merge violates invariant: "
                             + cExample.toString());
 
-                    /*
-                     * if (!mergeBlacklist.containsKey(p)) {
-                     * mergeBlacklist.put(p, new LinkedHashSet<Partition>()); }
-                     * mergeBlacklist.get(p).add(q);
-                     */
+                    if (!mergeBlacklist.containsKey(p)) {
+                        mergeBlacklist.put(p, new LinkedHashSet<Partition>());
+                    }
+                    mergeBlacklist.get(p).add(q);
+
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 
