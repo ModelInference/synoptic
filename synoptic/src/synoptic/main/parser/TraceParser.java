@@ -128,6 +128,9 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
+    
+    private static final String dummyEtypeLabel = "dummy-etype-for-line-with-state"
+        .intern();
 
     /**
      * Returns an un-parameterized trace parser.
@@ -658,7 +661,9 @@ public class TraceParser {
         // parseLine methods so that State is separated from EventNode.
         // At this point, each node in results either represents an event or
         // a state. We need to bundle pre- and post-event states and events.
-        mergeStatesWithEventNodes(results);
+        if (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+            mergeStatesWithEventNodes(results);
+        }
 
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
             // Infer the PID (process ID) corresponding to each of the parsed
@@ -917,7 +922,7 @@ public class TraceParser {
             } else if (matched.containsKey(stateGroup)) {
                 // This line has state, so event type is irrelevant.
                 // Use use the dummy string as the type.
-                eTypeLabel = "dummy-etype-for-line-with-state".intern();
+                eTypeLabel = dummyEtypeLabel;
             } else {
                 // TODO: determine if this is desired + print warning
                 // In the absence of an event type, use the entire log line as      
@@ -1103,17 +1108,24 @@ public class TraceParser {
                 String stateStr = eventStringArgs.get(stateGroup);
                 State state = new State(stateStr);
                 eventNode.setPostEventState(state);
+                // State is parsed. Enable state processing.
+                syn.options.stateProcessing = true;
             }
-
-            if (!allEventRelations.containsKey(eventNode)) {
-                allEventRelations.put(eventNode, new HashSet<Relation>());
+            
+            // We want to add eventNode->eventRelations to allEventRelations
+            // ONLY IF eventNode actually represents an event, not a dummy
+            // for state.
+            if (!eventNode.getEType().getETypeLabel().equals(dummyEtypeLabel)) {
+                if (!allEventRelations.containsKey(eventNode)) {
+                    allEventRelations.put(eventNode, new HashSet<Relation>());
+                }
+    
+                Set<Relation> relations = allEventRelations.get(eventNode);
+    
+                // Relations are immutable so we don't have to worry about
+                // representation exposure.
+                relations.addAll(eventRelations);
             }
-
-            Set<Relation> relations = allEventRelations.get(eventNode);
-
-            // Relations are immutable so we don't have to worry about
-            // representation exposure.
-            relations.addAll(eventRelations);
 
             eventStringArgs = null;
             return eventNode;
@@ -1164,6 +1176,11 @@ public class TraceParser {
     /**
      * Adds an event to an internal map of partitions.
      * 
+     * NOTE: Only eventNodes that actually represent events (i.e., not pseudo
+     * eventNodes that represent states) can be added to the partitions.
+     * But, we create a partition for every pName, since every partition
+     * contains at least 1 event.
+     * 
      * @param eventNode
      * @param pName
      */
@@ -1181,7 +1198,12 @@ public class TraceParser {
             nextTraceID++;
         }
         eventNode.setTraceID(partitionNameToTraceID.get(pName));
-        events.add(eventNode);
+        
+        // We want to add eventNode to partitions ONLY IF event actually
+        // represents an event, not a dummy for state.
+        if (!event.getEType().getETypeLabel().equals(dummyEtypeLabel)) {
+            events.add(eventNode);
+        }
         return eventNode;
     }
 

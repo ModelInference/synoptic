@@ -81,8 +81,21 @@ public class SynopticOptions extends Options {
      */
     @Option("Mine multiple relations from the trace graph")
     public boolean multipleRelations = false;
-    // end option group "Execution Options"
-
+    
+    /**
+     * States are parsed. Enable state processing.
+     */
+    @Option("Enable state processing")
+    public boolean stateProcessing = false;
+    
+    /**
+     * Enable abstract test generation.
+     */
+    @Option(
+            value = "-t Enable abstract test generation",
+            aliases = { "-test-generation" })
+    public boolean testGeneration = false;
+    
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match

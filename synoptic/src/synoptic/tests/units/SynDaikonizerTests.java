@@ -12,6 +12,7 @@ import daikon.inv.binary.twoScalar.IntEqual;
 import daikon.inv.binary.twoScalar.LinearBinary;
 import daikonizer.DaikonInvariants;
 
+import synoptic.main.parser.ParseException;
 import synoptic.model.state.State;
 import synoptic.model.state.SynDaikonizer;
 import synoptic.tests.SynopticTest;
@@ -29,10 +30,10 @@ public class SynDaikonizerTests extends SynopticTest {
     /**
      * Test OneOfScalar invariant.
      * 
-     * @throws Exception
+     * @throws ParseException
      */
     @Test
-    public void oneOfScalarTest() throws Exception {
+    public void oneOfScalarTest() throws ParseException {
         State s1 = new State("x=-1");
         State s2 = new State("x=0");
         State s3 = new State("x=1");
@@ -57,10 +58,10 @@ public class SynDaikonizerTests extends SynopticTest {
     /**
      * Test IntEqual invariant.
      * 
-     * @throws Exception
+     * @throws ParseException 
      */
     @Test
-    public void intEqualTest() throws Exception {
+    public void intEqualTest() throws ParseException {
         State s1 = new State("x=1,y=1");
         State s2 = new State("x=2,y=2");
         State s3 = new State("x=3,y=3");
@@ -84,10 +85,10 @@ public class SynDaikonizerTests extends SynopticTest {
     /**
      * Test LinearBinary invariant.
      * 
-     * @throws Exception
+     * @throws ParseException
      */
     @Test
-    public void linearBinaryTest() throws Exception {
+    public void linearBinaryTest() throws ParseException {
         SynDaikonizer daikonizer = new SynDaikonizer();
         for (int i = 0; i < 100; i++) {
             String stateStr = "foo=" + i + ",bar=" + (i + 1);
@@ -114,7 +115,7 @@ public class SynDaikonizerTests extends SynopticTest {
         fail("There is no LinearBinary invariant: foo - bar + 1 = 0");
     }
     
-    private DaikonInvariants getDaikonInvariants(State... states) throws Exception {
+    private DaikonInvariants getDaikonInvariants(State... states) {
         SynDaikonizer daikonizer = new SynDaikonizer();
         for (State state : states) {
             daikonizer.addInstance(state);

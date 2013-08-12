@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.ITime;
@@ -168,6 +170,13 @@ public abstract class GraphExportFormatter {
 
     public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst,
             ITime time, Set<String> relations);
+    
+    /**
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, along with the Daikon invariants of the edge transition.
+     */
+    public abstract String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst,
+            DaikonInvariants daikonInvs, Set<String> relation);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.
@@ -177,6 +186,9 @@ public abstract class GraphExportFormatter {
         for (int i = 0; i < string.length(); ++i) {
             final char c = string.charAt(i);
             switch (c) {
+            case '\n':
+                sb.append("\\n");
+                break;
             case '\\':
                 sb.append("\\\\");
                 break;
