@@ -18,6 +18,14 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.time.ITime;
 
+/**
+ * NFA state set superclass for all time-constrained invariants. It keeps the
+ * shortest path justifying a given state being inhabited.
+ * 
+ * @author Tony Ohmann (ohmann@cs.umass.edu)
+ * @param <T>
+ *            The node type, used as an input, and stored in path-history.
+ */
 public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
 
@@ -52,9 +60,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             List<ITime> tDeltas = new ArrayList<ITime>();
             ConstrainedHistoryNode cur = this;
 
-            // TODO: why do we require isTerminal here?
-            assert (cur.node).isTerminal();
-
             // Traverse the path of ConstrainedHistoryNodes recording T nodes,
             // transitions, and running time deltas in lists
             while (cur != null) {
@@ -70,8 +75,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             // Constrained invariants only keep the shortest path to failure and
             // do not need to be shortened but do require transitions and
             // running time deltas
-            CExamplePath<T> rpath = new CExamplePath<T>(inv, path, transitionsList,
-                    tDeltas);
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, path,
+                    transitionsList, tDeltas);
 
             return rpath;
         }
@@ -171,10 +176,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
-     * Time stored by the state machine from when t=0 state was first
+     * Running time stored by the state machine from when t=0 state was first
      * encountered
      */
-    List<ITime> t;
+    List<ITime> tRunning;
 
     /**
      * Upper- or lower-bound time constraint
@@ -190,13 +195,13 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * A path for each state in the appropriate state machine
      */
-    List<ConstrainedHistoryNode> s;
+    List<ConstrainedHistoryNode> states;
 
     /**
      * The node (usually Partition) being transitioned _from_
      */
     T previous;
-    
+
     /**
      * The (single) relation of the invariant
      */
@@ -230,18 +235,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         b = inv.getSecond();
         tBound = constInv.getConstraint().getThreshold();
         this.numStates = numStates;
-        
+
         // Get the invariant's relation
         relation = new HashSet<String>(1);
         relation.add(inv.getRelation());
 
-        s = new ArrayList<ConstrainedHistoryNode>(numStates);
-        t = new ArrayList<ITime>(numStates);
+        states = new ArrayList<ConstrainedHistoryNode>(numStates);
+        tRunning = new ArrayList<ITime>(numStates);
 
         // Set up states and state times
         for (int i = 0; i < numStates; ++i) {
-            s.add(null);
-            t.add(tBound.getZeroTime());
+            states.add(null);
+            tRunning.add(tBound.getZeroTime());
         }
     }
 
@@ -296,7 +301,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         } else {
             minMaxTrans = getMinTransitions(evTransitions);
         }
-        
+
         // Store min/max time for convenience
         ITime minMaxTime = minMaxTrans.get(0).getTimeDelta();
 
@@ -313,7 +318,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             // TODO: Make this process correct for lower-bound invariants
 
             // Increment running time and compare to time bound
-            ITime newTime = t.get(i).incrBy(minMaxTime);
+            ITime newTime = tRunning.get(i).incrBy(minMaxTime);
             int tComparison = newTime.compareTo(tBound);
 
             // Within bound if upper and <= bound or if lower >= bound
@@ -328,16 +333,16 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Keep old paths before this transition
-        List<ConstrainedHistoryNode> sOld = s;
+        List<ConstrainedHistoryNode> statesOld = states;
 
         // Final state nodes after the transition will be stored in s
-        s = new ArrayList<ConstrainedHistoryNode>(numStates);
+        states = new ArrayList<ConstrainedHistoryNode>(numStates);
         for (int i = 0; i < numStates; ++i) {
-            s.add(null);
+            states.add(null);
         }
 
         // Call transition code specific to each invariant
-        transition(input, minMaxTrans, isA, isB, outOfBound, sOld);
+        transition(input, minMaxTrans, isA, isB, outOfBound, statesOld);
 
         // The node we just transitioned _to_ is our new previous node (for
         // future transitions)
@@ -355,7 +360,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      *            The event transitions
      * @return Smallest time delta transitions
      */
-    private List<ITransition<EventNode>> getMinTransitions(Set<ITransition<EventNode>> transitions) {
+    private List<ITransition<EventNode>> getMinTransitions(
+            Set<ITransition<EventNode>> transitions) {
         return getMinMaxTransitions(transitions, false);
     }
 
@@ -366,7 +372,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      *            The event transitions
      * @return Largest time delta transitions
      */
-    private List<ITransition<EventNode>> getMaxTransitions(Set<ITransition<EventNode>> transitions) {
+    private List<ITransition<EventNode>> getMaxTransitions(
+            Set<ITransition<EventNode>> transitions) {
         return getMinMaxTransitions(transitions, true);
     }
 
