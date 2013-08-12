@@ -16,6 +16,10 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.constraints.IThresholdConstraint;
+import synoptic.invariants.constraints.LowerBoundConstraint;
+import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -192,6 +196,38 @@ public class FsmModelChecker {
             stateset = new APTracingSet<Node>(invariant);
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
+            
+        } else if (invClass.equals(TempConstrainedInvariant.class)) {
+            
+            BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant).getInv();
+            IThresholdConstraint constInvConst = ((TempConstrainedInvariant<?>) invariant).getConstraint();
+            
+            // TODO: When other constrained tracing sets are implemented, change
+            // the following code to use the proper tracing set rather than
+            // returning null
+
+            if (constInvInv instanceof AlwaysFollowedInvariant) {
+                // AFby Upper
+                if (constInvConst instanceof UpperBoundConstraint) {
+                    return null;
+//                    stateset = new AFbyUpperTracingSet<Node>(invariant);
+                    
+                // AFby Lower
+                } else if (constInvConst instanceof LowerBoundConstraint) {
+                    return null;
+//                    stateset = new AFbyLowerTracingSet<Node>(invariant);
+                }
+            } else if (constInvInv instanceof AlwaysPrecedesInvariant) {
+                // AP Upper
+                if (constInvConst instanceof UpperBoundConstraint) {
+                    stateset = new APUpperTracingSet<Node>(invariant);
+                    
+                // AP Lower
+                } else if (constInvConst instanceof LowerBoundConstraint) {
+                    return null;
+//                    stateset = new APLowerTracingSet<Node>(invariant);
+                }
+            }
         }
 
         // Return the shortest path, ending on a final node, which causes the

@@ -100,4 +100,9 @@ public class ITotalTime implements ITime {
 
         return new ITotalTime(this.time / divisor);
     }
+    
+    @Override
+    public ITime getZeroTime() {
+        return new ITotalTime(0);
+    }
 }
