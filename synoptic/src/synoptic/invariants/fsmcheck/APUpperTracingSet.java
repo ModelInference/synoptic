@@ -13,10 +13,10 @@ import synoptic.util.time.ITime;
  * NFA state set for the APUpper constrained invariant which keeps the shortest
  * path justifying a given state being inhabited. <br />
  * <br />
- * State0: Neither A nor B seen <br />
- * State1: A seen <br />
- * State2: A seen, then B seen within time bound <br />
- * State3: B seen first or after A but out of time bound
+ * states.get(0): Neither A nor B seen <br />
+ * states.get(1): A seen <br />
+ * states.get(2): A seen, then B seen within time bound or anything else seen <br />
+ * states.get(3): B seen first or after A but out of time bound
  * 
  * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
