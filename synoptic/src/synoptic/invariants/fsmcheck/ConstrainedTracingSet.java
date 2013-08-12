@@ -30,6 +30,41 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         TracingStateSet<T> {
 
     /**
+     * Running time stored by the state machine from when t=0 state was first
+     * encountered
+     */
+    List<ITime> tRunning;
+
+    /**
+     * Upper- or lower-bound time constraint
+     */
+    ITime tBound;
+    public EventType a, b;
+
+    /**
+     * Number of states in the state machine
+     */
+    int numStates;
+
+    /**
+     * A path for each state in the appropriate state machine. An explanation
+     * for each state should be included in the documentation for any
+     * subclasses. States are stored this way due to some constrained FSM states
+     * lacking concise and descriptive names.
+     */
+    List<ConstrainedHistoryNode> states;
+
+    /**
+     * The node (usually Partition) being transitioned _from_
+     */
+    T previous;
+
+    /**
+     * The (single) relation of the invariant
+     */
+    Set<String> relation;
+
+    /**
      * An extension of a HistoryNode which also records time deltas
      */
     public class ConstrainedHistoryNode extends HistoryNode {
@@ -164,38 +199,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             return second;
         }
     }
-
-    /**
-     * Running time stored by the state machine from when t=0 state was first
-     * encountered
-     */
-    List<ITime> tRunning;
-
-    /**
-     * Upper- or lower-bound time constraint
-     */
-    ITime tBound;
-    public EventType a, b;
-
-    /**
-     * Number of states in the state machine
-     */
-    int numStates;
-
-    /**
-     * A path for each state in the appropriate state machine
-     */
-    List<ConstrainedHistoryNode> states;
-
-    /**
-     * The node (usually Partition) being transitioned _from_
-     */
-    T previous;
-
-    /**
-     * The (single) relation of the invariant
-     */
-    Set<String> relation;
 
     /**
      * Empty constructor for copy()
