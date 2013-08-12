@@ -216,17 +216,22 @@ public abstract class PGraphInvariMint {
     private void initializeModelWithNIFby() throws IOException {
         assert invMintModel == null;
 
+        logger.fine("Mining NIFby invariant(s).");
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(traceGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
         // logger.fine(NIFbys.toPrettyString());
 
+        logger.fine("Creating EvenType encoding.");
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
         encodings = new EventTypeEncodings(allEvents);
 
         // Initial model will accept all Strings.
+        logger.fine("Creating an initial, all-accepting, model.");
         invMintModel = new InvsModel(encodings);
 
+        logger.fine("Intersecting model with mined NIFby invariants (minimizeIntersections="
+                + opts.minimizeIntersections + ")");
         invMintModel = InvComposition.intersectModelWithInvs(NIFbys,
                 opts.minimizeIntersections, invMintModel);
     }
