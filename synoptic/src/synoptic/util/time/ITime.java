@@ -61,6 +61,13 @@ public interface ITime extends Comparable<ITime> {
      * @return The ITime object after division has occurred.
      */
     ITime divBy(int divisor);
+    
+    /**
+     * Creates a new zero-time object
+     * 
+     * @return New ITime of the same subtype with a time value of zero
+     */
+    ITime getZeroTime();
 
     @Override
     int hashCode();

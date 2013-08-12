@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -454,6 +455,20 @@ public class Partition implements INode<Partition> {
     public void setParent(Partition parent) {
         throw new UnsupportedOperationException();
     }
+    
+    /**
+     * Return a set containing the timestamp of every Event in this Partition
+     */
+    public Set<ITime> getAllTimes() {
+
+        HashSet<ITime> allDeltas = new HashSet<ITime>();
+
+        for (EventNode ev : events) {
+            allDeltas.add(ev.getTime());
+        }
+
+        return allDeltas;
+    }
 
     private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
@@ -471,31 +486,32 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getAllTransitions() {
         // TODO: implement a transition cache optimization.
-        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
-        Set<Partition> children = new LinkedHashSet<Partition>();
+        Map<Partition, Transition<Partition>> transitions = new HashMap<Partition, Transition<Partition>>();
 
         for (EventNode e : events) {
             for (ITransition<EventNode> tr : e.getAllTransitions()) {
                 Partition childP = tr.getTarget().getParent();
+                Transition<Partition> tx;
 
-                // Skip children if we've already processed them.
-                if (children.contains(childP)) {
-                    continue;
+                // Create the transition if it doesn't exist, or retrieve it if it does
+                if (transitions.containsKey(childP)) {
+                    tx = transitions.get(childP);
+                } else {
+                    tx = new Transition<Partition>(this, childP, tr.getRelation());
+                    transitions.put(childP, tx);
                 }
-
+                
                 // TODO: calling updateTransitionDeltas() is a fragile kind of
                 // initialization -- we have to remember to call this method
                 // whenever creating a new ITransition<Partition> instance.
                 // Refactor this into a new kind of Transition constructor? Or a
                 // helper method.
-                Transition<Partition> tx = new Transition<Partition>(this,
-                        childP, tr.getRelation());
                 updateTransitionDeltas(e, tr.getTarget(), tx);
-
-                children.add(childP);
-                ret.add(tx);
             }
         }
+        
+        // Return final list of transitions
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(transitions.values());
         return ret;
     }
 
@@ -514,16 +530,28 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithExactRelations(
             Set<String> relations) {
-        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
+        
+        Map<Partition, Transition<Partition>> transitions = new HashMap<Partition, Transition<Partition>>();
+        
         for (EventNode e : events) {
-            for (ITransition<EventNode> tr : e
-                    .getTransitionsWithExactRelations(relations)) {
-                Transition<Partition> tx = new Transition<Partition>(this, tr
-                        .getTarget().getParent(), tr.getRelation());
+            for (ITransition<EventNode> tr : e.getTransitionsWithExactRelations(relations)) {
+                Partition childP = tr.getTarget().getParent();
+                Transition<Partition> tx;
+
+                // Create the transition if it doesn't exist, or retrieve it if it does
+                if (transitions.containsKey(childP)) {
+                    tx = transitions.get(childP);
+                } else {
+                    tx = new Transition<Partition>(this, childP, tr.getRelation());
+                    transitions.put(childP, tx);
+                }
+                
                 updateTransitionDeltas(e, tr.getTarget(), tx);
-                ret.add(tx);
             }
         }
+        
+        // Return final list of transitions
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(transitions.values());
         return ret;
     }
 

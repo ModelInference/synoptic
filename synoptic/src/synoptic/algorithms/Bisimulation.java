@@ -13,6 +13,7 @@ package synoptic.algorithms;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,12 +30,14 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.time.ITime;
 
 /**
  * Partition graphs can be transformed using two algorithms -- coarsening and
@@ -274,19 +277,187 @@ public class Bisimulation {
     /** Private methods below. */
 
     /**
-     * Compute possible splits to remove the path counterexampleTrace from
-     * pGraph. This is done by following the path in the original (event) graph
-     * and determining the point where the partition graph allows a transition
-     * it should not allow. The event graph is accessed via the events stored by
-     * the partitions.
+     * Compute possible splits to resolve the invariant violation shown by path
+     * counterexampleTrace.
      * 
      * @param counterexampleTrace
-     *            - the path to remove
+     *            The path to remove
      * @param pGraph
-     *            - the graph from which the path shall be removed
-     * @return a list of partition splits that remove relPath
+     *            The graph from which the path shall be removed
+     * @return A list of partition splits that resolve the invariant violation
      */
     private static List<PartitionSplit> getSplits(
+            CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
+
+        // Constrained invariant
+        if (counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>) {
+            return getSplitsConstrained(counterexampleTrace, pGraph);
+        }
+
+        // Unconstrained invariant
+        {
+            return getSplitsUnconstrained(counterexampleTrace, pGraph);
+        }
+    }
+
+    /**
+     * Compute possible splits to resolve the constrained invariant violation
+     * shown by path counterexampleTrace. This is done by
+     */
+    private static List<PartitionSplit> getSplitsConstrained(
+            CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
+
+        // Holds the return values.
+        List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
+
+        // Our position while traversing the counter-example path
+        Partition curPart = null;
+        Partition endPart = null;
+
+        // This method must only be passed counter-example paths for
+        // constrained invariants
+        assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
+        TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
+
+        // Check if this is a lower-bound constrained invariant
+        boolean isLower = false;
+        // TODO: Uncomment when the lower-bound subtypes are implemented
+        // if (inv instanceof APLowerTracingSet || inv instanceof
+        // AFbyLowerTracingSet) {
+        // isLower = true;
+        // }
+
+        // Get the set of relations
+        Set<String> invRelation = new HashSet<String>(1);
+        invRelation.add(inv.getRelation());
+
+        // Retrieve the counter-example path, its size (excluding terminal)
+        List<Partition> cExPath = counterexampleTrace.path;
+        int pathSize = counterexampleTrace.path.size() - 1;
+
+        // Get the last non-terminal partition, and check for null
+        endPart = cExPath.get(pathSize - 1);
+        if (endPart == null) {
+            throw new InternalSynopticException(
+                    "Counter-example path with a null Partition");
+        }
+
+        // Retrieve the time deltas and the violated time bound
+        List<ITime> tDeltas = counterexampleTrace.tDeltas;
+        ITime tBound = inv.getConstraint().getThreshold();
+
+        // Event paths between curPart and endPart which, if replacing the old
+        // curPart->endPart, would resolve the violation
+        Set<List<EventNode>> legalSubpaths;
+        // Event paths between curPart and endPart which retain the violation
+        Set<List<EventNode>> illegalSubpaths;
+
+        // Walk the path in reverse
+        for (int i = pathSize - 2; i > 0; --i) {
+
+            // Get the current partition, and check for null
+            curPart = cExPath.get(i);
+            if (curPart == null) {
+                throw new InternalSynopticException(
+                        "Counter-example path with a null Partition");
+            }
+
+            // If there is no stitch here (the c.ex. path arrived at and
+            // departed from this partition using 2 different events), splitting
+            // cannot resolve the violation
+            {
+                ITransition<EventNode> incomingTransition = counterexampleTrace.transitions
+                        .get(i - 1);
+                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitions
+                        .get(i);
+
+                if (incomingTransition.getTarget() == outgoingTransition
+                        .getSource()) {
+                    continue;
+                }
+            }
+
+            legalSubpaths = new HashSet<List<EventNode>>();
+            illegalSubpaths = new HashSet<List<EventNode>>();
+
+            // Time to get to current partition from t=0 state
+            ITime curTime = tDeltas.get(i);
+
+            // Check if we're already over the time bound
+            if (tBound.lessThan(curTime)) {
+                continue;
+            }
+
+            // Any subpath <= this target time is legal
+            ITime targetSubpathTime = tBound.computeDelta(curTime);
+            curTime = null;
+
+            // Walk through paths of EventNodes, finding any that run from
+            // firstPart to secondPart and placing them in the list of
+            // either legal or illegal subpaths
+            for (EventNode curEv : curPart.getEventNodes()) {
+                EventNode ev = curEv;
+
+                // Initialize the current, ongoing subpath and its time
+                List<EventNode> currentSubpath = new ArrayList<EventNode>();
+                currentSubpath.add(ev);
+                ITime currentSubpathTime = tBound.getZeroTime();
+
+                // Walk the event path until an event within endPart is
+                // encountered or the path ends
+                while (!ev.isTerminal()) {
+
+                    // Get the only transition out of this event with the
+                    // relation of this invariant
+                    ITransition<EventNode> trans = ev
+                            .getTransitionsWithExactRelations(invRelation).get(
+                                    0);
+
+                    // Move to the next event, and update the subpath and
+                    // running subpath time
+                    ev = trans.getTarget();
+                    currentSubpath.add(ev);
+                    currentSubpathTime = currentSubpathTime.incrBy(trans
+                            .getTimeDelta());
+
+                    // We've found a curPart->endPart path if the new event is
+                    // in endPart
+                    if (ev.getParent() == endPart) {
+                        // TODO: Make this lower-bound-friendly
+
+                        // Illegal path which would not resolve the violation
+                        if (targetSubpathTime.lessThan(currentSubpathTime)) {
+                            illegalSubpaths.add(currentSubpath);
+                        }
+
+                        // Legal path which would resolve the violation
+                        else {
+                            legalSubpaths.add(currentSubpath);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Both lists must be non-empty for a valid split to exist
+            if (legalSubpaths.isEmpty() || illegalSubpaths.isEmpty()) {
+                continue;
+            }
+
+            // TODO: Split on curPart
+        }
+
+        return candidateSplits;
+    }
+
+    /**
+     * Compute possible splits to resolve the unconstrained invariant violation
+     * shown by path counterexampleTrace. This is done by following the path in
+     * the original (event) graph and determining the point where the partition
+     * graph allows a transition it should not allow. The event graph is
+     * accessed via the events stored by the partitions.
+     */
+    private static List<PartitionSplit> getSplitsUnconstrained(
             CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
         /**
          * Holds the return values.
@@ -615,13 +786,13 @@ public class Bisimulation {
 
                 // 3. Ignore partition pairs that were previously tried (are
                 // in blacklist)
-                /*
-                 * if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
-                 * .contains(q)) || (mergeBlacklist.containsKey(q) &&
-                 * mergeBlacklist .get(q).contains(p))) {
-                 * logger.fine("Partitions are in the merge blacklist.");
-                 * continue; }
-                 */
+                if ((mergeBlacklist.containsKey(p) && mergeBlacklist.get(p)
+                        .contains(q))
+                        || (mergeBlacklist.containsKey(q) && mergeBlacklist
+                                .get(q).contains(p))) {
+                    logger.fine("Partitions are in the merge blacklist.");
+                    continue;
+                }
 
                 Set<Partition> parts = new LinkedHashSet<Partition>();
                 parts.addAll(pGraph.getNodes());
@@ -640,11 +811,11 @@ public class Bisimulation {
                     logger.fine("Merge violates invariant: "
                             + cExample.toString());
 
-                    /*
-                     * if (!mergeBlacklist.containsKey(p)) {
-                     * mergeBlacklist.put(p, new LinkedHashSet<Partition>()); }
-                     * mergeBlacklist.get(p).add(q);
-                     */
+                    if (!mergeBlacklist.containsKey(p)) {
+                        mergeBlacklist.put(p, new LinkedHashSet<Partition>());
+                    }
+                    mergeBlacklist.get(p).add(q);
+
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 

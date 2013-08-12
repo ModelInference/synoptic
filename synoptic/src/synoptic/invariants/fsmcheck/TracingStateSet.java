@@ -85,6 +85,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             Collections.reverse(path);
 
             CExamplePath<T> rpath = new CExamplePath<T>(inv, inv.shorten(path));
+
             if (rpath.path == null) {
                 throw new InternalSynopticException(
                         "counter-example shortening returned null for " + inv
@@ -120,7 +121,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
     /*
      * Helper to yield the shortest non-null path of the two passed in.
      */
-    public HistoryNode preferShorter(HistoryNode a, HistoryNode b) {
+    public <HNode extends HistoryNode> HNode preferShorter(HNode a, HNode b) {
         if (b == null) {
             return a;
         }
