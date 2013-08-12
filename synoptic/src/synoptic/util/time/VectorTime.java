@@ -310,4 +310,9 @@ public class VectorTime implements ITime {
     public ITime divBy(int divisor) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public ITime getZeroTime() {
+        return new VectorTime("0");
+    }
 }

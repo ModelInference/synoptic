@@ -99,4 +99,9 @@ public class FTotalTime implements ITime {
         }
         return new FTotalTime(this.time / divisor);
     }
+    
+    @Override
+    public ITime getZeroTime() {
+        return new FTotalTime(0.0f);
+    }
 }
