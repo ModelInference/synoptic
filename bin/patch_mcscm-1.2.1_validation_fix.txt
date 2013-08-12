@@ -1,0 +1,50 @@
+Index: src/svar/ScmWrapper.ml
+===================================================================
+--- src/svar/ScmWrapper.ml	(revision 1550)
++++ src/svar/ScmWrapper.ml	(revision 1552)
+@@ -440,14 +440,17 @@
+         dl []
+     in
+       (* Creates an abstract value with all queues being empty. *)
+-      Sem.init_abstr manager partition lattice
+-        (scm_decl_list_to_init_list A.scm.gb_vars)
++      Region.simplify
++        (Sem.init_abstr manager partition lattice
++           (scm_decl_list_to_init_list A.scm.gb_vars))
+ 
+   (* The following list of error regions is ordered exactly as the respective
+      list gb_bad_states in A.scm. *)
+   let error_regions =
+     List.map
+-      (fun (_, b, r) -> Sem.init_bad_state manager partition lattice b r)
++      (fun (_, b, r) ->
++        Region.simplify
++          (Sem.init_bad_state manager partition lattice b r))
+       A.scm.gb_bad_states
+ 
+   (* The list of lossy channels is transformed into the array channels of
+Index: src/svar/Validator.ml
+===================================================================
+--- src/svar/Validator.ml	(revision 1550)
++++ src/svar/Validator.ml	(revision 1552)
+@@ -35,7 +35,9 @@
+   (* Maps over locations *)
+   module LMap = Map.Make(Location)
+ 
+-  (* Converts a list of symbolic states into a map from locations to regions. *)
++  (* Converts a list of symbolic states into a map from locations to regions.
++     Simplify each region afterwards to speed up inclusion tests in invariant
++     verification. *)
+   let symb_state_list_to_map states =
+     let add_with_union m (l, r) =
+       if (LMap.mem l m) then
+@@ -43,7 +45,8 @@
+       else
+         LMap.add l r m
+     in
+-      List.fold_left add_with_union LMap.empty states
++      LMap.map Region.simplify
++        (List.fold_left add_with_union LMap.empty states)
+ 
+   (* Funtion to check that a given list of symbolic states is a safe forward
+      inductive invariant. *)
