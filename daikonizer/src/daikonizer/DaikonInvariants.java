@@ -25,8 +25,14 @@ public class DaikonInvariants implements Iterable<Invariant>,
     // equals and hashCode methods, but Invariant implements toString.
     private final List<String> invariantStr;
     
-    public DaikonInvariants(List<Invariant> invariants) {
+    // invariants that Daikon would actually output, but not necessary
+    // all invariants that Daikon produces
+    private final String printedInvs;
+    
+    public DaikonInvariants(List<Invariant> invariants, String printedInvs) {
         this.invariants = invariants;
+        this.printedInvs = printedInvs;
+        
         invariantStr = new ArrayList<String>();
         for (Invariant inv : invariants) {
             invariantStr.add(inv.toString());
@@ -57,13 +63,7 @@ public class DaikonInvariants implements Iterable<Invariant>,
     
     @Override
     public String toString() {
-        String str = "";
-        for (int i = 0; i < invariantStr.size() - 1; i++) {
-            str += invariantStr.get(i);
-            str += "\n";
-        }
-        str += invariantStr.get(invariantStr.size() - 1);
-        return str;
+        return printedInvs;
     }
 
     @Override

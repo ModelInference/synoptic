@@ -55,6 +55,11 @@ public abstract class EventType implements Comparable<EventType> {
     public boolean isSpecialEventType() {
         return isInitialEventType || isTerminalEventType;
     }
+    
+    /**
+     * Returns the label of this event type.
+     */
+    public abstract String getETypeLabel();
 
     // //////////////////////
     // These methods implement basic functionality for the two

@@ -27,24 +27,23 @@ public class SynDaikonizer {
     
     /**
      * Adds an instance of data record i.e., State.
-     * Variables must be consistent among all added states.
      * If the state is null, then nothing is added.
-     * 
-     * @throws Exception
      */
-    public void addInstance(State state) throws Exception {
+    public void addInstance(State state) {
         if (state == null) {
             return;
         }
         
         Set<DaikonVar> stateVars = state.getVariables();
-        // TODO: This might not be the best policy. Revisit this condition.
+        // TODO: What if variables are not consistent among all added states?
         if (!vars.isEmpty()
                 && (!vars.containsAll(stateVars)
                         || !stateVars.containsAll(vars))) {
+            /*
             throw new Exception(
                     "Variables are inconsistent among added states: "
                     + vars + " and " + stateVars);
+            */
         }
         
         Vector<Object> record = new Vector<Object>();
@@ -72,16 +71,22 @@ public class SynDaikonizer {
     
     /**
      * @return Daikon invariants detected from all added states.
-     * @throws Exception
      */
-    public DaikonInvariants getDaikonEnterInvariants() throws Exception {
+    public DaikonInvariants getDaikonEnterInvariants() {
         // TODO: add a new method to Daikonizer that generates invariants
         // at a single point, and use that method instead.
         List<Invariant> enterInvs = new Vector<Invariant>();
         List<Invariant> exitInvs = new Vector<Invariant>();
         List<Invariant> flow = new Vector<Invariant>();
-        daikonizer.genDaikonInvariants(enterInvs, exitInvs, flow, false);
-        DaikonInvariants invs = new DaikonInvariants(enterInvs);
+        
+        // invariants that Daikon would output
+        String printedInvs = "";
+        
+        // Only run Daikon when there are state instances.
+        if (daikonizer != null) {
+            printedInvs = daikonizer.genDaikonInvariants(enterInvs, exitInvs, flow, false);
+        }
+        DaikonInvariants invs = new DaikonInvariants(enterInvs, printedInvs);
         return invs;
     }
 }

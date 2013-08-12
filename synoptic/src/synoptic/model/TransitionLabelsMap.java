@@ -180,7 +180,8 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
         }
         
         // Compare Daikon invariants.
-        if (comparePossiblyNullObjects(this.getRelations(), o.getRelations()) == -2) {
+        if (comparePossiblyNullObjects(this.getDaikonInvariants(),
+                o.getDaikonInvariants()) == -2) {
             cmp = this.getDaikonInvariants().compareTo(o.getDaikonInvariants());
             if (cmp != 0) {
                 return cmp;

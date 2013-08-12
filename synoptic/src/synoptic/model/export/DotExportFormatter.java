@@ -2,6 +2,8 @@ package synoptic.model.export;
 
 import java.util.Set;
 
+import daikonizer.DaikonInvariants;
+
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.ITime;
 
@@ -77,6 +79,14 @@ public class DotExportFormatter extends GraphExportFormatter {
     public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
             Set<String> relations) {
         return edgeToString(nodeSrc, nodeDst, "", relations);
+    }
+    
+    @Override
+    public String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst,
+            DaikonInvariants daikonInvs, Set<String> relations) {
+        String invStr = quote(daikonInvs.toString());
+        String attributes = "label=\"" + invStr + "\"";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 
 }

@@ -1,13 +1,18 @@
 package daikonizer;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Vector;
 
 import daikon.PptTopLevel;
+import daikon.PrintInvariants;
 import daikon.PptTopLevel.PptType;
 import daikon.inv.Invariant;
 
@@ -40,9 +45,8 @@ public class Daikonizer {
         trace.addInstance(enter_vals, exit_vals);
     }
 
-    public void genDaikonInvariants(List<Invariant> enter,
-            List<Invariant> exit, List<Invariant> flow, boolean norestict)
-            throws Exception {
+    public String genDaikonInvariants(List<Invariant> enter,
+            List<Invariant> exit, List<Invariant> flow, boolean norestict) {
         String fname = "./daikonizer_" + System.currentTimeMillis() + ".dtrace";
         // System.out.println("using fname: " + fname);
 
@@ -65,6 +69,9 @@ public class Daikonizer {
 
         // execute daikon
         daikon.Daikon.mainHelper(daikonArgs);
+        
+        // invariants that Daikon would output
+        String printedInvs = "";
 
         for (PptTopLevel ppt1 : daikon.Daikon.all_ppts.all_ppts()) {
             // System.out.println("PPT-Name: " + ppt.name());
@@ -89,13 +96,27 @@ public class Daikonizer {
                                 .isObvious() == null)))
                     flow.add(inv);
             }
+            
+            // TODO: right now, we only print invariants at ENTER ppt, but we should
+            // also print invariants at EXIT ppt.
+            if (ppt1.type == PptType.ENTER) {
+            	StringWriter sout = new StringWriter();
+            	PrintWriter pout = new PrintWriter(sout);
+            	PrintInvariants.print_invariants(ppt1, pout, daikon.Daikon.all_ppts);
+            	printedInvs = sout.toString();
+            }
         }
-
+        
         // reset output to previous stream
         System.setOut(oldStdout);
         // enter = filter_invs(enter);
         // exit = filter_invs(exit);
         // flow = filter_invs(flow);
+        
+        // clean up .dtrace and .inv.gz files
+        deleteDaikonFiles();
+        
+        return printedInvs;
     }
 
     // private List<Invariant> filter_invs(List<Invariant> invs) throws
@@ -146,6 +167,28 @@ public class Daikonizer {
             return false;
         }
         return true;
+    }
+    
+    private void deleteDaikonFiles() {
+        File currDir = new File(".");
+        FileFilter filter = new DaikonFileFilter();
+        File[] daikonFiles = currDir.listFiles(filter);
+        
+        for (File daikonFile : daikonFiles) {
+            daikonFile.delete();
+        }
+    }
+    
+    public static class DaikonFileFilter implements FileFilter {
+        private static final String dtraceExtension = ".dtrace";
+        private static final String invExtension = ".inv.gz";
+        
+        @Override
+        public boolean accept(File pathname) {
+            String fileName = pathname.getName();
+            return fileName.endsWith(dtraceExtension) ||
+                    fileName.endsWith(invExtension);
+        }
     }
 
     public String toDtraceString() {
