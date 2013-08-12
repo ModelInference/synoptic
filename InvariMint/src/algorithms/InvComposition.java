@@ -32,7 +32,8 @@ public class InvComposition {
             InvsModel model) throws IOException {
 
         // Intersect invariants into model.
-        int remaining = invariants.numInvariants();
+        int total = invariants.numInvariants();
+        int numDone = 0;
 
         for (ITemporalInvariant invariant : invariants) {
             // logger.info("Create new invDFA instance, remaining" + remaining);
@@ -41,11 +42,13 @@ public class InvComposition {
             invDFA = null;
 
             // Optimize by minimizing the model every 100 intersections.
-            if ((remaining % 100 == 0) && minimizeDFAIntersections) {
+            if ((numDone % 20 == 0) && minimizeDFAIntersections) {
+                logger.info("Intersected " + numDone + " / " + total
+                        + " invariants.");
                 model.minimize();
             }
 
-            remaining -= 1;
+            numDone += 1;
         }
 
         if (minimizeDFAIntersections) {
