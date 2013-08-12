@@ -368,7 +368,7 @@ public class Bisimulation {
             // can depart using some event on which we didn't arrive, so
             // departing events must be a subset of arriving events. If there is
             // no illegal stitch here, splitting cannot resolve the violation.
-            if (illegalStitchExists(counterexampleTrace, i)) {
+            if (!illegalStitchExists(counterexampleTrace, i)) {
                 continue;
             }
 
@@ -476,7 +476,7 @@ public class Bisimulation {
             }
         }
 
-        return isSubset;
+        return !isSubset;
     }
 
     /**
