@@ -47,58 +47,60 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // Always start on State0
         states.set(0, newHistory);
+
+        // This node is our new previous node (for future transitions)
+        previous = input;
     }
 
     @Override
-    protected void transition(T input, ITransition<EventNode> transition,
-            boolean isA, boolean isB, List<Boolean> outOfBound,
-            List<ConstrainedHistoryNode> sOld) {
+    protected void transition(T input,
+            List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode> statesOld) {
 
         // s.get(0) -> s.get(0)
-        if (sOld.get(0) != null && !isA && !isB) {
-            states.set(0, sOld.get(0));
+        if (statesOld.get(0) != null && !isA && !isB) {
+            states.set(0, statesOld.get(0));
         }
 
         // s.get(0) -> s.get(1)
-        if (sOld.get(0) != null && isA) {
-            states.set(1, sOld.get(0));
+        if (statesOld.get(0) != null && isA) {
+            states.set(1, statesOld.get(0));
         }
 
         // s.get(1) -> s.get(2)
-        if (sOld.get(1) != null && (isB && !outOfBound.get(1) || !isB && !isA)) {
-            states.set(2, sOld.get(1));
+        if (statesOld.get(1) != null
+                && (isB && !outOfBound.get(1) || !isB && !isA)) {
+            states.set(2, statesOld.get(1));
         }
 
         // s.get(2) -> s.get(2)
-        if (sOld.get(2) != null && (isB && !outOfBound.get(2) || !isB && !isA)) {
-            states.set(2, preferMaxTime(sOld.get(2), states.get(2)));
+        if (statesOld.get(2) != null
+                && (isB && !outOfBound.get(2) || !isB && !isA)) {
+            states.set(2, preferMaxTime(statesOld.get(2), states.get(2)));
         }
 
         // s.get(0) -> s.get(3)
-        if (sOld.get(0) != null && isB) {
-            states.set(3, sOld.get(0));
+        if (statesOld.get(0) != null && isB) {
+            states.set(3, statesOld.get(0));
         }
 
         // s.get(1) -> s.get(3)
-        if (sOld.get(1) != null && isB && outOfBound.get(1)) {
-            states.set(3, preferMaxTime(sOld.get(1), states.get(3)));
+        if (statesOld.get(1) != null && isB && outOfBound.get(1)) {
+            states.set(3, preferMaxTime(statesOld.get(1), states.get(3)));
         }
 
         // s.get(2) -> s.get(3)
-        if (sOld.get(2) != null && isB && outOfBound.get(2)) {
-            states.set(3, preferMaxTime(sOld.get(2), states.get(3)));
+        if (statesOld.get(2) != null && isB && outOfBound.get(2)) {
+            states.set(3, preferMaxTime(statesOld.get(2), states.get(3)));
         }
 
         // s.get(3) -> s.get(3)
-        if (sOld.get(3) != null) {
-            states.set(3, preferMaxTime(sOld.get(3), states.get(3)));
+        if (statesOld.get(3) != null) {
+            states.set(3, preferMaxTime(statesOld.get(3), states.get(3)));
         }
 
         // Retrieve the previously-found max time delta
-        ITime tMax = null;
-        if (transition != null) {
-            tMax = transition.getTimeDelta();
-        }
+        ITime tMax = transitions.get(0).getTimeDelta();
         if (tMax == null) {
             tMax = tBound.getZeroTime();
         }
@@ -114,16 +116,19 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Extend histories for each state
-        states.set(0, extend(input, states.get(0), transition, tRunning.get(0)));
-        states.set(1, extend(input, states.get(1), transition, tRunning.get(1)));
-        states.set(2, extend(input, states.get(2), transition, tRunning.get(2)));
+        states.set(0,
+                extend(input, states.get(0), transitions, tRunning.get(0)));
+        states.set(1,
+                extend(input, states.get(1), transitions, tRunning.get(1)));
+        states.set(2,
+                extend(input, states.get(2), transitions, tRunning.get(2)));
         // Do not extend permanent failure state State3 except (1) to add a
         // finishing terminal node or (2) if we just got to State3 for the first
         // time, i.e., from another state
         if (input.isTerminal() || states.get(3) != null
-                && !states.get(3).equals(sOld.get(3))) {
+                && !states.get(3).equals(statesOld.get(3))) {
             states.set(3,
-                    extend(input, states.get(3), transition, tRunning.get(3)));
+                    extend(input, states.get(3), transitions, tRunning.get(3)));
         }
     }
 
