@@ -13,10 +13,11 @@ import synoptic.util.time.ITime;
  * NFA state set for the APUpper constrained invariant which keeps the shortest
  * path justifying a given state being inhabited. <br />
  * <br />
- * states.get(0): Neither A nor B seen <br />
- * states.get(1): A seen <br />
- * states.get(2): A seen, then B seen within time bound or anything else seen <br />
- * states.get(3): B seen first or after A but out of time bound
+ * State0 = states.get(0): Neither A nor B seen <br />
+ * State1 = states.get(1): A seen <br />
+ * State2 = states.get(2): A seen, then B seen within time bound or anything
+ * else seen <br />
+ * State3 = states.get(3): B seen first or after A but out of time bound
  * 
  * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
@@ -57,44 +58,44 @@ public class APUpperTracingSet<T extends INode<T>> extends
             List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode> statesOld) {
 
-        // s.get(0) -> s.get(0)
+        // State0 -> State0
         if (statesOld.get(0) != null && !isA && !isB) {
             states.set(0, statesOld.get(0));
         }
 
-        // s.get(0) -> s.get(1)
+        // State0 -> State1
         if (statesOld.get(0) != null && isA) {
             states.set(1, statesOld.get(0));
         }
 
-        // s.get(1) -> s.get(2)
+        // State1 -> State2
         if (statesOld.get(1) != null
                 && (isB && !outOfBound.get(1) || !isB && !isA)) {
             states.set(2, statesOld.get(1));
         }
 
-        // s.get(2) -> s.get(2)
+        // State2 -> State2
         if (statesOld.get(2) != null
                 && (isB && !outOfBound.get(2) || !isB && !isA)) {
             states.set(2, preferMaxTime(statesOld.get(2), states.get(2)));
         }
 
-        // s.get(0) -> s.get(3)
+        // State0 -> State3
         if (statesOld.get(0) != null && isB) {
             states.set(3, statesOld.get(0));
         }
 
-        // s.get(1) -> s.get(3)
+        // State1 -> State3
         if (statesOld.get(1) != null && isB && outOfBound.get(1)) {
             states.set(3, preferMaxTime(statesOld.get(1), states.get(3)));
         }
 
-        // s.get(2) -> s.get(3)
+        // State2 -> State3
         if (statesOld.get(2) != null && isB && outOfBound.get(2)) {
             states.set(3, preferMaxTime(statesOld.get(2), states.get(3)));
         }
 
-        // s.get(3) -> s.get(3)
+        // State3 -> State3
         if (statesOld.get(3) != null) {
             states.set(3, preferMaxTime(statesOld.get(3), states.get(3)));
         }
