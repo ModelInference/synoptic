@@ -74,6 +74,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         List<ITransition<EventNode>> transitions;
         ITime tDelta;
         ConstrainedHistoryNode previousConst;
+        int violationStart;
+        int violationEnd;
 
         public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous,
                 int count, List<ITransition<EventNode>> transitions,
@@ -82,6 +84,22 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             this.transitions = transitions;
             this.tDelta = (tDelta != null ? tDelta : tBound.getZeroTime());
             previousConst = previous;
+        }
+
+        /**
+         * Set the start of the violation subpath to this node. This node's
+         * label should always be the invariant's first predicate.
+         */
+        public void startViolationHere() {
+            violationStart = count;
+        }
+
+        /**
+         * Set the end of the violation subpath to this node. This node's label
+         * should always be the invariant's second predicate.
+         */
+        public void endViolationHere() {
+            violationEnd = count;
         }
 
         /**
@@ -107,11 +125,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             Collections.reverse(transitionsList);
             Collections.reverse(tDeltas);
 
-            // Constrained invariants only keep the shortest path to failure and
-            // do not need to be shortened but do require transitions and
-            // running time deltas
+            // Constrained invariants maintain the violation subpath and do not
+            // need to be shortened but do require transitions and running time
+            // deltas
             CExamplePath<T> rpath = new CExamplePath<T>(inv, path,
-                    transitionsList, tDeltas);
+                    transitionsList, tDeltas, violationStart, violationEnd);
 
             return rpath;
         }
