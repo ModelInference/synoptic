@@ -1,3 +1,4 @@
+--invMintKTails
 --kTailLength=2
 -r ^(?<DTIME>)(?<nodename>)(?<TYPE>)$
--o ktails-test.png
+-o output/ktails-test.png
