@@ -166,11 +166,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
             List<ITransition<EventNode>> transitions, ITime tDelta) {
+
         if (prior == null) {
             return null;
         }
-        return new ConstrainedHistoryNode(node, prior, prior.count + 1,
-                transitions, tDelta);
+
+        // Make new node extended from prior
+        ConstrainedHistoryNode extendedNode = new ConstrainedHistoryNode(node,
+                prior, prior.count + 1, transitions, tDelta);
+        extendedNode.violationStart = prior.violationStart;
+        extendedNode.violationEnd = prior.violationEnd;
+
+        return extendedNode;
     }
 
     /**
