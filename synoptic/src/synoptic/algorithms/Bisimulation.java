@@ -321,7 +321,8 @@ public class Bisimulation {
 
         // Check if this is a lower-bound constrained invariant
         boolean isLower = false;
-        // TODO: Uncomment when the lower-bound subtypes are implemented
+        // TODO: Uncomment when the lower-bound subtypes are implemented (Issue
+        // 329)
         // if (inv instanceof APLowerTracingSet || inv instanceof
         // AFbyLowerTracingSet) {
         // isLower = true;
@@ -425,7 +426,7 @@ public class Bisimulation {
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
                     if (ev.getParent() == endPart) {
-                        // TODO: Make this lower-bound-friendly
+                        // TODO: Make this lower-bound-friendly (Issue 329)
 
                         // Illegal path which would not resolve the violation
                         if (targetSubpathTime.lessThan(currentSubpathTime)) {
