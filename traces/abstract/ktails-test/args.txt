@@ -1,4 +1,5 @@
---invMintKTails
+--invMintKTails=true
 --kTailLength=2
 -r ^(?<DTIME>)(?<nodename>)(?<TYPE>)$
+-m \\k<nodename>
 -o output/ktails-test.png
