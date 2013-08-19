@@ -43,7 +43,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         assert (input.isInitial());
 
         ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input,
-                null, 1, null, null);
+                null, 0, null, null);
 
         // Always start on State0
         states.set(0, newHistory);
@@ -122,13 +122,17 @@ public class APUpperTracingSet<T extends INode<T>> extends
                 extend(input, states.get(1), transitions, tRunning.get(1)));
         states.set(2,
                 extend(input, states.get(2), transitions, tRunning.get(2)));
-        // Do not extend permanent failure state State3 except (1) to add a
-        // finishing terminal node or (2) if we just got to State3 for the first
-        // time, i.e., from another state
-        if (input.isTerminal() || states.get(3) != null
-                && !states.get(3).equals(statesOld.get(3))) {
-            states.set(3,
-                    extend(input, states.get(3), transitions, tRunning.get(3)));
+        states.set(3,
+                extend(input, states.get(3), transitions, tRunning.get(3)));
+
+        // The violation subpath started if we just reached State1
+        if (states.get(1) != null && statesOld.get(1) == null) {
+            states.get(1).startViolationHere();
+        }
+
+        // The violation subpath ended if we just reached State3
+        if (states.get(3) != null && statesOld.get(3) == null) {
+            states.get(3).endViolationHere();
         }
     }
 
