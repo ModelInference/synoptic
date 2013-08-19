@@ -538,9 +538,10 @@ public class SynopticMain {
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
                 options.multipleRelations);
-        
+
         // Mine time-constrained invariants if requested
         if (options.enablePerfDebugging) {
+            logger.info("Mining time-constrained invariants.");
             ConstrainedInvMiner constMiner = new ConstrainedInvMiner();
             minedInvs = constMiner.computeInvariants(traceGraph,
                     options.multipleRelations, minedInvs);
@@ -707,7 +708,7 @@ public class SynopticMain {
         // //////////////////
 
         // At this point, we have the final model in the pGraph object.
-        
+
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
 
@@ -721,15 +722,16 @@ public class SynopticMain {
 
             logger.info("Exporting took "
                     + (System.currentTimeMillis() - startTime) + "ms");
-            
+
             // if test generation is enabled, export all bounded, predicted
             // abstract tests
             if (options.testGeneration) {
                 Set<AbstractTestCase> testSuite = SynopticTestGeneration
-                    .deriveAbstractTests(pGraph);
+                        .deriveAbstractTests(pGraph);
                 int testID = 0;
                 for (AbstractTestCase testCase : testSuite) {
-                    String baseFilename = options.outputPathPrefix + "-test" + testID;
+                    String baseFilename = options.outputPathPrefix + "-test"
+                            + testID;
                     exportNonInitialGraph(baseFilename, testCase);
                     testID++;
                 }
