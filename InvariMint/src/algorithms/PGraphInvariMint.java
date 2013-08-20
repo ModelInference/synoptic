@@ -1,29 +1,23 @@
 package algorithms;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import main.InvariMintOptions;
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
-import model.InvModel;
 import model.InvsModel;
 import model.PartitionGraphAutomaton;
 
-import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
-import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
-import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
@@ -78,38 +72,6 @@ public abstract class PGraphInvariMint {
 
     public String getStdAlgName() {
         return stdAlgName;
-    }
-
-    /**
-     * Executes the InvariMint algorithm for a specific invMiner, including
-     * NIFby and InitTerm invariants.
-     */
-    protected InvsModel runInvariMint(ITOInvariantMiner invMiner)
-            throws Exception {
-
-        logger.info("Initializing with NIFby invs.");
-
-        // NIFby invariants.
-        this.initializeModelWithNIFby();
-
-        logger.info("\n\nApplying Init AFby Term inv.");
-
-        // Initial AFby Terminal invariant.
-        this.applyInitTermInv();
-
-        logger.info("Mining Invs.");
-
-        // Mine invariants using the specialized invMiner.
-        minedInvs = this.mineInvariants(invMiner);
-
-        logger.info("Intersecting current model with mined invs with minimize intersections="
-                + opts.minimizeIntersections);
-
-        // Intersect current model with mined invariants.
-        invMintModel = InvComposition.intersectModelWithInvs(minedInvs,
-                opts.minimizeIntersections, invMintModel);
-
-        return invMintModel;
     }
 
     /** Removes spurious edges from the model. */
@@ -207,47 +169,6 @@ public abstract class PGraphInvariMint {
 
     /** Executes the standard algorithm and sets stdAlgPGraph. */
     public abstract void runStdAlg();
-
-    /**
-     * Initialize the InvariMint DFA from mined NIFby invariants.
-     * 
-     * @throws IOException
-     */
-    private void initializeModelWithNIFby() throws IOException {
-        assert invMintModel == null;
-
-        logger.fine("Mining NIFby invariant(s).");
-        ImmediateInvariantMiner miner = new ImmediateInvariantMiner(traceGraph);
-        TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
-        logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
-        // logger.fine(NIFbys.toPrettyString());
-
-        logger.fine("Creating EvenType encoding.");
-        Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
-        encodings = new EventTypeEncodings(allEvents);
-
-        // Initial model will accept all Strings.
-        logger.fine("Creating an initial, all-accepting, model.");
-        invMintModel = new InvsModel(encodings);
-
-        logger.fine("Intersecting model with mined NIFby invariants (minimizeIntersections="
-                + opts.minimizeIntersections + ")");
-        invMintModel = InvComposition.intersectModelWithInvs(NIFbys,
-                opts.minimizeIntersections, invMintModel);
-    }
-
-    /**
-     * Applies the (Initial AFby Terminal) invariant to the current InvariMint
-     * model.
-     */
-    protected void applyInitTermInv() {
-        assert invMintModel != null;
-
-        InvModel initialTerminalInv = new InvModel(
-                new TOInitialTerminalInvariant(initialEvent, terminalEvent,
-                        Event.defTimeRelationStr), encodings);
-        invMintModel.intersectWith(initialTerminalInv);
-    }
 
     // ///////////////////////////// Private methods.
 
