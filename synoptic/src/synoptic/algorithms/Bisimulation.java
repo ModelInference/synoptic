@@ -337,21 +337,14 @@ public class Bisimulation {
                         "Counter-example path with a null Partition");
             }
 
-            // If there is no stitch here (the c.ex. path arrived at and
-            // departed from this partition using 2 different events), splitting
-            // cannot resolve the violation
-            {
-                // TODO: Make this consider all transitions, not just one of
-                // each (Issue 332)
-                ITransition<EventNode> incomingTransition = counterexampleTrace.transitionsList
-                        .get(i).get(0);
-                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitionsList
-                        .get(i + 1).get(0);
-
-                if (incomingTransition.getTarget() == outgoingTransition
-                        .getSource()) {
-                    continue;
-                }
+            // A stitch means that the c.ex. path can arrive at and depart from
+            // this partition using 2 different events. Some stitches will never
+            // cause violations, however. An illegal stitch here means that we
+            // can depart using some event on which we didn't arrive, so
+            // departing events must be a subset of arriving events. If there is
+            // no illegal stitch here, splitting cannot resolve the violation.
+            if (!illegalStitchExists(counterexampleTrace, i)) {
+                continue;
             }
 
             legalSubpaths = new HashSet<List<EventNode>>();
@@ -425,6 +418,40 @@ public class Bisimulation {
         }
 
         return candidateSplits;
+    }
+
+    /**
+     * Check if there is an illegal stitch at index in the counter-example trace
+     */
+    private static boolean illegalStitchExists(
+            CExamplePath<Partition> counterexampleTrace, int index) {
+        Set<EventNode> arrivingEvents = new HashSet<EventNode>();
+        Set<EventNode> departingEvents = new HashSet<EventNode>();
+
+        // Populate events at which we may have arrived from the
+        // previous partition in the path
+        for (ITransition<EventNode> arrivingTrans : counterexampleTrace.transitionsList
+                .get(index)) {
+            arrivingEvents.add(arrivingTrans.getTarget());
+        }
+
+        // Populate events we can depart from to reach the next
+        // partition in the path
+        for (ITransition<EventNode> departingTrans : counterexampleTrace.transitionsList
+                .get(index + 1)) {
+            departingEvents.add(departingTrans.getSource());
+        }
+
+        // Check if departing events is a subset of arriving events
+        boolean isSubset = true;
+        for (EventNode depEv : departingEvents) {
+            if (!arrivingEvents.contains(depEv)) {
+                isSubset = false;
+                break;
+            }
+        }
+
+        return !isSubset;
     }
 
     /**
