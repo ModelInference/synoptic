@@ -102,3 +102,6 @@ bin/
 
 # Ignore compiled py files
 *.pyc
+
+# Ignore any files in the output dir.
+output/
