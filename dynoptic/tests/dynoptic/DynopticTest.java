@@ -33,10 +33,12 @@ import synoptic.model.channelid.ChannelId;
  */
 public class DynopticTest {
 
-    protected static final String DOT_OUTPUT_PATH = ".";
-    protected static final String DOT_OUTPUT_FILENAME = "./test.dot";
-    protected static final String DOT_OUTPUT_WILDCARD = "test.dot*";
-    protected static final String DOT_PNG_OUTPUT_WILDCARD = "test.dot*.png";
+    protected static final String DOT_OUTPUT_FILENAME = "./test-output/test.dot";
+
+    // Prefix for wildcard strings.
+    protected static final String DOT_OUTPUT_PATH = "./test-output";
+    protected static final String DOT_OUTPUT_RM_WILDCARD = "test.dot*";
+    protected static final String DOT_PNG_OUTPUT_CNTR_WILDCARD = "test.dot*.png";
 
     /**
      * Can be used to find out the current test name (as of JUnit 4.7) via
@@ -104,7 +106,7 @@ public class DynopticTest {
      */
     protected void cleanDotOutputs() {
         File outputDir = new File(DOT_OUTPUT_PATH);
-        FileFilter filter = new WildcardFileFilter(DOT_OUTPUT_WILDCARD);
+        FileFilter filter = new WildcardFileFilter(DOT_OUTPUT_RM_WILDCARD);
         File[] dotFiles = outputDir.listFiles(filter);
 
         for (File dotFile : dotFiles) {
@@ -117,7 +119,7 @@ public class DynopticTest {
      */
     protected int getNumDotPngFiles() {
         File outputDir = new File(DOT_OUTPUT_PATH);
-        FileFilter filter = new WildcardFileFilter(DOT_PNG_OUTPUT_WILDCARD);
+        FileFilter filter = new WildcardFileFilter(DOT_PNG_OUTPUT_CNTR_WILDCARD);
         File[] dotPngFiles = outputDir.listFiles(filter);
 
         return dotPngFiles.length;
