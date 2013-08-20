@@ -5,15 +5,10 @@ import java.util.List;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
-/**
- * An implicit invariant for totally ordered Synoptic models that encodes the
- * constraint that every trace must start with an Initial event and end with a
- * Terminal event.
- */
-public class TOInitialTerminalInvariant extends BinaryInvariant {
+public class TOInitialInvariant extends BinaryInvariant {
 
-    public TOInitialTerminalInvariant(EventType typeFirst,
-            EventType typeSecond, String relation) {
+    public TOInitialInvariant(EventType typeFirst, EventType typeSecond,
+            String relation) {
         super(typeFirst, typeSecond, relation);
     }
 
@@ -39,7 +34,7 @@ public class TOInitialTerminalInvariant extends BinaryInvariant {
 
     @Override
     public String getShortName() {
-        return "^Initial[^(Initial|Terminal)]*Terminal$";
+        return "^Initial[^Terminal]*Terminal$";
     }
 
     @Override
@@ -49,7 +44,7 @@ public class TOInitialTerminalInvariant extends BinaryInvariant {
 
     @Override
     public String getRegex(char firstC, char secondC) {
-        return firstC + "[^" + firstC + secondC + "]*" + secondC;
+        return firstC + "[^" + secondC + "]*" + secondC;
     }
 
 }
