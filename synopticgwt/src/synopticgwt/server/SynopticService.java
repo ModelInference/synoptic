@@ -391,6 +391,7 @@ public class SynopticService extends RemoteServiceServlet implements
             options.logLvlExtraVerbose = true;
             options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
             options.enablePerfDebugging = true;
+            options.enablePerfDebugging = false;
             SynopticMain synopticMain = new SynopticMain(options,
                     new DotExportFormatter());
         }
