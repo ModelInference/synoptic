@@ -49,7 +49,7 @@ public class InvariMintSynoptic extends PGraphInvariMint {
         // TODO: It is unclear that InvariMint-Synoptic needs such a strong
         // Init/Term invariant.
 
-        // Add the "^Initial[^(Initial|Terminal)]*Terminal$" invariant
+        // Add the "^Initial[^Terminal]*Terminal$" invariant
         InvModel initialTerminalInv = new InvModel(
                 new TOInitialTerminalInvariant(initialEvent, terminalEvent,
                         Event.defTimeRelationStr), encodings);
