@@ -74,6 +74,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         List<ITransition<EventNode>> transitions;
         ITime tDelta;
         ConstrainedHistoryNode previousConst;
+        int violationStart;
+        int violationEnd;
 
         public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous,
                 int count, List<ITransition<EventNode>> transitions,
@@ -82,6 +84,22 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             this.transitions = transitions;
             this.tDelta = (tDelta != null ? tDelta : tBound.getZeroTime());
             previousConst = previous;
+        }
+
+        /**
+         * Set the start of the violation subpath to this node. This node's
+         * label should always be the invariant's first predicate.
+         */
+        public void startViolationHere() {
+            violationStart = count;
+        }
+
+        /**
+         * Set the end of the violation subpath to this node. This node's label
+         * should always be the invariant's second predicate.
+         */
+        public void endViolationHere() {
+            violationEnd = count;
         }
 
         /**
@@ -107,11 +125,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             Collections.reverse(transitionsList);
             Collections.reverse(tDeltas);
 
-            // Constrained invariants only keep the shortest path to failure and
-            // do not need to be shortened but do require transitions and
-            // running time deltas
+            // Constrained invariants maintain the violation subpath and do not
+            // need to be shortened but do require transitions and running time
+            // deltas
             CExamplePath<T> rpath = new CExamplePath<T>(inv, path,
-                    transitionsList, tDeltas);
+                    transitionsList, tDeltas, violationStart, violationEnd);
 
             return rpath;
         }
@@ -148,11 +166,18 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
             List<ITransition<EventNode>> transitions, ITime tDelta) {
+
         if (prior == null) {
             return null;
         }
-        return new ConstrainedHistoryNode(node, prior, prior.count + 1,
-                transitions, tDelta);
+
+        // Make new node extended from prior
+        ConstrainedHistoryNode extendedNode = new ConstrainedHistoryNode(node,
+                prior, prior.count + 1, transitions, tDelta);
+        extendedNode.violationStart = prior.violationStart;
+        extendedNode.violationEnd = prior.violationEnd;
+
+        return extendedNode;
     }
 
     /**
@@ -286,7 +311,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // TODO: Add checks for the other 3 constrained invariants when they're
-        // implemented
+        // implemented (Issue 329)
         boolean isUpper;
         if (this instanceof APUpperTracingSet) {
             isUpper = true;
@@ -318,7 +343,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
-            // TODO: Make this process correct for lower-bound invariants
+            // TODO: Make this process correct for lower-bound invariants (Issue
+            // 329)
 
             // Increment running time and compare to time bound
             ITime newTime = tRunning.get(i).incrBy(minMaxTime);

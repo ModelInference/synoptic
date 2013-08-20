@@ -19,6 +19,8 @@ public class CExamplePath<T> {
     public List<T> path;
     public List<List<ITransition<EventNode>>> transitionsList;
     public List<ITime> tDeltas;
+    public int violationStart;
+    public int violationEnd;
 
     /**
      * Create a counter-example path
@@ -33,6 +35,8 @@ public class CExamplePath<T> {
         path = p;
         transitionsList = null;
         tDeltas = null;
+        violationStart = -1;
+        violationEnd = -1;
     }
 
     /**
@@ -47,13 +51,20 @@ public class CExamplePath<T> {
      *            Concrete transitions followed in this counter-example path
      * @param deltas
      *            Running time deltas for each node since t=0 state
+     * @param vioStart
+     *            The counter-example path index where the violation started
+     * @param vioEnd
+     *            The counter-example path index wher ethe violation ended
      */
     public CExamplePath(ITemporalInvariant inv, List<T> p,
-            List<List<ITransition<EventNode>>> transList, List<ITime> deltas) {
+            List<List<ITransition<EventNode>>> transList, List<ITime> deltas,
+            int vioStart, int vioEnd) {
         invariant = inv;
         path = p;
         transitionsList = transList;
         tDeltas = deltas;
+        violationStart = vioStart;
+        violationEnd = vioEnd;
     }
 
     @Override

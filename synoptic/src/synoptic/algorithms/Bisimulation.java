@@ -295,8 +295,9 @@ public class Bisimulation {
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
         // Check if this is a lower-bound constrained invariant
-        boolean isLower = false;
-        // TODO: Uncomment when the lower-bound subtypes are implemented
+        // TODO: Uncomment when the lower-bound subtypes are implemented (Issue
+        // 329)
+        // boolean isLower = false;
         // if (inv instanceof APLowerTracingSet || inv instanceof
         // AFbyLowerTracingSet) {
         // isLower = true;
@@ -310,11 +311,11 @@ public class Bisimulation {
         List<Partition> cExPath = counterexampleTrace.path;
         int pathSize = counterexampleTrace.path.size() - 1;
 
-        // Get the last non-terminal partition, and check for null
-        endPart = cExPath.get(pathSize - 1);
+        // Get the last partition in the violation subpath, and check for null
+        endPart = cExPath.get(counterexampleTrace.violationEnd);
         if (endPart == null) {
             throw new InternalSynopticException(
-                    "Counter-example path with a null Partition");
+                    "Counter-example path with null violation end Partition");
         }
 
         // Retrieve the time deltas and the violated time bound
@@ -328,7 +329,7 @@ public class Bisimulation {
         Set<List<EventNode>> illegalSubpaths;
 
         // Walk the path in reverse
-        for (int i = pathSize - 2; i > 0; --i) {
+        for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
 
             // Get the current partition, and check for null
             curPart = cExPath.get(i);
@@ -400,7 +401,7 @@ public class Bisimulation {
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
                     if (ev.getParent() == endPart) {
-                        // TODO: Make this lower-bound-friendly
+                        // TODO: Make this lower-bound-friendly (Issue 329)
 
                         // Illegal path which would not resolve the violation
                         if (targetSubpathTime.lessThan(currentSubpathTime)) {
