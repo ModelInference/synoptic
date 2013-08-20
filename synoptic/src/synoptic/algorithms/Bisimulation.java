@@ -49,29 +49,12 @@ import synoptic.util.time.ITime;
  */
 public class Bisimulation {
     public static Logger logger = Logger.getLogger("Bisimulation");
-    /**
-     * If true, a partition may be split on incoming/outgoing edges at once, if
-     * both splits resolve the invariant (when considered separately). TODO:
-     * implement this
-     */
-    // private static final boolean fourWaySplit = true;
-    /**
-     * Set to combine all candidate splits for each partition into a multi
-     * split.
-     */
-    private static final boolean combineCandidates = false;
+
     /**
      * Consider incoming transitions for splitting TODO: expose this as a
      * command line option
      */
     private static boolean incomingTransitionSplit = true;
-
-    /**
-     * Coarsen the representation after each successful split (i.e. each split
-     * that caused a previously unsatisfied invariant to become satisfied. This
-     * may or may not speed up operation.
-     */
-    // private static boolean interleavedMerging = false;
 
     /** Suppress default constructor for non-instantiability */
     private Bisimulation() {
@@ -140,7 +123,7 @@ public class Bisimulation {
 
             // Perform the splitting.
             prevNumSplitSteps = numSplitSteps;
-            numSplitSteps = splitOnce(numSplitSteps, pGraph,
+            numSplitSteps = performSplits(numSplitSteps, pGraph,
                     counterExampleTraces);
 
             if (numSplitSteps == prevNumSplitSteps) {
@@ -168,10 +151,9 @@ public class Bisimulation {
 
     /**
      * Performs a single arbitrary split if we could not find any splits that
-     * remove a counter-example trace. If we did find such splits, then we
-     * perform ALL of them if we combineCandidates (defined above) is true.
-     * Returns the updated numSplitSteps count, which is incremented by the
-     * number of splits applied to the pGraph.
+     * satisfy a previously unsatisfied invariant. If we did find such splits,
+     * then we perform ALL of them. Returns the updated numSplitSteps count,
+     * which is incremented by the number of splits applied to the pGraph.
      * 
      * @param numSplitSteps
      *            The number of split steps made so far.
@@ -182,7 +164,7 @@ public class Bisimulation {
      *            by splitting.
      * @return The updated numSplitSteps count.
      */
-    public static int splitOnce(int numSplitSteps, PartitionGraph pGraph,
+    public static int performSplits(int numSplitSteps, PartitionGraph pGraph,
             List<CExamplePath<Partition>> counterExampleTraces) {
 
         // Stores all splits that cause an invariant to be satisfied, indexed by
@@ -211,10 +193,10 @@ public class Bisimulation {
         // split (that would resolve an invariant) is available.
         IOperation arbitrarySplit;
 
-        arbitrarySplit = tryAndRecordCandidateSplits(counterExampleTraces,
-                pGraph, splitsToDoByPartition, newlySatisfiedInvariants);
+        arbitrarySplit = getInvSatisfyingSplits(counterExampleTraces, pGraph,
+                splitsToDoByPartition, newlySatisfiedInvariants);
 
-        String logStr;
+        // String logStr;
         if (splitsToDoByPartition.size() == 0) {
             // We have no splits that resolve invariants. Perform an arbitrary
             // split, if we have one.
@@ -222,30 +204,23 @@ public class Bisimulation {
                 logger.fine("no valid split available, exiting.");
                 return numSplitSteps;
             }
-            logStr = "split[" + numSplitSteps + "] : arbitrary split: "
-                    + arbitrarySplit;
+            // logStr = "split[" + numSplitSteps + "] : arbitrary split: "
+            // + arbitrarySplit;
 
             pGraph.apply(arbitrarySplit);
 
         } else {
-            // We have splits that resolve invariants, perform them.
-            int i = 0;
+            // We have splits that resolve invariants, perform all of them.
+            // int i = 0;
             for (PartitionMultiSplit split : splitsToDoByPartition.values()) {
                 pGraph.apply(split);
                 // logger.fine("split[" + numSplitSteps + "." + i + "] : " +
                 // split);
-                i++;
+                // i++;
             }
 
-            // Handle interleaved merging.
-            // if (interleavedMerging) {
-            // logger.fine("interleavedMerging: recompressing...");
-            // Bisimulation.mergePartitions(pGraph,
-            // new TemporalInvariantSet(satisfiedInvariants));
-            // }
-
-            logStr = "split[" + numSplitSteps + "] " + "new invs satisfied: "
-                    + newlySatisfiedInvariants.size();
+            // logStr = "split[" + numSplitSteps + "] " + "new invs satisfied: "
+            // + newlySatisfiedInvariants.size();
         }
 
         // logger.fine(logStr);
@@ -551,28 +526,22 @@ public class Bisimulation {
     }
 
     /**
-     * Attempts to perform the splitOp on the pGraph to see whether or not the
-     * resulting graph has no other counter-examples for the invariant inv (i.e.
-     * whether or not the graph satisfies inv).
+     * Performs the splitOp on the pGraph to see whether or not the resulting
+     * graph has no other counter-examples for the invariant inv (i.e. whether
+     * or not the graph after the split satisfies inv).
      * 
      * @param inv
      *            The invariant to check for satisfiability after the splitOp.
      * @param pGraph
      *            The partition graph to apply to the splitOp to.
-     * @param splitsToDoByPartition
-     *            The HashMap recording splits by partition -- will be updated
-     *            if the split makes the graph satisfy the invariant.
-     * @param partitionBeingSplit
-     *            The partition being split by splitOp.
      * @param splitOp
      *            The split operation to apply to pGraph
      * @return true if the split makes the graph satisfy the invariant, and
      *         false otherwise.
      */
-    private static boolean tryAndRecordSplitOp(ITemporalInvariant inv,
-            PartitionGraph pGraph,
-            HashMap<Partition, PartitionMultiSplit> splitsToDoByPartition,
-            Partition partitionBeingSplit, PartitionMultiSplit splitOp) {
+    private static boolean splitSatisfiesInvariantGlobally(
+            ITemporalInvariant inv, PartitionGraph pGraph,
+            PartitionMultiSplit splitOp) {
 
         // Perform the split.
         IOperation rewindOperation = pGraph.apply(splitOp);
@@ -588,24 +557,29 @@ public class Bisimulation {
         if (violation != null) {
             return false;
         }
-
-        // Otherwise, there are no more violations -- we made progress
-        if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
-            // If we already have a split for that partition,
-            // incorporate the new split into it.
-            splitsToDoByPartition.get(partitionBeingSplit).incorporate(splitOp);
-            logger.info("Incorporating new split by partition: "
-                    + splitOp.toString());
-        } else {
-            // Otherwise, record this split as the only one for this partition
-            splitsToDoByPartition.put(partitionBeingSplit, splitOp);
-            // logger.info("New split by partition: " + splitOp.toString());
-        }
-        // The split has no other violations once the split is performed.
+        // The split has no other violations once the split is
+        // performed.
         return true;
     }
 
-    private static IOperation tryAndRecordCandidateSplits(
+    /**
+     * Returns an arbitrary split that resolves an arbitrary counter-example
+     * trace in counterexampleTraces. Populates the splitsToDoByPartition map
+     * with those splits that make a previously unsatisfied invariant true in
+     * the new (refined) graph.
+     * 
+     * @param counterexampleTraces
+     * @param pGraph
+     * @param splitsToDoByPartition
+     *            The HashMap recording splits by partition -- updated to
+     *            include all splits that make the graph satisfy previously
+     *            unsatisfied invariants.
+     * @param newlySatisfiedInvariants
+     * @return an arbitrary split that may be useful in the case that
+     *         splitsToDoByPartition is empty and there are no splits that lead
+     *         to new invariant satisfaction.
+     */
+    private static IOperation getInvSatisfyingSplits(
             List<CExamplePath<Partition>> counterexampleTraces,
             PartitionGraph pGraph,
             HashMap<Partition, PartitionMultiSplit> splitsToDoByPartition,
@@ -617,9 +591,20 @@ public class Bisimulation {
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
         for (CExamplePath<Partition> counterexampleTrace : counterexampleTraces) {
-
             // logger.fine("Considering counterexample: "
             // + counterexampleTrace.toString());
+
+            // The invariant that we will attempt to satisfy globally with a
+            // single split.
+            ITemporalInvariant inv = counterexampleTrace.invariant;
+
+            // Skip to next counter-example if we have previously recorded a
+            // split that satisfies the invariant corresponding to this
+            // counter-example (and which therefore satisfies this
+            // counter-example, too).
+            if (newlySatisfiedInvariants.contains(inv)) {
+                continue;
+            }
 
             // Get the possible splits that might resolve this counter-example.
             List<PartitionSplit> candidateSplits = getSplits(
@@ -628,80 +613,67 @@ public class Bisimulation {
             // Permute the list of candidates.
             Collections.shuffle(candidateSplits, syn.random);
 
+            // Save an arbitrary split to return to caller, if we haven't saved
+            // one already.
+            if (arbitrarySplit == null && !candidateSplits.isEmpty()) {
+                arbitrarySplit = candidateSplits.get(0);
+            }
+
             // logger.fine("candidateSplits are: " +
             // candidateSplits.toString());
 
-            if (combineCandidates) {
-                PartitionMultiSplit combinedSplit = null;
-
-                for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (candidateSplit == null || !candidateSplit.isValid()) {
-                        logger.fine("Skipping invalid source: "
-                                + candidateSplit);
-                        continue;
+            // Find a single split in candidateSplits that makes the
+            // invariant corresponding to the counter-example true in the
+            // entire graph.
+            //
+            // a. If no such split exists, then continue to the next
+            // counter-example.
+            //
+            // b. If such a split exists, integrate it into whatever splits we
+            // might have found earlier (for previous counter-examples).
+            //
+            for (PartitionSplit candidateSplit : candidateSplits) {
+                if (syn.options.performExtraChecks) {
+                    // getSplits() should never generate invalid splits.
+                    if (!candidateSplit.isValid()) {
+                        throw new InternalSynopticException(
+                                "getSplits() generated an invalid split.");
                     }
+                }
 
-                    if (combinedSplit == null) {
-                        combinedSplit = new PartitionMultiSplit(candidateSplit);
+                PartitionMultiSplit splitOp = new PartitionMultiSplit(
+                        candidateSplit);
+                Partition partitionBeingSplit = candidateSplit.getPartition();
+
+                // TODO: we check satisfiability of each split _independently_.
+                // This means that we are looking for very rare splits that
+                // satisfy _different_ invariants individually. A more realistic
+                // search would (1) apply each split that satisfies an
+                // invariant, and (2) continue searching for more such splits on
+                // the _mutated_ pGraph.
+
+                if (splitSatisfiesInvariantGlobally(inv, pGraph, splitOp)) {
+                    // If we already have a split for that partition,
+                    // incorporate the new split into it.
+                    if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
+                        splitsToDoByPartition.get(partitionBeingSplit)
+                                .incorporate(splitOp);
+                        logger.info("Incorporating new split by partition: "
+                                + splitOp.toString());
                     } else {
-                        combinedSplit.incorporate(candidateSplit);
-                    }
-                }
-
-                if (combinedSplit == null) {
-                    logger.fine("No valid sources available.");
-                    return null;
-                }
-                if (!combinedSplit.isValid()) {
-                    logger.fine("Combined split is invalid.");
-                    return null;
-                }
-
-                if (arbitrarySplit == null) {
-                    arbitrarySplit = combinedSplit;
-                }
-
-                if (tryAndRecordSplitOp(counterexampleTrace.invariant, pGraph,
-                        splitsToDoByPartition, combinedSplit.getPartition(),
-                        combinedSplit)) {
-                    // Remember that we can resolve this invariant violation.
-                    newlySatisfiedInvariants.add(counterexampleTrace.invariant);
-                    // logger.fine("newlySatInvariants: "
-                    // + newlySatisfiedInvariants.toString());
-                }
-
-            } else {
-                // TODO: why is this a loop, and not just a single choice of
-                // candidate split?
-
-                // (mostly performance, but also sub-optimality) BUG: I think I
-                // understand -- this is used to try all potential
-                // splits in the case that one of them makes the invariant true.
-                // BUT, we don't need to incorporate multiple ones if they both
-                // result in making the invariant true!
-
-                for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (syn.options.performExtraChecks) {
-                        // getSplits() should never generate invalid splits.
-                        if (!candidateSplit.isValid()) {
-                            throw new InternalSynopticException(
-                                    "getSplits() generated an invalid split.");
-                        }
+                        // Otherwise, record this split as the only one for this
+                        // partition
+                        splitsToDoByPartition.put(partitionBeingSplit, splitOp);
+                        // logger.info("New split by partition: " +
+                        // splitOp.toString());
                     }
 
-                    if (arbitrarySplit == null) {
-                        arbitrarySplit = candidateSplit;
-                    }
-
-                    if (tryAndRecordSplitOp(counterexampleTrace.invariant,
-                            pGraph, splitsToDoByPartition,
-                            candidateSplit.getPartition(),
-                            new PartitionMultiSplit(candidateSplit))) {
-                        // Remember that we can resolve this invariant
-                        // violation.
-                        newlySatisfiedInvariants
-                                .add(counterexampleTrace.invariant);
-                    }
+                    // Remember that we can resolve this invariant
+                    // violation.
+                    newlySatisfiedInvariants.add(inv);
+                    // Found the split that completely satisfies the
+                    // invariant, no need to consider other splits.
+                    break;
                 }
             }
         }
