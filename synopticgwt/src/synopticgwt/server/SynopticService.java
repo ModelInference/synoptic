@@ -558,7 +558,7 @@ public class SynopticService extends RemoteServiceServlet implements
         assert (counterExampleTraces.size() > 0);
 
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.splitOnce(numSplitSteps, pGraph,
+        numSplitSteps = Bisimulation.performSplits(numSplitSteps, pGraph,
                 counterExampleTraces);
 
         // Recompute the counter-examples for the unsatisfied invariants.
