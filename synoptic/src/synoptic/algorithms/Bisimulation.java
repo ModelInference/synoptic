@@ -328,7 +328,7 @@ public class Bisimulation {
         // third. Any further is not helpful because iPart (where we might
         // split) must be before jPart in the path, and we cannot resolve the
         // violation by splitting the first partition in the violation subpath.
-        for (int i = pathSize - 2; i > 0; --i) {
+        for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
 
             // Get the current partition, and check for null
             iPart = cExPath.get(i);
@@ -389,7 +389,7 @@ public class Bisimulation {
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
                     if (ev.getParent() == jPart) {
-                        // TODO: Make this lower-bound-friendly
+                        // TODO: Make this lower-bound-friendly (Issue 329)
 
                         // Illegal path which would not resolve the violation
                         if (targetSubpathTime.lessThan(currentSubpathTime)) {

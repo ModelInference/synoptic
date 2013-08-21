@@ -196,36 +196,38 @@ public class FsmModelChecker {
             stateset = new APTracingSet<Node>(invariant);
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
-            
+
         } else if (invClass.equals(TempConstrainedInvariant.class)) {
-            
-            BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant).getInv();
-            IThresholdConstraint constInvConst = ((TempConstrainedInvariant<?>) invariant).getConstraint();
-            
+
+            BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant)
+                    .getInv();
+            IThresholdConstraint constInvConst = ((TempConstrainedInvariant<?>) invariant)
+                    .getConstraint();
+
             // TODO: When other constrained tracing sets are implemented, change
             // the following code to use the proper tracing set rather than
-            // returning null
+            // returning null (Issue 329)
 
             if (constInvInv instanceof AlwaysFollowedInvariant) {
                 // AFby Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
                     return null;
-//                    stateset = new AFbyUpperTracingSet<Node>(invariant);
-                    
-                // AFby Lower
+                    // stateset = new AFbyUpperTracingSet<Node>(invariant);
+
+                    // AFby Lower
                 } else if (constInvConst instanceof LowerBoundConstraint) {
                     return null;
-//                    stateset = new AFbyLowerTracingSet<Node>(invariant);
+                    // stateset = new AFbyLowerTracingSet<Node>(invariant);
                 }
             } else if (constInvInv instanceof AlwaysPrecedesInvariant) {
                 // AP Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
                     stateset = new APUpperTracingSet<Node>(invariant);
-                    
-                // AP Lower
+
+                    // AP Lower
                 } else if (constInvConst instanceof LowerBoundConstraint) {
                     return null;
-//                    stateset = new APLowerTracingSet<Node>(invariant);
+                    // stateset = new APLowerTracingSet<Node>(invariant);
                 }
             }
         }
