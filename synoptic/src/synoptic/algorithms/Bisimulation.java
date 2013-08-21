@@ -285,9 +285,12 @@ public class Bisimulation {
         // Holds the return values.
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
 
-        // Our position while traversing the counter-example path
-        Partition curPart = null;
-        Partition endPart = null;
+        // jPart traverses the violation subpath from its last partition to its
+        // third (any further is not helpful), and iPart traverses the violation
+        // subpath from jPart to its second partition. Partition being
+        // considered for splitting is iPart.
+        Partition iPart = null;
+        Partition jPart = null;
 
         // This method must only be passed counter-example paths for
         // constrained invariants
@@ -310,29 +313,26 @@ public class Bisimulation {
         List<Partition> cExPath = counterexampleTrace.path;
         int pathSize = counterexampleTrace.path.size() - 1;
 
-        // Get the last non-terminal partition, and check for null
-        endPart = cExPath.get(pathSize - 1);
-        if (endPart == null) {
-            throw new InternalSynopticException(
-                    "Counter-example path with a null Partition");
-        }
-
         // Retrieve the time deltas and the violated time bound
         List<ITime> tDeltas = counterexampleTrace.tDeltas;
         ITime tBound = inv.getConstraint().getThreshold();
 
-        // Event paths between curPart and endPart which, if replacing the old
-        // curPart->endPart, would resolve the violation
+        // Event paths between iPart and jPart which, if replacing the
+        // iPart->jPart currently followed by the counter-example path, would
+        // resolve the violation
         Set<List<EventNode>> legalSubpaths;
-        // Event paths between curPart and endPart which retain the violation
+        // Event paths between iPart and jPart which retain the violation
         Set<List<EventNode>> illegalSubpaths;
 
-        // Walk the path in reverse
+        // Traverses the violation subpath from its last partition to its
+        // third. Any further is not helpful because iPart (where we might
+        // split) must be before jPart in the path, and we cannot resolve the
+        // violation by splitting the first partition in the violation subpath.
         for (int i = pathSize - 2; i > 0; --i) {
 
             // Get the current partition, and check for null
-            curPart = cExPath.get(i);
-            if (curPart == null) {
+            iPart = cExPath.get(i);
+            if (iPart == null) {
                 throw new InternalSynopticException(
                         "Counter-example path with a null Partition");
             }
@@ -361,7 +361,7 @@ public class Bisimulation {
             // Walk through paths of EventNodes, finding any that run from
             // firstPart to secondPart and placing them in the list of
             // either legal or illegal subpaths
-            for (EventNode curEv : curPart.getEventNodes()) {
+            for (EventNode curEv : iPart.getEventNodes()) {
                 EventNode ev = curEv;
 
                 // Initialize the current, ongoing subpath and its time
@@ -388,7 +388,7 @@ public class Bisimulation {
 
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
-                    if (ev.getParent() == endPart) {
+                    if (ev.getParent() == jPart) {
                         // TODO: Make this lower-bound-friendly
 
                         // Illegal path which would not resolve the violation
