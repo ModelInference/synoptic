@@ -285,25 +285,27 @@ public class Bisimulation {
         // Holds the return values.
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
 
-        // Our position while traversing the counter-example path
-        Partition curPart = null;
-        Partition endPart = null;
+        // jPart traverses the violation subpath from its last partition to its
+        // third (any further is not helpful), and iPart traverses the violation
+        // subpath from jPart to its second partition. Partition being
+        // considered for splitting is iPart.
+        Partition iPart = null;
+        Partition jPart = null;
 
         // This method must only be passed counter-example paths for
         // constrained invariants
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
+        // TODO: Uncomment when the lower-bound subtypes are implemented
         // Check if this is a lower-bound constrained invariant
-        // TODO: Uncomment when the lower-bound subtypes are implemented (Issue
-        // 329)
         // boolean isLower = false;
         // if (inv instanceof APLowerTracingSet || inv instanceof
         // AFbyLowerTracingSet) {
         // isLower = true;
         // }
 
-        // Get the set of relations
+        // Get the single relation of the invariant
         Set<String> invRelation = new HashSet<String>(1);
         invRelation.add(inv.getRelation());
 
@@ -311,48 +313,34 @@ public class Bisimulation {
         List<Partition> cExPath = counterexampleTrace.path;
         int pathSize = counterexampleTrace.path.size() - 1;
 
-        // Get the last partition in the violation subpath, and check for null
-        endPart = cExPath.get(counterexampleTrace.violationEnd);
-        if (endPart == null) {
-            throw new InternalSynopticException(
-                    "Counter-example path with null violation end Partition");
-        }
-
         // Retrieve the time deltas and the violated time bound
         List<ITime> tDeltas = counterexampleTrace.tDeltas;
         ITime tBound = inv.getConstraint().getThreshold();
 
-        // Event paths between curPart and endPart which, if replacing the old
-        // curPart->endPart, would resolve the violation
+        // Event paths between iPart and jPart which, if replacing the
+        // iPart->jPart currently followed by the counter-example path, would
+        // resolve the violation
         Set<List<EventNode>> legalSubpaths;
-        // Event paths between curPart and endPart which retain the violation
+        // Event paths between iPart and jPart which retain the violation
         Set<List<EventNode>> illegalSubpaths;
 
-        // Walk the path in reverse
+        // Traverses the violation subpath from its last partition to its
+        // third. Any further is not helpful because iPart (where we might
+        // split) must be before jPart in the path, and we cannot resolve the
+        // violation by splitting the first partition in the violation subpath.
         for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
 
             // Get the current partition, and check for null
-            curPart = cExPath.get(i);
-            if (curPart == null) {
+            iPart = cExPath.get(i);
+            if (iPart == null) {
                 throw new InternalSynopticException(
                         "Counter-example path with a null Partition");
             }
 
-            // If there is no stitch here (the c.ex. path arrived at and
-            // departed from this partition using 2 different events), splitting
-            // cannot resolve the violation
-            {
-                // TODO: Make this consider all transitions, not just one of
-                // each (Issue 332)
-                ITransition<EventNode> incomingTransition = counterexampleTrace.transitionsList
-                        .get(i).get(0);
-                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitionsList
-                        .get(i + 1).get(0);
-
-                if (incomingTransition.getTarget() == outgoingTransition
-                        .getSource()) {
-                    continue;
-                }
+            // Only consider splitting on this partition if there is a stitch of
+            // min/max transitions into and out of this partition
+            if (!stitchExists(counterexampleTrace, i)) {
+                continue;
             }
 
             legalSubpaths = new HashSet<List<EventNode>>();
@@ -373,7 +361,7 @@ public class Bisimulation {
             // Walk through paths of EventNodes, finding any that run from
             // firstPart to secondPart and placing them in the list of
             // either legal or illegal subpaths
-            for (EventNode curEv : curPart.getEventNodes()) {
+            for (EventNode curEv : iPart.getEventNodes()) {
                 EventNode ev = curEv;
 
                 // Initialize the current, ongoing subpath and its time
@@ -400,7 +388,7 @@ public class Bisimulation {
 
                     // We've found a curPart->endPart path if the new event is
                     // in endPart
-                    if (ev.getParent() == endPart) {
+                    if (ev.getParent() == jPart) {
                         // TODO: Make this lower-bound-friendly (Issue 329)
 
                         // Illegal path which would not resolve the violation
@@ -426,6 +414,41 @@ public class Bisimulation {
         }
 
         return candidateSplits;
+    }
+
+    /**
+     * Check if the partition at index in the counter-example trace contains a
+     * stitch, which means that the targets of all min/max transitions into this
+     * partition and the sources of all min/max transitions out of this
+     * partition are not equal sets.
+     */
+    private static boolean stitchExists(
+            CExamplePath<Partition> counterexampleTrace, int index) {
+
+        // Targets of all min/max transitions into this partition
+        Set<EventNode> arrivingEvents = new HashSet<EventNode>();
+        // Sources of all min/max transitions out of this partition
+        Set<EventNode> departingEvents = new HashSet<EventNode>();
+
+        // Populate events at which we can arrive from the previous partition in
+        // the path
+        for (ITransition<EventNode> arrivingTrans : counterexampleTrace.transitionsList
+                .get(index)) {
+            arrivingEvents.add(arrivingTrans.getTarget());
+        }
+
+        // Populate events from which we can depart to reach the next partition
+        // in the path
+        for (ITransition<EventNode> departingTrans : counterexampleTrace.transitionsList
+                .get(index + 1)) {
+            departingEvents.add(departingTrans.getSource());
+        }
+
+        // Non-equal sets means there is a stitch
+        if (arrivingEvents.equals(departingEvents)) {
+            return false;
+        }
+        return true;
     }
 
     /**
