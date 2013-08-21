@@ -294,15 +294,15 @@ public class Bisimulation {
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
-        // Check if this is a lower-bound constrained invariant
-        boolean isLower = false;
         // TODO: Uncomment when the lower-bound subtypes are implemented
+        // Check if this is a lower-bound constrained invariant
+        // boolean isLower = false;
         // if (inv instanceof APLowerTracingSet || inv instanceof
         // AFbyLowerTracingSet) {
         // isLower = true;
         // }
 
-        // Get the set of relations
+        // Get the single relation of the invariant
         Set<String> invRelation = new HashSet<String>(1);
         invRelation.add(inv.getRelation());
 
@@ -337,13 +337,9 @@ public class Bisimulation {
                         "Counter-example path with a null Partition");
             }
 
-            // A stitch means that the c.ex. path can arrive at and depart from
-            // this partition using 2 different events. Some stitches will never
-            // cause violations, however. An illegal stitch here means that we
-            // can depart using some event on which we didn't arrive, so
-            // departing events must be a subset of arriving events. If there is
-            // no illegal stitch here, splitting cannot resolve the violation.
-            if (!illegalStitchExists(counterexampleTrace, i)) {
+            // Only consider splitting on this partition if there is a stitch of
+            // min/max transitions into and out of this partition
+            if (!stitchExists(counterexampleTrace, i)) {
                 continue;
             }
 
@@ -421,37 +417,38 @@ public class Bisimulation {
     }
 
     /**
-     * Check if there is an illegal stitch at index in the counter-example trace
+     * Check if the partition at index in the counter-example trace contains a
+     * stitch, which means that the targets of all min/max transitions into this
+     * partition and the sources of all min/max transitions out of this
+     * partition are not equal sets.
      */
-    private static boolean illegalStitchExists(
+    private static boolean stitchExists(
             CExamplePath<Partition> counterexampleTrace, int index) {
+
+        // Targets of all min/max transitions into this partition
         Set<EventNode> arrivingEvents = new HashSet<EventNode>();
+        // Sources of all min/max transitions out of this partition
         Set<EventNode> departingEvents = new HashSet<EventNode>();
 
-        // Populate events at which we may have arrived from the
-        // previous partition in the path
+        // Populate events at which we can arrive from the previous partition in
+        // the path
         for (ITransition<EventNode> arrivingTrans : counterexampleTrace.transitionsList
                 .get(index)) {
             arrivingEvents.add(arrivingTrans.getTarget());
         }
 
-        // Populate events we can depart from to reach the next
-        // partition in the path
+        // Populate events from which we can depart to reach the next partition
+        // in the path
         for (ITransition<EventNode> departingTrans : counterexampleTrace.transitionsList
                 .get(index + 1)) {
             departingEvents.add(departingTrans.getSource());
         }
 
-        // Check if departing events is a subset of arriving events
-        boolean isSubset = true;
-        for (EventNode depEv : departingEvents) {
-            if (!arrivingEvents.contains(depEv)) {
-                isSubset = false;
-                break;
-            }
+        // Non-equal sets means there is a stitch
+        if (arrivingEvents.equals(departingEvents)) {
+            return false;
         }
-
-        return !isSubset;
+        return true;
     }
 
     /**
