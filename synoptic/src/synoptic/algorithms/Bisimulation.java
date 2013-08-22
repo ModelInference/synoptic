@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -285,147 +286,204 @@ public class Bisimulation {
         // Holds the return values.
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
 
-        // Our position while traversing the counter-example path
-        Partition curPart = null;
-        Partition endPart = null;
+        // jPart traverses the violation subpath from its last partition to its
+        // third (any further is not helpful), and iPart traverses the violation
+        // subpath from jPart to its second partition. Partition being
+        // considered for splitting is iPart.
+        Partition iPart = null;
+        Partition jPart = null;
 
         // This method must only be passed counter-example paths for
         // constrained invariants
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
+        // TODO: Uncomment when the lower-bound subtypes are implemented
         // Check if this is a lower-bound constrained invariant
-        // TODO: Uncomment when the lower-bound subtypes are implemented (Issue
-        // 329)
         // boolean isLower = false;
         // if (inv instanceof APLowerTracingSet || inv instanceof
         // AFbyLowerTracingSet) {
         // isLower = true;
         // }
 
-        // Get the set of relations
+        // Get the single relation of the invariant
         Set<String> invRelation = new HashSet<String>(1);
         invRelation.add(inv.getRelation());
 
-        // Retrieve the counter-example path, its size (excluding terminal)
+        // Retrieve the counter-example path, time deltas, and violated time
+        // bound
         List<Partition> cExPath = counterexampleTrace.path;
-        int pathSize = counterexampleTrace.path.size() - 1;
-
-        // Get the last partition in the violation subpath, and check for null
-        endPart = cExPath.get(counterexampleTrace.violationEnd);
-        if (endPart == null) {
-            throw new InternalSynopticException(
-                    "Counter-example path with null violation end Partition");
-        }
-
-        // Retrieve the time deltas and the violated time bound
         List<ITime> tDeltas = counterexampleTrace.tDeltas;
         ITime tBound = inv.getConstraint().getThreshold();
 
-        // Event paths between curPart and endPart which, if replacing the old
-        // curPart->endPart, would resolve the violation
-        Set<List<EventNode>> legalSubpaths;
-        // Event paths between curPart and endPart which retain the violation
-        Set<List<EventNode>> illegalSubpaths;
+        // Events in iPart beginning iPart->jPart paths that, if replacing the
+        // iPart->jPart currently followed by the counter-example path, would
+        // mean the violation subpath no longer violates the invariant
+        Set<EventNode> startsOfLegalSubpaths;
+        // Events in iPart beginning iPart->jPart paths that retain the
+        // violation
+        Set<EventNode> startsOfIllegalSubpaths;
 
-        // Walk the path in reverse
-        for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
+        // Traverse the violation subpath from its last partition to its third.
+        // Any further is not helpful because iPart (where we might split) must
+        // be before jPart in the path, and we cannot resolve the violation by
+        // splitting the first partition in the violation subpath.
+        for (int j = counterexampleTrace.violationEnd - 1; j > counterexampleTrace.violationStart + 2; --j) {
 
-            // Get the current partition, and check for null
-            curPart = cExPath.get(i);
-            if (curPart == null) {
+            // Get partition, and check for null
+            jPart = cExPath.get(j);
+            if (jPart == null) {
                 throw new InternalSynopticException(
                         "Counter-example path with a null Partition");
             }
 
-            // If there is no stitch here (the c.ex. path arrived at and
-            // departed from this partition using 2 different events), splitting
-            // cannot resolve the violation
-            {
-                // TODO: Make this consider all transitions, not just one of
-                // each (Issue 332)
-                ITransition<EventNode> incomingTransition = counterexampleTrace.transitionsList
-                        .get(i).get(0);
-                ITransition<EventNode> outgoingTransition = counterexampleTrace.transitionsList
-                        .get(i + 1).get(0);
+            // Traverse the violation subpath from jPart to the second
+            // partition.
+            for (int i = j - 1; i > counterexampleTrace.violationStart + 1; --i) {
 
-                if (incomingTransition.getTarget() == outgoingTransition
-                        .getSource()) {
+                // Get partition, and check for null
+                iPart = cExPath.get(i);
+                if (iPart == null) {
+                    throw new InternalSynopticException(
+                            "Counter-example path with a null Partition");
+                }
+
+                // Only consider splitting on this partition if there is a
+                // stitch of min/max transitions into and out of this partition
+                if (!stitchExists(counterexampleTrace, i)) {
                     continue;
                 }
-            }
 
-            legalSubpaths = new HashSet<List<EventNode>>();
-            illegalSubpaths = new HashSet<List<EventNode>>();
+                startsOfLegalSubpaths = new HashSet<EventNode>();
+                startsOfIllegalSubpaths = new HashSet<EventNode>();
 
-            // Time to get to current partition from t=0 state
-            ITime curTime = tDeltas.get(i);
+                // Time to get to iPart from the beginning of the violation
+                // subpath
+                ITime curTime = tDeltas.get(i);
 
-            // Check if we're already over the time bound
-            if (tBound.lessThan(curTime)) {
-                continue;
-            }
+                // Check if we're already over the time bound
+                if (tBound.lessThan(curTime)) {
+                    continue;
+                }
 
-            // Any subpath <= this target time is legal
-            ITime targetSubpathTime = tBound.computeDelta(curTime);
-            curTime = null;
+                // Any subpath <= this target time is legal
+                ITime targetSubpathTime = tBound.computeDelta(curTime);
 
-            // Walk through paths of EventNodes, finding any that run from
-            // firstPart to secondPart and placing them in the list of
-            // either legal or illegal subpaths
-            for (EventNode curEv : curPart.getEventNodes()) {
-                EventNode ev = curEv;
+                // Walk through paths of events in iPart, finding any that get
+                // to an event in jPart and placing them in the list of either
+                // legal or illegal subpaths
+                for (EventNode iEvent : iPart.getEventNodes()) {
+                    EventNode curEvent = iEvent;
 
-                // Initialize the current, ongoing subpath and its time
-                List<EventNode> currentSubpath = new ArrayList<EventNode>();
-                currentSubpath.add(ev);
-                ITime currentSubpathTime = tBound.getZeroTime();
+                    // Initialize the current, ongoing subpath's time
+                    ITime curSubpathTime = tBound.getZeroTime();
 
-                // Walk the event path until an event within endPart is
-                // encountered or the path ends
-                while (!ev.isTerminal()) {
+                    // Walk the event path until an event in jPart is
+                    // encountered or the path ends
+                    while (!curEvent.isTerminal()) {
 
-                    // Get the only transition out of this event with the
-                    // relation of this invariant
-                    ITransition<EventNode> trans = ev
-                            .getTransitionsWithExactRelations(invRelation).get(
-                                    0);
+                        // Get the only transition out of this event with the
+                        // relation of this invariant
+                        ITransition<EventNode> trans = curEvent
+                                .getTransitionsWithExactRelations(invRelation)
+                                .get(0);
 
-                    // Move to the next event, and update the subpath and
-                    // running subpath time
-                    ev = trans.getTarget();
-                    currentSubpath.add(ev);
-                    currentSubpathTime = currentSubpathTime.incrBy(trans
-                            .getTimeDelta());
+                        // Move to the next event, and update the running
+                        // subpath time
+                        curEvent = trans.getTarget();
+                        curSubpathTime = curSubpathTime.incrBy(trans
+                                .getTimeDelta());
 
-                    // We've found a curPart->endPart path if the new event is
-                    // in endPart
-                    if (ev.getParent() == endPart) {
-                        // TODO: Make this lower-bound-friendly (Issue 329)
+                        // We've found a iPart->jPart path if the new event is
+                        // in jPart
+                        if (curEvent.getParent() == jPart) {
+                            // TODO: Make this lower-bound-friendly (Issue 329)
 
-                        // Illegal path which would not resolve the violation
-                        if (targetSubpathTime.lessThan(currentSubpathTime)) {
-                            illegalSubpaths.add(currentSubpath);
+                            // Illegal path which would not resolve the
+                            // violation
+                            if (targetSubpathTime.lessThan(curSubpathTime)) {
+                                startsOfIllegalSubpaths.add(iEvent);
+                            }
+
+                            // Legal path which would resolve the violation
+                            else {
+                                startsOfLegalSubpaths.add(iEvent);
+                            }
+                            break;
                         }
-
-                        // Legal path which would resolve the violation
-                        else {
-                            legalSubpaths.add(currentSubpath);
-                        }
-                        break;
                     }
                 }
-            }
 
-            // Both lists must be non-empty for a valid split to exist
-            if (legalSubpaths.isEmpty() || illegalSubpaths.isEmpty()) {
-                continue;
-            }
+                // At least one legal and illegal path means we consider
+                // splitting here
+                if (!startsOfLegalSubpaths.isEmpty()
+                        && !startsOfIllegalSubpaths.isEmpty()) {
 
-            // TODO: Split on curPart
+                    // Split iPart
+                    PartitionSplit split = new PartitionSplit(iPart);
+
+                    for (EventNode legalEv : startsOfLegalSubpaths) {
+                        split.addEventToSplit(legalEv);
+                    }
+
+                    Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
+
+                    // Get all other events (those that do not start paths
+                    // leading to jPart)
+                    Set<EventNode> allOtherEvents = new HashSet<EventNode>(
+                            iPart.getEventNodes());
+                    allOtherEvents.removeAll(startsOfLegalSubpaths);
+                    allOtherEvents.removeAll(startsOfIllegalSubpaths);
+
+                    // Randomly assign other events to one side of the split or
+                    // the other
+                    for (EventNode otherEvent : allOtherEvents) {
+                        if (rand.nextBoolean()) {
+                            split.addEventToSplit(otherEvent);
+                        }
+                    }
+
+                    candidateSplits.add(split);
+                }
+            }
         }
 
         return candidateSplits;
+    }
+
+    /**
+     * Check if the partition at index in the counter-example trace contains a
+     * stitch, which means that the targets of all min/max transitions into this
+     * partition and the sources of all min/max transitions out of this
+     * partition are not equal sets.
+     */
+    private static boolean stitchExists(
+            CExamplePath<Partition> counterexampleTrace, int index) {
+
+        // Targets of all min/max transitions into this partition
+        Set<EventNode> arrivingEvents = new HashSet<EventNode>();
+        // Sources of all min/max transitions out of this partition
+        Set<EventNode> departingEvents = new HashSet<EventNode>();
+
+        // Populate events at which we can arrive from the previous partition in
+        // the path
+        for (ITransition<EventNode> arrivingTrans : counterexampleTrace.transitionsList
+                .get(index)) {
+            arrivingEvents.add(arrivingTrans.getTarget());
+        }
+
+        // Populate events from which we can depart to reach the next partition
+        // in the path
+        for (ITransition<EventNode> departingTrans : counterexampleTrace.transitionsList
+                .get(index + 1)) {
+            departingEvents.add(departingTrans.getSource());
+        }
+
+        // Non-equal sets means there is a stitch
+        if (arrivingEvents.equals(departingEvents)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -563,6 +621,34 @@ public class Bisimulation {
     }
 
     /**
+     * Performs the splitOp on the pGraph and then checks if there is a
+     * violation of invariant inv in a specific subgraph of pGraph starting at
+     * startPart and ending at endPart. This is accomplished by localized model
+     * checking which starts at startPart (rather than the initial node) and
+     * stops at endPart (rather than the terminal node).
+     * 
+     * @param inv
+     *            The invariant to check for satisfiability after the splitOp.
+     * @param pGraph
+     *            The partition graph to apply to the splitOp to.
+     * @param startPart
+     *            The partition on which to start model checking
+     * @param endPart
+     *            The partition on which to end model checking
+     * @param splitOp
+     *            The split operation to apply to pGraph
+     * @return true if the split makes the subgraph between startPart and
+     *         endPart satisfy the invariant, and false otherwise.
+     */
+    private static boolean splitSatisfiesInvariantLocally(
+            ITemporalInvariant inv, PartitionGraph pGraph, Partition startPart,
+            Partition endPart, PartitionMultiSplit splitOp) {
+
+        // TODO: Implement this.
+        return false;
+    }
+
+    /**
      * Returns an arbitrary split that resolves an arbitrary counter-example
      * trace in counterexampleTraces. Populates the splitsToDoByPartition map
      * with those splits that make a previously unsatisfied invariant true in
@@ -619,6 +705,12 @@ public class Bisimulation {
                 arbitrarySplit = candidateSplits.get(0);
             }
 
+            // A split that satisfies the invariant locally (within the subgraph
+            // where the violation was found) but not globally (in the entire
+            // partition graph). Only applied if a globally-satisfying split is
+            // not found
+            PartitionMultiSplit locallySatisfyingSplit = null;
+
             // logger.fine("candidateSplits are: " +
             // candidateSplits.toString());
 
@@ -674,6 +766,48 @@ public class Bisimulation {
                     // Found the split that completely satisfies the
                     // invariant, no need to consider other splits.
                     break;
+
+                }
+
+                // Check if split satisfies the invariant locally (specifically
+                // in the subgraph where the violation was found)
+                else if (locallySatisfyingSplit == null
+                        && inv instanceof TempConstrainedInvariant<?>) {
+
+                    // Get start and end of violation subgraph
+                    Partition startPart = counterexampleTrace.path
+                            .get(counterexampleTrace.violationStart);
+                    Partition endPart = counterexampleTrace.path
+                            .get(counterexampleTrace.violationEnd);
+
+                    // Store the split if the invariant is locally satisfied
+                    if (splitSatisfiesInvariantLocally(inv, pGraph, startPart,
+                            endPart, splitOp)) {
+                        locallySatisfyingSplit = splitOp;
+                    }
+                }
+            }
+
+            // If we didn't find a globally-satisfying split but did find a
+            // locally-satisfying one, record it
+            if (locallySatisfyingSplit != null) {
+
+                // Get partition to be split
+                Partition partitionBeingSplit = locallySatisfyingSplit
+                        .getPartition();
+
+                // If we already have a split for that partition, incorporate
+                // the new split into it.
+                if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
+                    splitsToDoByPartition.get(partitionBeingSplit).incorporate(
+                            locallySatisfyingSplit);
+                    logger.info("Incorporating new locally-satisfying split by partition: "
+                            + locallySatisfyingSplit.toString());
+                } else {
+                    // Otherwise, record this split as the only one for this
+                    // partition
+                    splitsToDoByPartition.put(partitionBeingSplit,
+                            locallySatisfyingSplit);
                 }
             }
         }
