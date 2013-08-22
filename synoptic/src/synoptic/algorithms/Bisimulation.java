@@ -621,6 +621,34 @@ public class Bisimulation {
     }
 
     /**
+     * Performs the splitOp on the pGraph and then checks if there is a
+     * violation of invariant inv in a specific subgraph of pGraph starting at
+     * startPart and ending at endPart. This is accomplished by localized model
+     * checking which starts at startPart (rather than the initial node) and
+     * stops at endPart (rather than the terminal node).
+     * 
+     * @param inv
+     *            The invariant to check for satisfiability after the splitOp.
+     * @param pGraph
+     *            The partition graph to apply to the splitOp to.
+     * @param startPart
+     *            The partition on which to start model checking
+     * @param endPart
+     *            The partition on which to end model checking
+     * @param splitOp
+     *            The split operation to apply to pGraph
+     * @return true if the split makes the subgraph between startPart and
+     *         endPart satisfy the invariant, and false otherwise.
+     */
+    private static boolean splitSatisfiesInvariantLocally(
+            ITemporalInvariant inv, PartitionGraph pGraph, Partition startPart,
+            Partition endPart, PartitionMultiSplit splitOp) {
+
+        // TODO: Implement this.
+        return false;
+    }
+
+    /**
      * Returns an arbitrary split that resolves an arbitrary counter-example
      * trace in counterexampleTraces. Populates the splitsToDoByPartition map
      * with those splits that make a previously unsatisfied invariant true in
@@ -677,6 +705,12 @@ public class Bisimulation {
                 arbitrarySplit = candidateSplits.get(0);
             }
 
+            // A split that satisfies the invariant locally (within the subgraph
+            // where the violation was found) but not globally (in the entire
+            // partition graph). Only applied if a globally-satisfying split is
+            // not found
+            PartitionMultiSplit locallySatisfyingSplit = null;
+
             // logger.fine("candidateSplits are: " +
             // candidateSplits.toString());
 
@@ -732,6 +766,48 @@ public class Bisimulation {
                     // Found the split that completely satisfies the
                     // invariant, no need to consider other splits.
                     break;
+
+                }
+
+                // Check if split satisfies the invariant locally (specifically
+                // in the subgraph where the violation was found)
+                else if (locallySatisfyingSplit == null
+                        && inv instanceof TempConstrainedInvariant<?>) {
+
+                    // Get start and end of violation subgraph
+                    Partition startPart = counterexampleTrace.path
+                            .get(counterexampleTrace.violationStart);
+                    Partition endPart = counterexampleTrace.path
+                            .get(counterexampleTrace.violationEnd);
+
+                    // Store the split if the invariant is locally satisfied
+                    if (splitSatisfiesInvariantLocally(inv, pGraph, startPart,
+                            endPart, splitOp)) {
+                        locallySatisfyingSplit = splitOp;
+                    }
+                }
+            }
+
+            // If we didn't find a globally-satisfying split but did find a
+            // locally-satisfying one, record it
+            if (locallySatisfyingSplit != null) {
+
+                // Get partition to be split
+                Partition partitionBeingSplit = locallySatisfyingSplit
+                        .getPartition();
+
+                // If we already have a split for that partition, incorporate
+                // the new split into it.
+                if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
+                    splitsToDoByPartition.get(partitionBeingSplit).incorporate(
+                            locallySatisfyingSplit);
+                    logger.info("Incorporating new locally-satisfying split by partition: "
+                            + locallySatisfyingSplit.toString());
+                } else {
+                    // Otherwise, record this split as the only one for this
+                    // partition
+                    splitsToDoByPartition.put(partitionBeingSplit,
+                            locallySatisfyingSplit);
                 }
             }
         }
