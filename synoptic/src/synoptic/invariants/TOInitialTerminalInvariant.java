@@ -7,8 +7,8 @@ import synoptic.model.interfaces.INode;
 
 /**
  * An implicit invariant for totally ordered Synoptic models that encodes the
- * constraint that every trace must start with an Initial event and end with a
- * Terminal event.
+ * constraint that (1) every trace must start with an Initial event, (2) end
+ * with a Terminal event, and (3) have no intermediate Terminal events.
  */
 public class TOInitialTerminalInvariant extends BinaryInvariant {
 
