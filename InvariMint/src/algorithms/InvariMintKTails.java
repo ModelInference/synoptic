@@ -10,7 +10,7 @@ import model.InvModel;
 import model.InvsModel;
 
 import synoptic.algorithms.KTails;
-import synoptic.invariants.TOInitialInvariant;
+import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.model.EventNode;
@@ -46,10 +46,10 @@ public class InvariMintKTails extends PGraphInvariMint {
 
         logger.info("\n\nApplying 'Traces start with Init' inv.");
 
-        // Add the "^Initial[^Terminal]*Terminal$" invariant.
-        InvModel initialTerminalInv = new InvModel(new TOInitialInvariant(
-                initialEvent, terminalEvent, Event.defTimeRelationStr),
-                encodings);
+        // Add the "^Initial[^Terminal]*Terminal$" invariant
+        InvModel initialTerminalInv = new InvModel(
+                new TOInitialTerminalInvariant(initialEvent, terminalEvent,
+                        Event.defTimeRelationStr), encodings);
         invMintModel.intersectWith(initialTerminalInv);
 
         logger.info("Mining Invs.");

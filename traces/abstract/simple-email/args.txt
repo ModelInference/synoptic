@@ -3,4 +3,5 @@
 -r ^(?<TYPE>)$
 -s ^--$
 -o output/simple-email.png
+--minimizeIntersections=true
 
