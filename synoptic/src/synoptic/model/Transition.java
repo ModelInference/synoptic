@@ -270,4 +270,9 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
         return this.labels.compareTo(other.getLabels());
     }
+
+    @Override
+    public String toString() {
+        return source + "->" + target;
+    }
 }
