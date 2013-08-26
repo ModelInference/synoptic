@@ -76,16 +76,17 @@ public abstract class PynopticTest extends SynopticTest {
 
     /**
      * Create partition graph from passed log of events, then generate and
-     * return counter-example paths using the tracing state set corresponding to
-     * the passed invariant string
+     * return the map of each partition to its final constrained tracing state
+     * sets, where the state set is of the type corresponding to the passed
+     * invariant string
      * 
      * @param events
      *            The log of events from which to create the partition graph
      * @param invString
      *            The constrained invariant in the form "a AP b upper"
-     * @return Map of counter-example traces by partition
+     * @return Map of constrained tracing state sets by partition
      */
-    protected Map<Partition, TracingStateSet<Partition>> genCounterExamples(
+    protected Map<Partition, TracingStateSet<Partition>> genConstrTracingSets(
             String[] events, String invString, TracingSet type)
             throws Exception {
 
@@ -111,7 +112,7 @@ public abstract class PynopticTest extends SynopticTest {
         }
 
         // Run initial partition graph through the state machine for the
-        // retrieved constrained invariant, get counter-examples
+        // retrieved constrained invariant, get tracing sets
         return FsmModelChecker.runChecker(tracingSet, graph, true);
     }
 }

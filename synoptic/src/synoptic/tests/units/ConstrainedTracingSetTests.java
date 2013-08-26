@@ -60,15 +60,15 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     public void APUpperFailureStateTest() throws Exception {
 
         // Get tracing sets and partitions corresponding to 'a' and 'b' events
-        Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
                 stdEvents, "a AP c upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'a'
-        assertFalse(counterEx.get(partitions[0]).isFail());
+        assertFalse(tracingSets.get(partitions[0]).isFail());
 
         // State machine should be at a failure state at partition 'c'
-        assertTrue(counterEx.get(partitions[1]).isFail());
+        assertTrue(tracingSets.get(partitions[1]).isFail());
 
         tearDown();
     }
@@ -81,12 +81,12 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     public void APUpperCounterExamplePathTest() throws Exception {
 
         // Get tracing sets and partitions corresponding to 'a' and 'b' events
-        Map<Partition, TracingStateSet<Partition>> counterEx = genCounterExamples(
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
                 stdEvents, "a AP c upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
         // Get counter-example path for partition 'c'
-        CExamplePath<Partition> cExPath = counterEx.get(partitions[1])
+        CExamplePath<Partition> cExPath = tracingSets.get(partitions[1])
                 .failpath().toCounterexample(inv);
 
         // Counter-example path should be (INITIAL -> a -> b -> c)
