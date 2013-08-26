@@ -427,37 +427,16 @@ public class Bisimulation {
                     }
                 }
 
-                // At least one legal and illegal path means we consider
-                // splitting here
-                if (!startsOfLegalSubpaths.isEmpty()
-                        && !startsOfIllegalSubpaths.isEmpty()) {
-
-                    // Split iPart
-                    PartitionSplit split = new PartitionSplit(iPart);
-
-                    for (EventNode legalEv : startsOfLegalSubpaths) {
-                        split.addEventToSplit(legalEv);
-                    }
-
-                    Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
-
-                    // Get all other events (those that do not start paths
-                    // leading to jPart)
-                    Set<EventNode> allOtherEvents = new HashSet<EventNode>(
-                            iPart.getEventNodes());
-                    allOtherEvents.removeAll(startsOfLegalSubpaths);
-                    allOtherEvents.removeAll(startsOfIllegalSubpaths);
-
-                    // Randomly assign other events to one side of the split or
-                    // the other
-                    for (EventNode otherEvent : allOtherEvents) {
-                        if (rand.nextBoolean()) {
-                            split.addEventToSplit(otherEvent);
-                        }
-                    }
-
-                    candidateSplits.add(split);
+                // To consider splitting here, require at least one legal and
+                // illegal path
+                if (startsOfLegalSubpaths.isEmpty()
+                        || startsOfIllegalSubpaths.isEmpty()) {
+                    continue;
                 }
+
+                // Create the actual split on iPart
+                candidateSplits.add(makeConstrainedSplit(iPart,
+                        startsOfLegalSubpaths, startsOfIllegalSubpaths));
             }
         }
 
@@ -465,12 +444,18 @@ public class Bisimulation {
     }
 
     /**
-     * Check if the partition at index in the counter-example trace contains a
-     * stitch, which means that the targets of all min/max transitions into this
-     * partition and the sources of all min/max transitions out of this
-     * partition are not equal sets.
+     * During constrained refinement, check if the partition at index in the
+     * counter-example trace contains a stitch, which means that the targets of
+     * all min/max transitions into this partition and the sources of all
+     * min/max transitions out of this partition are not equal sets.
+     * 
+     * @param counterexampleTrace
+     *            The trace in which the partition to check exists
+     * @param index
+     *            The index of the Partition in counterexampleTrace to check
+     * @return True if there is a stitch, false otherwise
      */
-    private static boolean stitchExists(
+    public static boolean stitchExists(
             CExamplePath<Partition> counterexampleTrace, int index) {
 
         // Targets of all min/max transitions into this partition
@@ -497,6 +482,51 @@ public class Bisimulation {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Create a partition split during constrained refinement. Of events in
+     * iPart, assigns all that start legal subpaths to one side of the split and
+     * the starts of illegal subpaths to the other. Remaining events in iPart
+     * are randomly assigned to a side.
+     * 
+     * @param iPart
+     *            The partition to split
+     * @param startsOfLegalSubpaths
+     *            Events in iPart that start legal subpaths
+     * @param startsOfIllegalSubpaths
+     *            Events in iPart that start illegal subpaths
+     * @return Split on iPart
+     */
+    public static PartitionSplit makeConstrainedSplit(Partition iPart,
+            Set<EventNode> startsOfLegalSubpaths,
+            Set<EventNode> startsOfIllegalSubpaths) {
+
+        // Split iPart
+        PartitionSplit split = new PartitionSplit(iPart);
+
+        for (EventNode legalEv : startsOfLegalSubpaths) {
+            split.addEventToSplit(legalEv);
+        }
+
+        Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
+
+        // Get all other events (those that do not start paths
+        // leading to jPart)
+        Set<EventNode> allOtherEvents = new HashSet<EventNode>(
+                iPart.getEventNodes());
+        allOtherEvents.removeAll(startsOfLegalSubpaths);
+        allOtherEvents.removeAll(startsOfIllegalSubpaths);
+
+        // Randomly assign other events to one side of the split or
+        // the other
+        for (EventNode otherEvent : allOtherEvents) {
+            if (rand.nextBoolean()) {
+                split.addEventToSplit(otherEvent);
+            }
+        }
+
+        return split;
     }
 
     /**
