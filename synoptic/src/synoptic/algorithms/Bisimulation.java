@@ -341,7 +341,7 @@ public class Bisimulation {
         // Any further is not helpful because iPart (where we might split) must
         // be before jPart in the path, and we cannot resolve the violation by
         // splitting the first partition in the violation subpath.
-        for (int j = counterexampleTrace.violationEnd - 1; j > counterexampleTrace.violationStart + 2; --j) {
+        for (int j = counterexampleTrace.violationEnd; j > counterexampleTrace.violationStart + 1; --j) {
 
             // Get partition, and check for null
             jPart = cExPath.get(j);
@@ -352,7 +352,7 @@ public class Bisimulation {
 
             // Traverse the violation subpath from jPart to the second
             // partition.
-            for (int i = j - 1; i > counterexampleTrace.violationStart + 1; --i) {
+            for (int i = j - 1; i > counterexampleTrace.violationStart; --i) {
 
                 // Get partition, and check for null
                 iPart = cExPath.get(i);
