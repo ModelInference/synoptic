@@ -267,7 +267,16 @@ public class Bisimulation {
 
         // Constrained invariant
         if (counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>) {
-            return getSplitsConstrained(counterexampleTrace, pGraph);
+
+            // Find splits for the unconstrained version of the invariant first,
+            // then find constrained splits if necessary
+            List<PartitionSplit> unconstrainedSplits = getSplitsUnconstrained(
+                    counterexampleTrace, pGraph);
+
+            if (unconstrainedSplits == null || unconstrainedSplits.isEmpty()) {
+                return getSplitsConstrained(counterexampleTrace, pGraph);
+            }
+            return unconstrainedSplits;
         }
 
         // Unconstrained invariant
@@ -278,7 +287,11 @@ public class Bisimulation {
 
     /**
      * Compute possible splits to resolve the constrained invariant violation
-     * shown by path counterexampleTrace. This is done by
+     * shown by path counterexampleTrace. This is done by looking at all
+     * possible starting and ending partitions (iPart and jPart) within the
+     * violation subpath and deciding whether (1) there is a stitch at iPart and
+     * (2) there are >0 legal concrete paths and >0 illegal concrete paths
+     * between the two.
      */
     private static List<PartitionSplit> getSplitsConstrained(
             CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
