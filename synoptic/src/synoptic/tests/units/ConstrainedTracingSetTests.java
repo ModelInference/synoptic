@@ -17,6 +17,8 @@ import synoptic.util.time.ITotalTime;
 /**
  * Tests for finding counter-example paths using TracingStateSets for
  * constrained temporal invariants
+ * 
+ * @author Tony Ohmann (ohmann@cs.umass.edu)
  */
 public class ConstrainedTracingSetTests extends PynopticTest {
 
