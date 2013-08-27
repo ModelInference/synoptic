@@ -3,14 +3,19 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.fsmcheck.TracingStateSet;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
+import synoptic.model.event.Event;
 import synoptic.tests.PynopticTest;
 
 /**
@@ -55,5 +60,46 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // There is not a stitch at c: second trace is max coming from b and
         // going to d
         assertFalse(Bisimulation.stitchExists(cExPath, cIndex));
+    }
+
+    /**
+     * Check that a partition split is constructed properly
+     */
+    @Test
+    public void splitCreationTest() throws Exception {
+
+        // Create events: one legal, one illegal. Put them in sets so that they
+        // can be used as parameters later
+        EventNode legalEv = new EventNode(new Event("label"));
+        Set<EventNode> startsOfLegalSubpaths = new HashSet<EventNode>();
+        startsOfLegalSubpaths.add(legalEv);
+
+        EventNode illegalEv = new EventNode(new Event("label"));
+        Set<EventNode> startsOfIllegalSubpaths = new HashSet<EventNode>();
+        startsOfIllegalSubpaths.add(illegalEv);
+
+        // Create a partition, add those events, and add some events that are
+        // neither legal or illegal to be randomly assigned to one side of the
+        // split or the other
+        Partition part = new Partition(legalEv);
+        part.addOneEventNode(illegalEv);
+        part.addOneEventNode(new EventNode(new Event("label")));
+        part.addOneEventNode(new EventNode(new Event("label")));
+        part.addOneEventNode(new EventNode(new Event("label")));
+
+        // Create the split
+        PartitionSplit split = Bisimulation.makeConstrainedSplit(part,
+                startsOfLegalSubpaths, startsOfIllegalSubpaths);
+
+        // Must be a valid split: >0 events split out and >0 events not split
+        // out
+        assertTrue(split.isValid());
+
+        Set<EventNode> splitOutEvents = split.getSplitEvents();
+        // Our legal event must be split out
+        assertTrue(splitOutEvents.contains(legalEv));
+
+        // Our illegal event must not be split out
+        assertFalse(splitOutEvents.contains(illegalEv));
     }
 }
