@@ -262,7 +262,7 @@ public class Bisimulation {
      *            The graph from which the path shall be removed
      * @return A list of partition splits that resolve the invariant violation
      */
-    private static List<PartitionSplit> getSplits(
+    public static List<PartitionSplit> getSplits(
             CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
 
         // Constrained invariant
