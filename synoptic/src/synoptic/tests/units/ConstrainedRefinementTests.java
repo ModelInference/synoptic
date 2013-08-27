@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
 
 /**
@@ -36,16 +39,16 @@ public class ConstrainedRefinementTests extends PynopticTest {
                 "c 14", "d 16" };
 
         // Get tracing sets
-        Map<Partition, TracingStateSet<Partition>> counterEx = genConstrTracingSets(
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
                 events, "a AP d upper", TracingSet.APUpper);
 
         CExamplePath<Partition> cExPath = null;
 
-        // Get the counter-example path at partition d (which is the event type
-        // of the invariant's second predicate)
+        // Get the counter-example path at partition d
         for (Partition part : graph.getNodes()) {
-            if (part.getEType().equals(inv.getSecond())) {
-                cExPath = counterEx.get(part).failpath().toCounterexample(inv);
+            if (part.getEType().equals(new StringEventType("d"))) {
+                cExPath = tracingSets.get(part).failpath()
+                        .toCounterexample(inv);
             }
         }
 
@@ -66,7 +69,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
      * Check that a partition split is constructed properly
      */
     @Test
-    public void splitCreationTest() throws Exception {
+    public void singleSplitCreationTest() throws Exception {
 
         // Create events: one legal, one illegal. Put them in sets so that they
         // can be used as parameters later
@@ -101,5 +104,70 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         // Our illegal event must not be split out
         assertFalse(splitOutEvents.contains(illegalEv));
+    }
+
+    /**
+     * When looking for partitions to split during constrained refinement, check
+     * that only the proper partitions are considered. As per the constrained
+     * refinement algorithm, such partitions must contain a stitch and have >0
+     * legal and >0 illegal concrete paths to some other partition later in the
+     * violation subpath.
+     */
+    @Test
+    public void getSplitsTest() throws Exception {
+        // Like events in stitchDetectionTest() but slightly modified
+        String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
+                "c 15", "d 16" };
+
+        // Get tracing sets
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
+                events, "a AP d upper", TracingSet.APUpper);
+
+        CExamplePath<Partition> cExPath = null;
+
+        Partition bPart = null;
+        Partition cPart = null;
+
+        // Get the b and c partitions and the counter-example path at partition
+        // d
+        for (Partition part : graph.getNodes()) {
+
+            EventType evType = part.getEType();
+
+            if (evType.equals(new StringEventType("b"))) {
+                bPart = part;
+            } else if (evType.equals(new StringEventType("c"))) {
+                cPart = part;
+            } else if (evType.equals(new StringEventType("d"))) {
+                cExPath = tracingSets.get(part).failpath()
+                        .toCounterexample(inv);
+            }
+        }
+
+        List<PartitionSplit> splits = Bisimulation.getSplits(cExPath, graph);
+
+        boolean bIsCandidate = false;
+        boolean cIsCandidate = false;
+
+        // Find if any candidate split is on partition b or partition c
+        for (PartitionSplit split : splits) {
+            // Look for partition b in split
+            if (split.getPartition().equals(bPart)) {
+                bIsCandidate = true;
+            }
+
+            // Look for partition c in split
+            else if (split.getPartition().equals(cPart)) {
+                cIsCandidate = true;
+            }
+        }
+
+        // Partition b should be a candidate split, as it contains a stitch and
+        // has >0 legal and >0 illegal concrete paths to d (also to c)
+        assertTrue(bIsCandidate);
+
+        // Partition c should not be a candidate split, as it contains a stitch
+        // but no legal concrete paths to d
+        assertFalse(cIsCandidate);
     }
 }
