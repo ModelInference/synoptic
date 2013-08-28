@@ -3,11 +3,11 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -18,7 +18,7 @@ import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
-import synoptic.tests.SynopticTest;
+import synoptic.tests.PynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
@@ -26,10 +26,11 @@ import synoptic.util.time.ITotalTime;
 /**
  * Tests for mining constrained invariants.
  */
-public class ConstrainedInvMinerTests extends SynopticTest {
+public class ConstrainedInvMinerTests extends PynopticTest {
     ITOInvariantMiner miner;
 
     @Override
+    @Before
     public void setUp() throws ParseException {
         super.setUp();
         miner = new ChainWalkingTOInvMiner();
@@ -76,30 +77,6 @@ public class ConstrainedInvMinerTests extends SynopticTest {
         ConstrainedInvMiner constrMiner = new ConstrainedInvMiner();
         return constrMiner.computeInvariants(inputGraph, multipleRelations,
                 invs);
-    }
-
-    /**
-     * Retrieve a specific constrained invariant from a TemporalInvariantSet
-     * requested using the form "a AFby b upper" or "c AP d lower".
-     * 
-     * @param minedInvs
-     *            Set of mined invariants
-     * @param desiredInv
-     *            A string describing the requested invariant
-     * @return The requested invariant if it exists in the set, else null
-     */
-    public static TempConstrainedInvariant<?> getConstrainedInv(
-            TemporalInvariantSet minedInvs, String desiredInv) {
-
-        for (ITemporalInvariant genericInv : minedInvs.getSet()) {
-            TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) genericInv;
-            if ((inv.getFirst() + " " + inv.getShortName() + " "
-                    + inv.getSecond() + " " + inv.getConstraint().toString()
-                    .substring(0, 5)).equals(desiredInv))
-                return inv;
-        }
-
-        return null;
     }
 
     /**
