@@ -5,6 +5,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
@@ -17,7 +18,6 @@ import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.tests.units.ConstrainedInvMinerTests;
 
 /**
  * Common helper methods and variables for Pynoptic tests
@@ -80,6 +80,33 @@ public abstract class PynopticTest extends SynopticTest {
     }
 
     /**
+     * Retrieve a specific constrained invariant from a TemporalInvariantSet
+     * requested using the form "a AFby b upper" or "c AP d lower".
+     * 
+     * @param minedInvs
+     *            Set of mined invariants
+     * @param desiredInv
+     *            A string describing the requested invariant
+     * @return The requested invariant if it exists in the set, else null
+     */
+    protected TempConstrainedInvariant<?> getConstrainedInv(
+            TemporalInvariantSet minedInvs, String desiredInv) {
+
+        // Iterate through all invariants
+        for (ITemporalInvariant genericInv : minedInvs.getSet()) {
+            TempConstrainedInvariant<?> invar = (TempConstrainedInvariant<?>) genericInv;
+
+            // Look for invariant matching exactly what was requested
+            if ((invar.getFirst() + " " + invar.getShortName() + " "
+                    + invar.getSecond() + " " + invar.getConstraint()
+                    .toString().substring(0, 5)).equals(desiredInv))
+                return invar;
+        }
+
+        return null;
+    }
+
+    /**
      * Create partition graph from passed log of events, then generate and
      * return the map of each partition to its final constrained tracing state
      * sets, where the state set is of the type corresponding to the passed
@@ -99,8 +126,7 @@ public abstract class PynopticTest extends SynopticTest {
         graph = genConstrainedPartitionGraph(events);
 
         // Retrieve test invariant
-        inv = ConstrainedInvMinerTests.getConstrainedInv(graph.getInvariants(),
-                invString);
+        inv = getConstrainedInv(graph.getInvariants(), invString);
 
         // Set up the appropriate ConstrainedTracingSet subtype
         // TODO: Uncomment appropriate lines when other ConstrainedTracingSets
