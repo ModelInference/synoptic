@@ -115,9 +115,9 @@ public class ConstrainedRefinementTests extends PynopticTest {
      */
     @Test
     public void getSplitsTest() throws Exception {
-        // Like events in stitchDetectionTest() but slightly modified
+        // Same events as in stitchDetectionTest()
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
-                "c 15", "d 16" };
+                "c 14", "d 16" };
 
         // Get tracing sets
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
@@ -169,5 +169,65 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // Partition c should not be a candidate split, as it contains a stitch
         // but no legal concrete paths to d
         assertFalse(cIsCandidate);
+    }
+
+    /**
+     * Check that a complete constrained refinment run splits partitions based
+     * on violations of various invariants and that it does not split a
+     * partition which is only an endpoint of violation subpaths
+     */
+    @Test
+    public void completeRefinementTest() throws Exception {
+        // Same events as in stitchDetectionTest() plus one e
+        String[] events = { "a 0", "b 3", "c 5", "d 6", "e 9", "--", "a 10",
+                "b 11", "c 14", "d 16" };
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events);
+        exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+        exportTestGraph(graph, 1);
+
+        boolean hasInitial = false;
+        boolean hasTerminal = false;
+
+        for (Partition part : graph.getNodes()) {
+            // Check for initial and terminal partitions
+            if (part.isInitial()) {
+                hasInitial = true;
+                continue;
+            }
+            if (part.isTerminal()) {
+                hasTerminal = true;
+                continue;
+            }
+
+            EventType evType = part.getEType();
+
+            // Partition a should not be split: it is sometimes the beginning of
+            // a violation subpath but never in the middle
+            if (evType.equals(new StringEventType("a"))) {
+                assertTrue(part.size() == 2);
+            }
+
+            // Partitions b, c, and d should all be split, and e should begin
+            // and end with only 1 event
+            else if (evType.equals(new StringEventType("b"))
+                    || evType.equals(new StringEventType("c"))
+                    || evType.equals(new StringEventType("d"))
+                    || evType.equals(new StringEventType("e"))) {
+                assertTrue(part.size() == 1);
+            }
+
+            // No other partition types should exist
+            else {
+                throw new AssertionError("Unexpected partition type '" + evType
+                        + "' in constrained refinement run");
+            }
+        }
+
+        // Refined partition graph must have terminal and initial partitions
+        assertTrue(hasInitial);
+        assertTrue(hasTerminal);
     }
 }
