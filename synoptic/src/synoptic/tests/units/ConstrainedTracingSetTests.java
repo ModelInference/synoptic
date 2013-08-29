@@ -3,6 +3,7 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -24,16 +25,17 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
     /**
      * Get partitions corresponding to the 'a' and 'b' predicates of the current
-     * constrained invariant. This method is only guaranteed to give _some_
-     * partition with the label of 'a' and of 'b', so behavior is not guaranteed
-     * if there exists more than one 'a' or 'b' partition in the partition
-     * graph.
+     * constrained invariant and the terminal partition. This method is only
+     * guaranteed to give _some_ partition with the label of 'a' and of 'b', so
+     * behavior is not guaranteed if there exists more than one 'a' or 'b'
+     * partition in the partition graph.
      * 
-     * @return 2-element array of partitions: [0] is 'a', [1] is 'b'
+     * @return 3-element array of partitions: [0] is 'a', [1] is 'b', [2] is
+     *         terminal
      */
     private Partition[] getPartitions() {
 
-        Partition[] partitions = new Partition[2];
+        Partition[] partitions = new Partition[3];
 
         // Get partition of first invariant predicate ("A")
         for (Partition part : graph.getNodes()) {
@@ -47,6 +49,14 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         for (Partition part : graph.getNodes()) {
             if (part.getEType().equals(inv.getSecond())) {
                 partitions[1] = part;
+                break;
+            }
+        }
+
+        // Get terminal partition
+        for (Partition part : graph.getNodes()) {
+            if (part.isTerminal()) {
+                partitions[2] = part;
                 break;
             }
         }
@@ -82,22 +92,37 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     @Test
     public void APUpperCounterExamplePathTest() throws Exception {
 
-        // Get tracing sets and partitions corresponding to 'a' and 'b' events
+        // Get tracing sets and partitions corresponding to 'a' and 'c' events
+        // and terminal
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
                 stdEvents, "a AP c upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
-        // Get counter-example path for partition 'c'
-        CExamplePath<Partition> cExPath = tracingSets.get(partitions[1])
+        // Get counter-example path at the terminal partition
+        CExamplePath<Partition> cExPath = tracingSets.get(partitions[2])
                 .failpath().toCounterexample(inv);
 
-        // Counter-example path should be (INITIAL -> a -> b -> c)
-        assertTrue(cExPath.path.size() == 4);
+        // Shorter variable aliases for cleaner assertions below
+        List<Partition> path = cExPath.path;
+        int vStart = cExPath.violationStart;
+        int vEnd = cExPath.violationEnd;
 
-        // Counter-example path should store time at failure state as 120 after
+        // Counter-example path should be (INIT -> a -> b -> c -> TERM)
+        assertTrue(path.size() == 5);
+
+        // Violation subpath should start at 'a' and end at 'c'
+        assertTrue(path.get(vStart).equals(partitions[0]));
+        assertTrue(path.get(vEnd).equals(partitions[1]));
+
+        // Violation subpath should be two abstract transitions long
+        // (a -> b -> c)
+        assertTrue(vEnd - vStart == 2);
+
+        // Counter-example path should store time at the end of violation
+        // subpath as 120 after
         // taking all max time transitions ( a --60--> b --60--> c )
         ITime t120 = new ITotalTime(120);
-        assertTrue(cExPath.tDeltas.get(3).compareTo(t120) == 0);
+        assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
 
         tearDown();
     }
