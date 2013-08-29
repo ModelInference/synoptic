@@ -23,14 +23,17 @@ import synoptic.util.time.ITotalTime;
  */
 public class ConstrainedTracingSetTests extends PynopticTest {
 
+    protected String[] stdEvents = { "a 0", "b 11", "c 71", "x 72", "--",
+            "a 100", "b 160", "c 171", "x 172" };
+
     /**
-     * Get partitions corresponding to the 'a' and 'b' predicates of the current
+     * Get partitions corresponding to the A and B predicates of the current
      * constrained invariant and the terminal partition. This method is only
-     * guaranteed to give _some_ partition with the label of 'a' and of 'b', so
-     * behavior is not guaranteed if there exists more than one 'a' or 'b'
-     * partition in the partition graph.
+     * guaranteed to give _some_ partition with the label of A and of B, so
+     * behavior is not guaranteed if there exists more than one A or B partition
+     * in the partition graph.
      * 
-     * @return 3-element array of partitions: [0] is 'a', [1] is 'b', [2] is
+     * @return 3-element array of partitions: [0] is A, [1] is B, [2] is
      *         terminal
      */
     private Partition[] getPartitions() {
@@ -81,8 +84,6 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // State machine should be at a failure state at partition 'c'
         assertTrue(tracingSets.get(partitions[1]).isFail());
-
-        tearDown();
     }
 
     /**
@@ -107,8 +108,8 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         int vStart = cExPath.violationStart;
         int vEnd = cExPath.violationEnd;
 
-        // Counter-example path should be (INIT -> a -> b -> c -> TERM)
-        assertTrue(path.size() == 5);
+        // Counter-example path should be (INIT -> a -> b -> c -> x -> TERM)
+        assertTrue(path.size() == 6);
 
         // Violation subpath should start at 'a' and end at 'c'
         assertTrue(path.get(vStart).equals(partitions[0]));
@@ -123,7 +124,5 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // taking all max time transitions ( a --60--> b --60--> c )
         ITime t120 = new ITotalTime(120);
         assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
-
-        tearDown();
     }
 }

@@ -26,9 +26,6 @@ import synoptic.model.PartitionGraph;
  */
 public abstract class PynopticTest extends SynopticTest {
 
-    protected String[] stdEvents = { "a 0", "b 11", "c 71", "--", "a 100",
-            "b 110", "c 169", "--", "a 200", "b 260", "c 271", "--", "a 300",
-            "b 359", "c 369" };
     protected PartitionGraph graph;
     protected TempConstrainedInvariant<?> inv;
 
