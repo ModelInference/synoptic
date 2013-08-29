@@ -206,16 +206,15 @@ public class FsmModelChecker {
 
             // TODO: When other constrained tracing sets are implemented, change
             // the following code to use the proper tracing set rather than
-            // returning null (Issue 329)
+            // returning null (Issues 336, 337)
 
             if (constInvInv instanceof AlwaysFollowedInvariant) {
                 // AFby Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
-                    return null;
-                    // stateset = new AFbyUpperTracingSet<Node>(invariant);
-
-                    // AFby Lower
-                } else if (constInvConst instanceof LowerBoundConstraint) {
+                    stateset = new AFbyUpperTracingSet<Node>(invariant);
+                }
+                // AFby Lower
+                else if (constInvConst instanceof LowerBoundConstraint) {
                     return null;
                     // stateset = new AFbyLowerTracingSet<Node>(invariant);
                 }
@@ -223,9 +222,9 @@ public class FsmModelChecker {
                 // AP Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
                     stateset = new APUpperTracingSet<Node>(invariant);
-
-                    // AP Lower
-                } else if (constInvConst instanceof LowerBoundConstraint) {
+                }
+                // AP Lower
+                else if (constInvConst instanceof LowerBoundConstraint) {
                     return null;
                     // stateset = new APLowerTracingSet<Node>(invariant);
                 }

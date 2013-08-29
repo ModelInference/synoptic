@@ -311,7 +311,8 @@ public class Bisimulation {
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
-        // TODO: Uncomment when the lower-bound subtypes are implemented
+        // TODO: Uncomment when the lower-bound subtypes are implemented (Issues
+        // 336, 337)
         // Check if this is a lower-bound constrained invariant
         // boolean isLower = false;
         // if (inv instanceof APLowerTracingSet || inv instanceof
@@ -410,7 +411,8 @@ public class Bisimulation {
                         // We've found a iPart->jPart path if the new event is
                         // in jPart
                         if (curEvent.getParent() == jPart) {
-                            // TODO: Make this lower-bound-friendly (Issue 329)
+                            // TODO: Make this lower-bound-friendly (Issues 336,
+                            // 337)
 
                             // Illegal path which would not resolve the
                             // violation
