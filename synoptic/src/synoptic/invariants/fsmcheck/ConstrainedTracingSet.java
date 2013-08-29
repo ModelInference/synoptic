@@ -326,10 +326,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
         }
 
-        // TODO: Add checks for the other 3 constrained invariants when they're
-        // implemented (Issue 329)
+        // TODO: Add checks for the other 2 constrained invariants when they're
+        // implemented (Issues 336, 337)
         boolean isUpper;
-        if (this instanceof APUpperTracingSet) {
+        if (this instanceof APUpperTracingSet
+                || this instanceof AFbyUpperTracingSet) {
             isUpper = true;
         } else {
             throw new InternalSynopticException(
@@ -359,8 +360,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
-            // TODO: Make this process correct for lower-bound invariants (Issue
-            // 329)
+            // TODO: Make this process correct for lower-bound invariants
+            // (Issues 336, 337)
 
             // Increment running time and compare to time bound
             ITime newTime = tRunning.get(i).incrBy(minMaxTime);
