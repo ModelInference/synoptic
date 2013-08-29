@@ -23,8 +23,17 @@ import synoptic.util.time.ITotalTime;
  */
 public class ConstrainedTracingSetTests extends PynopticTest {
 
-    protected String[] stdEvents = { "x 0", "y 11", "z 71", "w 72", "--",
-            "x 100", "y 160", "z 171", "w 172" };
+    // Events for AP tests. Traces 1 and 2 are common, and trace 3 causes there
+    // to be no "x AFby z" invariant to ensure that AP tracing sets are truly
+    // modeling AP FSMs
+    protected String[] eventsAP = { "x 0", "y 11", "z 71", "w 72", "--",
+            "x 100", "y 160", "z 171", "w 172", "--", "x 200", "u 201" };
+
+    // Events for AFby tests. Traces 1 and 2 are common, and trace 3 causes
+    // there to be no "x AP z" invariant to ensure that AFby tracing sets are
+    // truly modeling AFby FSMs
+    protected String[] eventsAFby = { "x 0", "y 11", "z 71", "w 72", "--",
+            "x 100", "y 160", "z 171", "w 172", "--", "v 200", "z 201", "w 202" };
 
     /**
      * Get partitions corresponding to the A and B predicates of the current
@@ -76,7 +85,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // Get tracing sets and partitions corresponding to A and B events
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                stdEvents, "x AP z upper", TracingSet.APUpper);
+                eventsAP, "x AP z upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'x'
@@ -95,7 +104,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // Get tracing sets and partitions corresponding to A and B events
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                stdEvents, "x AFby z upper", TracingSet.AFbyUpper);
+                eventsAFby, "x AFby z upper", TracingSet.AFbyUpper);
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'x'
@@ -115,7 +124,47 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // Get tracing sets and partitions corresponding to A and B events and
         // terminal
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                stdEvents, "x AP z upper", TracingSet.APUpper);
+                eventsAP, "x AP z upper", TracingSet.APUpper);
+        Partition[] partitions = getPartitions();
+
+        // Get counter-example path at the terminal partition
+        CExamplePath<Partition> cExPath = tracingSets.get(partitions[2])
+                .failpath().toCounterexample(inv);
+
+        // Shorter variable aliases for cleaner assertions below
+        List<Partition> path = cExPath.path;
+        int vStart = cExPath.violationStart;
+        int vEnd = cExPath.violationEnd;
+
+        // Counter-example path should be (INIT -> x -> y -> z -> w -> TERM)
+        assertTrue(path.size() == 6);
+
+        // Violation subpath should start at 'x' and end at 'z'
+        assertTrue(path.get(vStart).equals(partitions[0]));
+        assertTrue(path.get(vEnd).equals(partitions[1]));
+
+        // Violation subpath should be two abstract transitions long
+        // (x -> y -> z)
+        assertTrue(vEnd - vStart == 2);
+
+        // Counter-example path should store time at the end of violation
+        // subpath as 120 after
+        // taking all max time transitions ( x --60--> y --60--> z )
+        ITime t120 = new ITotalTime(120);
+        assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
+    }
+
+    /**
+     * Check that AFbyUpperTracingSet returns the correct counter-example path
+     * when the time constraint is violated
+     */
+    @Test
+    public void AFbyUpperCounterExamplePathTest() throws Exception {
+
+        // Get tracing sets and partitions corresponding to A and B events and
+        // terminal
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
+                eventsAFby, "x AFby z upper", TracingSet.AFbyUpper);
         Partition[] partitions = getPartitions();
 
         // Get counter-example path at the terminal partition
