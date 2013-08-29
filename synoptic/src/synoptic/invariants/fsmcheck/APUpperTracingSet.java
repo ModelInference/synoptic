@@ -178,18 +178,4 @@ public class APUpperTracingSet<T extends INode<T>> extends
         // TODO: Find out what "subset" means for constrained tracing sets
         return false;
     }
-
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("APUpper: ");
-        appendWNull(result, states.get(0));
-        result.append(" | ");
-        appendWNull(result, states.get(1));
-        result.append(" | ");
-        appendWNull(result, states.get(2));
-        result.append(" | ");
-        appendWNull(result, states.get(3));
-        return result.toString();
-    }
 }

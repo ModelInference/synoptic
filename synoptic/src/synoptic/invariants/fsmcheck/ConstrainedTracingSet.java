@@ -486,4 +486,26 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         return minMaxTransitions;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        // Tracing set type (minus "TracingSet" at the end)
+        result.append(this.getClass().getSimpleName()
+                .replaceFirst("TracingSet", "")
+                + ": ");
+
+        // Print all current FSM states
+        for (int i = 0; i < states.size(); ++i) {
+            appendWNull(result, states.get(i));
+
+            // Print separator after all but the last state
+            if (i < states.size() - 1) {
+                result.append(" | ");
+            }
+        }
+
+        return result.toString();
+    }
 }
