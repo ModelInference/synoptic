@@ -23,8 +23,8 @@ import synoptic.util.time.ITotalTime;
  */
 public class ConstrainedTracingSetTests extends PynopticTest {
 
-    protected String[] stdEvents = { "a 0", "b 11", "c 71", "x 72", "--",
-            "a 100", "b 160", "c 171", "x 172" };
+    protected String[] stdEvents = { "x 0", "y 11", "z 71", "w 72", "--",
+            "x 100", "y 160", "z 171", "w 172" };
 
     /**
      * Get partitions corresponding to the A and B predicates of the current
@@ -74,15 +74,34 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     @Test
     public void APUpperFailureStateTest() throws Exception {
 
-        // Get tracing sets and partitions corresponding to 'a' and 'b' events
+        // Get tracing sets and partitions corresponding to A and B events
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                stdEvents, "a AP c upper", TracingSet.APUpper);
+                stdEvents, "x AP z upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
-        // State machine should be at an accept state at partition 'a'
+        // State machine should be at an accept state at partition 'x'
         assertFalse(tracingSets.get(partitions[0]).isFail());
 
-        // State machine should be at a failure state at partition 'c'
+        // State machine should be at a failure state at partition 'z'
+        assertTrue(tracingSets.get(partitions[1]).isFail());
+    }
+
+    /**
+     * Check that AFbyUpperTracingSet reaches a failure state when (and only
+     * when) the time constraint is violated
+     */
+    @Test
+    public void AFbyUpperFailureStateTest() throws Exception {
+
+        // Get tracing sets and partitions corresponding to A and B events
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
+                stdEvents, "x AFby z upper", TracingSet.AFbyUpper);
+        Partition[] partitions = getPartitions();
+
+        // State machine should be at an accept state at partition 'x'
+        assertFalse(tracingSets.get(partitions[0]).isFail());
+
+        // State machine should be at a failure state at partition 'z'
         assertTrue(tracingSets.get(partitions[1]).isFail());
     }
 
@@ -93,10 +112,10 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     @Test
     public void APUpperCounterExamplePathTest() throws Exception {
 
-        // Get tracing sets and partitions corresponding to 'a' and 'c' events
-        // and terminal
+        // Get tracing sets and partitions corresponding to A and B events and
+        // terminal
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                stdEvents, "a AP c upper", TracingSet.APUpper);
+                stdEvents, "x AP z upper", TracingSet.APUpper);
         Partition[] partitions = getPartitions();
 
         // Get counter-example path at the terminal partition
@@ -108,20 +127,20 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         int vStart = cExPath.violationStart;
         int vEnd = cExPath.violationEnd;
 
-        // Counter-example path should be (INIT -> a -> b -> c -> x -> TERM)
+        // Counter-example path should be (INIT -> x -> y -> z -> w -> TERM)
         assertTrue(path.size() == 6);
 
-        // Violation subpath should start at 'a' and end at 'c'
+        // Violation subpath should start at 'x' and end at 'z'
         assertTrue(path.get(vStart).equals(partitions[0]));
         assertTrue(path.get(vEnd).equals(partitions[1]));
 
         // Violation subpath should be two abstract transitions long
-        // (a -> b -> c)
+        // (x -> y -> z)
         assertTrue(vEnd - vStart == 2);
 
         // Counter-example path should store time at the end of violation
         // subpath as 120 after
-        // taking all max time transitions ( a --60--> b --60--> c )
+        // taking all max time transitions ( x --60--> y --60--> z )
         ITime t120 = new ITotalTime(120);
         assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
     }
