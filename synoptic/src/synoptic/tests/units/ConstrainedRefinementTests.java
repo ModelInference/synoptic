@@ -31,7 +31,11 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
     /**
      * Check that one partition with a stitch and another without are detected
-     * as such
+     * as such. The stitch detection process uses some code from
+     * ConstrainedTracingSets but only differs based on whether the invariant is
+     * upper or lower bound, so APUpper is used arbitrarily. <br />
+     * TODO: also test stitch detection using one of the lower-bound tracing
+     * state sets (Issues 336, 337)
      */
     @Test
     public void stitchDetectionTest() throws Exception {
