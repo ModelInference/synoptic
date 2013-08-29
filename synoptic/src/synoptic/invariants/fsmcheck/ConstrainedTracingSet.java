@@ -279,6 +279,22 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     @Override
+    public void setInitial(T input) {
+
+        // Should only be called on INITIAL nodes
+        assert (input.isInitial());
+
+        ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input,
+                null, 0, null, null);
+
+        // Always start on State0
+        states.set(0, newHistory);
+
+        // This node is our new previous node (for future transitions)
+        previous = input;
+    }
+
+    @Override
     public void transition(T input) {
 
         EventType name = input.getEType();
