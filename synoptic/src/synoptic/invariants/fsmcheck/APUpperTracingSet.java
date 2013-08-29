@@ -18,6 +18,7 @@ import synoptic.util.time.ITime;
  * State2 = states.get(2): A seen, then B seen within time bound or anything
  * else seen <br />
  * State3 = states.get(3): B seen first or after A but out of time bound
+ * (permanent reject state)
  * 
  * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
@@ -101,14 +102,10 @@ public class APUpperTracingSet<T extends INode<T>> extends
         }
 
         // Extend histories for each state
-        states.set(0,
-                extend(input, states.get(0), transitions, tRunning.get(0)));
-        states.set(1,
-                extend(input, states.get(1), transitions, tRunning.get(1)));
-        states.set(2,
-                extend(input, states.get(2), transitions, tRunning.get(2)));
-        states.set(3,
-                extend(input, states.get(3), transitions, tRunning.get(3)));
+        for (int i = 0; i < states.size(); ++i) {
+            states.set(i,
+                    extend(input, states.get(i), transitions, tRunning.get(i)));
+        }
 
         // The violation subpath started if we just reached State1
         if (states.get(1) != null && statesOld.get(1) == null) {
