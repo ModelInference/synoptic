@@ -161,8 +161,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 a, b);
 
         // TODO used for testing purposes, remove when done.
-        logger.info("Eventtype a = " + a + ", b = " + b + ", lowerbound = "
-                + constraints.getLeft().getThreshold() + ", upperbound = "
+        logger.info(a + " " + inv.getShortName() + " " + b + ",  lowerbound = "
+                + constraints.getLeft().getThreshold() + ",  upperbound = "
                 + constraints.getRight().getThreshold());
 
         // Create two TempConstrainedInvariant objects using the lower bound and
