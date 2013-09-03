@@ -85,7 +85,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // Get tracing sets and partitions corresponding to A and B events
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                eventsAP, "x AP z upper", TracingSet.APUpper);
+                events, invString, type);
         Partition[] partitions = getPartitions();
 
         // State machine should be at an accept state at partition 'x'
@@ -125,7 +125,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // Get tracing sets and partitions corresponding to A and B events and
         // terminal
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                eventsAP, "x AP z upper", TracingSet.APUpper);
+                events, invString, type);
         Partition[] partitions = getPartitions();
 
         // Get counter-example path at the terminal partition
