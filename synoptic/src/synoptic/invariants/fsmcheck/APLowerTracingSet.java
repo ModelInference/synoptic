@@ -132,8 +132,8 @@ public class APLowerTracingSet<T extends INode<T>> extends
                     extend(input, states.get(i), transitions, tRunning.get(i)));
         }
 
-        // The violation subpath started if we just reached State1
-        if (states.get(1) != null && statesOld.get(1) == null) {
+        // The violation subpath starts whenever we reach State1
+        if (states.get(1) != null) {
             states.get(1).startViolationHere();
         }
 

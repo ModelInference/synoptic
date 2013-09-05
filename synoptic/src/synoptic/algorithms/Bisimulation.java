@@ -31,6 +31,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
@@ -311,14 +312,11 @@ public class Bisimulation {
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
-        // TODO: Uncomment when the lower-bound subtypes are implemented (Issues
-        // 336, 337)
         // Check if this is a lower-bound constrained invariant
-        // boolean isLower = false;
-        // if (inv instanceof APLowerTracingSet || inv instanceof
-        // AFbyLowerTracingSet) {
-        // isLower = true;
-        // }
+        boolean isLower = false;
+        if (inv.getConstraint() instanceof LowerBoundConstraint) {
+            isLower = true;
+        }
 
         // Get the single relation of the invariant
         Set<String> invRelation = new HashSet<String>(1);
