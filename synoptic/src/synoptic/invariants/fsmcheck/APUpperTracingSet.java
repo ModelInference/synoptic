@@ -93,9 +93,12 @@ public class APUpperTracingSet<T extends INode<T>> extends
 
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
-        // State2 requires updates.
+        // State2,3 require updates.
         if (states.get(2) != null) {
             tRunning.set(2, tMax.incrBy(states.get(2).tDelta));
+        }
+        if (states.get(3) != null) {
+            tRunning.set(3, tMax.incrBy(states.get(3).tDelta));
         }
 
         // Extend histories for each state
