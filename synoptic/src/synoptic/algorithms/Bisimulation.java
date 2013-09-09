@@ -31,8 +31,8 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -312,10 +312,10 @@ public class Bisimulation {
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
         TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
-        // Check if this is a lower-bound constrained invariant
-        boolean isLower = false;
-        if (inv.getConstraint() instanceof LowerBoundConstraint) {
-            isLower = true;
+        // Check if this is an upper-bound constrained invariant
+        boolean isUpper = false;
+        if (inv.getConstraint() instanceof UpperBoundConstraint) {
+            isUpper = true;
         }
 
         // Get the single relation of the invariant
@@ -373,12 +373,23 @@ public class Bisimulation {
                 // subpath
                 ITime curTime = tDeltas.get(i);
 
-                // Check if we're already over the time bound
+                // Check if we're already at or over the time bound
                 if (tBound.lessThan(curTime)) {
-                    continue;
+                    // For upper-bound invariants, we shouldn't consider
+                    // splitting here because legal subpaths cannot exist, as
+                    // they would be negative
+                    if (isUpper) {
+                        continue;
+                    }
+
+                    // For lower-bound invariants, this should never occur, as
+                    // it means there is no violation
+                    throw new InternalSynopticException(
+                            "Attempting constrained refinement using lower-bound invariant counter-example path which contains no violation.");
                 }
 
-                // Any subpath <= this target time is legal
+                // Any subpath <= (for upper-bound) or >= (for lower-bound) this
+                // target time is legal
                 ITime targetSubpathTime = tBound.computeDelta(curTime);
 
                 // Walk through paths of events in iPart, finding any that get
@@ -409,12 +420,16 @@ public class Bisimulation {
                         // We've found a iPart->jPart path if the new event is
                         // in jPart
                         if (curEvent.getParent() == jPart) {
-                            // TODO: Make this lower-bound-friendly (Issues 336,
-                            // 337)
+
+                            // How this iPart->jPart path's time compares to the
+                            // target time
+                            int comparisonToTarget = curSubpathTime
+                                    .compareTo(targetSubpathTime);
 
                             // Illegal path which would not resolve the
                             // violation
-                            if (targetSubpathTime.lessThan(curSubpathTime)) {
+                            if ((isUpper && comparisonToTarget > 0)
+                                    || (!isUpper && comparisonToTarget < 0)) {
                                 startsOfIllegalSubpaths.add(iEvent);
                             }
 
