@@ -9,6 +9,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.AFbyUpperTracingSet;
+import synoptic.invariants.fsmcheck.APLowerTracingSet;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.fsmcheck.TracingStateSet;
@@ -133,7 +134,7 @@ public abstract class PynopticTest extends SynopticTest {
         if (type == TracingSet.APUpper) {
             tracingSet = new APUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.APLower) {
-            // tracingSet = new APLowerTracingSet<Partition>(inv);
+            tracingSet = new APLowerTracingSet<Partition>(inv);
         } else if (type == TracingSet.AFbyUpper) {
             tracingSet = new AFbyUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.AFbyLower) {
