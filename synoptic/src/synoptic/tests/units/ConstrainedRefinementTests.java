@@ -33,18 +33,16 @@ public class ConstrainedRefinementTests extends PynopticTest {
      * Check that one partition with a stitch and another without are detected
      * as such. The stitch detection process uses some code from
      * ConstrainedTracingSets but only differs based on whether the invariant is
-     * upper or lower bound, so APUpper is used arbitrarily. <br />
-     * TODO: also test stitch detection using one of the lower-bound tracing
-     * state sets (Issues 336, 337)
+     * upper or lower bound, so only one test of each type is necessary.
      */
-    @Test
-    public void stitchDetectionTest() throws Exception {
+    private void stitchDetectionTestCommon(String invString, TracingSet type)
+            throws Exception {
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
                 "c 14", "d 16" };
 
         // Get tracing sets
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                events, "a AP d upper", TracingSet.APUpper);
+                events, invString, type);
 
         CExamplePath<Partition> cExPath = null;
 
@@ -67,6 +65,22 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // There is not a stitch at c: second trace is max coming from b and
         // going to d
         assertFalse(Bisimulation.stitchExists(cExPath, cIndex));
+    }
+
+    /**
+     * Check that a stitch is detected for an upper-bound invariant.
+     */
+    @Test
+    public void upperStitchDetectionTest() throws Exception {
+        stitchDetectionTestCommon("a AP d upper", TracingSet.APUpper);
+    }
+
+    /**
+     * Check that a stitch is detected for an lower-bound invariant.
+     */
+    @Test
+    public void lowerStitchDetectionTest() throws Exception {
+        stitchDetectionTestCommon("a AP d lower", TracingSet.APLower);
     }
 
     /**
