@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="Daikonizer">
+    <description>
+      Provides targets to build and package the Daikonizer
+      project into a daikonizer.jar archive.
+    </description>
+
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
+    <property environment="env"/>
+    
+    <!-- Where to create the jar file. -->
+    <property name="daikonizer.jarpath" value="${util.synoptic.libdir}/daikonizer.jar"/>
+
+    <!-- Where to find the generated daikonizer classes. -->
+    <path id="daikonizer.classes.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <!-- The set of jars daikonizer depends on, in classpath format. -->
+    <path id="daikonizer.depjars.classpath">
+      <pathelement location="${util.synoptic.libdir}/daikon.jar"/>
+    </path>
+
+    <!-- The complete classpath for running the compiled daikonizer. -->
+    <path id="daikonizer.classpath">
+      <path refid="daikonizer.classes.classpath"/>
+      <path refid="daikonizer.depjars.classpath"/>
+    </path>
+
+    <manifestclasspath property="jar.liblist" jarfile="${daikonizer.jarpath}">
+      <classpath refid="daikonizer.depjars.classpath" />
+    </manifestclasspath>
+
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+    <!--=====================================================================-->
+    <target name="clean">
+      <delete dir="bin"/>
+      <delete dir="junit"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="build">
+      <!-- Create the bin/ dir where compiled .class files will go. -->
+      <mkdir dir="bin"/>
+      
+      <echo message="${ant.project.name}: ${ant.file}"/>
+      <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	<!-- <compilerarg value="-Xlint:unchecked" /> -->
+        <src path="src"/>
+        <classpath refid="daikonizer.classpath"/>
+      </javac>
+    </target>
+    
+    <!--=====================================================================-->
+    <target name="jar" depends="build,util.hg-rev-extract">
+      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+
+      <!-- Build a jar composed of compiled .class files. -->
+      <jar destfile="${daikonizer.jarpath}"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="daikonizer" />
+	  <attribute name="Implementation-Version" value="0.1" />
+	  <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
+	</manifest>
+      </jar>
+    </target>
+
+</project>
