@@ -55,17 +55,17 @@ public class APLowerTracingSet<T extends INode<T>> extends
 
         // State1 -> State1
         if (statesOld.get(1) != null && isA) {
-            states.set(1, preferMaxTime(statesOld.get(1), states.get(1)));
+            states.set(1, preferMinTime(statesOld.get(1), states.get(1)));
         }
 
         // State2 -> State1
         if (statesOld.get(2) != null && isA) {
-            states.set(1, preferMaxTime(statesOld.get(2), states.get(1)));
+            states.set(1, preferMinTime(statesOld.get(2), states.get(1)));
         }
 
         // State4 -> State1
         if (statesOld.get(4) != null && isA) {
-            states.set(1, preferMaxTime(statesOld.get(4), states.get(1)));
+            states.set(1, preferMinTime(statesOld.get(4), states.get(1)));
         }
 
         // State1 -> State2
@@ -75,7 +75,7 @@ public class APLowerTracingSet<T extends INode<T>> extends
 
         // State2 -> State2
         if (statesOld.get(2) != null && !isA && !isB) {
-            states.set(2, preferMaxTime(statesOld.get(2), states.get(2)));
+            states.set(2, preferMinTime(statesOld.get(2), states.get(2)));
         }
 
         // State0 -> State3
@@ -85,17 +85,17 @@ public class APLowerTracingSet<T extends INode<T>> extends
 
         // State1 -> State3
         if (statesOld.get(1) != null && isB && outOfBound.get(1)) {
-            states.set(3, preferMaxTime(statesOld.get(1), states.get(3)));
+            states.set(3, preferMinTime(statesOld.get(1), states.get(3)));
         }
 
         // State2 -> State3
         if (statesOld.get(2) != null && isB && outOfBound.get(2)) {
-            states.set(3, preferMaxTime(statesOld.get(2), states.get(3)));
+            states.set(3, preferMinTime(statesOld.get(2), states.get(3)));
         }
 
         // State3 -> State3
         if (statesOld.get(3) != null) {
-            states.set(3, preferMaxTime(statesOld.get(3), states.get(3)));
+            states.set(3, preferMinTime(statesOld.get(3), states.get(3)));
         }
 
         // State1 -> State4
@@ -105,12 +105,12 @@ public class APLowerTracingSet<T extends INode<T>> extends
 
         // State2 -> State4
         if (statesOld.get(2) != null && isB && !outOfBound.get(2)) {
-            states.set(4, preferMaxTime(statesOld.get(2), states.get(4)));
+            states.set(4, preferMinTime(statesOld.get(2), states.get(4)));
         }
 
         // State4 -> State4
         if (statesOld.get(4) != null && !isA) {
-            states.set(4, preferMaxTime(statesOld.get(4), states.get(4)));
+            states.set(4, preferMinTime(statesOld.get(4), states.get(4)));
         }
 
         // Retrieve the previously-found min time delta
