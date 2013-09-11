@@ -131,15 +131,15 @@ public class ConstrainedRefinementTests extends PynopticTest {
      * legal and >0 illegal concrete paths to some other partition later in the
      * violation subpath.
      */
-    @Test
-    public void getSplitsTest() throws Exception {
+    private void getSplitsTestCommon(String invString, TracingSet type)
+            throws Exception {
         // Same events as in stitchDetectionTest()
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
                 "c 14", "d 16" };
 
         // Get tracing sets
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                events, "a AP d upper", TracingSet.APUpper);
+                events, invString, type);
 
         CExamplePath<Partition> cExPath = null;
 
@@ -190,7 +190,25 @@ public class ConstrainedRefinementTests extends PynopticTest {
     }
 
     /**
-     * Check that a complete constrained refinment run splits partitions based
+     * Check that the proper partitions are considered for splitting using an
+     * upper-bound invariant
+     */
+    @Test
+    public void upperGetSplitsTest() throws Exception {
+        getSplitsTestCommon("a AP d upper", TracingSet.APUpper);
+    }
+
+    /**
+     * Check that the proper partitions are considered for splitting using an
+     * lower-bound invariant
+     */
+    @Test
+    public void lowerGetSplitsTest() throws Exception {
+        getSplitsTestCommon("a AP d lower", TracingSet.APLower);
+    }
+
+    /**
+     * Check that a complete constrained refinement run splits partitions based
      * on violations of various invariants and that it does not split a
      * partition which is only an endpoint of violation subpaths
      */
