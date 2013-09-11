@@ -310,7 +310,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             isB = true;
         }
 
-        // Get and all time deltas from the transition between "previous" and
+        // Get all time deltas from the transition between "previous" and
         // "input" nodes
         Set<ITransition<EventNode>> evTransitions = null;
         if (previous != null) {
@@ -326,12 +326,13 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
         }
 
-        // TODO: Add checks for the other 2 constrained invariants when they're
-        // implemented (Issues 336, 337)
+        // TODO: Add check for AFbyLower when implemented (Issue 337)
         boolean isUpper;
         if (this instanceof APUpperTracingSet
                 || this instanceof AFbyUpperTracingSet) {
             isUpper = true;
+        } else if (this instanceof APLowerTracingSet) {
+            isUpper = false;
         } else {
             throw new InternalSynopticException(
                     "ConstrainedTracingSet not updated to handle this subtype: "
@@ -360,8 +361,6 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Check for times outside time bound
         for (int i = 0; i < numStates; ++i) {
-            // TODO: Make this process correct for lower-bound invariants
-            // (Issues 336, 337)
 
             // Increment running time and compare to time bound
             ITime newTime = tRunning.get(i).incrBy(minMaxTime);

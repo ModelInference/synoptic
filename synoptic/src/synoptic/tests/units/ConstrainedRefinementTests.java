@@ -33,18 +33,16 @@ public class ConstrainedRefinementTests extends PynopticTest {
      * Check that one partition with a stitch and another without are detected
      * as such. The stitch detection process uses some code from
      * ConstrainedTracingSets but only differs based on whether the invariant is
-     * upper or lower bound, so APUpper is used arbitrarily. <br />
-     * TODO: also test stitch detection using one of the lower-bound tracing
-     * state sets (Issues 336, 337)
+     * upper or lower bound, so only one test of each type is necessary.
      */
-    @Test
-    public void stitchDetectionTest() throws Exception {
+    private void stitchDetectionTestCommon(String invString, TracingSet type)
+            throws Exception {
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
                 "c 14", "d 16" };
 
         // Get tracing sets
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                events, "a AP d upper", TracingSet.APUpper);
+                events, invString, type);
 
         CExamplePath<Partition> cExPath = null;
 
@@ -67,6 +65,22 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // There is not a stitch at c: second trace is max coming from b and
         // going to d
         assertFalse(Bisimulation.stitchExists(cExPath, cIndex));
+    }
+
+    /**
+     * Check that a stitch is detected for an upper-bound invariant.
+     */
+    @Test
+    public void upperStitchDetectionTest() throws Exception {
+        stitchDetectionTestCommon("a AP d upper", TracingSet.APUpper);
+    }
+
+    /**
+     * Check that a stitch is detected for an lower-bound invariant.
+     */
+    @Test
+    public void lowerStitchDetectionTest() throws Exception {
+        stitchDetectionTestCommon("a AP d lower", TracingSet.APLower);
     }
 
     /**
@@ -117,15 +131,15 @@ public class ConstrainedRefinementTests extends PynopticTest {
      * legal and >0 illegal concrete paths to some other partition later in the
      * violation subpath.
      */
-    @Test
-    public void getSplitsTest() throws Exception {
+    private void getSplitsTestCommon(String invString, TracingSet type)
+            throws Exception {
         // Same events as in stitchDetectionTest()
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
                 "c 14", "d 16" };
 
         // Get tracing sets
         Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
-                events, "a AP d upper", TracingSet.APUpper);
+                events, invString, type);
 
         CExamplePath<Partition> cExPath = null;
 
@@ -176,7 +190,25 @@ public class ConstrainedRefinementTests extends PynopticTest {
     }
 
     /**
-     * Check that a complete constrained refinment run splits partitions based
+     * Check that the proper partitions are considered for splitting using an
+     * upper-bound invariant
+     */
+    @Test
+    public void upperGetSplitsTest() throws Exception {
+        getSplitsTestCommon("a AP d upper", TracingSet.APUpper);
+    }
+
+    /**
+     * Check that the proper partitions are considered for splitting using an
+     * lower-bound invariant
+     */
+    @Test
+    public void lowerGetSplitsTest() throws Exception {
+        getSplitsTestCommon("a AP d lower", TracingSet.APLower);
+    }
+
+    /**
+     * Check that a complete constrained refinement run splits partitions based
      * on violations of various invariants and that it does not split a
      * partition which is only an endpoint of violation subpaths
      */
@@ -233,5 +265,105 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // Refined partition graph must have terminal and initial partitions
         assertTrue(hasInitial);
         assertTrue(hasTerminal);
+    }
+
+    /**
+     * Common code for testing refinement of graphs aimed at a specific
+     * constrained invariant type
+     */
+    private void refinementTestCommon(String[] events) throws Exception {
+
+        int totalAs = 0;
+        int totalBs = 0;
+        int totalCs = 0;
+
+        // Count total number of a, b, and c events
+        for (String s : events) {
+            if (s.startsWith("a")) {
+                totalAs++;
+            } else if (s.startsWith("b")) {
+                totalBs++;
+            } else if (s.startsWith("c")) {
+                totalCs++;
+            }
+        }
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events);
+        exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+        exportTestGraph(graph, 1);
+
+        for (Partition part : graph.getNodes()) {
+
+            EventType evType = part.getEType();
+
+            // Partition a should not be split: it is sometimes the beginning of
+            // a violation subpath but never in the middle
+            if (evType.equals(new StringEventType("a"))) {
+                assertTrue(part.size() == totalAs);
+            }
+
+            // Partitions b should be split
+            else if (evType.equals(new StringEventType("b"))) {
+                assertTrue(part.size() < totalBs);
+            }
+
+            // Partition c should not be split: it is sometimes the end of a
+            // violation subpath but never in the middle
+            else if (evType.equals(new StringEventType("c"))) {
+                assertTrue(part.size() == totalCs);
+            }
+
+            // No other partition types should exist except INIT and TERM
+            else if (!part.isInitial() && !part.isTerminal()) {
+                throw new AssertionError("Unexpected partition type '" + evType
+                        + "' in constrained refinement run");
+            }
+        }
+    }
+
+    /**
+     * Tests that constrained refinement is correct using a graph that will only
+     * be split by an APUpper counter-example
+     */
+    @Test
+    public void APUpperRefinementTest() throws Exception {
+        // Traces 1 and 2 cause the split (stitching the length 4 edges). Trace
+        // 3 removes the lower-bound violation and forces only the upper-bound
+        // counter-example. Trace 4 removes "a AFby c" invariants and forces AP.
+        String[] events = { "a 0", "b 4", "c 5", "--", "a 10", "b 11", "c 15",
+                "--", "a 20", "b 21", "c 22", "--", "a 30" };
+
+        refinementTestCommon(events);
+    }
+
+    /**
+     * Tests that constrained refinement is correct using a graph that will only
+     * be split by an AFbyUpper counter-example
+     */
+    @Test
+    public void AFbyUpperRefinementTest() throws Exception {
+        // The lack of 'a' in Trace 2 removes "a AP c" invariants and forces
+        // AFby. The stitch between the two traces only exists for upper-bound
+        // invariants, forcing AFbyUpper counter-example exclusively.
+        String[] events = { "a 0", "b 4", "c 5", "--", "b 10", "c 14" };
+
+        refinementTestCommon(events);
+    }
+
+    /**
+     * Tests that constrained refinement is correct using a graph that will only
+     * be split by an APLower counter-example
+     */
+    @Test
+    public void APLowerRefinementTest() throws Exception {
+        // Traces 1 and 2 cause the split (stitching the length 1 edges). Trace
+        // 3 removes the upper-bound violation and forces only the lower-bound
+        // counter-example. Trace 4 removes "a AFby c" invariants and forces AP.
+        String[] events = { "a 0", "b 4", "c 5", "--", "a 10", "b 11", "c 15",
+                "--", "a 20", "b 24", "c 28", "--", "a 30" };
+
+        refinementTestCommon(events);
     }
 }
