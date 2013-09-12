@@ -8,6 +8,7 @@ import org.junit.Before;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.fsmcheck.AFbyLowerTracingSet;
 import synoptic.invariants.fsmcheck.AFbyUpperTracingSet;
 import synoptic.invariants.fsmcheck.APLowerTracingSet;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
@@ -128,8 +129,6 @@ public abstract class PynopticTest extends SynopticTest {
         inv = getConstrainedInv(graph.getInvariants(), invString);
 
         // Set up the appropriate ConstrainedTracingSet subtype
-        // TODO: Uncomment appropriate lines when other ConstrainedTracingSets
-        // are implemented (Issues 336, 337)
         TracingStateSet<Partition> tracingSet = null;
         if (type == TracingSet.APUpper) {
             tracingSet = new APUpperTracingSet<Partition>(inv);
@@ -138,7 +137,7 @@ public abstract class PynopticTest extends SynopticTest {
         } else if (type == TracingSet.AFbyUpper) {
             tracingSet = new AFbyUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.AFbyLower) {
-            // tracingSet = new AFbyLowerTracingSet<Partition>(inv);
+            tracingSet = new AFbyLowerTracingSet<Partition>(inv);
         }
 
         // Run initial partition graph through the state machine for the
