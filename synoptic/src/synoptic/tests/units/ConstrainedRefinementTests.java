@@ -31,9 +31,9 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
     /**
      * Check that one partition with a stitch and another without are detected
-     * as such. The stitch detection process uses some code from
-     * ConstrainedTracingSets but only differs based on whether the invariant is
-     * upper or lower bound, so only one test of each type is necessary.
+     * as such. The stitch detection process differs based on whether the
+     * invariant is upper or lower bound, but only one test of each type is
+     * necessary.
      */
     private void stitchDetectionTestCommon(String invString, TracingSet type)
             throws Exception {
@@ -199,7 +199,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
     }
 
     /**
-     * Check that the proper partitions are considered for splitting using an
+     * Check that the proper partitions are considered for splitting using a
      * lower-bound invariant
      */
     @Test
@@ -363,6 +363,20 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // counter-example. Trace 4 removes "a AFby c" invariants and forces AP.
         String[] events = { "a 0", "b 4", "c 5", "--", "a 10", "b 11", "c 15",
                 "--", "a 20", "b 24", "c 28", "--", "a 30" };
+
+        refinementTestCommon(events);
+    }
+
+    /**
+     * Tests that constrained refinement is correct using a graph that will only
+     * be split by an AFbyLower counter-example
+     */
+    @Test
+    public void AFbyLowerRefinementTest() throws Exception {
+        // The lack of 'a' in Trace 2 removes "a AP c" invariants and forces
+        // AFby. The stitch between the two traces only exists for lower-bound
+        // invariants, forcing AFbyLower counter-example exclusively.
+        String[] events = { "a 0", "b 1", "c 5", "--", "b 10", "c 11" };
 
         refinementTestCommon(events);
     }
