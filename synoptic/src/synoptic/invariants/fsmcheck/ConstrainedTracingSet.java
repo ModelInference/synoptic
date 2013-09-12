@@ -326,12 +326,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
         }
 
-        // TODO: Add check for AFbyLower when implemented (Issue 337)
         boolean isUpper;
         if (this instanceof APUpperTracingSet
                 || this instanceof AFbyUpperTracingSet) {
             isUpper = true;
-        } else if (this instanceof APLowerTracingSet) {
+        } else if (this instanceof APLowerTracingSet
+                || this instanceof AFbyLowerTracingSet) {
             isUpper = false;
         } else {
             throw new InternalSynopticException(
