@@ -1,0 +1,21 @@
+# Loop once:
+send_m
+M!m0
+A?a0
+send_m
+M!m1
+A?a1
+--
+# Loop twice:
+send_m
+M!m0
+A?a0
+send_m
+M!m1
+A?a1
+send_m
+M!m0
+A?a0
+send_m
+M!m1
+A?a1

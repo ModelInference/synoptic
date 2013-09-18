@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="SynopticJung">
+    <property environment="env"/>
+    <property name="SYNOPTIC_LIB" value="../lib"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+	<path id="SynopticJung.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="${SYNOPTIC_LIB}/synoptic.jar"/>
+        <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
+		<pathelement location="${SYNOPTIC_LIB}/jung/jung-algorithms-2.0.1.jar"/>
+		<pathelement location="${SYNOPTIC_LIB}/jung/jung-graph-impl-2.0.1.jar"/>
+		<pathelement location="${SYNOPTIC_LIB}/jung/jung-visualization-2.0.1.jar"/>
+    </path>
+
+	<target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+
+	<target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
+            <src path="src"/>
+            <classpath refid="SynopticJung.classpath"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="build">
+      <jar destfile="${SYNOPTIC_LIB}/synopticjung.jar"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="synopticjung" />
+	  <attribute name="Implementation-Version" value="0.0.1" />
+	  <attribute name="Main-Class" value="synopticjung.SynopticJungMain" />
+	  <attribute name="Class-Path" value="plume.jar synoptic.jar jung/jung-algorithms-2.0.1.jar jung/jung-graph-impl-2.0.1.jar jung/jung-visualization-2.0.1.jar jung/collections-generic-4.01.jar jung/jung-api-2.0.1.jar" />
+	</manifest>
+      </jar>
+    </target>
+
+</project>
