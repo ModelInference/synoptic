@@ -96,16 +96,21 @@ public class TimeSeries<TimeType extends ITime> implements
         }
 
         // Create a zero valued starting point.
-        // TODO create some sort of method to construct a zero valued time
-        // as this is rather confusing.
-        TimeType initial = this.times.get(0);
-        initial = (TimeType) initial.computeDelta(initial);
+        TimeType initial = (TimeType) times.get(0).getZeroTime();
 
         for (TimeType t : times) {
             initial = (TimeType) initial.incrBy(t);
         }
 
         return (TimeType) initial.divBy(times.size());
+    }
+
+    public TimeType computeMin() {
+        return null;
+    }
+
+    public TimeType computeMax() {
+        return null;
     }
 
     /**
@@ -130,7 +135,7 @@ public class TimeSeries<TimeType extends ITime> implements
         assert deltas != null;
         times.addAll(deltas);
     }
-    
+
     public List<TimeType> getAllDeltas() {
         return times;
     }
