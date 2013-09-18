@@ -60,11 +60,11 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         // There is a sitch at b: first trace is max coming from a, but second
         // trace is max going to c
-        assertTrue(Bisimulation.stitchExists(cExPath, bIndex));
+        assertTrue(Bisimulation.makeConstrainedSplitIfStitch(cExPath, bIndex) != null);
 
         // There is not a stitch at c: second trace is max coming from b and
         // going to d
-        assertFalse(Bisimulation.stitchExists(cExPath, cIndex));
+        assertTrue(Bisimulation.makeConstrainedSplitIfStitch(cExPath, cIndex) == null);
     }
 
     /**
@@ -89,39 +89,48 @@ public class ConstrainedRefinementTests extends PynopticTest {
     @Test
     public void singleSplitCreationTest() throws Exception {
 
-        // Create events: one legal, one illegal. Put them in sets so that they
-        // can be used as parameters later
-        EventNode legalEv = new EventNode(new Event("label"));
-        Set<EventNode> startsOfLegalSubpaths = new HashSet<EventNode>();
-        startsOfLegalSubpaths.add(legalEv);
+        // Create events: one to represent an outgoing min/max target event and
+        // another to represent an incoming *and* outgoing min/max source event.
+        // Put them in sets so that they can be used as parameters later
+        EventNode inAndOutgoingEv = new EventNode(new Event("label"));
+        EventNode outgoingEv = new EventNode(new Event("label"));
 
-        EventNode illegalEv = new EventNode(new Event("label"));
-        Set<EventNode> startsOfIllegalSubpaths = new HashSet<EventNode>();
-        startsOfIllegalSubpaths.add(illegalEv);
+        Set<EventNode> incomingMinMaxEvents = new HashSet<EventNode>();
+        Set<EventNode> outgoingMinMaxEvents = new HashSet<EventNode>();
 
-        // Create a partition, add those events, and add some events that are
-        // neither legal or illegal to be randomly assigned to one side of the
-        // split or the other
-        Partition part = new Partition(legalEv);
-        part.addOneEventNode(illegalEv);
+        incomingMinMaxEvents.add(inAndOutgoingEv);
+        outgoingMinMaxEvents.add(inAndOutgoingEv);
+        outgoingMinMaxEvents.add(outgoingEv);
+
+        // Create a partition, add above events, and add some events (not part
+        // of any min/max transitions) to be randomly assigned to one side
+        // of the split or the other
+        Partition part = new Partition(outgoingEv);
+        part.addOneEventNode(inAndOutgoingEv);
         part.addOneEventNode(new EventNode(new Event("label")));
         part.addOneEventNode(new EventNode(new Event("label")));
         part.addOneEventNode(new EventNode(new Event("label")));
 
-        // Create the split
-        PartitionSplit split = Bisimulation.makeConstrainedSplit(part,
-                startsOfLegalSubpaths, startsOfIllegalSubpaths);
+        // Since the splitting process involves randomness, make the split 10
+        // times, and verify that it is legal every time
+        for (int i = 0; i < 10; ++i) {
 
-        // Must be a valid split: >0 events split out and >0 events not split
-        // out
-        assertTrue(split.isValid());
+            // Create the split
+            PartitionSplit split = Bisimulation.makeConstrainedSplit(part,
+                    incomingMinMaxEvents, outgoingMinMaxEvents);
 
-        Set<EventNode> splitOutEvents = split.getSplitEvents();
-        // Our legal event must be split out
-        assertTrue(splitOutEvents.contains(legalEv));
+            // Must be a valid split: >0 events split out and >0 events not
+            // split out
+            assertTrue(split.isValid());
 
-        // Our illegal event must not be split out
-        assertFalse(splitOutEvents.contains(illegalEv));
+            Set<EventNode> splitOutEvents = split.getSplitEvents();
+            // Our outgoing min/max event must be split out
+            assertTrue(splitOutEvents.contains(outgoingEv));
+
+            // Our incoming *and* outgoing min/max event must not have be split
+            // out so that a valid split is always guaranteed
+            assertFalse(splitOutEvents.contains(inAndOutgoingEv));
+        }
     }
 
     /**
