@@ -32,14 +32,12 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
-import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.time.ITime;
 
 /**
  * Partition graphs can be transformed using two algorithms -- coarsening and
@@ -289,10 +287,8 @@ public class Bisimulation {
     /**
      * Compute possible splits to resolve the constrained invariant violation
      * shown by path counterexampleTrace. This is done by looking at all
-     * possible starting and ending partitions (iPart and jPart) within the
-     * violation subpath and deciding whether (1) there is a stitch at iPart and
-     * (2) there are >0 legal concrete paths and >0 illegal concrete paths
-     * between the two.
+     * partitions within the violation subpath and determining if there is a
+     * stitch between incoming min/max transitions and outgoing ones.
      */
     private static List<PartitionSplit> getSplitsConstrained(
             CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
@@ -300,158 +296,30 @@ public class Bisimulation {
         // Holds the return values.
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
 
-        // jPart traverses the violation subpath from its last partition to its
-        // third (any further is not helpful), and iPart traverses the violation
-        // subpath from jPart to its second partition. Partition being
-        // considered for splitting is iPart.
-        Partition iPart = null;
-        Partition jPart = null;
-
         // This method must only be passed counter-example paths for
         // constrained invariants
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
-        TempConstrainedInvariant<?> inv = (TempConstrainedInvariant<?>) counterexampleTrace.invariant;
 
-        // Check if this is an upper-bound constrained invariant
-        boolean isUpper = false;
-        if (inv.getConstraint() instanceof UpperBoundConstraint) {
-            isUpper = true;
-        }
+        // Traverse the violation subpath from its second last partition to its
+        // second partition. First and last are not considered for splitting
+        // because they cannot possibly contain a stitch: transitions into the
+        // start partition have no bearing on the violation, and neither do
+        // transitions out of the end partition.
+        for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
 
-        // Get the single relation of the invariant
-        Set<String> invRelation = new HashSet<String>(1);
-        invRelation.add(inv.getRelation());
-
-        // Retrieve the counter-example path, time deltas, and violated time
-        // bound
-        List<Partition> cExPath = counterexampleTrace.path;
-        List<ITime> tDeltas = counterexampleTrace.tDeltas;
-        ITime tBound = inv.getConstraint().getThreshold();
-
-        // Events in iPart beginning iPart->jPart paths that, if replacing the
-        // iPart->jPart currently followed by the counter-example path, would
-        // mean the violation subpath no longer violates the invariant
-        Set<EventNode> startsOfLegalSubpaths;
-        // Events in iPart beginning iPart->jPart paths that retain the
-        // violation
-        Set<EventNode> startsOfIllegalSubpaths;
-
-        // Traverse the violation subpath from its last partition to its third.
-        // Any further is not helpful because iPart (where we might split) must
-        // be before jPart in the path, and we cannot resolve the violation by
-        // splitting the first partition in the violation subpath.
-        for (int j = counterexampleTrace.violationEnd; j > counterexampleTrace.violationStart + 1; --j) {
-
-            // Get partition, and check for null
-            jPart = cExPath.get(j);
-            if (jPart == null) {
+            // Check if partition at i is null
+            if (counterexampleTrace.path.get(i) == null) {
                 throw new InternalSynopticException(
                         "Counter-example path with a null Partition");
             }
 
-            // Traverse the violation subpath from jPart to the second
-            // partition.
-            for (int i = j - 1; i > counterexampleTrace.violationStart; --i) {
+            // Create a split on the partition at i if there is a stitch
+            PartitionSplit split = makeConstrainedSplitIfStitch(
+                    counterexampleTrace, i);
 
-                // Get partition, and check for null
-                iPart = cExPath.get(i);
-                if (iPart == null) {
-                    throw new InternalSynopticException(
-                            "Counter-example path with a null Partition");
-                }
-
-                // Only consider splitting on this partition if there is a
-                // stitch of min/max transitions into and out of this partition
-                if (!stitchExists(counterexampleTrace, i)) {
-                    continue;
-                }
-
-                startsOfLegalSubpaths = new HashSet<EventNode>();
-                startsOfIllegalSubpaths = new HashSet<EventNode>();
-
-                // Time to get to iPart from the beginning of the violation
-                // subpath
-                ITime curTime = tDeltas.get(i);
-
-                // Check if we're already at or over the time bound
-                if (tBound.lessThan(curTime)) {
-                    // For upper-bound invariants, we shouldn't consider
-                    // splitting here because legal subpaths cannot exist, as
-                    // they would be negative
-                    if (isUpper) {
-                        continue;
-                    }
-
-                    // For lower-bound invariants, this should never occur, as
-                    // it means there is no violation
-                    throw new InternalSynopticException(
-                            "Attempting constrained refinement using lower-bound invariant counter-example path which contains no violation.");
-                }
-
-                // Any subpath <= (for upper-bound) or >= (for lower-bound) this
-                // target time is legal
-                ITime targetSubpathTime = tBound.computeDelta(curTime);
-
-                // Walk through paths of events in iPart, finding any that get
-                // to an event in jPart and placing them in the list of either
-                // legal or illegal subpaths
-                for (EventNode iEvent : iPart.getEventNodes()) {
-                    EventNode curEvent = iEvent;
-
-                    // Initialize the current, ongoing subpath's time
-                    ITime curSubpathTime = tBound.getZeroTime();
-
-                    // Walk the event path until an event in jPart is
-                    // encountered or the path ends
-                    while (!curEvent.isTerminal()) {
-
-                        // Get the only transition out of this event with the
-                        // relation of this invariant
-                        ITransition<EventNode> trans = curEvent
-                                .getTransitionsWithExactRelations(invRelation)
-                                .get(0);
-
-                        // Move to the next event, and update the running
-                        // subpath time
-                        curEvent = trans.getTarget();
-                        curSubpathTime = curSubpathTime.incrBy(trans
-                                .getTimeDelta());
-
-                        // We've found a iPart->jPart path if the new event is
-                        // in jPart
-                        if (curEvent.getParent() == jPart) {
-
-                            // How this iPart->jPart path's time compares to the
-                            // target time
-                            int comparisonToTarget = curSubpathTime
-                                    .compareTo(targetSubpathTime);
-
-                            // Illegal path which would not resolve the
-                            // violation
-                            if ((isUpper && comparisonToTarget > 0)
-                                    || (!isUpper && comparisonToTarget < 0)) {
-                                startsOfIllegalSubpaths.add(iEvent);
-                            }
-
-                            // Legal path which would resolve the violation
-                            else {
-                                startsOfLegalSubpaths.add(iEvent);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                // To consider splitting here, require at least one legal and
-                // illegal path
-                if (startsOfLegalSubpaths.isEmpty()
-                        || startsOfIllegalSubpaths.isEmpty()) {
-                    continue;
-                }
-
-                // Create the actual split on iPart
-                candidateSplits.add(makeConstrainedSplit(iPart,
-                        startsOfLegalSubpaths, startsOfIllegalSubpaths));
+            // If there was a stitch, and we have a split, store it
+            if (split != null) {
+                candidateSplits.add(split);
             }
         }
 
@@ -466,72 +334,98 @@ public class Bisimulation {
      * 
      * @param counterexampleTrace
      *            The trace in which the partition to check exists
-     * @param index
+     * @param i
      *            The index of the Partition in counterexampleTrace to check
      * @return True if there is a stitch, false otherwise
      */
-    public static boolean stitchExists(
-            CExamplePath<Partition> counterexampleTrace, int index) {
+    public static PartitionSplit makeConstrainedSplitIfStitch(
+            CExamplePath<Partition> counterexampleTrace, int i) {
 
-        // Targets of all min/max transitions into this partition
-        Set<EventNode> arrivingEvents = new HashSet<EventNode>();
-        // Sources of all min/max transitions out of this partition
-        Set<EventNode> departingEvents = new HashSet<EventNode>();
+        // Target events of min/max transitions into the partition at i
+        HashSet<EventNode> incomingMinMaxEvents = new HashSet<EventNode>();
+        // Source events of min/max transitions out of the partition at i
+        HashSet<EventNode> outgoingMinMaxEvents = new HashSet<EventNode>();
 
         // Populate events at which we can arrive from the previous partition in
         // the path
         for (ITransition<EventNode> arrivingTrans : counterexampleTrace.transitionsList
-                .get(index)) {
-            arrivingEvents.add(arrivingTrans.getTarget());
+                .get(i)) {
+            incomingMinMaxEvents.add(arrivingTrans.getTarget());
         }
 
         // Populate events from which we can depart to reach the next partition
         // in the path
         for (ITransition<EventNode> departingTrans : counterexampleTrace.transitionsList
-                .get(index + 1)) {
-            departingEvents.add(departingTrans.getSource());
+                .get(i + 1)) {
+            outgoingMinMaxEvents.add(departingTrans.getSource());
         }
 
-        // Non-equal sets means there is a stitch
-        if (arrivingEvents.equals(departingEvents)) {
-            return false;
+        // Equal sets means there is no stitch
+        if (incomingMinMaxEvents.equals(outgoingMinMaxEvents)) {
+            return null;
         }
-        return true;
+
+        // Non-equal sets means there is a stitch, so make and return a split
+        return makeConstrainedSplit(counterexampleTrace.path.get(i),
+                incomingMinMaxEvents, outgoingMinMaxEvents);
     }
 
     /**
-     * Create a partition split during constrained refinement. Of events in
-     * iPart, assigns all that start legal subpaths to one side of the split and
-     * the starts of illegal subpaths to the other. Remaining events in iPart
-     * are randomly assigned to a side.
+     * Creates a partition split during constrained refinement. Keeps in part
+     * all events that are targets of min/max transitions into part. Splits off
+     * all events that are sources of min/max transitions out of part. Remaining
+     * events in part are randomly either kept in part or split off.
      * 
-     * @param iPart
+     * @param part
      *            The partition to split
-     * @param startsOfLegalSubpaths
-     *            Events in iPart that start legal subpaths
-     * @param startsOfIllegalSubpaths
-     *            Events in iPart that start illegal subpaths
-     * @return Split on iPart
+     * @param incomingMinMaxEvents
+     *            Events that are targets of min/max transitions into part
+     * @param outgoingMinMaxEvents
+     *            Events that are sources of min/max transitions out of part
+     * @return Split on part
      */
-    public static PartitionSplit makeConstrainedSplit(Partition iPart,
-            Set<EventNode> startsOfLegalSubpaths,
-            Set<EventNode> startsOfIllegalSubpaths) {
+    public static PartitionSplit makeConstrainedSplit(Partition part,
+            Set<EventNode> incomingMinMaxEvents,
+            Set<EventNode> outgoingMinMaxEvents) {
 
-        // Split iPart
-        PartitionSplit split = new PartitionSplit(iPart);
+        PartitionSplit split = new PartitionSplit(part);
 
-        for (EventNode legalEv : startsOfLegalSubpaths) {
-            split.addEventToSplit(legalEv);
+        // Get the intersect of incoming and outgoing min/max events
+        Set<EventNode> incomingAndOutgoing = new HashSet<EventNode>(
+                incomingMinMaxEvents);
+        incomingAndOutgoing.retainAll(outgoingMinMaxEvents);
+
+        // Create new incoming/outgoing min/max event sets without the
+        // intersected elements
+        Set<EventNode> incoming = new HashSet<EventNode>(incomingMinMaxEvents);
+        incoming.removeAll(incomingAndOutgoing);
+        Set<EventNode> outgoing = new HashSet<EventNode>(outgoingMinMaxEvents);
+        outgoing.removeAll(incomingAndOutgoing);
+
+        // Leave incoming min/max events in the original partition, and split
+        // away outgoing min/max events
+        for (EventNode outEv : outgoing) {
+            split.addEventToSplit(outEv);
+        }
+
+        // If incoming min/max events (excluding intersect events) is not empty,
+        // also split away the events in the intersect of the two sets. If
+        // incoming is empty, incoming/outgoing intersect events stay in the
+        // original partition to prevent a possible invalid split.
+        if (!incoming.isEmpty()) {
+            for (EventNode intersectEv : incomingAndOutgoing) {
+                split.addEventToSplit(intersectEv);
+            }
         }
 
         Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
 
-        // Get all other events (those that do not start paths
-        // leading to jPart)
+        // Get all other events that are neither incoming nor outgoing min/max
+        // events
         Set<EventNode> allOtherEvents = new HashSet<EventNode>(
-                iPart.getEventNodes());
-        allOtherEvents.removeAll(startsOfLegalSubpaths);
-        allOtherEvents.removeAll(startsOfIllegalSubpaths);
+                part.getEventNodes());
+        allOtherEvents.removeAll(incomingMinMaxEvents);
+        allOtherEvents.removeAll(outgoingMinMaxEvents);
 
         // Randomly assign other events to one side of the split or
         // the other
