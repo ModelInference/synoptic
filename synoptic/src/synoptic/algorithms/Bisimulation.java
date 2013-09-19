@@ -92,6 +92,7 @@ public class Bisimulation {
             // Recompute the counter-examples for the unsatisfied invariants.
             counterExampleTraces = new TemporalInvariantSet(
                     unsatisfiedInvariants).getAllCounterExamples(pGraph);
+            logger.fine("Counter-examples: " + counterExampleTraces);
 
             if (counterExampleTraces == null
                     || counterExampleTraces.size() == 0) {
@@ -702,14 +703,14 @@ public class Bisimulation {
                     if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
                         splitsToDoByPartition.get(partitionBeingSplit)
                                 .incorporate(splitOp);
-                        logger.info("Incorporating new split by partition: "
+                        logger.fine("Incorporating new split by partition: "
                                 + splitOp.toString());
                     } else {
                         // Otherwise, record this split as the only one for this
                         // partition
                         splitsToDoByPartition.put(partitionBeingSplit, splitOp);
-                        // logger.info("New split by partition: " +
-                        // splitOp.toString());
+                        logger.fine("New split by partition: "
+                                + splitOp.toString());
                     }
 
                     // Remember that we can resolve this invariant
@@ -753,13 +754,15 @@ public class Bisimulation {
                 if (splitsToDoByPartition.containsKey(partitionBeingSplit)) {
                     splitsToDoByPartition.get(partitionBeingSplit).incorporate(
                             locallySatisfyingSplit);
-                    logger.info("Incorporating new locally-satisfying split by partition: "
+                    logger.fine("Incorporating new locally-satisfying split by partition: "
                             + locallySatisfyingSplit.toString());
                 } else {
                     // Otherwise, record this split as the only one for this
                     // partition
                     splitsToDoByPartition.put(partitionBeingSplit,
                             locallySatisfyingSplit);
+                    logger.fine("New split by partition: "
+                            + locallySatisfyingSplit.toString());
                 }
             }
         }
