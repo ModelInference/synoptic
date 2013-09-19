@@ -1,0 +1,4 @@
+-o verify-pin.png
+-r FINE: \\{(?<STATE>.+)\\}
+-r FINE: (?<TYPE>[^{}]+)
+-s FINE: --

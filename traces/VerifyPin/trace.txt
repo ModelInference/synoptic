@@ -1,0 +1,134 @@
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-granted
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1233",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-granted
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1232",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1233",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-granted
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1232",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1233",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1235",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1232",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1233",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1235",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: pin-blocked
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1232",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1233",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1235",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-denied
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="0000",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: pin-blocked
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="9999",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: pin-blocked
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-granted
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: enter-pin
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: {pin="1234",KEY="1234"}
+Apr 26, 2013 12:42:50 AM main.VerifyPin enterPin
+FINE: access-granted
+Apr 26, 2013 12:42:50 AM tests.VerifyPinTest tearDown
+FINE: --
