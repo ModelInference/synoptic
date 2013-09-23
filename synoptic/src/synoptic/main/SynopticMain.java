@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +38,7 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
+import synoptic.model.event.EventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
 import synoptic.model.export.GraphExportFormatter;
@@ -642,6 +644,39 @@ public class SynopticMain {
         // //////////////////
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+
+        if (options.ignoreInvsOverETypeSet != null) {
+
+            // Split string options.ignoreInvsOverETypeSet by the ";" delimiter:
+            List<String> stringEtypesToIgnore = Arrays
+                    .asList(options.ignoreInvsOverETypeSet.split(";"));
+
+            logger.info("Ignoring invariants over event-types set: "
+                    + stringEtypesToIgnore.toString());
+
+            // Find invariants matching the filtering constraint.
+            Set<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
+
+            boolean removeInv;
+            for (ITemporalInvariant inv : minedInvs.getSet()) {
+                // To remove an invariant inv, the event types associated with
+                // inv must all come from the list stringEtypesToIgnore, we
+                // check this here:
+                removeInv = true;
+                for (EventType eType : inv.getPredicates()) {
+                    if (!stringEtypesToIgnore.contains(eType.getETypeLabel())) {
+                        removeInv = false;
+                        break;
+                    }
+                }
+                if (removeInv) {
+                    invsToRemove.add(inv);
+                }
+            }
+
+            // Remove the invariants that matched the constraint:
+            minedInvs.removeAll(invsToRemove);
+        }
 
         if (options.dumpInvariants) {
             logger.info("Mined invariants:\n" + minedInvs.toPrettyString());

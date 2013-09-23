@@ -5,3 +5,4 @@
 -i
 -d 
 -o output/voldemort
+-v ./bin/mcscm/verify.native.osx-10.8-x86_64.dynamic
