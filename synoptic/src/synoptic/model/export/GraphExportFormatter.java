@@ -57,8 +57,7 @@ public abstract class GraphExportFormatter {
                 "indigo", "yellow1", "thistle"));
 
         relationColors = new LinkedHashMap<String, String>();
-        relationColors.put(Event.defTimeRelationStr,
-                defaultRelationColor);
+        relationColors.put(Event.defTimeRelationStr, defaultRelationColor);
     }
 
     /**
@@ -168,9 +167,9 @@ public abstract class GraphExportFormatter {
     public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
             int traceId, Set<String> relations);
 
-    public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst,
-            ITime time, Set<String> relations);
-    
+    public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst,
+            ITime timeMin, ITime timeMax, Set<String> relations);
+
     /**
      * Serializes a single node edge in a graph to a string that represents this
      * edge, along with the Daikon invariants of the edge transition.
