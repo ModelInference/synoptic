@@ -67,9 +67,25 @@ public class DotExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public String edgeToStringWithITime(int nodeSrc, int nodeDst, ITime time,
-            Set<String> relations) {
-        String timeStr = time != null ? quote(time.toString()) : "";
+    public String edgeToStringWithITimes(int nodeSrc, int nodeDst,
+            ITime timeMin, ITime timeMax, Set<String> relations) {
+
+        // Make time string
+        String timeStr;
+        if (timeMin != null && timeMax != null) {
+
+            // String is range if min != max time or else just the single time
+            // if they are equal
+            if (!timeMin.equals(timeMax)) {
+                timeStr = "[" + quote(timeMin.toString()) + ","
+                        + quote(timeMax.toString()) + "]";
+            } else {
+                timeStr = quote(timeMin.toString());
+            }
+        } else {
+            timeStr = "";
+        }
+
         String attributes = "label=\"" + timeStr + "\", weight=\"" + timeStr
                 + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
@@ -80,7 +96,7 @@ public class DotExportFormatter extends GraphExportFormatter {
             Set<String> relations) {
         return edgeToString(nodeSrc, nodeDst, "", relations);
     }
-    
+
     @Override
     public String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst,
             DaikonInvariants daikonInvs, Set<String> relations) {

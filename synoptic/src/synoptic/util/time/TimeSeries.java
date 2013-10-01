@@ -96,16 +96,64 @@ public class TimeSeries<TimeType extends ITime> implements
         }
 
         // Create a zero valued starting point.
-        // TODO create some sort of method to construct a zero valued time
-        // as this is rather confusing.
-        TimeType initial = this.times.get(0);
-        initial = (TimeType) initial.computeDelta(initial);
+        TimeType initial = (TimeType) times.get(0).getZeroTime();
 
         for (TimeType t : times) {
             initial = (TimeType) initial.incrBy(t);
         }
 
         return (TimeType) initial.divBy(times.size());
+    }
+
+    /**
+     * @return Minimum time delta for transition, or null if transition has no
+     *         time deltas
+     */
+    public TimeType computeMin() {
+        return computeMinMax(false);
+    }
+
+    /**
+     * @return Maximum time delta for transition, or null if transition has no
+     *         time deltas
+     */
+    public TimeType computeMax() {
+        return computeMinMax(true);
+    }
+
+    /**
+     * @param findMax
+     *            If true, find max. If false, find min.
+     * @return Minimum or maximum time delta
+     */
+    private TimeType computeMinMax(boolean findMax) {
+        // Check for empty time series
+        if (times.isEmpty()) {
+            return null;
+        }
+
+        // Start the running min/max time with the first time delta
+        TimeType minMaxTime = times.get(0);
+
+        // Find max time
+        if (findMax) {
+            for (TimeType t : times) {
+                if (minMaxTime.lessThan(t)) {
+                    minMaxTime = t;
+                }
+            }
+        }
+
+        // Find min time
+        else {
+            for (TimeType t : times) {
+                if (t.lessThan(minMaxTime)) {
+                    minMaxTime = t;
+                }
+            }
+        }
+
+        return minMaxTime;
     }
 
     /**
@@ -130,7 +178,7 @@ public class TimeSeries<TimeType extends ITime> implements
         assert deltas != null;
         times.addAll(deltas);
     }
-    
+
     public List<TimeType> getAllDeltas() {
         return times;
     }
