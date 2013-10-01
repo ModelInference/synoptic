@@ -95,9 +95,9 @@ public class FsmModelChecker {
                     return states;
                 }
 
-                // Optimization: if updatesToTargetStates is subset of
-                // targetStates then I do not need to re-explore the graph
-                // starting from the current node.
+                // If updatesToTargetStates is subset of targetStates, then NOT
+                // re-exploring the graph starting from the current node
+                // prevents infinitely traversing loops
                 if (!isSubset && !workList.contains(target)) {
                     workList.add(target);
                 }
