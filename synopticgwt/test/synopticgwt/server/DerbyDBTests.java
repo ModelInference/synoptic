@@ -66,7 +66,7 @@ public class DerbyDBTests extends TestCase {
 
     /** Database name and path */
     private static String dbPath = "." + File.separator + "test-output"
-            + File.separator + "DerbyDBTests.derby";
+            + File.separator + "DerbyDBTests_.derby";
 
     private TestDerbyDB db;
     private VisitorTable visitor;

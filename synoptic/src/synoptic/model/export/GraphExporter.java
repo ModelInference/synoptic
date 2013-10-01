@@ -201,15 +201,14 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                if (syn.options.stateProcessing
-                        && node instanceof Partition) {
+                if (syn.options.stateProcessing && node instanceof Partition) {
                     // We need to do these castings because INode<T> doesn't
                     // have getTransitionsWithDaikonInvariants method, but
                     // Partition has.
                     Partition partition = (Partition) node;
                     transitions = (List<? extends ITransition<T>>) partition
-                        .getTransitionsWithDaikonInvariants();
-                } 
+                            .getTransitionsWithDaikonInvariants();
+                }
                 // If perf debugging and state processing aren't enabled,
                 // then output weights, else add the edge labels later.
                 else if (outputEdgeLabels && !syn.options.enablePerfDebugging
@@ -256,21 +255,23 @@ public class GraphExporter {
                                         .getDaikonInvariants();
                                 assert (daikonInvs != null);
                                 s = syn.graphExportFormatter
-                                        .edgeToStringWithDaikonInvs(nodeSrc, nodeDst,
-                                                daikonInvs, trans.getRelation());
-                                
+                                        .edgeToStringWithDaikonInvs(nodeSrc,
+                                                nodeDst, daikonInvs,
+                                                trans.getRelation());
+
                             } else if (syn.options.enablePerfDebugging) {
-                                // TODO Simply calculate the mean for now, but
-                                // this should be more robust and conform to
-                                // what the
-                                // user wants in particular.
-                                ITime time = null;
+                                // Calculate the min and max time deltas
+                                ITime timeMin = null;
+                                ITime timeMax = null;
                                 if (trans.getDeltaSeries() != null) {
-                                    time = trans.getDeltaSeries().computeMean();
+                                    timeMin = trans.getDeltaSeries()
+                                            .computeMin();
+                                    timeMax = trans.getDeltaSeries()
+                                            .computeMax();
                                 }
                                 s = syn.graphExportFormatter
-                                        .edgeToStringWithITime(nodeSrc,
-                                                nodeDst, time,
+                                        .edgeToStringWithITimes(nodeSrc,
+                                                nodeDst, timeMin, timeMax,
                                                 trans.getRelation());
 
                             } else {
