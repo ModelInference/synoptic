@@ -167,21 +167,4 @@ public class APLowerTracingSet<T extends INode<T>> extends
 
         return result;
     }
-
-    @Override
-    public void mergeWith(TracingStateSet<T> other) {
-        APLowerTracingSet<T> casted = (APLowerTracingSet<T>) other;
-
-        if (previous == null) {
-            previous = casted.previous;
-        }
-
-        // For each state, keep the one with the higher running time
-        for (int i = 0; i < numStates; ++i) {
-            states.set(i, preferMaxTime(states.get(i), casted.states.get(i)));
-            if (states.get(i) != null) {
-                tRunning.set(i, states.get(i).tDelta);
-            }
-        }
-    }
 }
