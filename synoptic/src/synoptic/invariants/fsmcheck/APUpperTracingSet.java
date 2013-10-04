@@ -1,6 +1,5 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
@@ -124,19 +123,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public APUpperTracingSet<T> copy() {
-
-        APUpperTracingSet<T> result = new APUpperTracingSet<T>();
-
-        result.a = a;
-        result.b = b;
-        result.tBound = tBound;
-        result.numStates = numStates;
-        result.states = new ArrayList<ConstrainedHistoryNode>(states);
-        result.tRunning = new ArrayList<ITime>(tRunning);
-        result.previous = previous;
-        result.relation = relation;
-
-        return result;
+    public ConstrainedTracingSet<T> newOfThisType() {
+        return new APUpperTracingSet<T>();
     }
 }

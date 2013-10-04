@@ -504,6 +504,28 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
     }
 
+    /**
+     * Return a new, empty ConstrainedTracingSet object of the same subtype as
+     * the current object
+     */
+    public abstract ConstrainedTracingSet<T> newOfThisType();
+
+    @Override
+    public ConstrainedTracingSet<T> copy() {
+        ConstrainedTracingSet<T> result = newOfThisType();
+
+        result.a = a;
+        result.b = b;
+        result.tBound = tBound;
+        result.numStates = numStates;
+        result.states = new ArrayList<ConstrainedHistoryNode>(states);
+        result.tRunning = new ArrayList<ITime>(tRunning);
+        result.previous = previous;
+        result.relation = relation;
+
+        return result;
+    }
+
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
         ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;

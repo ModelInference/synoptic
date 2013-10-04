@@ -1,6 +1,5 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
@@ -152,19 +151,7 @@ public class APLowerTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public APLowerTracingSet<T> copy() {
-
-        APLowerTracingSet<T> result = new APLowerTracingSet<T>();
-
-        result.a = a;
-        result.b = b;
-        result.tBound = tBound;
-        result.numStates = numStates;
-        result.states = new ArrayList<ConstrainedHistoryNode>(states);
-        result.tRunning = new ArrayList<ITime>(tRunning);
-        result.previous = previous;
-        result.relation = relation;
-
-        return result;
+    public ConstrainedTracingSet<T> newOfThisType() {
+        return new APLowerTracingSet<T>();
     }
 }
