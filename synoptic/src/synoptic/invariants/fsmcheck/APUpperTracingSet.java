@@ -156,23 +156,4 @@ public class APUpperTracingSet<T extends INode<T>> extends
             }
         }
     }
-
-    @Override
-    public boolean isSubset(TracingStateSet<T> other) {
-        // APUpperTracingSet<T> casted = (APUpperTracingSet<T>) other;
-        // if (casted.s.get(0) == null && s.get(0) != null) {
-        // return false;
-        // } else if (casted.s.get(1) == null && s.get(1) != null) {
-        // return false;
-        // } else if (casted.s.get(2) == null && s.get(2) != null) {
-        // return false;
-        // } else if (casted.s.get(3) == null && s.get(3) != null) {
-        // return false;
-        // } else {
-        // return true;
-        // }
-
-        // TODO: Find out what "subset" means for constrained tracing sets
-        return false;
-    }
 }

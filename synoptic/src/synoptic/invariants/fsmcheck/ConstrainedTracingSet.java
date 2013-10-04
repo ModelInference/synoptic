@@ -488,6 +488,22 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     @Override
+    public boolean isSubset(TracingStateSet<T> other) {
+        ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;
+
+        for (int i = 0; i < numStates; ++i) {
+            ConstrainedHistoryNode thisNode = states.get(i);
+            if (thisNode != null) {
+                ConstrainedHistoryNode otherNode = casted.states.get(i);
+                if (otherNode == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
 
