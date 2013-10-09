@@ -488,14 +488,21 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public boolean isSubset(TracingStateSet<T> other) {
-        ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;
+    public boolean isSubset(TracingStateSet<T> o) {
+        // Cast so that we can access FSM states
+        ConstrainedTracingSet<T> other = (ConstrainedTracingSet<T>) o;
 
+        // Interate over all of this tracing set's states
         for (int i = 0; i < numStates; ++i) {
-            ConstrainedHistoryNode thisNode = states.get(i);
-            if (thisNode != null) {
-                ConstrainedHistoryNode otherNode = casted.states.get(i);
-                if (otherNode == null) {
+            ConstrainedHistoryNode thisState = states.get(i);
+
+            // Check if this state is inhabited
+            if (thisState != null) {
+                ConstrainedHistoryNode otherState = other.states.get(i);
+
+                if (otherState == null) {
+                    // This tracing set inhabits a state 'other' doesn't and
+                    // therefore is NOT a subset of 'other'
                     return false;
                 }
             }
