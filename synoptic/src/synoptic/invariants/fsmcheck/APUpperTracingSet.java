@@ -119,7 +119,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return states.get(3);
     }
 

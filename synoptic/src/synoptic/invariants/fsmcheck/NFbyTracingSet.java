@@ -15,9 +15,9 @@ import synoptic.model.interfaces.INode;
  * @see FsmStateSet
  */
 public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-    HistoryNode aNotSeen; // A not seen
-    HistoryNode aSeen; // A seen (and no Bs yet after it)
-    HistoryNode bSeenAfter; // A seen, followed by B -- failure state
+    HistoryNode<T> aNotSeen; // A not seen
+    HistoryNode<T> aSeen; // A seen (and no Bs yet after it)
+    HistoryNode<T> bSeenAfter; // A seen, followed by B -- failure state
 
     EventType a, b;
 
@@ -33,7 +33,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
+        HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         aNotSeen = aSeen = bSeenAfter = null;
         if (a.equals(name)) {
             aSeen = newHistory;
@@ -66,7 +66,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return bSeenAfter;
     }
 

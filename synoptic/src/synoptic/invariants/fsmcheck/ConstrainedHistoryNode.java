@@ -14,8 +14,7 @@ import synoptic.util.time.ITime;
 /**
  * An extension of a HistoryNode which also records time deltas
  */
-public class ConstrainedHistoryNode<T extends INode<T>> extends
-        TracingStateSet<T>.HistoryNode {
+public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
     /**
      * 
      */
