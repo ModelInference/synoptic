@@ -41,7 +41,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
     @Override
     protected void transition(T input,
             List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> statesOld) {
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode<T>> statesOld) {
 
         // State0 -> State0
         if (statesOld.get(0) != null && !isA && !isB) {
@@ -132,7 +132,7 @@ public class APUpperTracingSet<T extends INode<T>> extends
         result.b = b;
         result.tBound = tBound;
         result.numStates = numStates;
-        result.states = new ArrayList<ConstrainedHistoryNode>(states);
+        result.states = new ArrayList<ConstrainedHistoryNode<T>>(states);
         result.tRunning = new ArrayList<ITime>(tRunning);
         result.previous = previous;
         result.relation = relation;
