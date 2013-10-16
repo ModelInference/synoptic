@@ -19,9 +19,9 @@ import synoptic.model.interfaces.INode;
  * @see TracingStateSet
  */
 public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-    HistoryNode wasA; // Indicates that A was seen more recently than B (failing
+    HistoryNode<T> wasA; // Indicates that A was seen more recently than B (failing
     // state)
-    HistoryNode wasB; // Indicates that B was seen more recently than A
+    HistoryNode<T> wasB; // Indicates that B was seen more recently than A
     EventType a, b;
 
     public AFbyTracingSet(EventType a, EventType b) {
@@ -36,7 +36,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
+        HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         if (name.equals(a)) {
             wasB = null;
             wasA = newHistory;
@@ -61,7 +61,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return wasA;
     }
 
