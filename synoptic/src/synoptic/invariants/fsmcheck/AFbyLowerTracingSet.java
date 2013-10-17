@@ -175,10 +175,4 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
             }
         }
     }
-
-    @Override
-    public boolean isSubset(TracingStateSet<T> other) {
-        // TODO: Find out what "subset" means for constrained tracing sets
-        return false;
-    }
 }
