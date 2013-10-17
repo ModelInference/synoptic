@@ -64,7 +64,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * Extends this node with another
      */
-    public ConstrainedHistoryNode<T> extend(T node, ConstrainedHistoryNode<T> prior,
+    public ConstrainedHistoryNode<T> extend(T node,
+            ConstrainedHistoryNode<T> prior,
             List<ITransition<EventNode>> transitions, ITime tDelta) {
 
         if (prior == null) {
@@ -72,8 +73,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Make new node extended from prior
-        ConstrainedHistoryNode<T> extendedNode = new ConstrainedHistoryNode<T>(this, node,
-                prior, prior.count + 1, transitions, tDelta);
+        ConstrainedHistoryNode<T> extendedNode = new ConstrainedHistoryNode<T>(
+                node, prior, prior.count + 1, transitions, tDelta);
         extendedNode.violationStart = prior.violationStart;
         extendedNode.violationEnd = prior.violationEnd;
 
@@ -83,16 +84,16 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * Return the non-null path with the smaller running time delta
      */
-    public ConstrainedHistoryNode<T> preferMinTime(ConstrainedHistoryNode<T> first,
-            ConstrainedHistoryNode<T> second) {
+    public ConstrainedHistoryNode<T> preferMinTime(
+            ConstrainedHistoryNode<T> first, ConstrainedHistoryNode<T> second) {
         return preferMinMaxTime(first, second, false);
     }
 
     /**
      * Return the non-null path with the larger running time delta
      */
-    public ConstrainedHistoryNode<T> preferMaxTime(ConstrainedHistoryNode<T> first,
-            ConstrainedHistoryNode<T> second) {
+    public ConstrainedHistoryNode<T> preferMaxTime(
+            ConstrainedHistoryNode<T> first, ConstrainedHistoryNode<T> second) {
         return preferMinMaxTime(first, second, true);
     }
 
@@ -184,8 +185,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // Should only be called on INITIAL nodes
         assert (input.isInitial());
 
-        ConstrainedHistoryNode<T> newHistory = new ConstrainedHistoryNode<T>(this, input,
-                null, 0, null, null);
+        ConstrainedHistoryNode<T> newHistory = new ConstrainedHistoryNode<T>(
+                input, tBound.getZeroTime());
 
         // Always start on State0
         states.set(0, newHistory);
