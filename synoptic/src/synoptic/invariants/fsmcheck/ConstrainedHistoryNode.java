@@ -16,10 +16,6 @@ import synoptic.util.time.ITime;
  */
 public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
     /**
-     * 
-     */
-    private final ConstrainedTracingSet<T> constrainedTracingSet;
-    /**
      * Concrete edge(s) used to arrive at this node
      */
     List<ITransition<EventNode>> transitions;
@@ -28,15 +24,47 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
     int violationStart;
     int violationEnd;
 
-    public ConstrainedHistoryNode(
-            ConstrainedTracingSet<T> constrainedTracingSet, T node,
-            ConstrainedHistoryNode<T> previous, int count,
-            List<ITransition<EventNode>> transitions, ITime tDelta) {
+    /**
+     * Create a new history node that will be the head of this history linked
+     * list. All parameters must be non-null.
+     * 
+     * @param node
+     *            The node where this history is to start
+     * @param tDelta
+     *            An ITime which should have a zero time value
+     */
+    public ConstrainedHistoryNode(T node, ITime tDelta) {
+        super(node, null, 0);
+
+        // Neither parameter can be null
+        assert node != null;
+        assert tDelta != null;
+
+        this.tDelta = tDelta;
+    }
+
+    /**
+     * Create a new history node that adds to this history linked list given the
+     * previous history node. All parameters must be non-null.
+     * 
+     * @param node
+     * @param previous
+     * @param count
+     * @param transitions
+     * @param tDelta
+     */
+    public ConstrainedHistoryNode(T node, ConstrainedHistoryNode<T> previous,
+            int count, List<ITransition<EventNode>> transitions, ITime tDelta) {
         super(node, previous, count);
-        this.constrainedTracingSet = constrainedTracingSet;
+
+        // No parameter can be null
+        assert node != null;
+        assert previous != null;
+        assert transitions != null;
+        assert tDelta != null;
+
         this.transitions = transitions;
-        this.tDelta = (tDelta != null ? tDelta
-                : this.constrainedTracingSet.tBound.getZeroTime());
+        this.tDelta = tDelta;
         previousConst = previous;
     }
 
