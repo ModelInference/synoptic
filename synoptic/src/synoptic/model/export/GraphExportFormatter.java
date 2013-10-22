@@ -205,18 +205,49 @@ public abstract class GraphExportFormatter {
             BigDecimal timeMaxDec = new BigDecimal(timeMax.toString())
                     .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
 
+            // Remove trailing zeros and periods
+            String timeMinStr = removeTrailingZeros(timeMinDec.toString());
+            String timeMaxStr = removeTrailingZeros(timeMaxDec.toString());
+
             // String is range if min != max time or else just the single time
             // if they are equal
-            if (!timeMinDec.equals(timeMaxDec)) {
-                return "[" + timeMinDec + "," + timeMaxDec + "]";
+            if (!timeMinStr.equals(timeMaxStr)) {
+                return "[" + timeMinStr + "," + timeMaxStr + "]";
             }
             {
-                return timeMinDec.toString();
+                return timeMinStr;
             }
         }
         {
             return "";
         }
+    }
+
+    /**
+     * Return a string that is "str" minus any trailing zeros and periods,
+     * except the first character will not be removed
+     */
+    private String removeTrailingZeros(String str) {
+
+        int length = str.length();
+
+        // Cannot trim empty or 1-char strings
+        if (length <= 1) {
+            return str;
+        }
+
+        // Where we are considering trimming
+        int trimInd = str.length() - 1;
+
+        // Do not trim the first character, otherwise loop backwards until a
+        // non-zero, non-period character is hit
+        while (trimInd > 0
+                && (str.charAt(trimInd) == '0' || str.charAt(trimInd) == '.')) {
+            trimInd--;
+        }
+
+        // Trim and return
+        return str.substring(0, trimInd + 1);
     }
 
     /**
