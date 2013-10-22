@@ -116,6 +116,8 @@ public abstract class PynopticTest extends SynopticTest {
      *            The log of events from which to create the partition graph
      * @param invString
      *            The constrained invariant in the form "a AP b upper"
+     * @param type
+     *            The type of the invariant (and tracing set)
      * @return Map of constrained tracing state sets by partition
      */
     protected Map<Partition, TracingStateSet<Partition>> genConstrTracingSets(
