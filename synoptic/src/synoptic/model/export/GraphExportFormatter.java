@@ -1,5 +1,8 @@
 package synoptic.model.export;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -167,8 +170,54 @@ public abstract class GraphExportFormatter {
     public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
             int traceId, Set<String> relations);
 
+    /**
+     * Serializes a single node edge in a graph to a string given the min and
+     * max ITimes of any concrete transitions within this edge (between the
+     * source and target nodes).
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param timeMin
+     *            minimum ITime of any transition from source to target
+     * @param timeMax
+     *            maximum ITime of any transition from source to target
+     * @param relations
+     *            a string representing the relations (e.g., "t")
+     */
     public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst,
             ITime timeMin, ITime timeMax, Set<String> relations);
+
+    /**
+     * Create the time delta string for an edge given the min and max ITimes
+     * within it, rounding to the specified number of significant digits.
+     * 
+     * @return If min==max, returns "min". Else, returns "[min,max]"
+     */
+    protected String getITimeString(ITime timeMin, ITime timeMax, int sigDigits) {
+        // Make time string
+        if (timeMin != null && timeMax != null) {
+
+            // Round the times to a few significant digits for readability
+            BigDecimal timeMinDec = new BigDecimal(timeMin.toString())
+                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
+            BigDecimal timeMaxDec = new BigDecimal(timeMax.toString())
+                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
+
+            // String is range if min != max time or else just the single time
+            // if they are equal
+            if (!timeMinDec.equals(timeMaxDec)) {
+                return "[" + timeMinDec + "," + timeMaxDec + "]";
+            }
+            {
+                return timeMinDec.toString();
+            }
+        }
+        {
+            return "";
+        }
+    }
 
     /**
      * Serializes a single node edge in a graph to a string that represents this

@@ -1,8 +1,5 @@
 package synoptic.model.export;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Set;
 
 import daikonizer.DaikonInvariants;
@@ -80,26 +77,8 @@ public class GmlExportFormatter extends GraphExportFormatter {
             ITime timeMin, ITime timeMax, Set<String> relations) {
 
         // Make time string
-        String timeStr;
-        if (timeMin != null && timeMax != null) {
-
-            // Round the times to a few significant digits for readability
-            int sigDigits = 3;
-            BigDecimal timeMinDec = new BigDecimal(timeMin.toString())
-                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
-            BigDecimal timeMaxDec = new BigDecimal(timeMax.toString())
-                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
-
-            // String is range if min != max time or else just the single time
-            // if they are equal
-            if (!timeMinDec.equals(timeMaxDec)) {
-                timeStr = "[" + timeMinDec + "," + timeMaxDec + "]";
-            } else {
-                timeStr = timeMinDec.toString();
-            }
-        } else {
-            timeStr = "";
-        }
+        int sigDigits = 3;
+        String timeStr = getITimeString(timeMin, timeMax, sigDigits);
 
         String attributes = "  label \"" + timeStr + "\"\n";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
