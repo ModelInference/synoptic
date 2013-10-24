@@ -137,6 +137,19 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
+     * Set the states inhabited by this tracing state set. Should generally be
+     * used only for testing
+     * 
+     * @param states
+     *            The states to inhabit in the FSM representation of this
+     *            tracing state set
+     */
+    public void setStates(List<ConstrainedHistoryNode<T>> states) {
+        this.states = states;
+        numStates = states.size();
+    }
+
+    /**
      * Empty constructor for copy()
      */
     protected ConstrainedTracingSet() {
@@ -395,11 +408,11 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
         // Interate over all of this tracing set's states
         for (int i = 0; i < numStates; ++i) {
-            ConstrainedHistoryNode thisState = states.get(i);
+            ConstrainedHistoryNode<T> thisState = states.get(i);
 
             // Check if this state is inhabited
             if (thisState != null) {
-                ConstrainedHistoryNode otherState = other.states.get(i);
+                ConstrainedHistoryNode<T> otherState = other.states.get(i);
 
                 if (otherState == null) {
                     // This tracing set inhabits a state 'other' doesn't and

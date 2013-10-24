@@ -29,9 +29,9 @@ public class AFbyUpperTracingSet<T extends INode<T>> extends
         ConstrainedTracingSet<T> {
 
     /**
-     * Empty constructor for copy()
+     * Empty constructor for copy() and testing
      */
-    private AFbyUpperTracingSet() {
+    public AFbyUpperTracingSet() {
 
     }
 
