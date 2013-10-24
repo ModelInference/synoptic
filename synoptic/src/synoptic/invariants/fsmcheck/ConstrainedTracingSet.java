@@ -294,6 +294,24 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         previous = input;
     }
 
+    /**
+     * Returns true if this ConstrainedTracingSet is of an upper-bound time
+     * constraint type, false otherwise
+     */
+    private boolean isUpperBoundType() {
+        if (this instanceof APUpperTracingSet
+                || this instanceof AFbyUpperTracingSet) {
+            return true;
+        } else if (this instanceof APLowerTracingSet
+                || this instanceof AFbyLowerTracingSet) {
+            return false;
+        } else {
+            throw new InternalSynopticException(
+                    "ConstrainedTracingSet not updated to handle this subtype: "
+                            + this.getClass());
+        }
+    }
+
     @Override
     public void transition(T input) {
 
@@ -326,18 +344,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
         }
 
-        boolean isUpper;
-        if (this instanceof APUpperTracingSet
-                || this instanceof AFbyUpperTracingSet) {
-            isUpper = true;
-        } else if (this instanceof APLowerTracingSet
-                || this instanceof AFbyLowerTracingSet) {
-            isUpper = false;
-        } else {
-            throw new InternalSynopticException(
-                    "ConstrainedTracingSet not updated to handle this subtype: "
-                            + this.getClass());
-        }
+        boolean isUpper = isUpperBoundType();
 
         // Get transition(s) with min (if lower constraint) or max (if upper
         // constraint) time delta
