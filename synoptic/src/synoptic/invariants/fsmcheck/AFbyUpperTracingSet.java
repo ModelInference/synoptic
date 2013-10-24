@@ -1,6 +1,5 @@
 package synoptic.invariants.fsmcheck;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
@@ -29,9 +28,9 @@ public class AFbyUpperTracingSet<T extends INode<T>> extends
         ConstrainedTracingSet<T> {
 
     /**
-     * Empty constructor for copy()
+     * Empty constructor for copy() and testing
      */
-    private AFbyUpperTracingSet() {
+    public AFbyUpperTracingSet() {
 
     }
 
@@ -147,36 +146,7 @@ public class AFbyUpperTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public AFbyUpperTracingSet<T> copy() {
-
-        AFbyUpperTracingSet<T> result = new AFbyUpperTracingSet<T>();
-
-        result.a = a;
-        result.b = b;
-        result.tBound = tBound;
-        result.numStates = numStates;
-        result.states = new ArrayList<ConstrainedHistoryNode<T>>(states);
-        result.tRunning = new ArrayList<ITime>(tRunning);
-        result.previous = previous;
-        result.relation = relation;
-
-        return result;
-    }
-
-    @Override
-    public void mergeWith(TracingStateSet<T> other) {
-        AFbyUpperTracingSet<T> casted = (AFbyUpperTracingSet<T>) other;
-
-        if (previous == null) {
-            previous = casted.previous;
-        }
-
-        // For each state, keep the one with the higher running time
-        for (int i = 0; i < numStates; ++i) {
-            states.set(i, preferMaxTime(states.get(i), casted.states.get(i)));
-            if (states.get(i) != null) {
-                tRunning.set(i, states.get(i).tDelta);
-            }
-        }
+    public ConstrainedTracingSet<T> newOfThisType() {
+        return new AFbyUpperTracingSet<T>();
     }
 }

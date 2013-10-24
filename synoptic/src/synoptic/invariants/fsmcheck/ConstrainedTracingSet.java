@@ -137,6 +137,19 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     /**
+     * Set the states inhabited by this tracing state set. Should generally be
+     * used only for testing
+     * 
+     * @param states
+     *            The states to inhabit in the FSM representation of this
+     *            tracing state set
+     */
+    public void setStates(List<ConstrainedHistoryNode<T>> states) {
+        this.states = states;
+        numStates = states.size();
+    }
+
+    /**
      * Empty constructor for copy()
      */
     protected ConstrainedTracingSet() {
@@ -195,6 +208,24 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         previous = input;
     }
 
+    /**
+     * Returns true if this ConstrainedTracingSet is of an upper-bound time
+     * constraint type, false otherwise
+     */
+    private boolean isUpperBoundType() {
+        if (this instanceof APUpperTracingSet
+                || this instanceof AFbyUpperTracingSet) {
+            return true;
+        } else if (this instanceof APLowerTracingSet
+                || this instanceof AFbyLowerTracingSet) {
+            return false;
+        } else {
+            throw new InternalSynopticException(
+                    "ConstrainedTracingSet not updated to handle this subtype: "
+                            + this.getClass());
+        }
+    }
+
     @Override
     public void transition(T input) {
 
@@ -227,18 +258,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
         }
 
-        boolean isUpper;
-        if (this instanceof APUpperTracingSet
-                || this instanceof AFbyUpperTracingSet) {
-            isUpper = true;
-        } else if (this instanceof APLowerTracingSet
-                || this instanceof AFbyLowerTracingSet) {
-            isUpper = false;
-        } else {
-            throw new InternalSynopticException(
-                    "ConstrainedTracingSet not updated to handle this subtype: "
-                            + this.getClass());
-        }
+        boolean isUpper = isUpperBoundType();
 
         // Get transition(s) with min (if lower constraint) or max (if upper
         // constraint) time delta
@@ -389,17 +409,71 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     @Override
+    public void mergeWith(TracingStateSet<T> other) {
+        // Cast the parameter tracing set, and record if this is a tracing set
+        // for an upper-bound constrained invariant
+        ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;
+        boolean isUpper = isUpperBoundType();
+
+        // If there is no previous, set one
+        if (previous == null) {
+            previous = casted.previous;
+        }
+
+        for (int i = 0; i < numStates; ++i) {
+            // For upper-bound types, keep the state with the higher time
+            if (isUpper) {
+                states.set(i,
+                        preferMaxTime(states.get(i), casted.states.get(i)));
+            }
+
+            // For lower-bound types, keep the state with the lower time
+            else {
+                states.set(i,
+                        preferMinTime(states.get(i), casted.states.get(i)));
+            }
+
+            // Update the running time at this state
+            if (states.get(i) != null) {
+                tRunning.set(i, states.get(i).tDelta);
+            }
+        }
+    }
+
+    /**
+     * Return a new, empty ConstrainedTracingSet object of the same subtype as
+     * the current object
+     */
+    public abstract ConstrainedTracingSet<T> newOfThisType();
+
+    @Override
+    public ConstrainedTracingSet<T> copy() {
+        ConstrainedTracingSet<T> result = newOfThisType();
+
+        result.a = a;
+        result.b = b;
+        result.tBound = tBound;
+        result.numStates = numStates;
+        result.states = new ArrayList<ConstrainedHistoryNode<T>>(states);
+        result.tRunning = new ArrayList<ITime>(tRunning);
+        result.previous = previous;
+        result.relation = relation;
+
+        return result;
+    }
+
+    @Override
     public boolean isSubset(TracingStateSet<T> o) {
         // Cast so that we can access FSM states
         ConstrainedTracingSet<T> other = (ConstrainedTracingSet<T>) o;
 
         // Interate over all of this tracing set's states
         for (int i = 0; i < numStates; ++i) {
-            ConstrainedHistoryNode thisState = states.get(i);
+            ConstrainedHistoryNode<T> thisState = states.get(i);
 
             // Check if this state is inhabited
             if (thisState != null) {
-                ConstrainedHistoryNode otherState = other.states.get(i);
+                ConstrainedHistoryNode<T> otherState = other.states.get(i);
 
                 if (otherState == null) {
                     // This tracing set inhabits a state 'other' doesn't and
