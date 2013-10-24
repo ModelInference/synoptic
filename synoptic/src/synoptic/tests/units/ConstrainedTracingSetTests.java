@@ -3,14 +3,20 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
 import synoptic.invariants.CExamplePath;
+import synoptic.invariants.fsmcheck.AFbyLowerTracingSet;
+import synoptic.invariants.fsmcheck.ConstrainedHistoryNode;
+import synoptic.invariants.fsmcheck.ConstrainedTracingSet;
 import synoptic.invariants.fsmcheck.TracingStateSet;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
+import synoptic.model.event.Event;
 import synoptic.tests.PynopticTest;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
@@ -220,5 +226,42 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     @Test
     public void AFbyLowerCounterExamplePathTest() throws Exception {
         cExPathTestCommon(eventsAFby, "x AFby z lower", TracingSet.AFbyLower);
+    }
+
+    /**
+     * Check that it can be correctly detected whether or not a
+     * ConstraintedTracingSet inhabits a subset of the states of another, which
+     * is used for loop-detection and termination
+     */
+    @Test
+    public void stateSubsetTest() throws Exception {
+        // Create a legal node to be the "inhabited states"
+        ConstrainedHistoryNode<Partition> node = new ConstrainedHistoryNode<Partition>(
+                new Partition(new EventNode(new Event(""))), new ITotalTime(0));
+
+        // Create the lists of inhabited states: (0,2,3) and (0,2)
+        List<ConstrainedHistoryNode<Partition>> cTSetStates = new ArrayList<ConstrainedHistoryNode<Partition>>();
+        cTSetStates.add(node);
+        cTSetStates.add(null);
+        cTSetStates.add(node);
+        cTSetStates.add(node);
+        cTSetStates.add(null);
+        List<ConstrainedHistoryNode<Partition>> cTSubsetStates = new ArrayList<ConstrainedHistoryNode<Partition>>();
+        cTSubsetStates.add(node);
+        cTSubsetStates.add(null);
+        cTSubsetStates.add(node);
+        cTSubsetStates.add(null);
+        cTSubsetStates.add(null);
+
+        // Create the tracing sets, and set the created states
+        ConstrainedTracingSet<Partition> cTSet = new AFbyLowerTracingSet<Partition>();
+        cTSet.setStates(cTSetStates);
+        ConstrainedTracingSet<Partition> cTSubset = new AFbyLowerTracingSet<Partition>();
+        cTSubset.setStates(cTSubsetStates);
+
+        // cTSubset inhabits a subset of states that cTSet does but not vice
+        // versa
+        assertTrue(cTSubset.isSubset(cTSet));
+        assertFalse(cTSet.isSubset(cTSubset));
     }
 }
