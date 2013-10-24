@@ -496,15 +496,30 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
     @Override
     public void mergeWith(TracingStateSet<T> other) {
+        // Cast the parameter tracing set, and record if this is a tracing set
+        // for an upper-bound constrained invariant
         ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;
+        boolean isUpper = isUpperBoundType();
 
+        // If there is no previous, set one
         if (previous == null) {
             previous = casted.previous;
         }
 
-        // For each state, keep the one with the higher running time
         for (int i = 0; i < numStates; ++i) {
-            states.set(i, preferMaxTime(states.get(i), casted.states.get(i)));
+            // For upper-bound types, keep the state with the higher time
+            if (isUpper) {
+                states.set(i,
+                        preferMaxTime(states.get(i), casted.states.get(i)));
+            }
+
+            // For lower-bound types, keep the state with the lower time
+            else {
+                states.set(i,
+                        preferMinTime(states.get(i), casted.states.get(i)));
+            }
+
+            // Update the running time at this state
             if (states.get(i) != null) {
                 tRunning.set(i, states.get(i).tDelta);
             }
