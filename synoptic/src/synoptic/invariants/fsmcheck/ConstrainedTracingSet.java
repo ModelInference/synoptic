@@ -1,14 +1,11 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import synoptic.invariants.BinaryInvariant;
-import synoptic.invariants.CExamplePath;
-import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -52,7 +49,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * subclasses. States are stored this way due to some constrained FSM states
      * lacking concise and descriptive names.
      */
-    List<ConstrainedHistoryNode> states;
+    List<ConstrainedHistoryNode<T>> states;
 
     /**
      * The node (usually Partition) being transitioned _from_
@@ -65,106 +62,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     Set<String> relation;
 
     /**
-     * An extension of a HistoryNode which also records time deltas
-     */
-    public class ConstrainedHistoryNode extends HistoryNode {
-        /**
-         * Concrete edge(s) used to arrive at this node
-         */
-        List<ITransition<EventNode>> transitions;
-        ITime tDelta;
-        ConstrainedHistoryNode previousConst;
-        int violationStart;
-        int violationEnd;
-
-        public ConstrainedHistoryNode(T node, ConstrainedHistoryNode previous,
-                int count, List<ITransition<EventNode>> transitions,
-                ITime tDelta) {
-            super(node, previous, count);
-            this.transitions = transitions;
-            this.tDelta = (tDelta != null ? tDelta : tBound.getZeroTime());
-            previousConst = previous;
-        }
-
-        /**
-         * Set the start of the violation subpath to this node. This node's
-         * label should always be the invariant's first predicate.
-         */
-        public void startViolationHere() {
-            violationStart = count;
-        }
-
-        /**
-         * Set the end of the violation subpath to this node. This node's label
-         * should always be the invariant's second predicate.
-         */
-        public void endViolationHere() {
-            violationEnd = count;
-        }
-
-        /**
-         * Converts this chain into a RelationPath list with time deltas
-         */
-        @Override
-        public CExamplePath<T> toCounterexample(ITemporalInvariant inv) {
-
-            List<T> path = new ArrayList<T>();
-            List<List<ITransition<EventNode>>> transitionsList = new ArrayList<List<ITransition<EventNode>>>();
-            List<ITime> tDeltas = new ArrayList<ITime>();
-            ConstrainedHistoryNode cur = this;
-
-            // Traverse the path of ConstrainedHistoryNodes recording T nodes,
-            // transitions, and running time deltas in lists
-            while (cur != null) {
-                path.add(cur.node);
-                transitionsList.add(cur.transitions);
-                tDeltas.add(cur.tDelta);
-                cur = cur.previousConst;
-            }
-            Collections.reverse(path);
-            Collections.reverse(transitionsList);
-            Collections.reverse(tDeltas);
-
-            // Constrained invariants maintain the violation subpath and do not
-            // need to be shortened but do require transitions and running time
-            // deltas
-            CExamplePath<T> rpath = new CExamplePath<T>(inv, path,
-                    transitionsList, tDeltas, violationStart, violationEnd);
-
-            return rpath;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            ConstrainedHistoryNode cur = this;
-            while (cur != null) {
-                sb.append(cur.node.getEType());
-                sb.append("(");
-
-                // Include time if it's available
-                if (cur.transitions != null && cur.transitions.get(0) != null) {
-                    ITransition<EventNode> trans = cur.transitions.get(0);
-                    if (trans.getTimeDelta() != null
-                            && !trans.getSource().isInitial()
-                            && !trans.getSource().isTerminal()
-                            && !trans.getTarget().isInitial()
-                            && !trans.getTarget().isTerminal()) {
-                        sb.append(cur.transitions.get(0).getTimeDelta());
-                    }
-                }
-
-                sb.append(")<-");
-                cur = cur.previousConst;
-            }
-            return sb.toString();
-        }
-    }
-
-    /**
      * Extends this node with another
      */
-    public ConstrainedHistoryNode extend(T node, ConstrainedHistoryNode prior,
+    public ConstrainedHistoryNode<T> extend(T node,
+            ConstrainedHistoryNode<T> prior,
             List<ITransition<EventNode>> transitions, ITime tDelta) {
 
         if (prior == null) {
@@ -172,8 +73,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Make new node extended from prior
-        ConstrainedHistoryNode extendedNode = new ConstrainedHistoryNode(node,
-                prior, prior.count + 1, transitions, tDelta);
+        ConstrainedHistoryNode<T> extendedNode = new ConstrainedHistoryNode<T>(
+                node, prior, prior.count + 1, transitions, tDelta);
         extendedNode.violationStart = prior.violationStart;
         extendedNode.violationEnd = prior.violationEnd;
 
@@ -183,16 +84,16 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     /**
      * Return the non-null path with the smaller running time delta
      */
-    public ConstrainedHistoryNode preferMinTime(ConstrainedHistoryNode first,
-            ConstrainedHistoryNode second) {
+    public ConstrainedHistoryNode<T> preferMinTime(
+            ConstrainedHistoryNode<T> first, ConstrainedHistoryNode<T> second) {
         return preferMinMaxTime(first, second, false);
     }
 
     /**
      * Return the non-null path with the larger running time delta
      */
-    public ConstrainedHistoryNode preferMaxTime(ConstrainedHistoryNode first,
-            ConstrainedHistoryNode second) {
+    public ConstrainedHistoryNode<T> preferMaxTime(
+            ConstrainedHistoryNode<T> first, ConstrainedHistoryNode<T> second) {
         return preferMinMaxTime(first, second, true);
     }
 
@@ -203,8 +104,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * @param findMax
      *            If TRUE, find path with larger time delta. If FALSE, smaller.
      */
-    private ConstrainedHistoryNode preferMinMaxTime(
-            ConstrainedHistoryNode first, ConstrainedHistoryNode second,
+    private ConstrainedHistoryNode<T> preferMinMaxTime(
+            ConstrainedHistoryNode<T> first, ConstrainedHistoryNode<T> second,
             boolean findMax) {
 
         // If one path is null, return the other
@@ -233,6 +134,19 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             }
             return second;
         }
+    }
+
+    /**
+     * Set the states inhabited by this tracing state set. Should generally be
+     * used only for testing
+     * 
+     * @param states
+     *            The states to inhabit in the FSM representation of this
+     *            tracing state set
+     */
+    public void setStates(List<ConstrainedHistoryNode<T>> states) {
+        this.states = states;
+        numStates = states.size();
     }
 
     /**
@@ -268,7 +182,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         relation = new HashSet<String>(1);
         relation.add(inv.getRelation());
 
-        states = new ArrayList<ConstrainedHistoryNode>(numStates);
+        states = new ArrayList<ConstrainedHistoryNode<T>>(numStates);
         tRunning = new ArrayList<ITime>(numStates);
 
         // Set up states and state times
@@ -284,8 +198,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // Should only be called on INITIAL nodes
         assert (input.isInitial());
 
-        ConstrainedHistoryNode newHistory = new ConstrainedHistoryNode(input,
-                null, 0, null, null);
+        ConstrainedHistoryNode<T> newHistory = new ConstrainedHistoryNode<T>(
+                input, tBound.getZeroTime());
 
         // Always start on State0
         states.set(0, newHistory);
@@ -385,10 +299,10 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Keep old paths before this transition
-        List<ConstrainedHistoryNode> statesOld = states;
+        List<ConstrainedHistoryNode<T>> statesOld = states;
 
         // Final state nodes after the transition will be stored in s
-        states = new ArrayList<ConstrainedHistoryNode>(numStates);
+        states = new ArrayList<ConstrainedHistoryNode<T>>(numStates);
         for (int i = 0; i < numStates; ++i) {
             states.add(null);
         }
@@ -403,7 +317,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
     protected abstract void transition(T input,
             List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> sOld);
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode<T>> sOld);
 
     /**
      * Get the event transition(s) with the smallest time delta
@@ -540,7 +454,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         result.b = b;
         result.tBound = tBound;
         result.numStates = numStates;
-        result.states = new ArrayList<ConstrainedHistoryNode>(states);
+        result.states = new ArrayList<ConstrainedHistoryNode<T>>(states);
         result.tRunning = new ArrayList<ITime>(tRunning);
         result.previous = previous;
         result.relation = relation;
@@ -549,14 +463,21 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public boolean isSubset(TracingStateSet<T> other) {
-        ConstrainedTracingSet<T> casted = (ConstrainedTracingSet<T>) other;
+    public boolean isSubset(TracingStateSet<T> o) {
+        // Cast so that we can access FSM states
+        ConstrainedTracingSet<T> other = (ConstrainedTracingSet<T>) o;
 
+        // Interate over all of this tracing set's states
         for (int i = 0; i < numStates; ++i) {
-            ConstrainedHistoryNode thisNode = states.get(i);
-            if (thisNode != null) {
-                ConstrainedHistoryNode otherNode = casted.states.get(i);
-                if (otherNode == null) {
+            ConstrainedHistoryNode<T> thisState = states.get(i);
+
+            // Check if this state is inhabited
+            if (thisState != null) {
+                ConstrainedHistoryNode<T> otherState = other.states.get(i);
+
+                if (otherState == null) {
+                    // This tracing set inhabits a state 'other' doesn't and
+                    // therefore is NOT a subset of 'other'
                     return false;
                 }
             }

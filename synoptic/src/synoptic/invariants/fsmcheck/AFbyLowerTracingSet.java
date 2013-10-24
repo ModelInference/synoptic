@@ -28,9 +28,9 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
         ConstrainedTracingSet<T> {
 
     /**
-     * Empty constructor for copy()
+     * Empty constructor for copy() and testing
      */
-    private AFbyLowerTracingSet() {
+    public AFbyLowerTracingSet() {
 
     }
 
@@ -41,7 +41,7 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
     @Override
     protected void transition(T input,
             List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
-            List<Boolean> outOfBound, List<ConstrainedHistoryNode> statesOld) {
+            List<Boolean> outOfBound, List<ConstrainedHistoryNode<T>> statesOld) {
 
         // State0 -> State0
         if (statesOld.get(0) != null && !isA) {
@@ -137,7 +137,7 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return states.get(4);
     }
 
