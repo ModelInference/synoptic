@@ -5,6 +5,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
@@ -90,21 +91,44 @@ public abstract class PynopticTest extends SynopticTest {
      * @return The requested invariant if it exists in the set, else null
      */
     protected TempConstrainedInvariant<?> getConstrainedInv(
-            TemporalInvariantSet minedInvs, String desiredInv) {
+			TemporalInvariantSet minedInvs, String desiredInv) {
 
-        // Iterate through all invariants
-        for (ITemporalInvariant genericInv : minedInvs.getSet()) {
-            TempConstrainedInvariant<?> invar = (TempConstrainedInvariant<?>) genericInv;
+		// Iterate through all invariants
+		for (ITemporalInvariant genericInv : minedInvs.getSet()) {
+			if (!(genericInv instanceof TempConstrainedInvariant)) {
+				continue;
+			}
+			TempConstrainedInvariant<?> invar = (TempConstrainedInvariant<?>) genericInv;
 
-            // Look for invariant matching exactly what was requested
-            if ((invar.getFirst() + " " + invar.getShortName() + " "
-                    + invar.getSecond() + " " + invar.getConstraint()
-                    .toString().substring(0, 5)).equals(desiredInv))
-                return invar;
-        }
+			// Look for invariant matching exactly what was requested
+			if ((invar.getFirst() + " " + invar.getShortName() + " "
+					+ invar.getSecond() + " " + invar.getConstraint()
+					.toString().substring(0, 5)).equals(desiredInv))
+				return invar;
+		}
 
-        return null;
-    }
+		return null;
+	}
+
+	/**
+	 * TODO: document this utility method
+	 * 
+	 * @param minedInvs
+	 * @param desiredInv
+	 * @return
+	 */
+	protected BinaryInvariant getBinaryInv(TemporalInvariantSet minedInvs,
+			String desiredInv) {
+		// Iterate through all invariants
+		for (ITemporalInvariant genericInv : minedInvs.getSet()) {
+			BinaryInvariant invar = (BinaryInvariant) genericInv;
+			if ((invar.getFirst() + " " + invar.getShortName() + " " + invar
+					.getSecond()).equals(desiredInv))
+				return invar;
+		}
+
+		return null;
+	}
 
     /**
      * Create partition graph from passed log of events, then generate and

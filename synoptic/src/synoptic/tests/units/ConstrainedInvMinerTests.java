@@ -2,12 +2,15 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -115,8 +118,36 @@ public class ConstrainedInvMinerTests extends PynopticTest {
                 genITimeParser());
         logger.info("minedInvs: " + minedInvs.toString());
 
-        // Generates a pair of constraints for both AFby and AP invariants.
-        assertEquals(4, minedInvs.getSet().size());
+        // Generates a pair of constraints for both AFby and AP invariants, as well as three NFBys
+        assertEquals(7, minedInvs.getSet().size());
+        // Make sure there are those 4 AF/AP invariants
+        int count = 0;
+        for(ITemporalInvariant inv : minedInvs){
+        	if(inv instanceof NeverFollowedInvariant)
+        		continue;
+        	count++;
+        }
+        assertEquals(4, count);
+    }
+    
+    /**
+     * Simple test that checks if NFBy invariants are mined.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNFByConstrained() throws Exception {
+    	logger.info("NFBy test");
+    	 String[] log = new String[] { "a 1", "b 4" };
+         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                 genITimeParser());
+         logger.info("minedInvs: " + minedInvs.toString());
+         NeverFollowedInvariant inv1 = new NeverFollowedInvariant("b", "a", "t");
+         NeverFollowedInvariant inv2 = new NeverFollowedInvariant("b", "b", "t");
+         
+         // make sure the NFBys are included
+         assertTrue(minedInvs.getSet().contains(inv1));
+         assertTrue(minedInvs.getSet().contains(inv2));
     }
 
     /**
