@@ -7,6 +7,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
@@ -46,244 +47,248 @@ import synoptic.util.time.ITime;
  */
 public class ConstrainedInvMiner extends InvariantMiner {
 
-    // Stores generated RelationPaths
-    private Set<IRelationPath> relationPaths;
-    // The set of constrained invariants that we will be returning.
-    private TemporalInvariantSet constrainedInvs;
+	// Stores generated RelationPaths
+	private Set<IRelationPath> relationPaths;
+	// The set of constrained invariants that we will be returning.
+	private TemporalInvariantSet constrainedInvs;
 
-    public ConstrainedInvMiner() {
-        this.relationPaths = new HashSet<IRelationPath>();
-    }
+	public ConstrainedInvMiner() {
+		this.relationPaths = new HashSet<IRelationPath>();
+	}
 
-    /**
-     * Uses the miner passed into the constructor to first mine unconstrained
-     * invariants. Then walks the trace to compute constraints for
-     * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Returns a set of
-     * these constrained invariants.
-     * 
-     * @param miner
-     *            The miner to use for mining regular (unconstrained)
-     *            invariants. private ITOInvariantMiner miner;
-     * @param g
-     *            a chain trace graph of nodes of type LogEvent
-     * @param multipleRelations
-     *            whether or not nodes have multiple relations
-     * @return the set of constrained temporal invariants
-     */
-    public TemporalInvariantSet computeInvariants(ITOInvariantMiner miner,
-            ChainsTraceGraph g, boolean multipleRelations) {
+	/**
+	 * Uses the miner passed into the constructor to first mine unconstrained
+	 * invariants. Then walks the trace to compute constraints for
+	 * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Returns a set of
+	 * these constrained invariants.
+	 * 
+	 * @param miner
+	 *            The miner to use for mining regular (unconstrained)
+	 *            invariants. private ITOInvariantMiner miner;
+	 * @param g
+	 *            a chain trace graph of nodes of type LogEvent
+	 * @param multipleRelations
+	 *            whether or not nodes have multiple relations
+	 * @return the set of constrained temporal invariants
+	 */
+	public TemporalInvariantSet computeInvariants(ITOInvariantMiner miner,
+			ChainsTraceGraph g, boolean multipleRelations) {
 
-        TemporalInvariantSet invs = miner.computeInvariants(g,
-                multipleRelations);
-        return computeInvariants(g, multipleRelations, invs);
-    }
+		TemporalInvariantSet invs = miner.computeInvariants(g,
+				multipleRelations);
+		return computeInvariants(g, multipleRelations, invs);
+	}
 
-    /**
-     * Given a set of unconstrained invariants, walks the trace graph to compute
-     * constraints for AFby and AP invariants. Augments these existing
-     * invariants with constraints. Returns a set of these constrained
-     * invariants.
-     * 
-     * @param g
-     *            a chain trace graph of nodes of type LogEvent
-     * @param multipleRelations
-     *            whether or not nodes have multiple relations
-     * @param invs
-     *            set of unconstrained invariants returned from previous
-     *            invariant miner
-     * @return the set of constrained temporal invariants
-     */
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations, TemporalInvariantSet invs) {
+	/**
+	 * Given a set of unconstrained invariants, walks the trace graph to compute
+	 * constraints for AFby and AP invariants. Augments these existing
+	 * invariants with constraints. Returns a set of these constrained
+	 * invariants.
+	 * 
+	 * @param g
+	 *            a chain trace graph of nodes of type LogEvent
+	 * @param multipleRelations
+	 *            whether or not nodes have multiple relations
+	 * @param invs
+	 *            set of unconstrained invariants returned from previous
+	 *            invariant miner
+	 * @return the set of constrained temporal invariants
+	 */
+	public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+			boolean multipleRelations, TemporalInvariantSet invs) {
 
-        // For each invocation we create a new invariant set to store the
-        // generated constrained invariants.
-        this.constrainedInvs = new TemporalInvariantSet();
+		// For each invocation we create a new invariant set to store the
+		// generated constrained invariants.
+		this.constrainedInvs = new TemporalInvariantSet();
 
-        for (ITemporalInvariant inv : invs.getSet()) {
-            String relation = inv.getRelation();
-            boolean isTimeRelation = relation.equals(Event.defTimeRelationStr);
+		for (ITemporalInvariant inv : invs.getSet()) {
+			String relation = inv.getRelation();
+			boolean isTimeRelation = relation.equals(Event.defTimeRelationStr);
 
-            // Loop through the traces.
-            for (Trace trace : g.getTraces()) {
+			// Loop through the traces.
+			for (Trace trace : g.getTraces()) {
 
-                if (multipleRelations && !isTimeRelation) {
-                    IRelationPath relationPath = trace.getBiRelationalPath(
-                            relation, Event.defTimeRelationStr);
-                    relationPaths.add(relationPath);
-                } else {
-                    Set<IRelationPath> subgraphs = trace
-                            .getSingleRelationPaths(relation);
-                    if (isTimeRelation && subgraphs.size() != 1) {
-                        throw new IllegalStateException(
-                                "Multiple relation subraphs for ordering relation graph");
-                    }
-                    relationPaths.addAll(subgraphs);
-                }
-            }
-        }
+				if (multipleRelations && !isTimeRelation) {
+					IRelationPath relationPath = trace.getBiRelationalPath(
+							relation, Event.defTimeRelationStr);
+					relationPaths.add(relationPath);
+				} else {
+					Set<IRelationPath> subgraphs = trace
+							.getSingleRelationPaths(relation);
+					if (isTimeRelation && subgraphs.size() != 1) {
+						throw new IllegalStateException(
+								"Multiple relation subraphs for ordering relation graph");
+					}
+					relationPaths.addAll(subgraphs);
+				}
+			}
+		}
 
-        for (ITemporalInvariant inv : invs.getSet()) {
-            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)) {
-                continue;
-            }
-            computeInvariants((BinaryInvariant) inv);
-        }
+		for (ITemporalInvariant inv : invs.getSet()) {
+			if (inv instanceof NeverFollowedInvariant) {
+				constrainedInvs.add(inv);
+			}
 
-        relationPaths.clear();
-        return constrainedInvs;
-    }
+			if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)) {
+				continue;
+			}
+			computeInvariants((BinaryInvariant) inv);
+		}
 
-    /**
-     * Walks each relation path to compute a lower and upper bound constraint
-     * for the given invariant. Augments the given invariant with the two
-     * constraints and returns them within a TemporalInvariantSet.
-     * 
-     * @param inv
-     *            the invariant that is being augmented with constraints
-     */
-    public void computeInvariants(BinaryInvariant inv) {
+		relationPaths.clear();
+		return constrainedInvs;
+	}
 
-        assert (inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant);
+	/**
+	 * Walks each relation path to compute a lower and upper bound constraint
+	 * for the given invariant. Augments the given invariant with the two
+	 * constraints and returns them within a TemporalInvariantSet.
+	 * 
+	 * @param inv
+	 *            the invariant that is being augmented with constraints
+	 */
+	public void computeInvariants(BinaryInvariant inv) {
 
-        EventType a = inv.getFirst();
-        EventType b = inv.getSecond();
+		assert (inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant);
 
-        // If invariant contains INITIAL node, we can't compute bound
-        // constraints.
-        if (a.isInitialEventType()) {
-            return;
-        }
+		EventType a = inv.getFirst();
+		EventType b = inv.getSecond();
 
-        // Return pair.left represents lower bound constraint.
-        // Return pair.right represents upper bound constraint.
-        Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
-                a, b);
+		// If invariant contains INITIAL node, we can't compute bound
+		// constraints.
+		if (a.isInitialEventType()) {
+			return;
+		}
 
-        logger.finest(a + " " + inv.getShortName() + " " + b
-                + ",  lowerbound = " + constraints.getLeft().getThreshold()
-                + ",  upperbound = " + constraints.getRight().getThreshold());
+		// Return pair.left represents lower bound constraint.
+		// Return pair.right represents upper bound constraint.
+		Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
+				a, b);
 
-        // Create two TempConstrainedInvariant objects using the lower bound and
-        // upper bound computed.
-        augmentInvariant(inv, constraints);
-    }
+		logger.finest(a + " " + inv.getShortName() + " " + b
+				+ ",  lowerbound = " + constraints.getLeft().getThreshold()
+				+ ",  upperbound = " + constraints.getRight().getThreshold());
 
-    // Helper method for creating a lower and upper constrained invariant and
-    // adding it into the constrainedInvs set.
-    private <T extends BinaryInvariant> void augmentInvariant(T inv,
-            Pair<IThresholdConstraint, IThresholdConstraint> constraints) {
-        TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getLeft());
-        TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getRight());
+		// Create two TempConstrainedInvariant objects using the lower bound and
+		// upper bound computed.
+		augmentInvariant(inv, constraints);
+	}
 
-        constrainedInvs.add(lowerConstrInv);
-        constrainedInvs.add(upperConstrInv);
-    }
+	// Helper method for creating a lower and upper constrained invariant and
+	// adding it into the constrainedInvs set.
+	private <T extends BinaryInvariant> void augmentInvariant(T inv,
+			Pair<IThresholdConstraint, IThresholdConstraint> constraints) {
+		TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>(
+				inv, constraints.getLeft());
+		TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>(
+				inv, constraints.getRight());
 
-    /**
-     * Walks each relationPath and checks for nodes either of EventType a or b.
-     * Uses ITime values of these nodes to update and compute a lower and upper
-     * bound constraint for an invariant with predicates a and b. The algorithm
-     * to compute an lower bound is as follows: For each relationPath Node
-     * recentA Walking down the trace If see a node of EventType a set recentA
-     * to this node If see a node of EventType b && recentA set obtain delta
-     * (difference between time of this node and recentA) The lower bound is the
-     * min delta value out of all the deltas The algorithm to compute an upper
-     * bound is as follows: For each relationPath Walking down the trace Find
-     * the first node of EventType a Find the last node of EventType b Obtain a
-     * delta value (difference between time of first and last) for relationPath
-     * The upper bound is the max delta value out of all the deltas Returns the
-     * computed lower and upper bound constraints as a pair. The left is the
-     * lower bound constraint and the right is the upper bound constraint.
-     * 
-     * @param relationPaths
-     *            set of relationPaths to walk
-     * @param a
-     *            first invariant predicate
-     * @param b
-     *            second invariant predicate
-     * @return IThresholdConstraint pair where the left represents the lower
-     *         bound constraint and the right represents the upper bound
-     *         constraint
-     */
-    private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            EventType a, EventType b) {
+		constrainedInvs.add(lowerConstrInv);
+		constrainedInvs.add(upperConstrInv);
+	}
 
-        ITime lowerBound = null;
-        ITime upperBound = null;
+	/**
+	 * Walks each relationPath and checks for nodes either of EventType a or b.
+	 * Uses ITime values of these nodes to update and compute a lower and upper
+	 * bound constraint for an invariant with predicates a and b. The algorithm
+	 * to compute an lower bound is as follows: For each relationPath Node
+	 * recentA Walking down the trace If see a node of EventType a set recentA
+	 * to this node If see a node of EventType b && recentA set obtain delta
+	 * (difference between time of this node and recentA) The lower bound is the
+	 * min delta value out of all the deltas The algorithm to compute an upper
+	 * bound is as follows: For each relationPath Walking down the trace Find
+	 * the first node of EventType a Find the last node of EventType b Obtain a
+	 * delta value (difference between time of first and last) for relationPath
+	 * The upper bound is the max delta value out of all the deltas Returns the
+	 * computed lower and upper bound constraints as a pair. The left is the
+	 * lower bound constraint and the right is the upper bound constraint.
+	 * 
+	 * @param relationPaths
+	 *            set of relationPaths to walk
+	 * @param a
+	 *            first invariant predicate
+	 * @param b
+	 *            second invariant predicate
+	 * @return IThresholdConstraint pair where the left represents the lower
+	 *         bound constraint and the right represents the upper bound
+	 *         constraint
+	 */
+	private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
+			EventType a, EventType b) {
 
-        // For each relationPath.
-        // Go through each node in path.
-        // Find nodes that match event types for invariant.
-        // Find upperBound.
-        // Find and lowerBound to create ConstrainedInvariants.
-        for (IRelationPath relationPath : relationPaths) {
-            EventNode start = relationPath.getFirstNode();
-            EventNode end = relationPath.getLastNode();
+		ITime lowerBound = null;
+		ITime upperBound = null;
 
-            // First occurrence of a and last occurrence of b.
-            // last - first = upperBound
-            ITime firstA = null;
-            ITime lastB = null;
+		// For each relationPath.
+		// Go through each node in path.
+		// Find nodes that match event types for invariant.
+		// Find upperBound.
+		// Find and lowerBound to create ConstrainedInvariants.
+		for (IRelationPath relationPath : relationPaths) {
+			EventNode start = relationPath.getFirstNode();
+			EventNode end = relationPath.getLastNode();
 
-            // Track nodes of event type a for computing lowerBound.
-            EventNode recentA = null;
+			// First occurrence of a and last occurrence of b.
+			// last - first = upperBound
+			ITime firstA = null;
+			ITime lastB = null;
 
-            Transition<EventNode> trans;
+			// Track nodes of event type a for computing lowerBound.
+			EventNode recentA = null;
 
-            // Current node we're at as we walk the trace.
-            EventNode curr = start;
+			Transition<EventNode> trans;
 
-            while (true) {
-                if (curr.getEType().equals(a)) {
-                    recentA = curr;
-                    if (firstA == null) {
-                        firstA = curr.getTime();
-                    }
-                }
+			// Current node we're at as we walk the trace.
+			EventNode curr = start;
 
-                if (curr.getEType().equals(b)) {
-                    // If node of event type a is found already, then we can
-                    // obtain a delta value since we now found node of event
-                    // type b.
-                    if (recentA != null) {
-                        ITime delta = curr.getTime().computeDelta(
-                                recentA.getTime());
-                        if (lowerBound == null || delta.lessThan(lowerBound)) {
-                            lowerBound = delta;
-                        }
-                    }
-                    lastB = curr.getTime();
-                }
+			while (true) {
+				if (curr.getEType().equals(a)) {
+					recentA = curr;
+					if (firstA == null) {
+						firstA = curr.getTime();
+					}
+				}
 
-                // Dealing with a TO log, so only one transition available to
-                // use.
-                assert (curr.getAllTransitions().size() == 1);
-                trans = curr.getAllTransitions().get(0);
+				if (curr.getEType().equals(b)) {
+					// If node of event type a is found already, then we can
+					// obtain a delta value since we now found node of event
+					// type b.
+					if (recentA != null) {
+						ITime delta = curr.getTime().computeDelta(
+								recentA.getTime());
+						if (lowerBound == null || delta.lessThan(lowerBound)) {
+							lowerBound = delta;
+						}
+					}
+					lastB = curr.getTime();
+				}
 
-                // Reached ending node in path.
-                if (curr.equals(end)) {
-                    break;
-                }
-                curr = trans.getTarget();
-            }
+				// Dealing with a TO log, so only one transition available to
+				// use.
+				assert (curr.getAllTransitions().size() == 1);
+				trans = curr.getAllTransitions().get(0);
 
-            // relationPath contains the invariant.
-            // Note: this will exclude invariants with an INITIAL node, since
-            // that will yield a null lower-bound and upper-bound.
-            if (firstA != null && lastB != null) {
-                ITime delta = lastB.computeDelta(firstA);
-                if (upperBound == null || upperBound.lessThan(delta)) {
-                    upperBound = delta;
-                }
-            }
-        }
+				// Reached ending node in path.
+				if (curr.equals(end)) {
+					break;
+				}
+				curr = trans.getTarget();
+			}
 
-        IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
-        IThresholdConstraint u = new UpperBoundConstraint(upperBound);
+			// relationPath contains the invariant.
+			// Note: this will exclude invariants with an INITIAL node, since
+			// that will yield a null lower-bound and upper-bound.
+			if (firstA != null && lastB != null) {
+				ITime delta = lastB.computeDelta(firstA);
+				if (upperBound == null || upperBound.lessThan(delta)) {
+					upperBound = delta;
+				}
+			}
+		}
 
-        return new Pair<IThresholdConstraint, IThresholdConstraint>(l, u);
-    }
+		IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
+		IThresholdConstraint u = new UpperBoundConstraint(upperBound);
+
+		return new Pair<IThresholdConstraint, IThresholdConstraint>(l, u);
+	}
 }
