@@ -43,6 +43,7 @@ import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
 import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
+import synoptic.model.export.JsonExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.testgeneration.AbstractTestCase;
@@ -774,6 +775,17 @@ public class SynopticMain {
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
                     + options.getOptDesc("outputPathPrefix"));
+        }
+
+        // Export a JSON object if requested
+        if (options.outputJSON) {
+            logger.info("Exporting final graph as a JSON object...");
+            startTime = System.currentTimeMillis();
+
+            JsonExporter.exportJsonObject(options.outputPathPrefix, pGraph);
+
+            logger.info("Exporting JSON object took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
 }
