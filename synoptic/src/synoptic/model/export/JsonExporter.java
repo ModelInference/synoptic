@@ -79,7 +79,11 @@ public class JsonExporter {
         // The log (list of traces) to go into the JSON object
         List<Map<String, Object>> logListOfTraces = new LinkedList<Map<String, Object>>();
 
+        // Get all partitions in the partition graph
         Set<Partition> allPart = pGraph.getNodes();
+
+        // Get the INITIAL partition, which will be used to retrieve all traces
+        // and their events
         Partition initialPart = null;
         for (Partition part : allPart) {
             if (part.isInitial()) {
@@ -88,6 +92,13 @@ public class JsonExporter {
             }
         }
 
+        // There must have been an INITIAL partition found
+        assert initialPart != null;
+        if (initialPart == null) {
+            return null;
+        }
+
+        // Follow all traces and store them in the log list of traces
         int traceNum = 0;
         for (EventNode startingEvent : initialPart.getEventNodes().iterator()
                 .next().getAllSuccessors()) {
