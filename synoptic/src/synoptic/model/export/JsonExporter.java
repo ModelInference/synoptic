@@ -74,6 +74,8 @@ public class JsonExporter {
         finalModelMap.put("log", logListOfTraces);
 
         // Add partitions to final model map
+        List<Map<String, Object>> partitionList = makePartitionsJSON(pGraph);
+        finalModelMap.put("partitions", partitionList);
 
         // Add invariants to final model map
 
@@ -163,5 +165,63 @@ public class JsonExporter {
         }
 
         return logListOfTraces;
+    }
+
+    /**
+     * Creates the 'partitions' of the JSON object: a list of partitions within
+     * this partition graph
+     * 
+     * @param pGraph
+     *            The partition graph whose partitions we're outputting
+     */
+    private static List<Map<String, Object>> makePartitionsJSON(
+            PartitionGraph pGraph) {
+        // The list of partitions to go into the JSON object
+        List<Map<String, Object>> partitionsList = new LinkedList<Map<String, Object>>();
+
+        // Get all partitions in the partition graph
+        Set<Partition> allPartitions = pGraph.getNodes();
+
+        PartitionLoop:
+        for (Partition partition : allPartitions) {
+            // One partition, contains event type and list of events
+            Map<String, Object> singlePartitionMap = new LinkedHashMap<String, Object>();
+
+            // This partition's list of events it contains
+            List<Map<String, Object>> singlePartitionEventList = new LinkedList<Map<String, Object>>();
+
+            // Populate this partition's event type
+            EventType evType = partition.getEType();
+            singlePartitionMap.put("eventType", evType.toString());
+
+            for (EventNode event : partition.getEventNodes()) {
+                // One event, contains trace ID and index within the trace
+                Map<String, Object> singleEventMap = new LinkedHashMap<String, Object>();
+
+                // Get the event instance info required to identify this event
+                // within the JSON object
+                EventInstance evInstance = eventMap.get(event);
+
+                if (evType.isSpecialEventType()) {
+                    continue PartitionLoop;
+                }
+
+                // Populate this event's trace ID and index within the trace
+                singleEventMap.put("traceID", evInstance.traceID);
+                singleEventMap.put("eventIndex",
+                        evInstance.eventIndexWithinTrace);
+
+                // Put the event into the partition's list of events
+                singlePartitionEventList.add(singleEventMap);
+            }
+
+            // Store this partition's list of events
+            singlePartitionMap.put("events", singlePartitionEventList);
+
+            // Put the partition into the full list of partitions
+            partitionsList.add(singlePartitionMap);
+        }
+
+        return partitionsList;
     }
 }
