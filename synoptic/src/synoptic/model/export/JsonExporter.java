@@ -3,6 +3,7 @@ package synoptic.model.export;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,26 @@ import synoptic.model.interfaces.INode;
  *            The node type of the partition graph.
  */
 public class JsonExporter {
+
+    /**
+     * Each event mapped to its relevant JSON information, the trace ID and its
+     * index within the trace
+     */
+    private static Map<EventNode, EventInstance> eventMap = new HashMap<EventNode, EventInstance>();
+
+    /**
+     * Simple pair of a trace ID and an event index within the trace to uniquely
+     * identify a specific event instance/node
+     */
+    private static class EventInstance {
+        public int traceID;
+        public int eventIndexWithinTrace;
+
+        public EventInstance(int traceID, int eventIndexWithinTrace) {
+            this.traceID = traceID;
+            this.eventIndexWithinTrace = eventIndexWithinTrace;
+        }
+    }
 
     /**
      * Export the JSON object representation of the partition graph pGraph to
@@ -70,7 +91,8 @@ public class JsonExporter {
     }
 
     /**
-     * Creates a JSON sub-object for the log containing a list of traces
+     * Creates the 'log' of the JSON object: a list of traces within the log of
+     * this partition graph
      * 
      * @param pGraph
      *            The partition graph whose log we're outputting
@@ -80,12 +102,12 @@ public class JsonExporter {
         List<Map<String, Object>> logListOfTraces = new LinkedList<Map<String, Object>>();
 
         // Get all partitions in the partition graph
-        Set<Partition> allPart = pGraph.getNodes();
+        Set<Partition> allPartitions = pGraph.getNodes();
 
         // Get the INITIAL partition, which will be used to retrieve all traces
         // and their events
         Partition initialPart = null;
-        for (Partition part : allPart) {
+        for (Partition part : allPartitions) {
             if (part.isInitial()) {
                 initialPart = part;
                 break;
@@ -99,7 +121,7 @@ public class JsonExporter {
         }
 
         // Follow all traces and store them in the log list of traces
-        int traceNum = 0;
+        int traceID = 0;
         for (EventNode startingEvent : initialPart.getEventNodes().iterator()
                 .next().getAllSuccessors()) {
             // One trace, contains the trace number and a list of events
@@ -107,14 +129,15 @@ public class JsonExporter {
             // List of events
             List<Map<String, Object>> singleTraceEventsList = new LinkedList<Map<String, Object>>();
 
+            int eventIndexWithinTrace = 0;
             for (EventNode event = startingEvent; !event.isTerminal(); event = event
                     .getAllSuccessors().iterator().next()) {
-                // One event, contains the event type and the timestamp
+                // One event, contains event index, event type, and timestamp
                 Map<String, Object> singleEventMap = new LinkedHashMap<String, Object>();
 
+                // Populate this event's index within the trace and its type
+                singleEventMap.put("eventIndex", eventIndexWithinTrace++);
                 EventType evType = event.getEType();
-
-                // Populate this event's type
                 singleEventMap.put("eventType", evType.toString());
 
                 // Populate this event's time if it's not INITIAL or TERMINAL
@@ -122,11 +145,17 @@ public class JsonExporter {
                     singleEventMap.put("timestamp", event.getTime());
                 }
 
+                // Add this event to this trace's list of events
                 singleTraceEventsList.add(singleEventMap);
+
+                // Record this event's event instance information to ease the
+                // creation of the partition part of the JSON later
+                eventMap.put(event, new EventInstance(traceID,
+                        eventIndexWithinTrace));
             }
 
             // Populate the single trace
-            singleTraceMap.put("traceID", traceNum++);
+            singleTraceMap.put("traceID", traceID++);
             singleTraceMap.put("events", singleTraceEventsList);
 
             // Put the trace into the log's list of traces
