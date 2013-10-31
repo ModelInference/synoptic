@@ -15,5 +15,6 @@
 	<classpathentry kind="var" path="SYNOPTIC_LIB/automaton.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Daikonizer"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/daikon.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
