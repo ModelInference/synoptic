@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.json.simple.JSONValue;
 
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -78,6 +79,8 @@ public class JsonExporter {
         finalModelMap.put("partitions", partitionList);
 
         // Add invariants to final model map
+        List<Map<String, Object>> invariantList = makeInvariantsJSON(pGraph);
+        finalModelMap.put("invariants", invariantList);
 
         // Output the final model map as a JSON object
         try {
@@ -138,7 +141,7 @@ public class JsonExporter {
                 Map<String, Object> singleEventMap = new LinkedHashMap<String, Object>();
 
                 // Populate this event's index within the trace and its type
-                singleEventMap.put("eventIndex", eventIndexWithinTrace++);
+                singleEventMap.put("eventIndex", eventIndexWithinTrace);
                 EventType evType = event.getEType();
                 singleEventMap.put("eventType", evType.toString());
 
@@ -153,7 +156,7 @@ public class JsonExporter {
                 // Record this event's event instance information to ease the
                 // creation of the partition part of the JSON later
                 eventMap.put(event, new EventInstance(traceID,
-                        eventIndexWithinTrace));
+                        eventIndexWithinTrace++));
             }
 
             // Populate the single trace
@@ -223,5 +226,23 @@ public class JsonExporter {
         }
 
         return partitionsList;
+    }
+
+    /**
+     * Creates the 'invariants' of the JSON object: a list of the invariants
+     * used to construct the partition graph
+     * 
+     * @param pGraph
+     *            The partition graph made using the invariants we're outputting
+     */
+    private static List<Map<String, Object>> makeInvariantsJSON(
+            PartitionGraph pGraph) {
+        // The list of invariants to go into the JSON object
+        List<Map<String, Object>> invariantsList = new LinkedList<Map<String, Object>>();
+
+        // Get all invariants in the partition graph
+        TemporalInvariantSet allPartitions = pGraph.getInvariants();
+
+        return invariantsList;
     }
 }
