@@ -12,7 +12,9 @@ import java.util.Set;
 
 import org.json.simple.JSONValue;
 
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -241,7 +243,34 @@ public class JsonExporter {
         List<Map<String, Object>> invariantsList = new LinkedList<Map<String, Object>>();
 
         // Get all invariants in the partition graph
-        TemporalInvariantSet allPartitions = pGraph.getInvariants();
+        TemporalInvariantSet allInvariants = pGraph.getInvariants();
+
+        for (ITemporalInvariant inv : allInvariants) {
+            // One invariant, contains type, predicates, constraint, and bounds
+            Map<String, Object> singleInvariantMap = new LinkedHashMap<String, Object>();
+
+            // Store the invariant type
+            singleInvariantMap.put("invariantType", inv.getLongName());
+
+            // Store the predicates
+            List<String> predicateList = new LinkedList<String>();
+            for (EventType evType : inv.getPredicates()) {
+                predicateList.add(evType.toString());
+            }
+            singleInvariantMap.put("predicates", predicateList);
+
+            if (inv instanceof TempConstrainedInvariant) {
+                TempConstrainedInvariant<?> constInv = (TempConstrainedInvariant<?>) inv;
+
+                // Store the constraints with bounds
+                List<String> constraintBoundList = new LinkedList<String>();
+                constraintBoundList.add(constInv.getConstraint().toString());
+                singleInvariantMap.put("constraints", constraintBoundList);
+            }
+
+            // Put the invariant map into the list of invariants
+            invariantsList.add(singleInvariantMap);
+        }
 
         return invariantsList;
     }
