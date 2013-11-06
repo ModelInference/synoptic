@@ -16,8 +16,8 @@ import synoptic.util.time.ITime;
  * State1 = states.get(1): A seen (reject state) <br />
  * State2 = states.get(2): A seen, then something other than B seen (reject
  * state) <br />
- * State4 = states.get(4): A seen, then B seen within time bound <br />
- * State3 = states.get(3): A seen, then B seen out of time bound (permanent
+ * State3 = states.get(3): A seen, then B seen within time bound <br />
+ * State4 = states.get(4): A seen, then B seen out of time bound (permanent
  * reject state)
  * 
  * @author Tony Ohmann (ohmann@cs.umass.edu)

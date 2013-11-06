@@ -159,6 +159,14 @@ public class SynopticOptions extends Options {
     public boolean enablePerfDebugging = false;
 
     /**
+     * Allows outputting the final model as a JSON object to the output prefix
+     * specified by -o or -output-prefix.
+     */
+    @Option(value = "-j Output the final model as a JSON object",
+            aliases = { "-output-json" })
+    public boolean outputJSON = false;
+
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
