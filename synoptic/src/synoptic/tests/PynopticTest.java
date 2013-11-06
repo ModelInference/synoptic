@@ -112,7 +112,7 @@ public abstract class PynopticTest extends SynopticTest {
 
     /**
      * Retrieve a specific binary invariant from a TemporalInvariantSet
-     * requested using the form "a NFBy b".
+     * requested using the form "a NFby b".
      * 
      * @param minedInvs
      *            Set of mined invariants
@@ -125,6 +125,8 @@ public abstract class PynopticTest extends SynopticTest {
         // Iterate through all invariants
         for (ITemporalInvariant genericInv : minedInvs.getSet()) {
             BinaryInvariant invar = (BinaryInvariant) genericInv;
+
+            // Look for invariant matching exactly what was requested
             if ((invar.getFirst() + " " + invar.getShortName() + " " + invar
                     .getSecond()).equals(desiredInv))
                 return invar;

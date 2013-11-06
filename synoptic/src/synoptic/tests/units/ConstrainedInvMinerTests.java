@@ -119,9 +119,9 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         logger.info("minedInvs: " + minedInvs.toString());
 
         // Generates a pair of constraints for both AFby and AP invariants, as
-        // well as three NFBys
+        // well as three NFbys
         assertEquals(7, minedInvs.getSet().size());
-        // Make sure there are those 4 AF/AP invariants
+        // Make sure there are 4 AF/AP invariants
         int count = 0;
         for (ITemporalInvariant invar : minedInvs) {
             if (invar instanceof NeverFollowedInvariant)
@@ -132,23 +132,25 @@ public class ConstrainedInvMinerTests extends PynopticTest {
     }
 
     /**
-     * Simple test that checks if NFBy invariants are mined.
+     * Simple test that checks if NFby invariants are mined.
      * 
      * @throws Exception
      */
     @Test
-    public void mineNFByConstrained() throws Exception {
-        logger.info("NFBy test");
+    public void mineNFbyConstrained() throws Exception {
+        logger.info("NFby test");
         String[] log = new String[] { "a 1", "b 4" };
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genITimeParser());
         logger.info("minedInvs: " + minedInvs.toString());
         NeverFollowedInvariant inv1 = new NeverFollowedInvariant("b", "a", "t");
         NeverFollowedInvariant inv2 = new NeverFollowedInvariant("b", "b", "t");
+        NeverFollowedInvariant inv3 = new NeverFollowedInvariant("a", "a", "t");
 
-        // make sure the NFBys are included
+        // make sure the NFbys are included
         assertTrue(minedInvs.getSet().contains(inv1));
         assertTrue(minedInvs.getSet().contains(inv2));
+        assertTrue(minedInvs.getSet().contains(inv3));
     }
 
     /**
