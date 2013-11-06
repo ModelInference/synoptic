@@ -28,8 +28,6 @@ import synoptic.model.interfaces.INode;
  * sub-projects), available at https://code.google.com/p/json-simple/.
  * 
  * @author Tony Ohmann (ohmann@cs.umass.edu)
- * @param <T>
- *            The node type of the partition graph.
  */
 public class JsonExporter {
 
