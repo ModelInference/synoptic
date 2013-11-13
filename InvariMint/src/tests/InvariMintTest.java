@@ -64,7 +64,7 @@ public class InvariMintTest extends SynopticLibTest {
     /**
      * Exposes SynopticLibTest's testName to derived classes.
      */
-    protected static TestName getTestName() {
-        return SynopticLibTest.testName;
+    protected TestName getTestName() {
+        return testName;
     }
 }
