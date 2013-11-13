@@ -167,7 +167,7 @@ public class ModelCheckersTests extends SynopticTest {
      * 
      * @throws Exception
      */
-    private static void testPartitionGraphCExample(String[] events,
+    private void testPartitionGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
             List<EventType> cExampleLabels) throws Exception {
 

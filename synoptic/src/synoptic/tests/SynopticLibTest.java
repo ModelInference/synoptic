@@ -34,7 +34,7 @@ public abstract class SynopticLibTest {
      * name.getMethodName().
      **/
     @Rule
-    public static TestName testName;
+    public TestName testName = new TestName();
 
     /**
      * The logger instance to use across all tests.
@@ -49,7 +49,6 @@ public abstract class SynopticLibTest {
      *            The Logger.getLogger() name to use.
      */
     protected static void initialize(String loggerName) {
-        testName = new TestName();
         logger = Logger.getLogger(loggerName);
     }
 
@@ -127,8 +126,7 @@ public abstract class SynopticLibTest {
      *            Index identifier of this graph, in the context of the test
      *            using the method.
      */
-    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
-            int index) {
+    protected <T extends INode<T>> void exportTestGraph(IGraph<T> g, int index) {
         exportTestGraph(g, Integer.toString(index));
     }
 
@@ -139,7 +137,7 @@ public abstract class SynopticLibTest {
      * @param g
      *            Graph to export
      */
-    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
+    protected <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
         SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();

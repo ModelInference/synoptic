@@ -98,7 +98,7 @@ public class KTailsTests extends SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    private static ChainsTraceGraph makeSimpleGraph()
+    private ChainsTraceGraph makeSimpleGraph()
             throws InternalSynopticException, ParseException {
 
         String[] logArr = new String[] { "a", "a", "--", "b", "--", "a", "b" };
@@ -266,7 +266,7 @@ public class KTailsTests extends SynopticTest {
                 + "1,0 a\n" + "2,0 b\n" + "1,1 c\n";
         TraceParser parser = genParser();
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
-                SynopticTest.getTestName().getMethodName(), -1);
+                getTestName().getMethodName(), -1);
         DAGsTraceGraph inputGraph = parser
                 .generateDirectPORelation(parsedEvents);
         exportTestGraph(inputGraph, 0);
@@ -290,8 +290,8 @@ public class KTailsTests extends SynopticTest {
         traceStr = "1,0 a\n" + "2,0 b\n" + "1,1 c\n" + "--\n" + "1,0 a\n"
                 + "2,0 b\n" + "1,1 d\n";
         parser = genParser();
-        parsedEvents = parser.parseTraceString(traceStr, SynopticTest
-                .getTestName().getMethodName(), -1);
+        parsedEvents = parser.parseTraceString(traceStr, getTestName()
+                .getMethodName(), -1);
         inputGraph = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(inputGraph, 1);
 

@@ -94,7 +94,7 @@ public class BisimulationTests extends SynopticTest {
 
         TraceParser defParser = genDefParser();
         ArrayList<EventNode> parsedEvents = defParser.parseTraceString(
-                traceStr, SynopticTest.getTestName().getMethodName(), -1);
+                traceStr, getTestName().getMethodName(), -1);
         ChainsTraceGraph inputGraph = defParser
                 .generateDirectTORelation(parsedEvents);
 
