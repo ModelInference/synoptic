@@ -61,7 +61,7 @@ public abstract class PynopticTest extends SynopticTest {
      * @return PartitionGraph with constrained invariants
      * @throws Exception
      */
-    protected static PartitionGraph genConstrainedPartitionGraph(String[] events)
+    protected PartitionGraph genConstrainedPartitionGraph(String[] events)
             throws Exception {
 
         // Generate trace graph from passed events

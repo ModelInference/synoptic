@@ -64,8 +64,8 @@ public abstract class SynopticTest extends SynopticLibTest {
     /**
      * Exposes SynopticLibTest's testName to derived classes.
      */
-    protected static TestName getTestName() {
-        return SynopticLibTest.testName;
+    protected TestName getTestName() {
+        return testName;
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class SynopticTest extends SynopticLibTest {
         return sb.toString();
     }
 
-    public static ArrayList<EventNode> parseLogEvents(String[] events,
+    public ArrayList<EventNode> parseLogEvents(String[] events,
             TraceParser parser) throws InternalSynopticException,
             ParseException {
         String traceStr = concatinateWithNewlines(events);
@@ -172,9 +172,8 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public static TraceGraph<?> genChainsTraceGraph(String[] events,
-            TraceParser parser) throws ParseException,
-            InternalSynopticException {
+    public TraceGraph<?> genChainsTraceGraph(String[] events, TraceParser parser)
+            throws ParseException, InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
         return parser.generateDefaultOrderRelation(parsedEvents);
     }
@@ -188,9 +187,8 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public static DAGsTraceGraph genDAGsTraceGraph(String[] events,
-            TraceParser parser) throws ParseException,
-            InternalSynopticException {
+    public DAGsTraceGraph genDAGsTraceGraph(String[] events, TraceParser parser)
+            throws ParseException, InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
         return parser.generateDirectPORelation(parsedEvents);
     }
@@ -217,7 +215,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @param miner
      * @throws Exception
      */
-    public static PartitionGraph genInitialPartitionGraph(String[] events,
+    public PartitionGraph genInitialPartitionGraph(String[] events,
             TraceParser parser, ITOInvariantMiner miner,
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
