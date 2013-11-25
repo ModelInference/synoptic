@@ -37,6 +37,7 @@ public class IntrInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
     @Override
     public void setInitial(T input) {
+        // TODO: check what this does
         BitSet isA = getInputCopy(0, input);
         sets.set(1, (BitSet) isA.clone());
         isA.flip(0, count);
@@ -45,6 +46,12 @@ public class IntrInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
     @Override
     public void transition(T input) {
+        // TODO: check if these transitions are accurate. Seems as if there are
+        // some transitions missing. Suggestion:
+        // s1 = (s1 & !isA) | (s2 & isB)
+        // s2 = (s1 & isA) | (s2 & !(isA | isB))
+        // s3 = s3 | (s2 & isA)
+
         /*
          * s1 = (s1 | s2) & isB s2 = s1 & isA s3 = s3 | (s2 & isA)
          */
