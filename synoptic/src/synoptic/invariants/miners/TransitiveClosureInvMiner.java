@@ -249,6 +249,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
     private Set<ITemporalInvariant> extractInvariantsFromTC(TraceGraph<?> g,
             TransitiveClosure tc, String relation,
             boolean mineConcurrencyInvariants) {
+        // TODO: Add IntrInv (not done yet)
 
         // This maintains the mapping from event type to a map of trace ids ->
         // list of event instances in the trace. This is used to check

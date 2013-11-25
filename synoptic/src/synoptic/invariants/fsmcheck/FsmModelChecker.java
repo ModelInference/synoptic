@@ -20,6 +20,7 @@ import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
+import synoptic.invariants.intr.IntrInvariant;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -147,6 +148,8 @@ public class FsmModelChecker {
         List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
         List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
         List<BinaryInvariant> neverFollowed = new ArrayList<BinaryInvariant>();
+        // TODO: add IntrInv
+        List<BinaryInvariant> intrInv = new ArrayList<BinaryInvariant>();
         for (ITemporalInvariant inv : invariants) {
             @SuppressWarnings("unchecked")
             Class<Object> invClass = (Class) inv.getClass();
@@ -156,17 +159,21 @@ public class FsmModelChecker {
                 alwaysPrecedes.add((BinaryInvariant) inv);
             } else if (invClass.equals(NeverFollowedInvariant.class)) {
                 neverFollowed.add((BinaryInvariant) inv);
+            } else if (invClass.equals(IntrInvariant.class)) {
+                intrInv.add((BinaryInvariant) inv);
             }
         }
 
         BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
         BitSet aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
         BitSet nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
+        BitSet intr = whichFail(new IntrInvFsms<T>(intrInv), graph);
 
         List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
         bitFilter(afs, alwaysFollowed, results);
         bitFilter(aps, alwaysPrecedes, results);
         bitFilter(nfs, neverFollowed, results);
+        bitFilter(intr, intrInv, results);
         return results;
     }
 
@@ -197,6 +204,10 @@ public class FsmModelChecker {
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
 
+        }
+        // TODO: add Intr Inv
+        else if (invClass.equals(IntrInvariant.class)) {
+            stateset = new IntrTracingSet<Node>(invariant);
         } else if (invClass.equals(TempConstrainedInvariant.class)) {
 
             BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant)

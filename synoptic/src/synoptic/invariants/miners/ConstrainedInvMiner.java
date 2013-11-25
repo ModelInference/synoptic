@@ -13,6 +13,7 @@ import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
+import synoptic.invariants.intr.IntrInvariant;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Trace;
@@ -125,7 +126,9 @@ public class ConstrainedInvMiner extends InvariantMiner {
         }
 
         for (ITemporalInvariant inv : invs.getSet()) {
-            if (inv instanceof NeverFollowedInvariant) {
+            // TODO: add IntrInv
+            if (inv instanceof NeverFollowedInvariant
+                    || inv instanceof IntrInvariant) {
                 constrainedInvs.add(inv);
             }
 
