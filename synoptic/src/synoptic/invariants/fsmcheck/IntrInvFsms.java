@@ -46,14 +46,9 @@ public class IntrInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
     @Override
     public void transition(T input) {
-        // TODO: check if these transitions are accurate. Seems as if there are
-        // some transitions missing. Suggestion:
-        // s1 = (s1 & !isA) | (s2 & isB)
-        // s2 = (s1 & isA) | (s2 & !(isA | isB))
-        // s3 = s3 | (s2 & isA)
-
         /*
-         * s1 = (s1 | s2) & isB s2 = s1 & isA s3 = s3 | (s2 & isA)
+         * s1 = (s1 & !isA) | (s2 & isB) s2 = (s1 & isA) | (s2 & !(isA | isB))
+         * s3 = s3 | (s2 & isA)
          */
 
         BitSet isA = getInputInvariantsDependencies(0, input);
@@ -62,13 +57,18 @@ public class IntrInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         BitSet s2 = sets.get(1);
         BitSet s3 = sets.get(2);
 
-        s1.or(s2);
-        s1.and(isB);
-
-        s2 = s1;
-        s2.and(isA);
-
         BitSet t = (BitSet) s2.clone();
+        s1.andNot(isA);
+        t.and(isB);
+        s1.or(t);
+
+        t = (BitSet) isA.clone();
+        t.or(isB);
+        s2.andNot(t);
+        t = (BitSet) s1.clone();
+        t.and(isA);
+        s2.or(t);
+
         t.and(isA);
         s3.or(t);
     }
