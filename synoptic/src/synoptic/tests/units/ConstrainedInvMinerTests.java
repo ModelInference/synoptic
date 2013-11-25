@@ -131,16 +131,6 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         assertEquals(4, count);
     }
 
-    @Test
-    public void myasf() throws Exception {
-        logger.info("*********************");
-        String[] log = new String[] { "a 1", "b 2", "a 3", "b 4", "b 5" };
-        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
-                genITimeParser());
-        logger.info("minedInvs: " + minedInvs.toString());
-        logger.info("*********************");
-    }
-
     /**
      * Simple test that checks if NFby invariants are mined.
      * 
