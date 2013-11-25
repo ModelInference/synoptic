@@ -711,7 +711,7 @@ public class SynopticMain {
 		return pGraph;
 	}
 
-	private void normalizeEventNodes(List<EventNode> parsedEvents) {
+	public static void normalizeEventNodes(List<EventNode> parsedEvents) {
 		logger.info("Normalizing time stamps to the range [0,1] ...");
 
 		if (parsedEvents.isEmpty()) {
