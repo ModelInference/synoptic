@@ -20,7 +20,7 @@ import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
-import synoptic.invariants.intr.IntrInvariant;
+import synoptic.invariants.InterrupterInvariant;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -159,7 +159,7 @@ public class FsmModelChecker {
                 alwaysPrecedes.add((BinaryInvariant) inv);
             } else if (invClass.equals(NeverFollowedInvariant.class)) {
                 neverFollowed.add((BinaryInvariant) inv);
-            } else if (invClass.equals(IntrInvariant.class)) {
+            } else if (invClass.equals(InterrupterInvariant.class)) {
                 intrInv.add((BinaryInvariant) inv);
             }
         }
@@ -206,7 +206,7 @@ public class FsmModelChecker {
 
         }
         // TODO: add Intr Inv
-        else if (invClass.equals(IntrInvariant.class)) {
+        else if (invClass.equals(InterrupterInvariant.class)) {
             stateset = new IntrTracingSet<Node>(invariant);
         } else if (invClass.equals(TempConstrainedInvariant.class)) {
 
