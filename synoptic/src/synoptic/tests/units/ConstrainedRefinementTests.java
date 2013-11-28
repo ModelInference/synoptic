@@ -25,7 +25,6 @@ import synoptic.tests.PynopticTest;
  * Tests for refinement in Bisimulation based on invariants with time
  * constraints.
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  */
 public class ConstrainedRefinementTests extends PynopticTest {
 

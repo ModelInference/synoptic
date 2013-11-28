@@ -16,7 +16,6 @@ import synoptic.tests.SynopticLibTest;
  * Base class for all InvariMint unit tests. Performs common set-up and
  * tear-down tasks, and defines methods used by multiple tests.
  * 
- * @author ivan
  */
 public class InvariMintTest extends SynopticLibTest {
 

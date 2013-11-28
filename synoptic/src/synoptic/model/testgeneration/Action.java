@@ -14,7 +14,6 @@ import synoptic.model.interfaces.ITransition;
  * Action is a single step in an abstract test case.
  * Action is an INode that can have at most 1 outgoing transition.
  * 
- * @author rsukkerd
  *
  */
 public class Action implements INode<Action> {

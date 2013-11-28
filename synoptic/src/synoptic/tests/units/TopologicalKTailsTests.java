@@ -23,7 +23,6 @@ import synoptic.tests.SynopticTest;
 /**
  * Tests the Topological variant of the KTails algorithm.
  * 
- * @author ivan
  */
 public class TopologicalKTailsTests extends SynopticTest {
 

@@ -21,7 +21,6 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
  * Uses the Automaton class to test if the getRegex methods for Synoptic's
  * temporal invariants are correct.
  * 
- * @author Jenny
  */
 public class InvariantRegexTests {
     @Test

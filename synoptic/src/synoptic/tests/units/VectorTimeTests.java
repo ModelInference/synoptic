@@ -25,7 +25,6 @@ import synoptic.util.time.WrongTimeTypeException;
 /**
  * Tests for synoptic.model.input.VectorTime class.
  * 
- * @author ivan
  */
 public class VectorTimeTests extends SynopticTest {
 

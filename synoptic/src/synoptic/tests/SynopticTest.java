@@ -32,7 +32,6 @@ import synoptic.util.InternalSynopticException;
  * Requires JUnit 4.7 or higher.
  * </pre>
  * 
- * @author ivan
  */
 public abstract class SynopticTest extends SynopticLibTest {
 

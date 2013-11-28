@@ -3,7 +3,6 @@ package synoptic.model;
 /**
  * Represents named and anonymous relations
  * 
- * @author timjv
  */
 public class Relation {
     // The name used to describe an anonymous relation.

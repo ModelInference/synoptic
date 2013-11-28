@@ -19,7 +19,6 @@ import synoptic.main.parser.ParseException;
  * id=value,...,id=value. It has no type information. Therefore, State class
  * must determine the types of the variables.
  * 
- * @author rsukkerd
  *
  */
 public class State {

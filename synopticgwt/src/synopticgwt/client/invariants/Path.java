@@ -10,7 +10,6 @@ import synopticgwt.client.util.Paper;
 /**
  * Java wrapper for a Raphael path object
  * 
- * @author timjv
  */
 
 public class Path implements Serializable {

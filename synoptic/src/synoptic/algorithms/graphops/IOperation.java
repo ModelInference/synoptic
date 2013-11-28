@@ -5,7 +5,6 @@ import synoptic.model.PartitionGraph;
 /**
  * Interface for mutating operations on PartitionGraphs
  * 
- * @author sigurd
  */
 public interface IOperation {
     /**

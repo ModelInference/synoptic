@@ -10,7 +10,6 @@ import synoptic.model.PartitionGraph;
 /**
  * A operation that splits a partition into two -- creating one new partition.
  * 
- * @author Sigurd Schneider
  */
 public class PartitionSplit implements IOperation {
     /**

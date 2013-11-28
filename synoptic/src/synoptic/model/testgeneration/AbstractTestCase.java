@@ -13,7 +13,6 @@ import synoptic.model.interfaces.ITransition;
  * AbstractTestCase is a sequence of actions corresponding to a valid path
  * in some Synoptic model.
  * 
- * @author rsukkerd
  *
  */
 public class AbstractTestCase implements IGraph<Action> {

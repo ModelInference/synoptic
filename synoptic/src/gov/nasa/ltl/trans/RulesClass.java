@@ -21,7 +21,6 @@ package gov.nasa.ltl.trans;
 
 /**
  * DOCUMENT ME!
- * @author ckong - Sept 7, 2001
  */
 public class RulesClass {
   public static String getRules () {

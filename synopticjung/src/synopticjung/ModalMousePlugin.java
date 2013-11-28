@@ -21,7 +21,6 @@ import synoptic.model.interfaces.ITransition;
  * mouse clicks, picking mode to left mouse clicks, and removes editing mode
  * functionality
  * 
- * @author jenny
  */
 public class ModalMousePlugin extends
         EditingModalGraphMouse<INode<Partition>, ITransition<Partition>> {

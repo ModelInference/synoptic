@@ -21,7 +21,6 @@ import tests.InvariMintTest;
  * Runs Synoptic InvariMint end-to-end on a simple log file and checks that the
  * final model matches the expected output.
  * 
- * @author ivan
  */
 public class EndToEndMainTests extends InvariMintTest {
 

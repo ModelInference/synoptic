@@ -11,7 +11,6 @@ import java.util.Set;
  * InvariantsGraph. Unlike ACPartition, NCwith invariants, the set of which are
  * represented by this class, do _not_ have a transitive property.
  * 
- * @author t101jv
  */
 public class NCPartition {
 

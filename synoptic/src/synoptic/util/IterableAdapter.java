@@ -8,7 +8,6 @@ import java.util.Iterator;
  * the union of Iterator and Iterable interfaces and can be used in anonymous
  * class definitions
  * 
- * @author sigurd
  * @param <T>
  *            The Type being of the collection which is iterated over.
  */

@@ -12,7 +12,6 @@ import synoptic.model.interfaces.INode;
  * encountering a final node indicates which, of A and B, was last encountered.
  * NOTE: ensure this documentation stays consistent with AlwaysFollowedSet.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  * @see AFbyInvFsms

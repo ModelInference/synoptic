@@ -14,7 +14,6 @@ import synoptic.model.event.EventType;
  * EventTypes to be used must be provided upon creation of an
  * EventTypeEncodings.
  * 
- * @author Jenny
  */
 public class EventTypeEncodings {
 

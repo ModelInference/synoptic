@@ -6,7 +6,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 /** 
  * Java wrapper for a Raphael canvas
- * @author timjv
  *
  */
 public class Paper implements Serializable {
