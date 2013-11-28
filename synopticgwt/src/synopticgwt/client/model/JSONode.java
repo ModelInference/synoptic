@@ -7,7 +7,6 @@ import synopticgwt.client.util.MouseEventHandler;
 /**
  * A class used to interface directly with an instance of a dracula graph edge
  * 
- * @author andrew
  */
 public class JSONode extends JavaScriptObject {
 

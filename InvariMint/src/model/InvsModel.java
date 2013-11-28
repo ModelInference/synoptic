@@ -9,7 +9,6 @@ import java.util.Set;
  * Extends the EncodedAutomaton class to encode the intersection of multiple
  * InvModel Automatons.
  * 
- * @author Jenny
  */
 public class InvsModel extends EncodedAutomaton {
 

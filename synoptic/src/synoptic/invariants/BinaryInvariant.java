@@ -15,7 +15,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Class for code that is shared by all binary temporal synoptic.invariants.
  * 
- * @author Sigurd Schneider
  */
 public abstract class BinaryInvariant implements ITemporalInvariant {
     public static Logger logger = Logger.getLogger("BinaryInvariant");

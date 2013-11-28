@@ -20,7 +20,6 @@ import synoptic.model.interfaces.INode;
  * expressions for kTail invariants is handled in the InvariMint.model.InvModel
  * class. TODO: move that logic here.
  * 
- * @author jennyabrahamson
  */
 public class KTailInvariant implements ITemporalInvariant {
 

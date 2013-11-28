@@ -16,7 +16,6 @@ import synoptic.tests.SynopticTest;
  * by parsing a string representing a log, and mining invariants from the
  * resulting graph.
  * 
- * @author ivan
  */
 public class TemporalInvariantSetTests extends SynopticTest {
 

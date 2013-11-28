@@ -16,7 +16,6 @@ import synoptic.tests.SynopticTest;
 /**
  * Tests for synoptic.main.ListedProperties class
  * 
- * @author ivan
  */
 public class ListedPropertiesTests extends SynopticTest {
 

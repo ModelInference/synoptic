@@ -25,7 +25,6 @@ import synoptic.util.InternalSynopticException;
  * is selected, the actionPerformed() method below creates a new layout
  * parameterized by the JUNG Graph and tells the VisualizationViewer to use it.
  * 
- * @author ivan
  * @param <Node>
  *            The Node type maintained by the JUNG Graph
  * @param <Transition>

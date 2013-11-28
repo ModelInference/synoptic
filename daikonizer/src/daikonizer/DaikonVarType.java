@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 /**
  * Representation types that Daikon recognizes.
  * 
- * @author rsukkerd
  *
  */
 public enum DaikonVarType {

@@ -9,7 +9,6 @@ import java.util.logging.Logger;
  * VerifyPin is a simple authentication program that verifies pin.
  * It allows pin entering for at most 3 times.
  * 
- * @author rsukkerd
  *
  */
 public class VerifyPin {

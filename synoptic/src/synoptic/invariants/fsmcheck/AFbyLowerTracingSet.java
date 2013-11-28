@@ -20,7 +20,6 @@ import synoptic.util.time.ITime;
  * State4 = states.get(4): A seen, then B seen out of time bound (permanent
  * reject state)
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */

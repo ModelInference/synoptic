@@ -30,7 +30,6 @@ import synoptic.model.interfaces.INode;
  * pass, a less efficient synoptic.model is invoked, which keeps track of the
  * path required to end up in the failing state.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  */
 public class FsmModelChecker {
     /**

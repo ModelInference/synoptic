@@ -23,7 +23,6 @@ import synoptic.model.interfaces.IRelationPath;
  * This algorithm has lower space usage than the transitive-closure-based
  * algorithms.
  * 
- * @author ivan
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {

@@ -12,7 +12,6 @@ import synoptic.model.interfaces.INode;
  * fact that the first of the two events encountered is the only thing relevant
  * to the failure state of the invariant.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  * @see APInvFsms

@@ -10,7 +10,6 @@ import synoptic.model.interfaces.INode;
  * finite state machine enters a particular state (s2) when A is provided. If we
  * are in this state when a B is provided, then we enter into a failure state.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @see NFbyInvFsms
  * @see FsmStateSet
  */

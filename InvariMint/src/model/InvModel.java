@@ -11,7 +11,6 @@ import synoptic.model.event.EventType;
 /**
  * Extends the EncodedAutomaton class to encode a single ITemporalInvariant.
  * 
- * @author Jenny
  */
 public class InvModel extends EncodedAutomaton {
 

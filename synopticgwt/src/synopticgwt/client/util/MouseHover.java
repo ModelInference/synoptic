@@ -15,7 +15,6 @@ package synopticgwt.client.util;
  * Written for raphael text elements, but probably easily reusable for other 
  * raphael element wrappers
  * 
- * @author timjv
  *
  */
 public interface MouseHover {

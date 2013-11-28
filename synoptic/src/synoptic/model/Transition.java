@@ -11,7 +11,6 @@ import synoptic.util.time.TimeSeries;
 /**
  * An implementation of a transition.
  * 
- * @author Sigurd Schneider
  * @param <NodeType>
  */
 public class Transition<NodeType> implements ITransition<NodeType> {

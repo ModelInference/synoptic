@@ -5,7 +5,6 @@ import com.google.gwt.core.client.JavaScriptObject;
 /**
  * A class designed to interface directly with an instance of a dracula node.
  * 
- * @author andrew
  * 
  */
 public class JSOEdge extends JavaScriptObject {

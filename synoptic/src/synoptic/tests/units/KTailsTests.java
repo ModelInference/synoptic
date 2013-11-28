@@ -25,7 +25,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Tests the standard KTails algorithm in synoptic.algorithms.bisim.KTails <br />
  * 
- * @author ivan
  */
 public class KTailsTests extends SynopticTest {
 

@@ -21,7 +21,6 @@ import tests.InvariMintTest;
  * Runs KTails InvariMint end-to-end on a simple log file and checks that the
  * final model matches the expected output.
  * 
- * @author jennyabrahamson
  */
 public class EndToEndKTailsMainTests extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();

@@ -19,7 +19,6 @@ import synoptic.util.time.ITime;
  * State3 = states.get(3): B seen first or after A but out of time bound
  * (permanent reject state)
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */

@@ -28,7 +28,6 @@ import tests.InvariMintTest;
  * correctly translated. Models are considered correctly translated if the
  * languages accepted are equivalent.
  * 
- * @author Jenny
  */
 public class SynopticModelTests extends InvariMintTest {
 

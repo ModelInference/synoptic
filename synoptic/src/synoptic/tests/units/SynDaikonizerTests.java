@@ -22,7 +22,6 @@ import synoptic.tests.SynopticTest;
  * These unit tests are not intended to check every invariant that SynDaikonizer
  * returns; they only confirm that it returns some expected invariants.
  * 
- * @author rsukkerd
  *
  */
 public class SynDaikonizerTests extends SynopticTest {

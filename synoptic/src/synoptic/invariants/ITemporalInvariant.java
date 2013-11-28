@@ -9,7 +9,6 @@ import synoptic.model.interfaces.INode;
 /**
  * The interface all temporal synoptic.invariants must implement.
  * 
- * @author Sigurd Schneider
  */
 public interface ITemporalInvariant {
     /**

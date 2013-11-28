@@ -13,7 +13,6 @@ import daikonizer.Daikonizer;
  * A wrapper class of Daikonizer. This class is used for detecting invariants
  * from all data records (i.e., States) at a particular Synoptic point.
  * 
- * @author rsukkerd
  *
  */
 public class SynDaikonizer {

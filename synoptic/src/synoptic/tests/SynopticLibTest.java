@@ -26,7 +26,6 @@ import synoptic.model.interfaces.INode;
  * Requires JUnit 4.7 or higher.
  * </pre>
  * 
- * @author ivan
  */
 public abstract class SynopticLibTest {
     /**

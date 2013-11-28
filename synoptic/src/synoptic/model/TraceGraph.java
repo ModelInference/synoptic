@@ -20,7 +20,6 @@ import synoptic.util.Predicate.IBoolBinary;
  * into it. The graph can be modified by adding nodes to it. Whether edges can
  * be added depends on the capability of the {@code EventNode} class.
  * 
- * @author sigurd
  * @param <EventNode>
  *            the class of a node in the graph
  */

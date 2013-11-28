@@ -15,7 +15,6 @@ import synoptic.util.InternalSynopticException;
  * Provides access to all of the relation paths within this trace. Relations can
  * be associated with zero or more relation paths.
  * 
- * @author timjv
  */
 public class Trace {
 

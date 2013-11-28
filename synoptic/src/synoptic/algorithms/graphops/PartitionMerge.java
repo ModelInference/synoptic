@@ -8,7 +8,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * An operation that merges two partitions into one.
  * 
- * @author Sigurd Schneider
  */
 public class PartitionMerge implements IOperation {
     Partition retained;

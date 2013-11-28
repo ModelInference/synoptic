@@ -18,7 +18,6 @@ import synoptic.model.testgeneration.Action;
  * SynopticTestGeneration derives abstract test cases from a Synoptic model,
  * i.e., a final partition graph.
  * 
- * @author rsukkerd
  *
  */
 public class SynopticTestGeneration {

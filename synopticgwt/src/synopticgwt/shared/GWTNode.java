@@ -7,7 +7,6 @@ import java.io.Serializable;
  * of a partition node which acts as a bridge between Synoptic's server and the
  * front end.
  * 
- * @author a.w.davies.vio
  */
 public class GWTNode implements Serializable {
 

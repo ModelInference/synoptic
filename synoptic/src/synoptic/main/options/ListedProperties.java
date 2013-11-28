@@ -12,7 +12,6 @@ import java.util.Vector;
  * property files that encode Synoptic command line options, which e.g. use the
  * -r option to specify <i>multiple</i> regular expressions.
  * 
- * @author ivan
  */
 public class ListedProperties extends Properties {
 
