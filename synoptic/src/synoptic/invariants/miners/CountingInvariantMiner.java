@@ -7,6 +7,7 @@ import java.util.Set;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterrupterInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.birelational.AFBiRelationInvariant;
 import synoptic.invariants.birelational.APBiRelationInvariant;
@@ -18,6 +19,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.NotImplementedException;
 
 /**
  * Contains useful methods that can be used by invariant miners that collect
@@ -52,6 +54,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
             String relation, Map<EventType, Integer> gEventCnts,
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            Map<EventType, Set<EventType>> gPossibleInterrupts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
             Set<EventType> AlwaysFollowsINITIALSet, boolean multipleRelations) {
         // TODO: add IntrInv (not done yet)
@@ -94,6 +97,16 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                 relation));
                     }
                 }
+                
+                if (interrupts(gPossibleInterrupts, e1, e2)) {
+                    if (multipleRelations) {
+                        // TODO: Add Bi Invariant
+                        throw new NotImplementedException();
+                    } else {
+                        invariants.add(new InterrupterInvariant(e1, e2,
+                                relation));
+                    }
+                }
             }
         }
 
@@ -110,6 +123,15 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
         }
 
         return invariants;
+    }
+
+    protected boolean interrupts(
+            Map<EventType, Set<EventType>> gPossibleInterrupts, EventType e1,
+            EventType e2) {
+        if (gPossibleInterrupts.containsKey(e1) && gPossibleInterrupts.get(e1).contains(e2)) {
+            return true;
+        }
+        return false;
     }
 
     protected boolean alwaysPrecedes(Map<EventType, Integer> gEventCnts,
