@@ -102,7 +102,7 @@ public class ITotalTime implements ITime {
 	}
 
 	@Override
-	public DTotalTime normalize(ITime relativeTime) {
+	public ITime normalize(ITime relativeTime) {
 		if (!(relativeTime instanceof ITotalTime)) {
 			throw new NonComparableTimesException(this, relativeTime);
 		}
