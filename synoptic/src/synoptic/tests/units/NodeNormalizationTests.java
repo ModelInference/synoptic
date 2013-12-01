@@ -34,13 +34,19 @@ public class NodeNormalizationTests extends PynopticTest {
 
         SynopticMain.normalizeEventNodes(nodes);
 
+        // Exactly one time stamp with value zero should appear in the list
         boolean zeroFound = false;
         ITime zeroTime = new DTotalTime(0);
+        
+        // Exactly one time stamp with value one should appear in the list
         boolean oneFound = false;
         ITime oneTime = new DTotalTime(1);
 
         for (EventNode node : nodes) {
+            // Verifies that every time stamp is greater than or equal zero
             assertEquals(true, zeroTime.compareTo(node.getTime()) <= 0);
+            
+            // Verifies that every time stamp is lower than or equal one
             assertEquals(true, oneTime.compareTo(node.getTime()) >= 0);
 
             if (zeroTime.compareTo(node.getTime()) == 0) {
