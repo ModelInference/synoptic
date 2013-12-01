@@ -63,14 +63,14 @@ public interface ITime extends Comparable<ITime> {
 	ITime divBy(int divisor);
 
 	/**
-	 * Returns a normalized DTotalTime in respect to relativeTime.
+	 * Returns a normalized ITime in respect to relativeTime.
 	 * 
 	 * @param relativeTime
 	 *            the time to use for the normalization, usually the time with
 	 *            the biggest value of the trace.
-	 * @return A normalized DTotalTime object.
+	 * @return A normalized ITime object.
 	 */
-	DTotalTime normalize(ITime relativeTime);
+	ITime normalize(ITime relativeTime);
 
 	/**
 	 * Creates a new zero-time object

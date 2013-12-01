@@ -312,7 +312,7 @@ public class VectorTime implements ITime {
 	}
 
 	@Override
-	public DTotalTime normalize(ITime relativeTime) {
+	public ITime normalize(ITime relativeTime) {
 		throw new UnsupportedOperationException();
 	}
 
