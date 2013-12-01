@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +30,8 @@ public class ChainRelationPath implements IRelationPath {
      */
     private boolean counted;
 
-    /** The set of nodes seen prior to some point in the trace. */
-    private Set<EventType> seen;
+    /** The list of nodes seen prior to some point in the trace. */
+    private LinkedList<EventType> seen;
     /** Maintains the current event count in the path. */
     private Map<EventType, Integer> eventCounts;
     /**
@@ -46,6 +47,12 @@ public class ChainRelationPath implements IRelationPath {
     private Map<EventType, Map<EventType, Integer>> precedesCounts;
 
     /**
+     * Maintains for every event type the types that interrupts it across every
+     * relation path.
+     */
+    private LinkedHashMap<EventType, Set<EventType>> possibleInterrupts;
+
+    /**
      * @param eNode
      *            First non-INITIAL node in this relation path
      * @param relation
@@ -59,10 +66,11 @@ public class ChainRelationPath implements IRelationPath {
         this.eFinal = eFinal;
         this.relation = relation;
         this.counted = false;
-        this.seen = new LinkedHashSet<EventType>();
+        this.seen = new LinkedList<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        this.possibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
     }
 
     /**
@@ -145,7 +153,28 @@ public class ChainRelationPath implements IRelationPath {
 
                 bValues.put(b, eventCounts.get(a));
             }
-            seen.add(b);
+
+            // For the Interrupt invariant, event type b must have occurred at
+            // least once beforehand
+            if (eventCounts.get(b) != null) {
+                Set<EventType> typesInBetween = new HashSet<EventType>();
+                for (EventType a : seen) {
+                    if (a.equals(b)) {
+                        break;
+                    }
+
+                    typesInBetween.add(a);
+                }
+
+                if (!possibleInterrupts.containsKey(b)) {
+                    possibleInterrupts.put(b, new HashSet<EventType>(
+                            typesInBetween));
+                } else {
+                    possibleInterrupts.get(b).retainAll(typesInBetween);
+                }
+            }
+
+            seen.addFirst(b);
 
             // Update the trace event counts.
             if (!eventCounts.containsKey(b)) {
@@ -174,7 +203,7 @@ public class ChainRelationPath implements IRelationPath {
 
     public Set<EventType> getSeen() {
         count();
-        return Collections.unmodifiableSet(seen);
+        return Collections.unmodifiableSet(new LinkedHashSet<EventType>(seen));
     }
 
     public Map<EventType, Integer> getEventCounts() {
@@ -201,16 +230,22 @@ public class ChainRelationPath implements IRelationPath {
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
     }
-    
+
+    public Map<EventType, Set<EventType>> getPossibleInterrupts() {
+        count();
+        // TODO: Make the return type deeply unmodifiable
+        return Collections.unmodifiableMap(possibleInterrupts);
+    }
+
     public EventNode getFirstNode() {
-    	return this.eNode;
+        return this.eNode;
     }
-    
+
     public EventNode getLastNode() {
-    	return this.eFinal;
+        return this.eFinal;
     }
-    
+
     public String getRelation() {
-    	return this.relation;
+        return this.relation;
     }
 }

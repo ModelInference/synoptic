@@ -28,6 +28,8 @@ public interface IRelationPath {
      */
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts();
     
+    public Map<EventType, Set<EventType>> getPossibleInterrupts();
+    
     /**
      * @return first non-INITIAL node in this relation path
      */

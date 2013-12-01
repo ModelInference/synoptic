@@ -135,6 +135,8 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks precedence counts.
         Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        
+        Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
 
         // Initialize the event-type contents of the maps that persist
         // across traces (global counts maps).
@@ -175,6 +177,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
             Map<EventType, Map<EventType, Integer>> relationPathFollowedByCounts = relationPath
                     .getFollowedByCounts();
             addCounts(relationPathFollowedByCounts, gFollowedByCnts);
+            
+            Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath.getPossibleInterrupts();
+            intersectInterrupts(relationPathPossibleInterrupts, gPossibleInterrupts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this RelationPath.
@@ -192,8 +197,20 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         }
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, gPossibleInterrupts, null,
                 AlwaysFollowsINITIALSet, multipleRelations));
+    }
+
+    private static void intersectInterrupts(
+            Map<EventType, Set<EventType>> relationPathPossibleInterrupts,
+            Map<EventType, Set<EventType>> gPossibleInterrupts) {
+        for (EventType et : relationPathPossibleInterrupts.keySet()) {
+            if (gPossibleInterrupts.containsKey(et)) {
+                gPossibleInterrupts.get(et).retainAll(relationPathPossibleInterrupts.get(et));
+            } else {
+                gPossibleInterrupts.put(et, relationPathPossibleInterrupts.get(et));
+            }
+        }
     }
 
     /**
