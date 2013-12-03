@@ -7,10 +7,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.ConsoleHandler;
@@ -38,6 +41,9 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
+import synoptic.model.Trace;
+import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
@@ -45,6 +51,7 @@ import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.IRelationPath;
 import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
@@ -607,8 +614,6 @@ public class SynopticMain {
             return null;
         }
 
-        normalizeEventNodes(parsedEvents);
-
         if (options.debugParse) {
             // Terminate since the user is interested in debugging the parser.
             logger.info("Terminating. To continue further, re-run without the debugParse option.");
@@ -630,6 +635,8 @@ public class SynopticMain {
         // //////////////////
         ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
         // //////////////////
+
+        normalizeTraceGraph(traceGraph);
 
         if (options.dumpTraceGraphDotFile) {
             logger.info("Exporting trace graph ["
@@ -711,30 +718,68 @@ public class SynopticMain {
         return pGraph;
     }
 
-    public static void normalizeEventNodes(List<EventNode> parsedEvents) {
+    private void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
         logger.info("Normalizing time stamps to the range [0,1] ...");
 
-        if (parsedEvents.isEmpty()) {
-            return;
-        }
-
-        ITime min = null;
-        ITime max = null;
-        for (EventNode en : parsedEvents) {
-            if (max == null || max.lessThan(en.getTime())) {
-                max = en.getTime();
+        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
+        for (String relation : traceGraph.getRelations()) {
+            for (Trace trace : traceGraph.getTraces()) {
+                if (options.multipleRelations
+                        && !relation.equals(Event.defTimeRelationStr)) {
+                    IRelationPath relationPath = trace.getBiRelationalPath(
+                            relation, Event.defTimeRelationStr);
+                    relationPaths.add(relationPath);
+                } else {
+                    Set<IRelationPath> subgraphs = trace
+                            .getSingleRelationPaths(relation);
+                    if (relation.equals(Event.defTimeRelationStr)
+                            && subgraphs.size() != 1) {
+                        throw new IllegalStateException(
+                                "Multiple relation subraphs for ordering relation graph");
+                    }
+                    relationPaths.addAll(subgraphs);
+                }
             }
-            if (min == null || en.getTime().lessThan(min)) {
-                min = en.getTime();
+        }
+
+        for (IRelationPath relationPath : relationPaths) {
+            ITime min = null;
+            ITime max = null;
+
+            EventNode cur = relationPath.getFirstNode();
+            while (!cur.getAllTransitions().isEmpty()) {
+                if (max == null || max.lessThan(cur.getTime())) {
+                    max = cur.getTime();
+                }
+                if (min == null || cur.getTime().lessThan(min)) {
+                    min = cur.getTime();
+                }
+                cur = cur
+                        .getTransitionsWithIntersectingRelations(
+                                traceGraph.getRelations()).get(0).getTarget();
+            }
+
+            cur = relationPath.getFirstNode();
+            while (!cur.getAllTransitions().isEmpty()) {
+                cur.getEvent().setTime(cur.getTime().computeDelta(min));
+                cur = cur
+                        .getTransitionsWithIntersectingRelations(
+                                traceGraph.getRelations()).get(0).getTarget();
+            }
+
+            cur = relationPath.getFirstNode();
+            while (!cur.getAllTransitions().isEmpty()) {
+                cur.getEvent().setTime(cur.getTime().normalize(max));
+
+                cur = cur
+                        .getTransitionsWithIntersectingRelations(
+                                traceGraph.getRelations()).get(0).getTarget();
             }
         }
 
-        max = max.computeDelta(min);
-
-        for (EventNode en : parsedEvents) {
-            en.getEvent()
-                    .setTime(en.getTime().computeDelta(min).normalize(max));
-        }
+        // TODO: Apparently there are other time stamps in the graph object
+        // which lead to time comparison errors later. They should be
+        // normalized, too.
     }
 
     /**

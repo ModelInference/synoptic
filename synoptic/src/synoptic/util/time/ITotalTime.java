@@ -106,6 +106,11 @@ public class ITotalTime implements ITime {
 		if (!(relativeTime instanceof ITotalTime)) {
 			throw new NonComparableTimesException(this, relativeTime);
 		}
+		
+		// If the relativeTime is zero, the normalized time should be zero, too
+        if (relativeTime.equals(relativeTime.getZeroTime())) {
+            return new DTotalTime(0.0);
+        }
 
 		return new DTotalTime(1.0 * this.time
 				/ ((ITotalTime) relativeTime).time);
