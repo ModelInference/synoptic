@@ -8,12 +8,10 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.ConsoleHandler;
@@ -636,6 +634,10 @@ public class SynopticMain {
         ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
         // //////////////////
 
+        // Parsing information can be garbage-collected.
+        parser = null;
+        parsedEvents = null;
+
         normalizeTraceGraph(traceGraph);
 
         if (options.dumpTraceGraphDotFile) {
@@ -644,9 +646,6 @@ public class SynopticMain {
             exportTraceGraph(options.outputPathPrefix + ".tracegraph",
                     traceGraph);
         }
-
-        // Parser can be garbage-collected.
-        parser = null;
 
         // //////////////////
         TemporalInvariantSet minedInvs = mineTOInvariants(
@@ -718,8 +717,13 @@ public class SynopticMain {
         return pGraph;
     }
 
+    /**
+     * TODO: documentation
+     * 
+     * @param traceGraph
+     */
     private void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
-        logger.info("Normalizing time stamps to the range [0,1] ...");
+        logger.info("Normalizing each trace to the range [0,1] ...");
 
         Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
         for (String relation : traceGraph.getRelations()) {
@@ -767,9 +771,11 @@ public class SynopticMain {
                                 traceGraph.getRelations()).get(0).getTarget();
             }
 
+            ITime range = max.computeDelta(min);
+
             cur = relationPath.getFirstNode();
             while (!cur.getAllTransitions().isEmpty()) {
-                cur.getEvent().setTime(cur.getTime().normalize(max));
+                cur.getEvent().setTime(cur.getTime().normalize(range));
 
                 cur = cur
                         .getTransitionsWithIntersectingRelations(
@@ -777,9 +783,22 @@ public class SynopticMain {
             }
         }
 
-        // TODO: Apparently there are other time stamps in the graph object
-        // which lead to time comparison errors later. They should be
-        // normalized, too.
+        // Update transition time deltas to match new normalized event times
+        for (EventNode event : traceGraph.getNodes()) {
+            for (Transition<EventNode> trans : event.getAllTransitions()) {
+
+                // Get normalized times of the transition's source and target
+                // events
+                ITime srcTime = trans.getSource().getTime();
+                ITime targetTime = trans.getTarget().getTime();
+
+                // Compute and store normalized transition time delta
+                if (targetTime != null) {
+                    ITime delta = targetTime.computeDelta(srcTime);
+                    trans.setTimeDelta(delta);
+                }
+            }
+        }
     }
 
     /**
