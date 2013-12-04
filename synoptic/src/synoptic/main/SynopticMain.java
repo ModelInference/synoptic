@@ -718,65 +718,68 @@ public class SynopticMain {
     }
 
     /**
-     * TODO: documentation
+     * Perform trace-wise normalization on the trace graph. In other words,
+     * scale each trace to the range [0,1] based on the min and max absolute
+     * times of any event within that trace.
      * 
      * @param traceGraph
+     *            An trace graph where events and transitions contain time
+     *            information
      */
     private void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
         logger.info("Normalizing each trace to the range [0,1] ...");
 
         Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
-        for (String relation : traceGraph.getRelations()) {
-            for (Trace trace : traceGraph.getTraces()) {
-                if (options.multipleRelations
-                        && !relation.equals(Event.defTimeRelationStr)) {
-                    IRelationPath relationPath = trace.getBiRelationalPath(
-                            relation, Event.defTimeRelationStr);
-                    relationPaths.add(relationPath);
-                } else {
-                    Set<IRelationPath> subgraphs = trace
-                            .getSingleRelationPaths(relation);
-                    if (relation.equals(Event.defTimeRelationStr)
-                            && subgraphs.size() != 1) {
-                        throw new IllegalStateException(
-                                "Multiple relation subraphs for ordering relation graph");
-                    }
-                    relationPaths.addAll(subgraphs);
-                }
-            }
+
+        // Get all traces w.r.t. only the time relation
+        for (Trace trace : traceGraph.getTraces()) {
+            Set<IRelationPath> subgraphs = trace
+                    .getSingleRelationPaths(Event.defTimeRelationStr);
+            relationPaths.addAll(subgraphs);
         }
 
+        // Traverse each trace to normalize the absolute times of its events
         for (IRelationPath relationPath : relationPaths) {
-            ITime min = null;
-            ITime max = null;
+            ITime minTime = null;
+            ITime maxTime = null;
 
+            // Find the min and max absolute time of any event in this trace
             EventNode cur = relationPath.getFirstNode();
             while (!cur.getAllTransitions().isEmpty()) {
-                if (max == null || max.lessThan(cur.getTime())) {
-                    max = cur.getTime();
+                if (maxTime == null || maxTime.lessThan(cur.getTime())) {
+                    maxTime = cur.getTime();
                 }
-                if (min == null || cur.getTime().lessThan(min)) {
-                    min = cur.getTime();
+                if (minTime == null || cur.getTime().lessThan(minTime)) {
+                    minTime = cur.getTime();
                 }
+
+                // Get the next event in this trace
                 cur = cur
                         .getTransitionsWithIntersectingRelations(
                                 traceGraph.getRelations()).get(0).getTarget();
             }
 
-            cur = relationPath.getFirstNode();
-            while (!cur.getAllTransitions().isEmpty()) {
-                cur.getEvent().setTime(cur.getTime().computeDelta(min));
-                cur = cur
-                        .getTransitionsWithIntersectingRelations(
-                                traceGraph.getRelations()).get(0).getTarget();
+            ITime rangeTime = null;
+
+            // Compute the range of this trace's times
+            if (maxTime != null) {
+                rangeTime = maxTime.computeDelta(minTime);
+            } else {
+                logger.fine("Warning: Trace beginning with "
+                        + relationPath.getFirstNode()
+                        + " cannot be normalized because it seems to contain no times");
+                continue;
             }
 
-            ITime range = max.computeDelta(min);
-
+            // Normalize absolute time of each of this trace's events by
+            // subtracting the min and dividing by the range
             cur = relationPath.getFirstNode();
             while (!cur.getAllTransitions().isEmpty()) {
-                cur.getEvent().setTime(cur.getTime().normalize(range));
+                cur.getEvent().setTime(
+                        cur.getTime().computeDelta(minTime)
+                                .normalize(rangeTime));
 
+                // Get the next event in this trace
                 cur = cur
                         .getTransitionsWithIntersectingRelations(
                                 traceGraph.getRelations()).get(0).getTarget();
