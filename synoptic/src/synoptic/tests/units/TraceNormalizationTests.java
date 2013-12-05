@@ -18,7 +18,7 @@ import synoptic.tests.PynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
-public class NodeNormalizationTests extends PynopticTest {
+public class TraceNormalizationTests extends PynopticTest {
 
     private String[] rawEvents = { "a 2", "b 3", "c 6", "--", "d 10", "e 11",
             "f 12" };
