@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +39,9 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
+import synoptic.model.Trace;
+import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
@@ -46,11 +50,13 @@ import synoptic.model.export.GraphExporter;
 import synoptic.model.export.JsonExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.IRelationPath;
 import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.SynopticJar;
+import synoptic.util.time.ITime;
 
 /**
  * Contains entry points for command line version of Synoptic, as well as for
@@ -629,15 +635,18 @@ public class SynopticMain {
         ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
         // //////////////////
 
+        // Parsing information can be garbage-collected.
+        parser = null;
+        parsedEvents = null;
+
+        SynopticMain.normalizeTraceGraph(traceGraph);
+
         if (options.dumpTraceGraphDotFile) {
             logger.info("Exporting trace graph ["
                     + traceGraph.getNodes().size() + " nodes]..");
             exportTraceGraph(options.outputPathPrefix + ".tracegraph",
                     traceGraph);
         }
-
-        // Parser can be garbage-collected.
-        parser = null;
 
         // //////////////////
         TemporalInvariantSet minedInvs = mineTOInvariants(
@@ -707,6 +716,93 @@ public class SynopticMain {
         }
 
         return pGraph;
+    }
+
+    /**
+     * Perform trace-wise normalization on the trace graph. In other words,
+     * scale each trace to the range [0,1] based on the min and max absolute
+     * times of any event within that trace.
+     * 
+     * @param traceGraph
+     *            An trace graph where events and transitions contain time
+     *            information
+     */
+    public static void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
+        logger.info("Normalizing each trace to the range [0,1] ...");
+
+        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
+
+        // Get all traces w.r.t. only the time relation
+        for (Trace trace : traceGraph.getTraces()) {
+            Set<IRelationPath> subgraphs = trace
+                    .getSingleRelationPaths(Event.defTimeRelationStr);
+            relationPaths.addAll(subgraphs);
+        }
+
+        // Traverse each trace to normalize the absolute times of its events
+        for (IRelationPath relationPath : relationPaths) {
+            ITime minTime = null;
+            ITime maxTime = null;
+
+            // Find the min and max absolute time of any event in this trace
+            EventNode cur = relationPath.getFirstNode();
+            while (!cur.getAllTransitions().isEmpty()) {
+                if (maxTime == null || maxTime.lessThan(cur.getTime())) {
+                    maxTime = cur.getTime();
+                }
+                if (minTime == null || cur.getTime().lessThan(minTime)) {
+                    minTime = cur.getTime();
+                }
+
+                // Get the next event in this trace
+                cur = cur
+                        .getTransitionsWithIntersectingRelations(
+                                traceGraph.getRelations()).get(0).getTarget();
+            }
+
+            ITime rangeTime = null;
+
+            // Compute the range of this trace's times
+            if (maxTime != null) {
+                rangeTime = maxTime.computeDelta(minTime);
+            } else {
+                logger.fine("Warning: Trace beginning with "
+                        + relationPath.getFirstNode()
+                        + " cannot be normalized because it seems to contain no times");
+                continue;
+            }
+
+            // Normalize absolute time of each of this trace's events by
+            // subtracting the min and dividing by the range
+            cur = relationPath.getFirstNode();
+            while (!cur.getAllTransitions().isEmpty()) {
+                cur.getEvent().setTime(
+                        cur.getTime().computeDelta(minTime)
+                                .normalize(rangeTime));
+
+                // Get the next event in this trace
+                cur = cur
+                        .getTransitionsWithIntersectingRelations(
+                                traceGraph.getRelations()).get(0).getTarget();
+            }
+        }
+
+        // Update transition time deltas to match new normalized event times
+        for (EventNode event : traceGraph.getNodes()) {
+            for (Transition<EventNode> trans : event.getAllTransitions()) {
+
+                // Get normalized times of the transition's source and target
+                // events
+                ITime srcTime = trans.getSource().getTime();
+                ITime targetTime = trans.getTarget().getTime();
+
+                // Compute and store normalized transition time delta
+                if (targetTime != null) {
+                    ITime delta = targetTime.computeDelta(srcTime);
+                    trans.setTimeDelta(delta);
+                }
+            }
+        }
     }
 
     /**

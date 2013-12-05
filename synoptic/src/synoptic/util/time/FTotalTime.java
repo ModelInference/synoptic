@@ -99,7 +99,21 @@ public class FTotalTime implements ITime {
         }
         return new FTotalTime(this.time / divisor);
     }
-    
+
+    @Override
+    public ITime normalize(ITime relativeTime) {
+        if (!(relativeTime instanceof FTotalTime)) {
+            throw new NonComparableTimesException(this, relativeTime);
+        }
+
+        // If the relativeTime is zero, the normalized time should be zero, too
+        if (relativeTime.equals(relativeTime.getZeroTime())) {
+            return new DTotalTime(0.0);
+        }
+
+        return new DTotalTime(this.time / ((FTotalTime) relativeTime).time);
+    }
+
     @Override
     public ITime getZeroTime() {
         return new FTotalTime(0.0f);
