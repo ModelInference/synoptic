@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import synoptic.main.SynopticMain;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
@@ -144,17 +145,16 @@ public class TraceNormalizationTests extends PynopticTest {
     }
 
     /**
-     * Verifies that a trace with float times is normalized correctly, both the
-     * event and transition times
+     * Common method for verifying floating-point trace-wise normalization
      */
-    @Test
-    public void floatNormalizationTest() throws Exception {
+    public void floatNormalizationTestCommon(TraceParser parser)
+            throws Exception {
 
-        String[] fEvents = { "a 3.1", "b 7.1", "c 8.1" };
+        String[] rawEvents = { "a 3.1", "b 7.1", "c 8.1" };
 
         // Generate trace graph
         ChainsTraceGraph traceGraph = (ChainsTraceGraph) genChainsTraceGraph(
-                fEvents, genFTimeParser());
+                rawEvents, parser);
 
         // Normalize trace graph
         SynopticMain.normalizeTraceGraph(traceGraph);
@@ -238,5 +238,23 @@ public class TraceNormalizationTests extends PynopticTest {
         // Verify that all transition times were correct
         assertTrue(correctAB);
         assertTrue(correctBC);
+    }
+
+    /**
+     * Verifies that a trace with float times is normalized correctly, both the
+     * event and transition times
+     */
+    @Test
+    public void floatNormalizationTest() throws Exception {
+        floatNormalizationTestCommon(genFTimeParser());
+    }
+
+    /**
+     * Verifies that a trace with double times is normalized correctly, both the
+     * event and transition times
+     */
+    @Test
+    public void doubleNormalizationTest() throws Exception {
+        floatNormalizationTestCommon(genDTimeParser());
     }
 }
