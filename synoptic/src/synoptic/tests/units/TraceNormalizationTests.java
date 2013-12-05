@@ -21,8 +21,8 @@ import synoptic.util.time.ITime;
 public class TraceNormalizationTests extends PynopticTest {
 
     /**
-     * Verifies that multiple traces with integer times are normalized
-     * correctly, both the event and transition times
+     * Verifies that two traces with integer times are normalized correctly,
+     * both the event and transition times
      */
     @Test
     public void integerNormalizationTest() throws Exception {
@@ -141,5 +141,102 @@ public class TraceNormalizationTests extends PynopticTest {
         assertTrue(correctBC);
         assertTrue(correctDE);
         assertTrue(correctEF);
+    }
+
+    /**
+     * Verifies that a trace with float times is normalized correctly, both the
+     * event and transition times
+     */
+    @Test
+    public void floatNormalizationTest() throws Exception {
+
+        String[] fEvents = { "a 3.1", "b 7.1", "c 8.1" };
+
+        // Generate trace graph
+        ChainsTraceGraph traceGraph = (ChainsTraceGraph) genChainsTraceGraph(
+                fEvents, genFTimeParser());
+
+        // Normalize trace graph
+        SynopticMain.normalizeTraceGraph(traceGraph);
+
+        // Get all events in trace graph
+        Set<EventNode> events = traceGraph.getNodes();
+
+        // Reference event types
+        StringEventType a = new StringEventType("a");
+        StringEventType b = new StringEventType("b");
+        StringEventType c = new StringEventType("c");
+
+        // To store whether each event time is found and correct
+        boolean correctA = false;
+        boolean correctB = false;
+        boolean correctC = false;
+
+        // Check if all event times are normalized correctly
+        for (EventNode event : events) {
+            EventType eType = event.getEType();
+
+            // Get event time, and round to one decimal place to mitigate
+            // floating-point error
+            double eTime = 0.0;
+            if (!eType.isSpecialEventType()) {
+                eTime = ((DTotalTime) event.getTime()).time;
+                eTime = Math.round(eTime * 10) / 10.0;
+            }
+
+            // 'a' == 0.0
+            if (eType.equals(a) && eTime == 0.0) {
+                correctA = true;
+            }
+            // 'b' == 0.8
+            else if (eType.equals(b) && eTime == 0.8) {
+                correctB = true;
+            }
+            // 'c' == 1.0
+            else if (eType.equals(c) && eTime == 1.0) {
+                correctC = true;
+            }
+        }
+
+        // Verify that all event times were correct
+        assertTrue(correctA);
+        assertTrue(correctB);
+        assertTrue(correctC);
+
+        // Get all transitions between events
+        List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
+        for (EventNode event : events) {
+            transitions.addAll(event.getAllTransitions());
+        }
+
+        // To store whether each transition time is found and correct
+        boolean correctAB = false;
+        boolean correctBC = false;
+
+        // Check if all transition time deltas are normalized correctly
+        for (Transition<EventNode> trans : transitions) {
+            EventType eType = trans.getSource().getEType();
+
+            // Get transition time, and round to one decimal place to mitigate
+            // floating-point error
+            double transTime = 0.0;
+            if (!eType.isSpecialEventType() && trans.getTimeDelta() != null) {
+                transTime = ((DTotalTime) trans.getTimeDelta()).time;
+                transTime = Math.round(transTime * 10) / 10.0;
+            }
+
+            // 'a->b' == 0.8
+            if (eType.equals(a) && transTime == 0.8) {
+                correctAB = true;
+            }
+            // 'b->c' == 0.2
+            else if (eType.equals(b) && transTime == 0.2) {
+                correctBC = true;
+            }
+        }
+
+        // Verify that all transition times were correct
+        assertTrue(correctAB);
+        assertTrue(correctBC);
     }
 }
