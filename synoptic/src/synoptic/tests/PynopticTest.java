@@ -34,7 +34,7 @@ public abstract class PynopticTest extends SynopticTest {
     protected TempConstrainedInvariant<?> inv;
 
     protected enum TracingSet {
-        APUpper, APLower, AFbyUpper, AFbyLower
+        APUpper, APLower, AFbyUpper, AFbyLower, IntrByLower, IntrByUpper
     }
 
     @Before
@@ -169,6 +169,11 @@ public abstract class PynopticTest extends SynopticTest {
             tracingSet = new AFbyUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.AFbyLower) {
             tracingSet = new AFbyLowerTracingSet<Partition>(inv);
+        } else if (type == TracingSet.IntrByUpper) {
+            // TODO: Uncomment IntrBy lines when implemented
+            // tracingSet = new IntrByUpperTracingSet<Partition>(inv);
+        } else if (type == TracingSet.IntrByLower) {
+            // tracingSet = new IntrByLowerTracingSet<Partition>(inv);
         }
 
         // Run initial partition graph through the state machine for the
