@@ -167,6 +167,14 @@ public class SynopticOptions extends Options {
     public boolean outputJSON = false;
 
     /**
+     * Allows performing trace-wise normalization, requires enablePerfDebugging
+     */
+    @Option(
+            value = "Independently normalize each trace; requires --enablePerfDebugging (or -p)",
+            aliases = { "-trace-norm" })
+    public boolean traceNormalization = false;
+
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
