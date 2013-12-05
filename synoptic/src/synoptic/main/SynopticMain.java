@@ -639,7 +639,10 @@ public class SynopticMain {
         parser = null;
         parsedEvents = null;
 
-        SynopticMain.normalizeTraceGraph(traceGraph);
+        // Perform trace-wise normalization if requested
+        if (options.traceNormalization) {
+            SynopticMain.normalizeTraceGraph(traceGraph);
+        }
 
         if (options.dumpTraceGraphDotFile) {
             logger.info("Exporting trace graph ["
