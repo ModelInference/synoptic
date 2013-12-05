@@ -638,7 +638,7 @@ public class SynopticMain {
         parser = null;
         parsedEvents = null;
 
-        normalizeTraceGraph(traceGraph);
+        SynopticMain.normalizeTraceGraph(traceGraph);
 
         if (options.dumpTraceGraphDotFile) {
             logger.info("Exporting trace graph ["
@@ -726,7 +726,7 @@ public class SynopticMain {
      *            An trace graph where events and transitions contain time
      *            information
      */
-    private void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
+    public static void normalizeTraceGraph(ChainsTraceGraph traceGraph) {
         logger.info("Normalizing each trace to the range [0,1] ...");
 
         Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
