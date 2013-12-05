@@ -36,17 +36,12 @@ public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public void transition(T x) {
         EventType name = x.getEType();
 
-        // TODO: I added some changes, check them
         if (b.equals(name)) {
             aNotSeen = preferShorter(aSeenOnce, aNotSeen);
-            // added:
             aSeenOnce = null;
         } else if (a.equals(name)) {
             aSeenOnce = aNotSeen;
-            aSeenMoreThanOnce = null;
-            // added (the top one does not seem right):
             aSeenMoreThanOnce = preferShorter(aSeenOnce, aSeenMoreThanOnce);
-            aSeenOnce = preferShorter(aNotSeen, aSeenOnce);
             aNotSeen = null;
         }
 
