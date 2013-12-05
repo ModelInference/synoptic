@@ -31,7 +31,6 @@ import synoptic.util.InternalSynopticException;
  * <pre>
  * Requires JUnit 4.7 or higher.
  * </pre>
- * 
  */
 public abstract class SynopticTest extends SynopticLibTest {
 
@@ -116,6 +115,21 @@ public abstract class SynopticTest extends SynopticLibTest {
         TraceParser parser = new TraceParser();
         try {
             parser.addRegex("^(?<TYPE>)(?<TIME>)$");
+        } catch (ParseException e) {
+            throw new InternalSynopticException(e);
+        }
+        parser.addPartitionsSeparator("^--$");
+        return parser;
+    }
+
+    /**
+     * Constructs a parser used by tests concerning a float time. Note: the
+     * parser may not be re-used for parsing different traces (it is stateful).
+     */
+    public static TraceParser genFTimeParser() {
+        TraceParser parser = new TraceParser();
+        try {
+            parser.addRegex("^(?<TYPE>)(?<FTIME>)$");
         } catch (ParseException e) {
             throw new InternalSynopticException(e);
         }
