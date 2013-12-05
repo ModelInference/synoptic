@@ -20,18 +20,18 @@ import synoptic.util.time.ITime;
 
 public class TraceNormalizationTests extends PynopticTest {
 
-    private String[] rawEvents = { "a 2", "b 3", "c 6", "--", "d 10", "e 11",
-            "f 12" };
-
     /**
-     * Verifies that, after node normalization,
+     * Verifies that multiple traces with integer times are normalized
+     * correctly, both the event and transition times
      */
     @Test
-    public void fullNormalizationTest() throws Exception {
+    public void integerNormalizationTest() throws Exception {
+
+        String[] iEvents = { "a 2", "b 3", "c 6", "--", "d 10", "e 11", "f 12" };
 
         // Generate trace graph
         ChainsTraceGraph traceGraph = (ChainsTraceGraph) genChainsTraceGraph(
-                rawEvents, genITimeParser());
+                iEvents, genITimeParser());
 
         // Normalize trace graph
         SynopticMain.normalizeTraceGraph(traceGraph);
