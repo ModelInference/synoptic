@@ -107,12 +107,13 @@ public class InterrupterInvariant extends BinaryInvariant {
 
     @Override
     public String getShortName() {
-        return "AP";
+        return "IntrBy";
     }
 
     @Override
     public String getLongName() {
-        return "AlwaysPrecedes";
+        // TODO: correct long name
+        return "InterruptedBy";
     }
 
     /**

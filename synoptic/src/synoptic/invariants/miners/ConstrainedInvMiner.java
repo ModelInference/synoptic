@@ -7,13 +7,13 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterrupterInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
-import synoptic.invariants.InterrupterInvariant;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Trace;
@@ -126,13 +126,12 @@ public class ConstrainedInvMiner extends InvariantMiner {
         }
 
         for (ITemporalInvariant inv : invs.getSet()) {
-            // TODO: add IntrInv
-            if (inv instanceof NeverFollowedInvariant
-                    || inv instanceof InterrupterInvariant) {
+            if (inv instanceof NeverFollowedInvariant) {
                 constrainedInvs.add(inv);
             }
 
-            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)) {
+            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)
+                    && !(inv instanceof InterrupterInvariant)) {
                 continue;
             }
             computeInvariants((BinaryInvariant) inv);
@@ -152,7 +151,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
      */
     public void computeInvariants(BinaryInvariant inv) {
 
-        assert (inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant);
+        assert (inv instanceof AlwaysFollowedInvariant
+                || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterrupterInvariant);
 
         EventType a = inv.getFirst();
         EventType b = inv.getSecond();
@@ -163,10 +163,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
             return;
         }
 
-        // Return pair.left represents lower bound constraint.
-        // Return pair.right represents upper bound constraint.
-        Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
-                a, b);
+        Pair<IThresholdConstraint, IThresholdConstraint> constraints;
+
+        // TODO: with Interrupter, b should be a
+        if (inv instanceof InterrupterInvariant) {
+            constraints = computeConstraints(a, inv.getFirst(), true);
+        } else {
+            // Return pair.left represents lower bound constraint.
+            // Return pair.right represents upper bound constraint.
+            constraints = computeConstraints(a, b);
+        }
 
         logger.finest(a + " " + inv.getShortName() + " " + b
                 + ",  lowerbound = " + constraints.getLeft().getThreshold()
@@ -218,6 +224,11 @@ public class ConstrainedInvMiner extends InvariantMiner {
      */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
             EventType a, EventType b) {
+        return computeConstraints(a, b, false);
+    }
+
+    private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
+            EventType a, EventType b, boolean distinct) {
 
         ITime lowerBound = null;
         ITime upperBound = null;
@@ -246,6 +257,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
             while (true) {
                 if (curr.getEType().equals(a)) {
+                    if (distinct) {
+                        if (recentA != null) {
+                            ITime delta = curr.getTime().computeDelta(
+                                    recentA.getTime());
+                            if (lowerBound == null
+                                    || delta.lessThan(lowerBound)) {
+                                lowerBound = delta;
+                            }
+                        }
+                    }
                     recentA = curr;
                     if (firstA == null) {
                         firstA = curr.getTime();
@@ -256,7 +277,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
                     // If node of event type a is found already, then we can
                     // obtain a delta value since we now found node of event
                     // type b.
-                    if (recentA != null) {
+                    if (recentA != null && !distinct) {
                         ITime delta = curr.getTime().computeDelta(
                                 recentA.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
