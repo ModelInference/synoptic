@@ -214,10 +214,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     private boolean isUpperBoundType() {
         if (this instanceof APUpperTracingSet
-                || this instanceof AFbyUpperTracingSet) {
+                || this instanceof AFbyUpperTracingSet
+                || this instanceof IntrByUpperTracingSet) {
             return true;
         } else if (this instanceof APLowerTracingSet
-                || this instanceof AFbyLowerTracingSet) {
+                || this instanceof AFbyLowerTracingSet
+                || this instanceof IntrByLowerTracingSet) {
             return false;
         } else {
             throw new InternalSynopticException(

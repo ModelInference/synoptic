@@ -297,8 +297,8 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // Counter-ex path at z should be (INIT -> x -> z -> x -> z)
         assertTrue(pathZ.size() == 5);
 
-        // Counter-ex path at TERM should be (INIT -> x -> z -> x -> z -> TERM)
-        assertTrue(pathTerm.size() == 6);
+        // Counter-ex path at TERM should be (INIT -> x -> z -> x -> TERM)
+        assertTrue(pathTerm.size() == 5);
 
         // All violation subpaths should start and end at 'x'
         assertTrue(vStartX == vStartZ && vStartZ == vStartTerm);
@@ -315,30 +315,22 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // Checks specific to upper-bound invariant
         if (type == TracingSet.IntrByUpper) {
             // After taking all max time transitions, counter-example path
-            // should store time at the end of violation subpath as 8 for x, 12
-            // for z, and 8 for TERM.
-            // x: ( x --4--> z --4--> x )
-            // z: ( x --4--> z --4--> x --4--> z )
-            // TERM: ( x --4--> z --4--> x )
+            // should store time at the end of violation subpath as 8.
+            // ( x --4--> z --4--> x )
             ITime t8 = new ITotalTime(8);
-            ITime t12 = new ITotalTime(12);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t8) == 0);
-            assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t12) == 0);
+            assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t8) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t8) == 0);
         }
 
         // Checks specific to lower-bound invariant
         else if (type == TracingSet.IntrByLower) {
             // After taking all min time transitions, counter-example path
-            // should store time at the end of violation subpath as 2 for x, 3
-            // for z, and 2 for TERM.
-            // x: ( x --1--> z --1--> x )
-            // z: ( x --1--> z --1--> x --1--> z )
-            // TERM: ( x --1--> z --1--> x )
+            // should store time at the end of violation subpath as 2.
+            // ( x --1--> z --1--> x )
             ITime t2 = new ITotalTime(2);
-            ITime t3 = new ITotalTime(3);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t2) == 0);
-            assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t3) == 0);
+            assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t2) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t2) == 0);
         }
     }
