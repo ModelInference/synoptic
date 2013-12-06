@@ -297,31 +297,19 @@ public class ConstrainedTracingSetTests extends PynopticTest {
         // Counter-ex path at z should be (INIT -> x -> z -> x -> z)
         assertTrue(pathZ.size() == 5);
 
-        // Counter-ex path at TERM should be (INIT -> x -> z -> x -> TERM)
-        assertTrue(pathTerm.size() == 5);
+        // Counter-ex path at TERM should be (INIT -> x -> z -> x -> z -> TERM)
+        assertTrue(pathTerm.size() == 6);
 
-        // Violation subpath at x should start and end at 'x'
+        // All violation subpaths should start and end at 'x'
+        assertTrue(vStartX == vStartZ && vStartZ == vStartTerm);
+        assertTrue(vEndX == vEndZ && vEndZ == vEndTerm);
         assertTrue(pathX.get(vStartX).equals(partitions[0]));
         assertTrue(pathX.get(vEndX).equals(partitions[0]));
 
-        // Violation subpath at z should start at 'x' and end at 'z'
-        assertTrue(pathZ.get(vStartZ).equals(partitions[0]));
-        assertTrue(pathZ.get(vEndZ).equals(partitions[1]));
-
-        // Violation subpath at TERM should start and end at 'x'
-        assertTrue(pathTerm.get(vStartTerm).equals(partitions[0]));
-        assertTrue(pathTerm.get(vEndTerm).equals(partitions[0]));
-
-        // Violation subpath at x should be two abstract transitions long
+        // All violation subpaths should be two abstract transitions long
         // (x -> z -> x)
         assertTrue(vEndX - vStartX == 2);
-
-        // Violation subpath at z should be three abstract transitions long
-        // (x -> z -> x -> z)
-        assertTrue(vEndZ - vStartZ == 3);
-
-        // Violation subpath at TERM should be two abstract transitions long
-        // (x -> z -> x)
+        assertTrue(vEndZ - vStartZ == 2);
         assertTrue(vEndTerm - vStartTerm == 2);
 
         // Checks specific to upper-bound invariant

@@ -125,7 +125,7 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
                     extend(input, states.get(i), transitions, tRunning.get(i)));
         }
 
-        // The violation subpath whenever we reach State1
+        // The violation subpath started whenever we reach State1
         if (states.get(1) != null) {
             states.get(1).startViolationHere();
         }
