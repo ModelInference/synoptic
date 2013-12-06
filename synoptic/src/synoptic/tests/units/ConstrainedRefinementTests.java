@@ -282,7 +282,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
                 "b 11", "c 14", "d 16" };
 
         // Generate partition graph and run refinement
-        graph = genConstrainedPartitionGraph(events);
+        graph = genConstrainedPartitionGraph(events, null);
         exportTestGraph(graph, 0);
         Bisimulation.splitUntilAllInvsSatisfied(graph);
         exportTestGraph(graph, 1);
@@ -352,7 +352,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
         }
 
         // Generate partition graph and run refinement
-        graph = genConstrainedPartitionGraph(events);
+        graph = genConstrainedPartitionGraph(events, null);
         exportTestGraph(graph, 0);
         Bisimulation.splitUntilAllInvsSatisfied(graph);
         exportTestGraph(graph, 1);
@@ -442,5 +442,56 @@ public class ConstrainedRefinementTests extends PynopticTest {
         String[] events = { "a 0", "b 1", "c 5", "--", "b 10", "c 11" };
 
         refinementTestCommon(events);
+    }
+
+    /**
+     * Tests that constrained refinement performs correctly for IntrByUpper and
+     * IntrByLower invariants
+     */
+    @Test
+    public void IntrByRefinementTest() throws Exception {
+        // Produces invariants 'z NFby z' and 'x IntrBy z lower=5' and 'x IntrBy
+        // z upper=5'
+        String[] events = { "x 0", "z 4", "x 5", "--", "x 0", "z 1", "x 5",
+                "--", "x 0", "--", "z 0" };
+
+        int totalXs = 0;
+        int totalZs = 0;
+
+        // Count total number of x and z events
+        for (String s : events) {
+            if (s.startsWith("x")) {
+                totalXs++;
+            } else if (s.startsWith("z")) {
+                totalZs++;
+            }
+        }
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByUpper);
+        exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+        exportTestGraph(graph, 1);
+
+        for (Partition part : graph.getNodes()) {
+
+            EventType evType = part.getEType();
+
+            // Partition x should be split
+            if (evType.equals(new StringEventType("x"))) {
+                assertTrue(part.size() < totalXs);
+            }
+
+            // Partitions z should be split
+            else if (evType.equals(new StringEventType("z"))) {
+                assertTrue(part.size() < totalZs);
+            }
+
+            // No other partition types should exist except INIT and TERM
+            else if (!part.isInitial() && !part.isTerminal()) {
+                throw new AssertionError("Unexpected partition type '" + evType
+                        + "' in constrained refinement run");
+            }
+        }
     }
 }
