@@ -14,6 +14,8 @@ import synoptic.invariants.fsmcheck.AFbyUpperTracingSet;
 import synoptic.invariants.fsmcheck.APLowerTracingSet;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
+import synoptic.invariants.fsmcheck.IntrByLowerTracingSet;
+import synoptic.invariants.fsmcheck.IntrByUpperTracingSet;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
@@ -170,10 +172,9 @@ public abstract class PynopticTest extends SynopticTest {
         } else if (type == TracingSet.AFbyLower) {
             tracingSet = new AFbyLowerTracingSet<Partition>(inv);
         } else if (type == TracingSet.IntrByUpper) {
-            // TODO: Uncomment IntrBy lines when implemented
-            // tracingSet = new IntrByUpperTracingSet<Partition>(inv);
+            tracingSet = new IntrByUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.IntrByLower) {
-            // tracingSet = new IntrByLowerTracingSet<Partition>(inv);
+            tracingSet = new IntrByLowerTracingSet<Partition>(inv);
         }
 
         // Run initial partition graph through the state machine for the
