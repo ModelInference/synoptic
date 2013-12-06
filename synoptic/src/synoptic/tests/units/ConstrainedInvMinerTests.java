@@ -179,16 +179,13 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         assertEquals(actualTime, upperInv.getConstraint().getThreshold());
     }
 
+    /**
+     * TODO: document me
+     * 
+     * @throws Exception
+     */
     @Test
     public void testConstrainedInterrupterBasic() throws Exception {
-        // TODO: create more tests like these:
-        // String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
-        // "b 8.0", "a 9.0" };
-
-        // String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
-        // "b 8.0" };
-
-        // TODO: stuff not working properly, need to assert stuff
         String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0" };
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
@@ -197,7 +194,7 @@ public class ConstrainedInvMinerTests extends PynopticTest {
                 "a IntrBy b lower");
         // a Intr b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
-                "a IntrBy b lower");
+                "a IntrBy b upper");
 
         ITime actualLower = new DTotalTime(3.0);
         ITime actualUpper = new DTotalTime(3.0);
@@ -206,7 +203,75 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
         assertEquals(actualUpper, upper.getConstraint().getThreshold());
 
-        // TODO: check that there is also "b Intr a"!!
+    }
+
+    /**
+     * TODO: document me
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testConstrainedInterrupterDouble() throws Exception {
+        String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
+                "a 9.0", "b 12.0" };
+
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+        // a Intr b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a IntrBy b lower");
+        // a Intr b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a IntrBy b upper");
+
+        System.out.println("***" + minedInvs);
+
+        ITime actualLower = new DTotalTime(3.0);
+        ITime actualUpper = new DTotalTime(8.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
+
+        // b Intr a lower
+        lower = getConstrainedInv(minedInvs, "b IntrBy a lower");
+        // b Intr a upper
+        upper = getConstrainedInv(minedInvs, "b IntrBy a upper");
+
+        actualLower = new DTotalTime(4.0);
+        actualUpper = new DTotalTime(10.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
+
+    }
+
+    /**
+     * TODO: document me
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testConstrainedInterrupterComplex() throws Exception {
+        String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
+                "b 8.0", "a 9.0" };
+
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+        // a Intr b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a IntrBy b lower");
+        // a Intr b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a IntrBy b upper");
+
+        ITime actualLower = new DTotalTime(3.0);
+        ITime actualUpper = new DTotalTime(8.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
 
     }
 
