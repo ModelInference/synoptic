@@ -251,15 +251,24 @@ public abstract class SynopticTest extends SynopticLibTest {
         return ret;
     }
 
+    /**
+     * Given a set of invariants, return a copy of the set but without IntrBy
+     * invariants
+     * 
+     * @param invariants
+     *            The original set of invariants
+     * @return A copy of the original set but without IntrBy invariants
+     */
     public static TemporalInvariantSet filterInterrupterInvariant(
-            TemporalInvariantSet minedInvs) {
+            TemporalInvariantSet invariants) {
 
         TemporalInvariantSet filtered = new TemporalInvariantSet();
 
-        for (ITemporalInvariant in : minedInvs)
-            if (!(in instanceof InterrupterInvariant))
-                filtered.add(in);
+        for (ITemporalInvariant inv : invariants) {
+            if (!(inv instanceof InterrupterInvariant)) {
+                filtered.add(inv);
+            }
+        }
         return filtered;
     }
-
 }
