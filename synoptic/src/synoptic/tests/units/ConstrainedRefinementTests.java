@@ -31,12 +31,12 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
     /**
      * Check that one partition with a stitch and another without are detected
-     * as such. The stitch detection process differs based on whether the
-     * invariant is upper or lower bound, but only one test of each type is
-     * necessary.
+     * as such for AFby and AP invariants. The stitch detection process does not
+     * differ for AFby and AP; it differs only based on whether the invariant is
+     * upper or lower bound.
      */
-    private void stitchDetectionTestCommon(String invString, TracingSet type)
-            throws Exception {
+    private void stitchDetectionTestAFbyAPCommon(String invString,
+            TracingSet type) throws Exception {
         String[] events = { "a 0", "b 3", "c 5", "d 6", "--", "a 10", "b 11",
                 "c 14", "d 16" };
 
@@ -58,7 +58,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
         int bIndex = 2;
         int cIndex = 3;
 
-        // There is a sitch at b: first trace is max coming from a, but second
+        // There is a stitch at b: first trace is max coming from a, but second
         // trace is max going to c
         assertTrue(Bisimulation.makeConstrainedSplitIfStitch(cExPath, bIndex) != null);
 
@@ -68,19 +68,73 @@ public class ConstrainedRefinementTests extends PynopticTest {
     }
 
     /**
-     * Check that a stitch is detected for an upper-bound invariant.
+     * Check that a stitch is detected for AFby and AP upper-bound invariants
      */
     @Test
-    public void upperStitchDetectionTest() throws Exception {
-        stitchDetectionTestCommon("a AP d upper", TracingSet.APUpper);
+    public void AFbyAPUpperStitchDetectionTest() throws Exception {
+        stitchDetectionTestAFbyAPCommon("a AFby d upper", TracingSet.AFbyUpper);
+        stitchDetectionTestAFbyAPCommon("a AP d upper", TracingSet.APUpper);
     }
 
     /**
-     * Check that a stitch is detected for an lower-bound invariant.
+     * Check that a stitch is detected for AFby and AP lower-bound invariants
      */
     @Test
-    public void lowerStitchDetectionTest() throws Exception {
-        stitchDetectionTestCommon("a AP d lower", TracingSet.APLower);
+    public void AFbyAPLowerStitchDetectionTest() throws Exception {
+        stitchDetectionTestAFbyAPCommon("a AFby d lower", TracingSet.AFbyLower);
+        stitchDetectionTestAFbyAPCommon("a AP d lower", TracingSet.APLower);
+    }
+
+    /**
+     * Check that one partition with a stitch and another without are detected
+     * as such for IntrBy invariants.
+     */
+    private void stitchDetectionTestIntrByCommon(String invString,
+            TracingSet type) throws Exception {
+        // Produces invariants 'z NFby z' and 'x IntrBy z lower=5' and 'x IntrBy
+        // z upper=5'
+        String[] events = { "x 0", "z 4", "x 5", "--", "x 0", "z 1", "x 5",
+                "--", "x 0", "--", "z 0" };
+
+        // Get tracing sets
+        Map<Partition, TracingStateSet<Partition>> tracingSets = genConstrTracingSets(
+                events, invString, type);
+
+        CExamplePath<Partition> cExPath = null;
+
+        // Get the counter-example path at partition x
+        for (Partition part : graph.getNodes()) {
+            if (part.getEType().equals(new StringEventType("x"))) {
+                cExPath = tracingSets.get(part).failpath()
+                        .toCounterexample(inv);
+            }
+        }
+
+        // Partition graph looks like (INIT -> x <-> z -> TERM)
+        int xIndex = 1;
+        int zIndex = 2;
+
+        // There are stitches at x and z
+        assertTrue(Bisimulation.makeConstrainedSplitIfStitch(cExPath, xIndex) != null);
+        assertTrue(Bisimulation.makeConstrainedSplitIfStitch(cExPath, zIndex) != null);
+    }
+
+    /**
+     * Check that a stitch is detected for the IntrBy upper-bound invariant
+     */
+    @Test
+    public void IntrByUpperStitchDetectionTest() throws Exception {
+        stitchDetectionTestIntrByCommon("x IntrBy z upper",
+                TracingSet.IntrByUpper);
+    }
+
+    /**
+     * Check that a stitch is detected for the IntrBy lower-bound invariant
+     */
+    @Test
+    public void IntrByLowerStitchDetectionTest() throws Exception {
+        stitchDetectionTestIntrByCommon("x IntrBy z lower",
+                TracingSet.IntrByLower);
     }
 
     /**
