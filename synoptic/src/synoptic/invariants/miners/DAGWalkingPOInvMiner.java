@@ -58,6 +58,9 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
     // The set of all event types seen in a single trace.
     Set<EventType> tSeenETypes = new LinkedHashSet<EventType>();
 
+    // TODO: IntrBy not used in POMiner so far
+    Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
+
     // Maps a node in the trace DAG to the number of parents this node has
     // in the DAG. This is computed during a pre-traversal of the DAG
     // (modified in the forward trace traversal).
@@ -190,12 +193,14 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return mineNeverConcurrentWith;
     }
 
+    @Override
     public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
         mineConcurrencyInvariants = true;
         return computeInvariants(g, Event.defTimeRelationStr);
     }
 
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+    @Override
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
         mineConcurrencyInvariants = false;
         return computeInvariants(g, Event.defTimeRelationStr);
@@ -454,7 +459,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
-                gEventCoOccurrences, gAlwaysFollowsINITIALSet, false);
+                gPossibleInterrupts, gEventCoOccurrences,
+                gAlwaysFollowsINITIALSet, false);
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
