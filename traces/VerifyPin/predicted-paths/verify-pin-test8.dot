@@ -1,0 +1,29 @@
+digraph {
+  0 [label="access-denied"];
+  1 [label="access-denied"];
+  2 [label="access-denied"];
+  3 [label="enter-pin"];
+  4 [label="enter-pin"];
+  5 [label="enter-pin"];
+  6 [label="enter-pin"];
+  7 [label="enter-pin"];
+  8 [label="enter-pin"];
+  9 [label="pin-blocked"];
+  10 [label="pin-blocked"];
+  11 [label="pin-blocked"];
+  12 [label="TERMINAL",shape=diamond];
+  13 [label="INITIAL",shape=box];
+0->4 [label="",];
+1->5 [label="",];
+2->6 [label="",];
+3->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+4->1 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+5->2 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+6->9 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+7->10 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+8->11 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+9->7 [label="",];
+10->8 [label="",];
+11->12 [label="",];
+13->3 [label="",];
+} // digraph {

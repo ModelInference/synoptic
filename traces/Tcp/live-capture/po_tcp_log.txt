@@ -1,0 +1,96 @@
+# index 0: server (127.0.0.1:2020)
+# index 1: client (127.0.0.1:XXXX)
+#
+# channels:
+# cs = client->server
+# sc = server->client
+
+######################################################
+# run 1: nothing is filtered or dropped; client closes
+
+# 00:00:00.000000 IP 127.0.0.1.58220 > 127.0.0.1.2020: Flags [S], seq 574046746, win 65535, options [mss 16344,nop,wscale 4,nop,nop,TS val 997386480 ecr 0,sackOK,eol], length 0
+0,1 cs!syn
+
+# 00:00:00.000076 IP 127.0.0.1.2020 > 127.0.0.1.58220: Flags [S.], seq 2052064865, ack 574046747, win 65535, options [mss 16344,nop,wscale 4,nop,nop,TS val 997386480 ecr 997386480,sackOK,eol], length 0
+1,1 cs?syn # inferred
+2,1 sc!syn_ack
+
+# 00:00:00.000017 IP 127.0.0.1.58220 > 127.0.0.1.2020: Flags [.], ack 2052064866, win 9186, options [nop,nop,TS val 997386480 ecr 997386480], length 0
+2,2 sc?syn_ack # inferred
+2,3 cs!ack
+
+# 00:00:00.000017 IP 127.0.0.1.2020 > 127.0.0.1.58220: Flags [.], ack 574046747, win 9186, options [nop,nop,TS val 997386480 ecr 997386480], length 0
+3,3 cs?ack # inferred
+4,3 sc!ack
+
+4,4 sc?ack # inferred
+
+############### closing:
+
+# 00:00:08.954765 IP 127.0.0.1.58220 > 127.0.0.1.2020: Flags [F.], seq 574046747, ack 2052064866, win 9186, options [nop,nop,TS val 997395421 ecr 997386480], length 0
+4,5 cs!fin
+
+# 00:00:00.000082 IP 127.0.0.1.2020 > 127.0.0.1.58220: Flags [.], ack 574046748, win 9186, options [nop,nop,TS val 997395421 ecr 997395421], length 0
+5,5 cs?fin # inferred
+6,5 sc!ack
+
+# 00:00:00.000039 IP 127.0.0.1.58220 > 127.0.0.1.2020: Flags [.], ack 2052064866, win 9186, options [nop,nop,TS val 997395421 ecr 997395421], length 0
+6,6 sc?ack # inferred
+6,7 cs!ack
+
+# 00:00:00.000030 IP 127.0.0.1.2020 > 127.0.0.1.58220: Flags [F.], seq 2052064866, ack 574046748, win 9186, options [nop,nop,TS val 997395421 ecr 997395421], length 0
+7,7 cs?ack # inferred
+8,7 sc!fin
+
+# 00:00:00.000060 IP 127.0.0.1.58220 > 127.0.0.1.2020: Flags [.], ack 2052064867, win 9186, options [nop,nop,TS val 997395421 ecr 997395421], length 0
+8,8 sc?fin # inferred
+8,9 cs!ack
+
+9,9 cs?ack # inferred
+
+
+--
+
+
+######################################################
+# run 2: nothing is filtered or dropped; server closes
+
+# 00:00:00.000000 IP 127.0.0.1.59448 > 127.0.0.1.2020: Flags [S], seq 4011385762, win 65535, options [mss 16344,nop,wscale 4,nop,nop,TS val 1003212738 ecr 0,sackOK,eol], length 0
+0,1 cs!syn
+
+# 00:00:00.000124 IP 127.0.0.1.2020 > 127.0.0.1.59448: Flags [S.], seq 573697758, ack 4011385763, win 65535, options [mss 16344,nop,wscale 4,nop,nop,TS val 1003212738 ecr 1003212738,sackOK,eol], length 0
+1,1 cs?syn # inferred
+2,1 sc!syn_ack
+
+# 00:00:00.000042 IP 127.0.0.13.59448 > 127.0.0.1.2020: Flags [.], ack 573697759, win 9186, options [nop,nop,TS val 1003212738 ecr 1003212738], length 0
+2,2 sc?syn_ack # inferred
+2,3 cs!ack
+
+# 00:00:00.000037 IP 127.0.0.1.2020 > 127.0.0.1.59448: Flags [.], ack 4011385763, win 9186, options [nop,nop,TS val 1003212738 ecr 1003212738], length 0
+3,3 cs?ack # inferred
+4,3 sc!ack
+
+4,4 sc?ack # inferred
+
+############### closing:
+
+# 00:00:05.467533 IP 127.0.0.1.2020 > 127.0.0.1.59448: Flags [F.], seq 573697759, ack 4011385763, win 9186, options [nop,nop,TS val 1003218180 ecr 1003212738], length 0
+5,3 sc!fin
+
+# 00:00:00.000075 IP 127.0.0.1.59448 > 127.0.0.1.2020: Flags [.], ack 573697760, win 9186, options [nop,nop,TS val 1003218180 ecr 1003218180], length 0
+5,5 sc?fin # inferred
+5,6 cs!ack
+
+# 00:00:00.000031 IP 127.0.0.1.2020 > 127.0.0.1.59448: Flags [.], ack 4011385763, win 9186, options [nop,nop,TS val 1003218180 ecr 1003218180], length 0
+6,6 cs?ack # inferred
+7,6 sc!ack
+
+# 00:00:00.000077 IP 127.0.0.1.59448 > 127.0.0.1.2020: Flags [F.], seq 4011385763, ack 573697760, win 9186, options [nop,nop,TS val 1003218180 ecr 1003218180], length 0
+7,7 sc?ack # inferred
+7,8 cs!fin
+
+# 00:00:00.000059 IP 127.0.0.1.2020 > 127.0.0.1.59448: Flags [.], ack 4011385764, win 9186, options [nop,nop,TS val 1003218180 ecr 1003218180], length 0
+8,8 cs?fin # inferred
+9,8 sc!ack
+
+9,9 sc?ack # inferred
