@@ -344,6 +344,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
                 false);
 
+        minedInvs = filterInterrupterInvariant(minedInvs);
+
         // Test with FSM checker.
         SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
         syn.options.useFSMChecker = true;

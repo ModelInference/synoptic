@@ -87,22 +87,18 @@ public class InterrupterInvariant extends BinaryInvariant {
         return shorten(trace, first, second);
     }
 
+    /**
+     * TODO: document me!
+     * 
+     * @param trace
+     * @param firstEvent
+     * @param secondEvent
+     * @return
+     */
     public static <T extends INode<T>> List<T> shorten(List<T> trace,
             EventType firstEvent, EventType secondEvent) {
-        boolean firstFound = false;
-        for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
-            T message = trace.get(trace_pos);
-            if (message.getEType().equals(firstEvent)) {
-                if (firstFound) {
-                    return trace.subList(0, trace_pos + 1);
-                }
-                firstFound = true;
-            }
-            if (message.getEType().equals(secondEvent)) {
-                firstFound = false;
-            }
-        }
-        return null;
+        // TODO: implement correct shortening
+        return trace;
     }
 
     @Override
@@ -112,7 +108,6 @@ public class InterrupterInvariant extends BinaryInvariant {
 
     @Override
     public String getLongName() {
-        // TODO: correct long name
         return "InterruptedBy";
     }
 
