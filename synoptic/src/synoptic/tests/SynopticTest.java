@@ -9,6 +9,9 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
@@ -50,6 +53,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * 
      * @throws ParseException
      */
+    @Override
     @Before
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
@@ -245,6 +249,17 @@ public abstract class SynopticTest extends SynopticLibTest {
             prevEvent = logEvent;
         }
         return ret;
+    }
+
+    public static TemporalInvariantSet filterInterrupterInvariant(
+            TemporalInvariantSet minedInvs) {
+
+        TemporalInvariantSet filtered = new TemporalInvariantSet();
+
+        for (ITemporalInvariant in : minedInvs)
+            if (!(in instanceof InterrupterInvariant))
+                filtered.add(in);
+        return filtered;
     }
 
 }

@@ -11,8 +11,8 @@ import java.util.Set;
 
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.ITransition;
 import synoptic.model.interfaces.IRelationPath;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -38,16 +38,16 @@ public class TransitiveRelationPath implements IRelationPath {
      */
 
     /** First non-INITIAL node in this relation path */
-    private EventNode eNode;
+    private final EventNode eNode;
     /** Final non-TERMINAL node in this relation path */
-    private EventNode eFinal;
+    private final EventNode eFinal;
     /** Relation this path is over */
-    private String relation;
+    private final String relation;
     /**
      * The relation this path uses for ordered traversal, defaults to
      * Event.defaultTimeRelationString, or "t"
      */
-    private String orderingRelation = Event.defTimeRelationStr;
+    private final String orderingRelation = Event.defTimeRelationStr;
     /**
      * Caching indicator -- whether or not the various counts have already been
      * computed.
@@ -58,29 +58,29 @@ public class TransitiveRelationPath implements IRelationPath {
      * Whether or not INITIAL is directly or transitively connected to the
      * relation subgraph
      */
-    private boolean initialTransitivelyConnected;
+    private final boolean initialTransitivelyConnected;
 
     /** The list of nodes seen prior to some point in the trace. */
-    private LinkedList<EventType> seen;
+    private final LinkedList<EventType> seen;
     /** Maintains the current event count in the path. */
-    private Map<EventType, Integer> eventCounts;
+    private final Map<EventType, Integer> eventCounts;
     /**
      * Maintains the current FollowedBy count for the path.
      * followedByCounts[a][b] = count iff the number of a's that appeared before
      * this b is count.
      */
-    private Map<EventType, Map<EventType, Integer>> followedByCounts;
+    private final Map<EventType, Map<EventType, Integer>> followedByCounts;
     /**
      * Maintains the current precedes count for the path. precedesCounts[a][b] =
      * count iff the number of b's that appeared after this a is count.
      */
-    private Map<EventType, Map<EventType, Integer>> precedesCounts;
+    private final Map<EventType, Map<EventType, Integer>> precedesCounts;
 
     /**
      * Maintains for every event type the types that interrupts it across every
      * relation path.
      */
-    private LinkedHashMap<EventType, Set<EventType>> possibleInterrupts;
+    private final LinkedHashMap<EventType, Set<EventType>> possibleInterrupts;
 
     /**
      * @param eNode
@@ -102,6 +102,7 @@ public class TransitiveRelationPath implements IRelationPath {
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        this.possibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
         this.initialTransitivelyConnected = initialTransitivelyConnected;
     }
 
@@ -222,7 +223,7 @@ public class TransitiveRelationPath implements IRelationPath {
 
                 bValues.put(b, eventCounts.get(a));
             }
-            
+
             // For the Interrupt invariant, event type b must have occurred at
             // least once beforehand
             if (eventCounts.get(b) != null) {
@@ -278,11 +279,13 @@ public class TransitiveRelationPath implements IRelationPath {
         counted = true;
     }
 
+    @Override
     public Set<EventType> getSeen() {
         count();
         return Collections.unmodifiableSet(new LinkedHashSet<EventType>(seen));
     }
 
+    @Override
     public Map<EventType, Integer> getEventCounts() {
         count();
         return Collections.unmodifiableMap(eventCounts);
@@ -292,6 +295,7 @@ public class TransitiveRelationPath implements IRelationPath {
      * Map<a, Map<b, count>> iff the number of a's that appeared before this b
      * is count.
      */
+    @Override
     public Map<EventType, Map<EventType, Integer>> getFollowedByCounts() {
         count();
         // TODO: Make the return type deeply unmodifiable
@@ -302,26 +306,31 @@ public class TransitiveRelationPath implements IRelationPath {
      * Map<a, Map<b, count>> iff the number of b's that appeared after this a is
      * count.
      */
+    @Override
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts() {
         count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
     }
 
+    @Override
     public Map<EventType, Set<EventType>> getPossibleInterrupts() {
         count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(possibleInterrupts);
     }
 
+    @Override
     public EventNode getFirstNode() {
         return this.eNode;
     }
 
+    @Override
     public EventNode getLastNode() {
         return this.eFinal;
     }
 
+    @Override
     public String getRelation() {
         return this.relation;
     }
