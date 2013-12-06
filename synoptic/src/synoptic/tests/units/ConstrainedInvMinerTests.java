@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -177,6 +178,48 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
         assertEquals(actualTime, lowerInv.getConstraint().getThreshold());
         assertEquals(actualTime, upperInv.getConstraint().getThreshold());
+    }
+
+    @Test
+    public void testConstrainedInterrupterBasic() throws Exception {
+        // TODO: create more tests like these:
+        // String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
+        // "b 8.0", "a 9.0" };
+
+        // String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
+        // "b 8.0" };
+
+        // TODO: stuff not working properly, need to assert stuff
+        String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0" };
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+        // a Intr b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a IntrBy b lower");
+        // a Intr b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a IntrBy b lower");
+
+        ITime actualLower = new DTotalTime(3.0);
+        ITime actualUpper = new DTotalTime(3.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
+
+        // TODO: check that there is also "b Intr a"!!
+
+    }
+
+    @Ignore
+    @Test
+    public void badTest() throws Exception {
+        // TODO fix this
+        String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
+                "b 8.0" };
+
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
     }
 
     /**
