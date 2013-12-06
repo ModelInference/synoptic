@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ChainRelationPath implements IRelationPath {
     private boolean counted;
 
     /** The list of nodes seen prior to some point in the trace. */
-    private LinkedList<EventType> seen;
+    private Set<EventType> seen;
     /** Maintains the current event count in the path. */
     private Map<EventType, Integer> eventCounts;
     /**
@@ -66,7 +65,7 @@ public class ChainRelationPath implements IRelationPath {
         this.eFinal = eFinal;
         this.relation = relation;
         this.counted = false;
-        this.seen = new LinkedList<EventType>();
+        this.seen = new HashSet<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
@@ -83,6 +82,8 @@ public class ChainRelationPath implements IRelationPath {
         if (counted) {
             return;
         }
+
+        LinkedList<EventType> history = new LinkedList<EventType>();
 
         Set<String> relationSet = new HashSet<String>();
         relationSet.add(relation);
@@ -158,7 +159,7 @@ public class ChainRelationPath implements IRelationPath {
             // least once beforehand
             if (eventCounts.get(b) != null) {
                 Set<EventType> typesInBetween = new HashSet<EventType>();
-                for (EventType a : seen) {
+                for (EventType a : history) {
                     if (a.equals(b)) {
                         break;
                     }
@@ -174,7 +175,8 @@ public class ChainRelationPath implements IRelationPath {
                 }
             }
 
-            seen.addFirst(b);
+            seen.add(b);
+            history.addFirst(b);
 
             // Update the trace event counts.
             if (!eventCounts.containsKey(b)) {
@@ -203,7 +205,7 @@ public class ChainRelationPath implements IRelationPath {
 
     public Set<EventType> getSeen() {
         count();
-        return Collections.unmodifiableSet(new LinkedHashSet<EventType>(seen));
+        return Collections.unmodifiableSet(seen);
     }
 
     public Map<EventType, Integer> getEventCounts() {

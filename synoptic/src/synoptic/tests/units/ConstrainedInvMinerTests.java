@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -211,15 +210,12 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
     }
 
-    @Ignore
     @Test
-    public void badTest() throws Exception {
-        // TODO fix this
+    public void testBasicMining() throws Exception {
         String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0", "b 6.0",
                 "b 8.0" };
 
-        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
-                genDTimeParser());
+        genTimeInvariants(log, false, genDTimeParser());
     }
 
     /**
