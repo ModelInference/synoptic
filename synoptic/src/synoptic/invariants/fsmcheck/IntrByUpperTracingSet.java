@@ -10,7 +10,7 @@ import synoptic.util.time.ITime;
 
 /**
  * NFA state set for the IntrByUpper constrained invariant which keeps the
- * shortest path justifying a given state being inhabited. <br />
+ * highest timed path justifying a given state being inhabited. <br />
  * <br />
  * State0 = states.get(0): A not seen <br />
  * State1 = states.get(1): First A seen (very first time only) <br />
@@ -132,15 +132,15 @@ public class IntrByUpperTracingSet<T extends INode<T>> extends
             states.get(1).startViolationHere();
         }
 
-        // The violation subpath ended if we just reached State3
-        if (states.get(3) != null && statesOld.get(3) == null) {
-            states.get(3).endViolationHere();
+        // The violation subpath ended if we just reached State4
+        if (states.get(4) != null && statesOld.get(4) == null) {
+            states.get(4).endViolationHere();
         }
     }
 
     @Override
     public HistoryNode<T> failpath() {
-        return states.get(3);
+        return states.get(4);
     }
 
     @Override
