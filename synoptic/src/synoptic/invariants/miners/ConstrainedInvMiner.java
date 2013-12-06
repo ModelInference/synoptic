@@ -227,6 +227,14 @@ public class ConstrainedInvMiner extends InvariantMiner {
         return computeConstraints(a, b, false);
     }
 
+    /**
+     * TODO: document me!
+     * 
+     * @param a
+     * @param b
+     * @param distinct
+     * @return
+     */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
             EventType a, EventType b, boolean distinct) {
 
