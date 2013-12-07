@@ -1,0 +1,64 @@
+//  To build the .java file from this protoc:
+// -Be sure that protoc is in your $PATH
+// -browse to the traceGen/src directory ($SRC_DIR)
+// -execute:  protoc --java_out=$SRC_DIR generic_message.proto
+// -this will generate ProtoTrace.java in $SRC_DIR
+
+package trace;
+
+option java_package = "trace";
+option java_outer_classname = "ProtoTrace";
+
+// A single generic message between two nodes
+message GenericMessage {
+  optional fixed32 src = 1; // IP source of message
+  optional fixed32 dst = 2; // IP destination of message      
+  optional int64 timestamp = 3;  // arbitrary timestamp, large enough to be milliseconds since epoch
+  optional bytes payload = 4;  // payload of message as a bytestream, completely generic
+
+}
+
+// A message of the PingPong system
+message PingPongMessage {
+  optional fixed32 src = 1; // IP source of message
+  optional fixed32 dst = 2; // IP destination of message      
+  optional int64 timestamp = 3;  // arbitrary timestamp, large enough to be milliseconds since epoch
+  optional string type = 4;  // either a ping, a pong, or a status message
+
+}
+
+//A Prepare message for 2PC
+message Prepare {
+	optional int32 num = 1;
+}
+
+//A Commit message for 2PC
+message Commit {
+	optional int32 num = 1;
+}
+
+//An Abort mesage for 2PC
+message Abort {
+	optional int32 num = 1;
+}
+
+//A TX commit msg for 2PC
+message TXCommit {
+	optional int32 num = 1;
+}
+
+//A TX Abort message for 2PC
+message TXAbort {
+	optional int32 num = 1;
+}
+
+//An ACK message for 2PC
+message Ack {
+	optional int32 num = 1;
+}
+
+// The trace is a list of messages
+message Trace {
+  repeated GenericMessage generic_message = 1;
+  repeated PingPongMessage ping_pong_message = 2;
+}
