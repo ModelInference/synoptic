@@ -85,6 +85,8 @@ public class FsmModelChecker {
             for (Node target : graph.getAdjacentNodes(node)) {
                 StateSet oldTargetStates = states.get(target);
                 StateSet updatesToTargetStates = current.copy();
+                // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
+                // SynopticMain.numpartitions = graph.getNodes().size();
                 updatesToTargetStates.transition(target);
 
                 // Evaluate isSubset _before_ the merge.
