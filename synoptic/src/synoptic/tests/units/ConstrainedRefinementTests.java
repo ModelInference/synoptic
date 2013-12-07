@@ -494,4 +494,15 @@ public class ConstrainedRefinementTests extends PynopticTest {
             }
         }
     }
+
+    @Test
+    public void IntrByRefinementTest2() throws Exception {
+        String[] events = { "login 0", "logout 6", "login 7", "action 8",
+                "logout 13" };
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByLower);
+        // exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+    }
 }
