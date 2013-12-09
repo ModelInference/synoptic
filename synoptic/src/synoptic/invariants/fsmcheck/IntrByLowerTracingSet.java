@@ -52,14 +52,24 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
             states.set(1, statesOld.get(0));
         }
 
+        // State1 -> State2
+        if (statesOld.get(1) != null && !isA && !isB) {
+            states.set(2, statesOld.get(1));
+        }
+
+        // State2 -> State2
+        if (statesOld.get(2) != null && !isA && !isB) {
+            states.set(2, preferMinTime(statesOld.get(2), states.get(2)));
+        }
+
+        // State3 -> State2
+        if (statesOld.get(3) != null && isA && !outOfBound.get(3)) {
+            states.set(2, preferMinTime(statesOld.get(3), states.get(2)));
+        }
+
         // State1 -> State3
         if (statesOld.get(1) != null && isB) {
             states.set(3, statesOld.get(1));
-        }
-
-        // State3 -> State3
-        if (statesOld.get(3) != null && !isA) {
-            states.set(3, preferMinTime(statesOld.get(3), states.get(3)));
         }
 
         // State2 -> State3
@@ -67,9 +77,19 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
             states.set(3, preferMinTime(statesOld.get(2), states.get(3)));
         }
 
+        // State3 -> State3
+        if (statesOld.get(3) != null && !isA) {
+            states.set(3, preferMinTime(statesOld.get(3), states.get(3)));
+        }
+
         // State1 -> State4
         if (statesOld.get(1) != null && isA) {
             states.set(4, statesOld.get(1));
+        }
+
+        // State2 -> State4
+        if (statesOld.get(2) != null && isA) {
+            states.set(4, preferMinTime(statesOld.get(2), states.get(4)));
         }
 
         // State3 -> State4
@@ -82,21 +102,6 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
             states.set(4, preferMinTime(statesOld.get(4), states.get(4)));
         }
 
-        // State1 -> State2
-        if (statesOld.get(1) != null && !isA && !isB) {
-            states.set(2, preferMinTime(statesOld.get(1), states.get(2)));
-        }
-
-        // State3 -> State2
-        if (statesOld.get(3) != null && isA && !outOfBound.get(3)) {
-            states.set(2, preferMinTime(statesOld.get(3), states.get(2)));
-        }
-
-        // State2 -> State2
-        if (statesOld.get(2) != null && !isA && !isB) {
-            states.set(2, preferMinTime(statesOld.get(2), states.get(2)));
-        }
-
         // Retrieve the previously-found min time delta
         ITime tMin = transitions.get(0).getTimeDelta();
         if (tMin == null) {
@@ -105,15 +110,15 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
 
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
-        // State3,3,4 require updates.
+        // State2,3,4 require updates.
+        if (states.get(2) != null) {
+            tRunning.set(2, tMin.incrBy(states.get(2).tDelta));
+        }
         if (states.get(3) != null) {
             tRunning.set(3, tMin.incrBy(states.get(3).tDelta));
         }
         if (states.get(4) != null) {
             tRunning.set(4, tMin.incrBy(states.get(4).tDelta));
-        }
-        if (states.get(2) != null) {
-            tRunning.set(2, tMin.incrBy(states.get(2).tDelta));
         }
 
         // Extend histories for each state
