@@ -52,6 +52,11 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
             states.set(1, statesOld.get(0));
         }
 
+        // State3 -> State1
+        if (statesOld.get(3) != null && isA && !outOfBound.get(3)) {
+            states.set(1, preferMinTime(statesOld.get(3), states.get(1)));
+        }
+
         // State1 -> State2
         if (statesOld.get(1) != null && !isA && !isB) {
             states.set(2, statesOld.get(1));
@@ -60,11 +65,6 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
         // State2 -> State2
         if (statesOld.get(2) != null && !isA && !isB) {
             states.set(2, preferMinTime(statesOld.get(2), states.get(2)));
-        }
-
-        // State3 -> State2
-        if (statesOld.get(3) != null && isA && !outOfBound.get(3)) {
-            states.set(2, preferMinTime(statesOld.get(3), states.get(2)));
         }
 
         // State1 -> State3
@@ -130,9 +130,6 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
         // The violation subpath started whenever we reach State1 or State2
         if (states.get(1) != null) {
             states.get(1).startViolationHere();
-        }
-        if (states.get(2) != null) {
-            states.get(2).startViolationHere();
         }
 
         // The violation subpath ended if we just reached State4
