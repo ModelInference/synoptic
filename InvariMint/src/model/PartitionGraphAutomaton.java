@@ -12,7 +12,6 @@ import synoptic.model.PartitionGraph;
  * Translates a Synoptic-style partition graph model to an EncodedAutomaton DFA
  * model type.
  * 
- * @author Jenny
  */
 public class PartitionGraphAutomaton extends EncodedAutomaton {
 

@@ -13,7 +13,6 @@ import daikon.inv.Invariant;
  * model. We need this class because TransitionLabelType constructor expects
  * a Class instance.
  * 
- * @author rsukkerd
  *
  */
 public class DaikonInvariants implements Iterable<Invariant>, 

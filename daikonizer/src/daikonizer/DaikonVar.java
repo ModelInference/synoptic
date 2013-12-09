@@ -3,7 +3,6 @@ package daikonizer;
 /**
  * Represents a Daikon variable, which has a name and a type.
  * 
- * @author rsukkerd
  *
  */
 public class DaikonVar {

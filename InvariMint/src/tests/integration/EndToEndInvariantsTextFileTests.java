@@ -22,7 +22,6 @@ import tests.InvariMintTest;
  * Runs InvariMint end-to-end on a simple invariants file and checks that the
  * final model matches the expected output.
  * 
- * @author jennyabrahamson
  */
 public class EndToEndInvariantsTextFileTests extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();

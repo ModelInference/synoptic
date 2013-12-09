@@ -29,7 +29,6 @@ import synoptic.model.PartitionGraph;
 /**
  * Common helper methods and variables for Pynoptic tests
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  */
 public abstract class PynopticTest extends SynopticTest {
 

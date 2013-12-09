@@ -13,7 +13,6 @@ import synoptic.model.PartitionGraph;
 /**
  * Implements a partition split that splits a partition into multiple others.
  * 
- * @author Sigurd Schneider
  */
 public class PartitionMultiSplit implements IOperation {
     private final ArrayList<Set<EventNode>> partitioning = new ArrayList<Set<EventNode>>();

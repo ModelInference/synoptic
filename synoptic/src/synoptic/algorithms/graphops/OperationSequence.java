@@ -7,7 +7,6 @@ import synoptic.model.PartitionGraph;
 /**
  * Links a series of operation into a sequence.
  * 
- * @author Sigurd Schneider
  */
 public class OperationSequence implements IOperation {
     LinkedList<IOperation> sequence = new LinkedList<IOperation>();

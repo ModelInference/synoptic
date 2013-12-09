@@ -10,7 +10,6 @@ import synoptic.util.time.TimeSeries;
  * A generic interface for a transition. This interface provides method to
  * modify the transition.
  * 
- * @author sigurd
  * @param <NodeType>
  *            the type of the nodes which are connected by this transition
  */

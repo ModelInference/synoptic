@@ -14,7 +14,6 @@ import synoptic.model.interfaces.INode;
  * the invariant. NOTE: ensure this documentation stays consistent with
  * APTracingSet.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @see APTracingSet
  * @see FsmStateSet
  */

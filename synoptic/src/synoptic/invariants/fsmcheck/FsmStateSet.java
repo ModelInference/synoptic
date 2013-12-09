@@ -49,7 +49,6 @@ import synoptic.util.InternalSynopticException;
  * the corresponding machines should not change state.
  * </p>
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @see AFbyInvFsms
  * @see APInvFsms
  * @see NFbyInvFsms

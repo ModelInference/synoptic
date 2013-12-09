@@ -39,7 +39,6 @@ import synoptic.util.time.VectorTime;
 /**
  * Tests for the synoptic.main.TraceParser class.
  * 
- * @author ivan
  */
 public class TraceParserTests extends SynopticTest {
     /**

@@ -10,7 +10,6 @@ import javax.swing.table.TableColumnModel;
 /**
  * Class to manage the widths of columns in a table.
  * 
- * @author Rob Camick,
  *         http://tips4java.wordpress.com/2008/11/10/table-column-adjuster/
  */
 

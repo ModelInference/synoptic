@@ -6,7 +6,6 @@ import javax.swing.table.AbstractTableModel;
  * Extension of AbstractTabelModel which allows the log line table to be updated
  * with new data
  * 
- * @author jenny
  */
 public class LogLineTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;

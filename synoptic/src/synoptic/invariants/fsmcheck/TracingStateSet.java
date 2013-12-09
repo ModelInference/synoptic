@@ -8,7 +8,6 @@ import synoptic.model.interfaces.INode;
  * being inhabited. This allows for synoptic.model checking which yields short
  * counterexample paths for failing synoptic.invariants.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */

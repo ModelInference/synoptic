@@ -11,7 +11,6 @@ import synoptic.model.event.EventType;
  * methods that allow modification of the node (with the exception of
  * {@code setParent} and {@code addTransition}).
  * 
- * @author sigurd
  * @param <NodeType>
  *            the interface is parametrized with the type of the implementing
  *            class to allow more specific types
