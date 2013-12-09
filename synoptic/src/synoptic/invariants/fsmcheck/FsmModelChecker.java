@@ -30,7 +30,6 @@ import synoptic.model.interfaces.INode;
  * synoptic.invariants at once in one relatively efficient pass. Following this
  * pass, a less efficient synoptic.model is invoked, which keeps track of the
  * path required to end up in the failing state.
- * 
  */
 public class FsmModelChecker {
     /**
@@ -84,8 +83,6 @@ public class FsmModelChecker {
             for (Node target : graph.getAdjacentNodes(node)) {
                 StateSet oldTargetStates = states.get(target);
                 StateSet updatesToTargetStates = current.copy();
-                // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
-                // SynopticMain.numpartitions = graph.getNodes().size();
                 updatesToTargetStates.transition(target);
 
                 // Evaluate isSubset _before_ the merge.
@@ -149,8 +146,6 @@ public class FsmModelChecker {
         List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
         List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
         List<BinaryInvariant> neverFollowed = new ArrayList<BinaryInvariant>();
-        // TODO: add IntrInv
-        List<BinaryInvariant> intrInv = new ArrayList<BinaryInvariant>();
         for (ITemporalInvariant inv : invariants) {
             @SuppressWarnings("unchecked")
             Class<Object> invClass = (Class) inv.getClass();
@@ -160,21 +155,17 @@ public class FsmModelChecker {
                 alwaysPrecedes.add((BinaryInvariant) inv);
             } else if (invClass.equals(NeverFollowedInvariant.class)) {
                 neverFollowed.add((BinaryInvariant) inv);
-            } else if (invClass.equals(InterruptedByInvariant.class)) {
-                intrInv.add((BinaryInvariant) inv);
             }
         }
 
         BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
         BitSet aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
         BitSet nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
-        BitSet intr = whichFail(new IntrInvFsms<T>(intrInv), graph);
 
         List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
         bitFilter(afs, alwaysFollowed, results);
         bitFilter(aps, alwaysPrecedes, results);
         bitFilter(nfs, neverFollowed, results);
-        bitFilter(intr, intrInv, results);
         return results;
     }
 
