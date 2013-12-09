@@ -165,10 +165,6 @@ public class ConstrainedInvMiner extends InvariantMiner {
         Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
                 a, b);
 
-        logger.finest(a + " " + inv.getShortName() + " " + b
-                + ",  lowerbound = " + constraints.getLeft().getThreshold()
-                + ",  upperbound = " + constraints.getRight().getThreshold());
-
         // Create two TempConstrainedInvariant objects using the lower bound and
         // upper bound computed.
         augmentInvariant(inv, constraints);
