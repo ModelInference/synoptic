@@ -27,7 +27,6 @@ import synoptic.model.event.EventType;
 /**
  * Basic tests for the EncodedAutomaton class.
  * 
- * @author Jenny
  */
 public class EncodedAutomatonTests {
 

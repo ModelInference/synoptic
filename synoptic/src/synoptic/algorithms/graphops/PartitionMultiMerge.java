@@ -9,7 +9,6 @@ import synoptic.model.PartitionGraph;
  * An operation that provides a multi-merge, i.e. merging multiple partitions
  * into another partition.
  * 
- * @author Sigurd Schneider
  */
 public class PartitionMultiMerge implements IOperation {
     private final Partition retainedPartition;

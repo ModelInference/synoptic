@@ -6,7 +6,6 @@ import java.util.Set;
  * This is the interface all graphs have to provide. It requires the notions of
  * relations, initial nodes, and terminal nodes.
  * 
- * @author sigurd
  * @param <NodeType>
  *            the class of a node in a graph
  */

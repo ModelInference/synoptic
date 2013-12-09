@@ -25,7 +25,6 @@ import synoptic.model.event.EventType;
  * Basic tests for the InvsModel class -- checks that invariants are used and
  * maintained correctly.
  * 
- * @author Jenny
  */
 public class InvsModelTests {
 

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
  * The benchmark will be run for each argument in the collection. Afterwards,
  * the ConfigureableBenchmark can be queried for the results.
  * 
- * @author Sigurd Schneider
  * @param <ArgumentType>
  *            The argument type for the benchmark.
  */
@@ -27,7 +26,6 @@ public class Benchmark<ArgumentType> {
     /**
      * An interface to a configurable benchmark.
      * 
-     * @author Sigurd Schneider
      * @param <ArgumentType>
      *            The argument for the benchmark.
      */

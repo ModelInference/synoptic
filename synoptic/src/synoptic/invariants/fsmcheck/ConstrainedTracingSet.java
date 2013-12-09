@@ -19,7 +19,6 @@ import synoptic.util.time.ITime;
  * NFA state set superclass for all time-constrained invariants. It keeps the
  * shortest path justifying a given state being inhabited.
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */

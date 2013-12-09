@@ -35,7 +35,6 @@ import synoptic.tests.SynopticTest;
  * Tests for mining invariants from partially ordered (PO) logs using a couple
  * of different mining algorithms.
  * 
- * @author ivan
  */
 @RunWith(value = Parameterized.class)
 public class POLogInvariantMiningTests extends SynopticTest {

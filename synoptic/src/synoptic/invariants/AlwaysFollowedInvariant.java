@@ -7,7 +7,6 @@ import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.INode;
 
 /**
- * @author Sigurd Schneider
  */
 public class AlwaysFollowedInvariant extends BinaryInvariant {
 

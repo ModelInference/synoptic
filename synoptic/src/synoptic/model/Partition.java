@@ -33,7 +33,6 @@ import synoptic.util.time.ITime;
  * corresponds to a set of transitions that all have the same target (but
  * possibly different sources).
  * 
- * @author sigurd
  */
 public class Partition implements INode<Partition> {
     /**

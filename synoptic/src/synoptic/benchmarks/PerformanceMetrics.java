@@ -14,7 +14,6 @@ import synoptic.main.SynopticMain;
  * track of a hierarchy of tasks: createTask adds a task to the task stack, and
  * a call to the task's stop method pops it.
  * 
- * @author Sigurd Schneider
  */
 public class PerformanceMetrics {
     private static Logger logger = Logger.getLogger("Performance Metrics");

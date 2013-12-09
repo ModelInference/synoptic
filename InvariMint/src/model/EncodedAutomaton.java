@@ -25,7 +25,6 @@ import synoptic.model.export.GraphExporter;
  * Wrapper class for dk.brics.automaton.Automaton which provides character
  * encodings for building Automaton with EventTypes rather than characters.
  * 
- * @author Jenny
  */
 public class EncodedAutomaton {
 
@@ -274,7 +273,6 @@ public class EncodedAutomaton {
      * the same labels and destination, regardless of whether they emanate from
      * the same source.
      * 
-     * @author Jenny
      */
     class StatePair {
 

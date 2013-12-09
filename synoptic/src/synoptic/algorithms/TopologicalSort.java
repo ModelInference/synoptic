@@ -15,7 +15,6 @@ import synoptic.util.Pair;
 /**
  * Topological sort. Algorithm from wikipedia.
  * 
- * @author sigurd
  * @param <NodeType>
  */
 public class TopologicalSort<NodeType extends INode<NodeType>> {

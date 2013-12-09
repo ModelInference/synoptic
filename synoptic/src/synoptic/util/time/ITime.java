@@ -61,7 +61,17 @@ public interface ITime extends Comparable<ITime> {
      * @return The ITime object after division has occurred.
      */
     ITime divBy(int divisor);
-    
+
+    /**
+     * Returns a normalized ITime in respect to relativeTime.
+     * 
+     * @param relativeTime
+     *            the time to use for the normalization, usually the time with
+     *            the biggest value of the trace.
+     * @return A normalized ITime object.
+     */
+    ITime normalize(ITime relativeTime);
+
     /**
      * Creates a new zero-time object
      * 

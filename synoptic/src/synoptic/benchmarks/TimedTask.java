@@ -3,7 +3,6 @@ package synoptic.benchmarks;
 /**
  * A timed task for recording the duration of a task.
  * 
- * @author Sigurd Schneider
  */
 public class TimedTask {
     /**

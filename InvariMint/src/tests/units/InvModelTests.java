@@ -24,7 +24,6 @@ import synoptic.model.event.EventType;
  * Basic tests for the InvModel class - checks that the invariant is used and
  * maintained correctly.
  * 
- * @author Jenny
  */
 public class InvModelTests {
     EventTypeEncodings encodings;

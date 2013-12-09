@@ -20,7 +20,6 @@ import synoptic.util.InternalSynopticException;
  * Mines KTailInvariants from a totally ordered ChainsTraceGraph for values of k
  * from 1 to k.
  * 
- * @author jennyabrahamson
  */
 public class KTailInvariantMiner implements ITOInvariantMiner {
 

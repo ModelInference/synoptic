@@ -13,7 +13,6 @@ import synoptic.model.interfaces.INode;
  * final node indicates which, of A and B, was last encountered. NOTE: ensure
  * this documentation stays consistent with AFbyTracingSet.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @see AFbyTracingSet
  * @see FsmStateSet
  */

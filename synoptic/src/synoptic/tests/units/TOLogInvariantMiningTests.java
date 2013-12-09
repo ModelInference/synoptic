@@ -35,7 +35,6 @@ import synoptic.util.InternalSynopticException;
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
  * 
- * @author ivan
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {

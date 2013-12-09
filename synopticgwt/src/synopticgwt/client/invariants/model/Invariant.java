@@ -3,7 +3,6 @@ package synopticgwt.client.invariants.model;
 /**
  * An interface for use by Event to highlight PO and TO invariants.
  * 
- * @author t101jv
  */
 public interface Invariant {
     public void highlightOn();

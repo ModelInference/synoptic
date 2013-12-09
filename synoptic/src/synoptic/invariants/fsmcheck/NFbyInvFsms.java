@@ -12,7 +12,6 @@ import synoptic.model.interfaces.INode;
  * encountered any time after, then we enter into a permanent failure state.
  * NOTE: ensure this documentation stays consistent with NFbyTracingSet.
  * 
- * @author Michael Sloan (mgsloan@gmail.com)
  * @see NFbyTracingSet
  * @see FsmStateSet
  */

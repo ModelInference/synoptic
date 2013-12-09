@@ -27,7 +27,6 @@ import synoptic.model.interfaces.INode;
  * licensed under Apache 2.0 (the same license as Synoptic and its
  * sub-projects), available at https://code.google.com/p/json-simple/.
  * 
- * @author Tony Ohmann (ohmann@cs.umass.edu)
  */
 public class JsonExporter {
 

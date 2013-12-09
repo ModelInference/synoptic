@@ -20,7 +20,6 @@ import synoptic.util.InternalSynopticException;
  * operations to count event Occurrences, Follows, and Precedes over the
  * specified relation within the trace.
  * 
- * @author timjv
  */
 public class TransitiveRelationPath implements IRelationPath {
 

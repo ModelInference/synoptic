@@ -32,7 +32,6 @@ import synoptic.model.event.StringEventType;
  * file. Invariants are expected to be in the following form, each on a separate
  * line:
  * 
- * @author jennyabrahamson
  */
 /*
  * IT // Constructs Initial-Terminal invariant

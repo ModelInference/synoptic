@@ -22,7 +22,6 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
  * initial model is then intersected with each of the mined invariants to
  * construct and export a final model.
  * 
- * @author Jenny
  */
 public class InvariMintMain {
     public Logger logger = null;

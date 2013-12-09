@@ -9,7 +9,6 @@ import synopticgwt.client.util.Paper;
 
 /**
  * Java wrapper for a raphael text
- * @author timjv
  *
  */
 public class Label implements Serializable {

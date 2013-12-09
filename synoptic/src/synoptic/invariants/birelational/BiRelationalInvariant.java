@@ -8,7 +8,6 @@ import synoptic.model.event.EventType;
  * mined subset of an input trace is the set subtraces over relation,
  * transitively connected by the ordering relation.
  * 
- * @author timjv
  */
 public abstract class BiRelationalInvariant extends BinaryInvariant {
 

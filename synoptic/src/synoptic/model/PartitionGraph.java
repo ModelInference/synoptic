@@ -31,7 +31,6 @@ import synoptic.util.InternalSynopticException;
  * {@code apply} which takes a object implementing {@code IOperation}.
  * Operations must perform changes on both representations.
  * 
- * @author sigurd
  */
 public class PartitionGraph implements IGraph<Partition> {
 

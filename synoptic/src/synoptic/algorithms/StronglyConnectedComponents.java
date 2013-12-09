@@ -17,7 +17,6 @@ import synoptic.model.interfaces.ITransition;
  * Description available at http://en.wikipedia.org/wiki/Tarjan%27
  * s_strongly_connected_components_algorithm
  * 
- * @author sigurd
  * @param <NodeType>
  *            The node type used in the graph
  */

@@ -50,7 +50,6 @@ import synoptic.util.time.VectorTime;
  * A generic trace parser, configured in terms of Java 7 style named capture
  * regular expressions.
  * 
- * @author mgsloan
  */
 public class TraceParser {
 

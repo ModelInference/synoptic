@@ -10,7 +10,6 @@ import synoptic.tests.SynopticTest;
 /**
  * Tests for synoptic.benchmarks.TimedTask class
  * 
- * @author ivan
  */
 public class TimedTaskTests extends SynopticTest {
     /**

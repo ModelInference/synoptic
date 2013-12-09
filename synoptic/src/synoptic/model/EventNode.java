@@ -22,7 +22,6 @@ import synoptic.util.time.ITime;
 /**
  * The event node class -- a node in a graph that contains an event.
  * 
- * @author Sigurd Schneider
  */
 public class EventNode implements INode<EventNode> {
     /**
