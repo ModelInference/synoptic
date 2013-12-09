@@ -7,7 +7,7 @@ import java.util.Set;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.birelational.AFBiRelationInvariant;
 import synoptic.invariants.birelational.APBiRelationInvariant;
@@ -57,7 +57,6 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
             Map<EventType, Set<EventType>> gPossibleInterrupts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
             Set<EventType> AlwaysFollowsINITIALSet, boolean multipleRelations) {
-        // TODO: add IntrInv (not done yet)
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
         for (EventType e1 : gEventCnts.keySet()) {
@@ -97,15 +96,13 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                 relation));
                     }
                 }
-                
+
                 if (interrupts(gPossibleInterrupts, e1, e2)) {
                     if (multipleRelations) {
                         // TODO: Add Bi Invariant
                         throw new NotImplementedException();
-                    } else {
-                        invariants.add(new InterrupterInvariant(e1, e2,
-                                relation));
                     }
+                    invariants.add(new InterruptedByInvariant(e1, e2, relation));
                 }
             }
         }
@@ -128,7 +125,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
     protected boolean interrupts(
             Map<EventType, Set<EventType>> gPossibleInterrupts, EventType e1,
             EventType e2) {
-        if (gPossibleInterrupts.containsKey(e1) && gPossibleInterrupts.get(e1).contains(e2)) {
+        if (gPossibleInterrupts.containsKey(e1)
+                && gPossibleInterrupts.get(e1).contains(e2)) {
             return true;
         }
         return false;

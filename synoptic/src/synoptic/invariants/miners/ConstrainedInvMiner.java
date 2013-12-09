@@ -7,7 +7,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.IThresholdConstraint;
@@ -131,7 +131,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
             }
 
             if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)
-                    && !(inv instanceof InterrupterInvariant)) {
+                    && !(inv instanceof InterruptedByInvariant)) {
                 continue;
             }
             computeInvariants((BinaryInvariant) inv);
@@ -152,7 +152,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
     public void computeInvariants(BinaryInvariant inv) {
 
         assert (inv instanceof AlwaysFollowedInvariant
-                || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterrupterInvariant);
+                || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterruptedByInvariant);
 
         EventType a = inv.getFirst();
         EventType b = inv.getSecond();
@@ -165,9 +165,9 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
         Pair<IThresholdConstraint, IThresholdConstraint> constraints;
 
-        // TODO: with Interrupter, b should be a
-        if (inv instanceof InterrupterInvariant) {
-            constraints = computeConstraints(a, inv.getFirst(), true);
+        // IntrBy's constraints are between a&a, not a&b
+        if (inv instanceof InterruptedByInvariant) {
+            constraints = computeConstraints(a, a, true);
         } else {
             // Return pair.left represents lower bound constraint.
             // Return pair.right represents upper bound constraint.

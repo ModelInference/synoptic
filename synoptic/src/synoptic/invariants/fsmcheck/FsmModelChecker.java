@@ -15,7 +15,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
@@ -161,7 +161,7 @@ public class FsmModelChecker {
                 alwaysPrecedes.add((BinaryInvariant) inv);
             } else if (invClass.equals(NeverFollowedInvariant.class)) {
                 neverFollowed.add((BinaryInvariant) inv);
-            } else if (invClass.equals(InterrupterInvariant.class)) {
+            } else if (invClass.equals(InterruptedByInvariant.class)) {
                 intrInv.add((BinaryInvariant) inv);
             }
         }
@@ -205,8 +205,8 @@ public class FsmModelChecker {
             stateset = new APTracingSet<Node>(invariant);
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
-        } else if (invClass.equals(InterrupterInvariant.class)) {
-            stateset = new IntrTracingSet<Node>(invariant);
+        } else if (invClass.equals(InterruptedByInvariant.class)) {
+            stateset = new IntrByTracingSet<Node>(invariant);
         } else if (invClass.equals(TempConstrainedInvariant.class)) {
 
             BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant)
@@ -232,7 +232,7 @@ public class FsmModelChecker {
                 else if (constInvConst instanceof LowerBoundConstraint) {
                     stateset = new APLowerTracingSet<Node>(invariant);
                 }
-            } else if (constInvInv instanceof InterrupterInvariant) {
+            } else if (constInvInv instanceof InterruptedByInvariant) {
                 // IntrBy Upper
                 if (constInvConst instanceof UpperBoundConstraint) {
                     stateset = new IntrByUpperTracingSet<Node>(invariant);

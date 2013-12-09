@@ -189,10 +189,10 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         String[] log = new String[] { "a 1.0", "b 2.0", "a 4.0" };
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
-        // a Intr b lower
+        // a IntrBy b lower
         TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
                 "a IntrBy b lower");
-        // a Intr b upper
+        // a IntrBy b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
@@ -217,10 +217,10 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
-        // a Intr b lower
+        // a IntrBy b lower
         TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
                 "a IntrBy b lower");
-        // a Intr b upper
+        // a IntrBy b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
@@ -233,9 +233,9 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
         assertEquals(actualUpper, upper.getConstraint().getThreshold());
 
-        // b Intr a lower
+        // b IntrBy a lower
         lower = getConstrainedInv(minedInvs, "b IntrBy a lower");
-        // b Intr a upper
+        // b IntrBy a upper
         upper = getConstrainedInv(minedInvs, "b IntrBy a upper");
 
         actualLower = new DTotalTime(4.0);
@@ -259,10 +259,10 @@ public class ConstrainedInvMinerTests extends PynopticTest {
 
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
-        // a Intr b lower
+        // a IntrBy b lower
         TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
                 "a IntrBy b lower");
-        // a Intr b upper
+        // a IntrBy b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
