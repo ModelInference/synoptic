@@ -10,7 +10,7 @@ import org.junit.rules.TestName;
 import junit.framework.Assert;
 
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
@@ -265,7 +265,7 @@ public abstract class SynopticTest extends SynopticLibTest {
         TemporalInvariantSet filtered = new TemporalInvariantSet();
 
         for (ITemporalInvariant inv : invariants) {
-            if (!(inv instanceof InterrupterInvariant)) {
+            if (!(inv instanceof InterruptedByInvariant)) {
                 filtered.add(inv);
             }
         }

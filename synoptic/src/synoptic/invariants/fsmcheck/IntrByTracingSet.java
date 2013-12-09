@@ -4,19 +4,19 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
-public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
+public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     HistoryNode<T> aNotSeen;
     HistoryNode<T> aSeenOnce;
     HistoryNode<T> aSeenMoreThanOnce;
 
     EventType a, b;
 
-    public IntrTracingSet(EventType a, EventType b) {
+    public IntrByTracingSet(EventType a, EventType b) {
         this.a = a;
         this.b = b;
     }
 
-    public IntrTracingSet(BinaryInvariant inv) {
+    public IntrByTracingSet(BinaryInvariant inv) {
         this(inv.getFirst(), inv.getSecond());
     }
 
@@ -57,8 +57,8 @@ public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public IntrTracingSet<T> copy() {
-        IntrTracingSet<T> result = new IntrTracingSet<T>(a, b);
+    public IntrByTracingSet<T> copy() {
+        IntrByTracingSet<T> result = new IntrByTracingSet<T>(a, b);
         result.aNotSeen = aNotSeen;
         result.aSeenOnce = aSeenOnce;
         result.aSeenMoreThanOnce = aSeenMoreThanOnce;
@@ -67,7 +67,7 @@ public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void mergeWith(TracingStateSet<T> other) {
-        IntrTracingSet<T> casted = (IntrTracingSet<T>) other;
+        IntrByTracingSet<T> casted = (IntrByTracingSet<T>) other;
         aNotSeen = preferShorter(aNotSeen, casted.aNotSeen);
         aSeenOnce = preferShorter(aSeenOnce, casted.aSeenOnce);
         aSeenMoreThanOnce = preferShorter(aSeenMoreThanOnce,
@@ -76,7 +76,7 @@ public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
-        IntrTracingSet<T> casted = (IntrTracingSet<T>) other;
+        IntrByTracingSet<T> casted = (IntrByTracingSet<T>) other;
         if (casted.aNotSeen == null) {
             if (aNotSeen != null) {
                 return false;
@@ -98,7 +98,7 @@ public class IntrTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Intr: ");
+        result.append("IntrBy: ");
         appendWNull(result, aSeenMoreThanOnce); // Failure case first.
         result.append(" | ");
         appendWNull(result, aSeenOnce);

@@ -7,7 +7,7 @@ import org.junit.Before;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.AFbyLowerTracingSet;
@@ -220,7 +220,7 @@ public abstract class PynopticTest extends SynopticTest {
                         .getInv();
 
                 // If true, inv is both constrained and IntrBy, so keep it
-                if (constInvType instanceof InterrupterInvariant) {
+                if (constInvType instanceof InterruptedByInvariant) {
                     onlyIntrBy.add(inv);
                 }
             }

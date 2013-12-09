@@ -200,8 +200,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        // TODO: Change log to not contain the IntrBy invariant!
-        // Remove all IntrBy now
+        // Remove all IntrBy invariants
         minedInvs = filterInterrupterInvariant(minedInvs);
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -244,8 +243,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        // TODO: Change log to not contain the IntrBy invariant!
-        // Remove all IntrBy now
+        // Remove all IntrBy invariants
         minedInvs = filterInterrupterInvariant(minedInvs);
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType

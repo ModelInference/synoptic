@@ -9,23 +9,21 @@ import synoptic.util.InternalSynopticException;
 
 /**
  * TODO: document this
- * 
- * @author sfiss
  */
-public class InterrupterInvariant extends BinaryInvariant {
+public class InterruptedByInvariant extends BinaryInvariant {
 
-    public InterrupterInvariant(EventType typeFirst, EventType typeSecond,
+    public InterruptedByInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
         super(typeFirst, typeSecond, relation);
         if (typeFirst.equals(typeSecond)) {
-            throw new InternalSynopticException("x Intr x can never be true");
+            throw new InternalSynopticException("x IntrBy x can never be true");
         }
     }
 
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public InterrupterInvariant(String typeFirst, String typeSecond,
+    public InterruptedByInvariant(String typeFirst, String typeSecond,
             String relation) {
         this(new StringEventType(typeFirst), new StringEventType(typeSecond),
                 relation);
@@ -34,7 +32,7 @@ public class InterrupterInvariant extends BinaryInvariant {
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public InterrupterInvariant(StringEventType typeFirst, String typeSecond,
+    public InterruptedByInvariant(StringEventType typeFirst, String typeSecond,
             String relation) {
         this(typeFirst, new StringEventType(typeSecond), relation);
     }
@@ -42,7 +40,7 @@ public class InterrupterInvariant extends BinaryInvariant {
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public InterrupterInvariant(String typeFirst, StringEventType typeSecond,
+    public InterruptedByInvariant(String typeFirst, StringEventType typeSecond,
             String relation) {
         this(new StringEventType(typeFirst), typeSecond, relation);
     }
@@ -51,7 +49,7 @@ public class InterrupterInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " Intr(" + relation.toString() + ") "
+        return first.toString() + " IntrBy(" + relation.toString() + ") "
                 + second.toString();
     }
 

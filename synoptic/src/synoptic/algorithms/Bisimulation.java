@@ -31,7 +31,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterrupterInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.main.SynopticMain;
@@ -135,10 +135,6 @@ public class Bisimulation {
                 // should only be applied to totally ordered traces, this is a
                 // bug (this is known to be possible for partially ordered
                 // traces).
-
-                // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
-                // refinement.stop();
-                // return;
 
                 throw new InternalSynopticException(
                         "Could not satisfy invariants: "
@@ -312,7 +308,7 @@ public class Bisimulation {
         // Check if invariant type is IntrBy
         BinaryInvariant constInvType = ((TempConstrainedInvariant<?>) counterexampleTrace.invariant)
                 .getInv();
-        if (constInvType instanceof InterrupterInvariant) {
+        if (constInvType instanceof InterruptedByInvariant) {
             isIntrBy = true;
         }
 
@@ -321,7 +317,6 @@ public class Bisimulation {
 
         if (isIntrBy) {
             // For IntrBy, traverse the full violation subpath
-            System.out.println("++++ " + counterexampleTrace.invariant);
             traversalStart = counterexampleTrace.violationEnd;
             traversalEnd = counterexampleTrace.violationStart;
         } else {
@@ -331,7 +326,6 @@ public class Bisimulation {
             // stitch: transitions into the start partition have no bearing on
             // the violation, and neither do transitions out of the end
             // partition.
-            System.out.println("==== " + counterexampleTrace.invariant);
             traversalStart = counterexampleTrace.violationEnd - 1;
             traversalEnd = counterexampleTrace.violationStart + 1;
         }

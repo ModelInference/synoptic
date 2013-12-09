@@ -41,20 +41,6 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
             List<ITransition<EventNode>> transitions, boolean isA, boolean isB,
             List<Boolean> outOfBound, List<ConstrainedHistoryNode<T>> statesOld) {
 
-        // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
-        // if (SynopticMain.numpartitions >= 25) {
-        // System.out.print("{{{ ");
-        // for (ConstrainedHistoryNode<?> n : statesOld) {
-        // String nnn = "";
-        // if (n != null)
-        // nnn = n.toString();
-        // System.out.print(nnn + " | ");
-        // }
-        // System.out.print(" }}}");
-        // System.out.println(" // " + transitions.get(0).getTimeDelta()
-        // + " // " + tRunning.get(2));
-        // }
-
         // State0 -> State0
         if (statesOld.get(0) != null && !isA) {
             states.set(0, statesOld.get(0));
@@ -128,12 +114,6 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
         if (states.get(4) != null) {
             tRunning.set(4, tMin.incrBy(states.get(4).tDelta));
         }
-
-        // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
-        // if (SynopticMain.numpartitions >= 25) {
-        // System.out.println(tMin + "   time(2,3): " + tRunning.get(2) + ","
-        // + tRunning.get(3));
-        // }
 
         // Extend histories for each state
         for (int i = 0; i < states.size(); ++i) {
