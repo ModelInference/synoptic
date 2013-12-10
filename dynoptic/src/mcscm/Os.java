@@ -23,6 +23,14 @@ public final class Os {
         if (!vs.contains(".")) {
             return vs;
         }
+        // Return major + first minor number, e.g., 10.8
+        int firstD = vs.indexOf(".");
+        int lastD = vs.lastIndexOf(".");
+        if (firstD == lastD) {
+            // No other minor version numbers (e.g., vs == "10.9")
+            return vs;
+        }
+        // Return major + first minor number, e.g., 10.8.1 -> 10.8
         int lastDotIndex = vs.lastIndexOf(".");
         return vs.substring(0, lastDotIndex);
     }

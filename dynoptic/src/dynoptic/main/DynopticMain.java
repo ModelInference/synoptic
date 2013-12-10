@@ -72,7 +72,17 @@ public class DynopticMain {
      */
     public static void main(String[] args) throws Exception {
         DynopticOptions opts = new DynopticOptions(args);
-        DynopticMain main = new DynopticMain(opts);
+        DynopticMain main;
+        try {
+            main = new DynopticMain(opts);
+        } catch (OptionException oe) {
+            if (!oe.isPrintHelpException()) {
+                logger.severe(oe.toString());
+                throw oe;
+            }
+            return;
+        }
+
         try {
             main.run();
         } catch (Exception e) {
@@ -131,7 +141,7 @@ public class DynopticMain {
     private int numProcesses = -1;
 
     /** Prepares a new DynopticMain instance based on opts. */
-    public DynopticMain(DynopticOptions opts) throws Exception {
+    public DynopticMain(DynopticOptions opts) throws OptionException {
         this.opts = opts;
         setUpLogging(opts);
         checkOptions(opts);
@@ -144,21 +154,19 @@ public class DynopticMain {
      * @param optns
      * @throws Exception
      */
-    public void checkOptions(DynopticOptions optns) throws Exception {
+    public void checkOptions(DynopticOptions optns) throws OptionException {
         String err = null;
 
         // Display help for all option groups, including unpublicized ones
         if (optns.allHelp) {
             optns.printLongHelp();
-            err = "";
-            throw new OptionException(err);
+            throw new OptionException();
         }
 
         // Display help just for the 'publicized' option groups
         if (optns.help) {
             optns.printShortHelp();
-            err = "";
-            throw new OptionException(err);
+            throw new OptionException();
         }
 
         if (optns.channelSpec == null) {
@@ -167,7 +175,11 @@ public class DynopticMain {
             throw new OptionException(err);
         }
 
-        channelIds = ChannelId.parseChannelSpec(opts.channelSpec);
+        try {
+            channelIds = ChannelId.parseChannelSpec(opts.channelSpec);
+        } catch (Exception e) {
+            throw new OptionException(e.getMessage());
+        }
         if (channelIds.isEmpty()) {
             err = "Could not parse the channel specification:\n\t"
                     + opts.getOptDesc("channelSpec");
