@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * Extends the EncodedAutomaton class to encode the intersection of multiple
  * InvModel Automatons.
- * 
  */
 public class InvsModel extends EncodedAutomaton {
 
@@ -55,7 +54,12 @@ public class InvsModel extends EncodedAutomaton {
      */
     public void intersectWith(InvModel inv) {
         invariants.add(inv);
-        super.intersectWith(inv,
-                "Intersecting model with " + inv.getInvariant());
+        try {
+            super.intersectWith(inv,
+                    "Intersecting model with " + inv.getInvariant());
+        } catch (IllegalStateException ise) {
+            logger.warning("Itersection is empty: " + ise.toString() + ".");
+            throw ise;
+        }
     }
 }

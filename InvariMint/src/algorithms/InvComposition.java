@@ -35,23 +35,28 @@ public class InvComposition {
         int total = invariants.numInvariants();
         int numDone = 0;
 
+        // How many times to intersect before we minimize.
+        int minimizeEveryX = 20;
+
         for (ITemporalInvariant invariant : invariants) {
             // logger.info("Create new invDFA instance, remaining" + remaining);
             InvModel invDFA = new InvModel(invariant, model.getEventEncodings());
             model.intersectWith(invDFA);
             invDFA = null;
 
-            // Optimize by minimizing the model every 100 intersections.
-            if ((numDone % 20 == 0) && minimizeDFAIntersections) {
+            numDone += 1;
+
+            // Optimize by minimizing the model every 20 intersections.
+            if ((numDone % minimizeEveryX == 0) && minimizeDFAIntersections) {
                 logger.info("Intersected " + numDone + " / " + total
                         + " invariants.");
                 model.minimize();
             }
-
-            numDone += 1;
         }
 
-        if (minimizeDFAIntersections) {
+        // Minimize one more time, at the end, but only if the current model
+        // hasn't been minimized in the above loop.
+        if ((numDone % minimizeEveryX != 0) && minimizeDFAIntersections) {
             model.minimize();
         }
 
