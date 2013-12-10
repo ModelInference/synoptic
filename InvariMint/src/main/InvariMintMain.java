@@ -21,7 +21,6 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
  * Initial/Terminal invariant are used to construct an initial DFA model. The
  * initial model is then intersected with each of the mined invariants to
  * construct and export a final model.
- * 
  */
 public class InvariMintMain {
     public Logger logger = null;
@@ -71,8 +70,6 @@ public class InvariMintMain {
         } else if (opts.invMintKTails) {
             // Instantiate a KTails version of InvariMint.
             invMintAlg = new InvariMintKTails(opts);
-        } else {
-            throw new Exception("InvariMint algorithm not specified.");
         }
     }
 
@@ -143,41 +140,49 @@ public class InvariMintMain {
 
     // //////////////////////////////////////////////////////////////////////////////////
 
-    private void handleOptions() throws Exception {
-        String err = null;
-
+    /**
+     * Parses and checks command line options for consistency.
+     * 
+     * @throws OptionException
+     *             if there was an issue with the passed in options.
+     */
+    private void handleOptions() throws OptionException {
         // Display help for all option groups, including unpublicized ones
         if (opts.allHelp) {
             opts.printLongHelp();
-            err = "";
+            throw new OptionException();
         }
 
         // Display help just for the 'publicized' option groups
         if (opts.help) {
             opts.printShortHelp();
-            err = "";
+            throw new OptionException();
         }
+
+        String err = null;
 
         if (opts.outputPathPrefix == null) {
             err = "Cannot output any models. Specify output path prefix using:\n\t"
                     + opts.getOptDesc("outputPathPrefix");
-            logger.severe(err);
         }
 
         if (opts.logFilenames.size() == 0) {
             err = "No log filenames specified, exiting. Try cmd line option:\n\t"
                     + opts.getOptDesc("help");
-            logger.severe(err);
         }
 
         if ((!opts.invMintSynoptic && !opts.invMintKTails)
                 || (opts.invMintSynoptic && opts.invMintKTails)) {
             err = "Must specify either --invMintSynoptic or --invMintKTails option, but not both.";
-            logger.severe(err);
+        }
+
+        if (!opts.invMintSynoptic && !opts.invMintKTails) {
+            err = "InvariMint algorithm not specified.";
         }
 
         if (err != null) {
-            throw new OptionException();
+            logger.severe(err);
+            throw new OptionException(err);
         }
     }
 
