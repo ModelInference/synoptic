@@ -45,7 +45,7 @@ public class DynopticTest {
      * name.getMethodName().
      **/
     @Rule
-    public static TestName testName;
+    public TestName testName = new TestName();
 
     /**
      * The logger instance to use across all tests.
@@ -53,8 +53,6 @@ public class DynopticTest {
     protected static Logger logger;
 
     static {
-        // Set up static DynopticTest state.
-        testName = new TestName();
         logger = Logger.getLogger("DynopticTest logger");
         logger.setLevel(Level.INFO);
     }
