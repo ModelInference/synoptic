@@ -2,8 +2,11 @@ package dynoptic;
 
 import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -139,5 +142,24 @@ public class DynopticTest {
 
         // NOTE: We assume the tests are run from synoptic/dynoptic/
         return "../bin/mcscm/verify.native." + osStr;
+    }
+
+    /**
+     * Reads a text file from the current directory and returns it as a single
+     * string.
+     * 
+     * @throws IOException
+     */
+    static public String fileToString(String filePath) throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(filePath));
+
+        StringBuilder everything = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            everything.append(line);
+            everything.append("\n");
+        }
+        in.close();
+        return everything.toString();
     }
 }

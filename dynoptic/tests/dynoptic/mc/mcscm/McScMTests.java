@@ -1,29 +1,24 @@
-package mcscm;
+package dynoptic.mc.mcscm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.mc.MCResult;
-import dynoptic.mc.mcscm.McScM;
-import dynoptic.mc.mcscm.ScmSyntaxException;
+import dynoptic.mc.MCSyntaxException;
 import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
-public class McScMTests {
+public class McScMTests extends DynopticTest {
 
     McScM mcscm;
     String verifyPath;
@@ -34,16 +29,14 @@ public class McScMTests {
 
     DistEventType cExEType;
 
-    protected static Logger logger;
-
     @Before
-    public void setUp() {
-        // NOTE: We assume the tests are run from synoptic/mcscm-bridge/
-        verifyPath = DynopticTest.getMcPath();
-        scmFilePrefix = "./tests/mcscm/";
+    public void setUp() throws Exception {
+        super.setUp();
 
-        logger = Logger.getLogger("TestMcScM");
-        logger.setLevel(Level.INFO);
+        // NOTE: hard-coded assumption about where the tests are run
+        verifyPath = DynopticTest.getMcPath();
+        scmFilePrefix = "./tests/dynoptic/mc/mcscm/";
+
         mcscm = new McScM(verifyPath);
 
         cids = Util.newList();
@@ -56,30 +49,11 @@ public class McScMTests {
     }
 
     /**
-     * Reads a text file from the current directory and returns it as a single
-     * string.
-     * 
-     * @throws IOException
-     */
-    public String readScmFile(String filename) throws IOException {
-        String filePath = scmFilePrefix + filename;
-        BufferedReader in = new BufferedReader(new FileReader(filePath));
-
-        StringBuilder everything = new StringBuilder();
-        String line;
-        while ((line = in.readLine()) != null) {
-            everything.append(line);
-            everything.append("\n");
-        }
-        return everything.toString();
-    }
-
-    /**
      * Bad scm input should result in a syntax error.
      * 
      * @throws IOException
      */
-    @Test(expected = ScmSyntaxException.class)
+    @Test(expected = MCSyntaxException.class)
     public void testBadScmInput() throws IOException {
         try {
             mcscm.verify("hello world", 60);
@@ -99,7 +73,7 @@ public class McScMTests {
      */
     @Test
     public void testSafeScmInput() throws IOException {
-        String scmStr = readScmFile("ABP_safe.scm");
+        String scmStr = fileToString(scmFilePrefix + "ABP_safe.scm");
 
         try {
             mcscm.verify(scmStr, 60);
@@ -119,7 +93,8 @@ public class McScMTests {
      */
     @Test
     public void testUnsafeScmInputLen1() throws IOException {
-        String scmStr = readScmFile("ABP_unsafe_cexample_len1.scm");
+        String scmStr = fileToString(scmFilePrefix
+                + "ABP_unsafe_cexample_len1.scm");
 
         try {
             mcscm.verify(scmStr, 60);
@@ -141,7 +116,8 @@ public class McScMTests {
      */
     @Test
     public void testUnsafeScmInputLen2() throws IOException {
-        String scmStr = readScmFile("ABP_unsafe_cexample_len2.scm");
+        String scmStr = fileToString(scmFilePrefix
+                + "ABP_unsafe_cexample_len2.scm");
 
         try {
             mcscm.verify(scmStr, 60);
