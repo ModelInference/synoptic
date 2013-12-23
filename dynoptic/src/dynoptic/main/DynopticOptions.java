@@ -145,27 +145,33 @@ public class DynopticOptions extends Options {
     /**
      * Specifies the prefix of where to store the model outputs.
      */
-    @OptionGroup("Verify Options")
-    @Option(
-            value = "-v Complete path to the verify McScM model checker binary",
-            aliases = { "-verify-path" })
+    @OptionGroup("Model Checking Options")
+    @Option(value = "Complete path to the model checker binary",
+            aliases = { "-mc-path" })
     public String mcPath = null;
 
+    @Option(
+            value = "Model checker type to use. Must be either 'spin' or 'mcscm'")
+    public String mcType = "mcscm";
+
+    @Option(
+            value = "Default channel capacity to use when using the spin model checker.")
+    public int spinChannelCapacity = 8;
+
     /**
-     * The base timeout that is used to time out invocations of McScM
-     * verification (which may run indefinitely).
+     * The base timeout that is used to time out invocations of verification
+     * (which may run indefinitely).
      */
     @Option(
-            value = "Initial timeout (in seconds) that is used to time out McScM verification.",
+            value = "Initial timeout (in seconds) that is used to time out a model-checker run.",
             aliases = { "-base-timeout" })
     public int baseTimeout = 20;
 
     /**
-     * The amount of time added to baseTimeout before retrying the McScM
-     * verification.
+     * The amount of time added to baseTimeout before retrying verification.
      */
     @Option(
-            value = "Time (in seconds) to add to -base-timeout after each time McScM times out, before reaching max timeout.",
+            value = "Time (in seconds) to add to -base-timeout after each time the model checker times out, before reaching max timeout.",
             aliases = { "-timeout-delta" })
     public int timeoutDelta = 10;
 
@@ -173,11 +179,11 @@ public class DynopticOptions extends Options {
      * Maximum timeout value to use for McScM verification.
      */
     @Option(
-            value = "Maximum timeout (in seconds) to use for McScM verification.",
+            value = "Maximum timeout (in seconds) to use for a model checking run.",
             aliases = { "-max-timeout" })
     public int maxTimeout = 60;
 
-    // end option group "Verify Options"
+    // end option group "Model Checking Options"
     // //////////////////////////////////////////////////
 
     /**

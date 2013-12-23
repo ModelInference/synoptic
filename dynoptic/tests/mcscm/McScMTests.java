@@ -15,6 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.mc.MCResult;
+import dynoptic.mc.mcscm.McScM;
+import dynoptic.mc.mcscm.ScmSyntaxException;
 import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -72,14 +75,14 @@ public class McScMTests {
     }
 
     /**
-     * Empty scm input should result in a syntax error.
+     * Bad scm input should result in a syntax error.
      * 
      * @throws IOException
      */
     @Test(expected = ScmSyntaxException.class)
-    public void testEmptyScmInput() throws IOException {
+    public void testBadScmInput() throws IOException {
         try {
-            mcscm.verify("", 60);
+            mcscm.verify("hello world", 60);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
@@ -105,7 +108,7 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = mcscm.getVerifyResult(cids);
+        MCResult result = mcscm.getVerifyResult(cids);
         assertTrue(result.modelIsSafe());
     }
 
@@ -125,7 +128,7 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = mcscm.getVerifyResult(cids);
+        MCResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertEquals(result.getCExample().getEvents().size(), 1);
         assertEquals(result.getCExample().getEvents().get(0), cExEType);
@@ -147,7 +150,7 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = mcscm.getVerifyResult(cids);
+        MCResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertTrue(result.getCExample() != null);
         assertTrue(result.getCExample().getEvents() != null);

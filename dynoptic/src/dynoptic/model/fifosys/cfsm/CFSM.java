@@ -308,7 +308,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
      * procedure) are all initial state and all states where all queues except
      * Q_ab are empty, and where Q_ab = [*a], and where the process states are
      * terminal. In a sense, we've added Q_ab to track "a" and "b" executions,
-     * and not interfere with the normal execution of the FIFO system.
+     * and have not interfered with the normal execution of the FIFO system.
      * </p>
      * <p>
      * For a AP b, the procedure is identical, but the second bad state in every
@@ -328,6 +328,58 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             throw new Exception("Unrecognized binary invarianr type: "
                     + binv.toString());
         }
+    }
+
+    /**
+     * Generate a Promela representation of this CFSM, to be used with SPIN.
+     * This representation includes an appropriate LTL formula corresponding to
+     * any invariants that augment this CFSM.
+     */
+    public String toPromelaString(String cfsmName, int chanCapacity) {
+        assert unSpecifiedPids == 0;
+
+        String ret = "/* Spin-promela " + cfsmName + " */\n\n";
+
+        // Message types:
+        ret += "/* Message types: */\n";
+        for (int i = 0; i < channelIds.size(); i++) {
+            String iStr = Integer.toString(i);
+            ret += "mtypesChan" + iStr + " = {";
+            //
+            // TODO: output channel event types here.
+            //
+            ret += "};";
+        }
+        ret += "\n\n";
+
+        // Channels:
+        ret += "/* Channels: */\n";
+        for (int i = 0; i < channelIds.size(); i++) {
+            String iStr = Integer.toString(i);
+            ret += "chan chan" + iStr + " = [" + Integer.toString(chanCapacity)
+                    + "] of { mtypesChan" + iStr + "}\n";
+        }
+        ret += "\n\n";
+
+        // FSM state vars declaration, one per FSM:
+        ret += "/* FSM state vars: */\n";
+        for (int pid = 0; pid < numProcesses; pid++) {
+            ret += "byte state" + Integer.toString(pid) + " = 0;\n";
+        }
+        ret += "\n\n";
+
+        // Each of the FSMs in the CFSM:
+        for (int pid = 0; pid < numProcesses; pid++) {
+            String stateVar = "state" + Integer.toString(pid);
+            FSM f = fsms.get(pid);
+            ret += "active proctype p" + Integer.toString(pid) + "()\n";
+            ret += "{\n";
+            f.toPromelaString(stateVar);
+            ret += "}\n\n";
+        }
+        ret += "\n\n";
+
+        return ret;
     }
 
     /**

@@ -1,4 +1,4 @@
-package mcscm;
+package dynoptic.mc.mcscm;
 
 /**
  * Utility class that is used to detect the OS on which we are executing.

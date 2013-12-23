@@ -33,14 +33,15 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     // type.
     private int pid = -1;
 
-    // The id used by this FSMState in scm output.
-    private final int scmId;
+    // The id used by this FSMState in scm and promela output. This state id is
+    // a positive integer that is unique to this state in the FSM.
+    private final int stateId;
 
     public FSMState(boolean isAccept, boolean isInitial, int pid, int scmId) {
         this.isAccept = isAccept;
         this.isInitial = isInitial;
         this.pid = pid;
-        this.scmId = scmId;
+        this.stateId = scmId;
         transitions = Util.newMap();
     }
 
@@ -83,12 +84,12 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
 
     public String toLongString() {
         return "FSM_state: init[" + isInitial + "], accept[" + isAccept
-                + "] id[" + scmId + "]";
+                + "] id[" + stateId + "]";
     }
 
     public String toShortIntString() {
         // return String.valueOf(pid) + "." + String.valueOf(scmId);
-        return String.valueOf(scmId);
+        return String.valueOf(stateId);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         // FIXME: Issue 276
         // Not using transitions because they cause a stack overflow.
         ret = ret * 31 + pid;
-        ret = ret * 31 + scmId;
+        ret = ret * 31 + stateId;
         return 1;
     }
 
@@ -135,7 +136,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
             return false;
         }
 
-        if (state.scmId != this.scmId) {
+        if (state.stateId != this.stateId) {
             return false;
         }
 
@@ -153,9 +154,9 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         return pid;
     }
 
-    /** Returns the scmId that this state is associated with. */
-    public int getScmId() {
-        return scmId;
+    /** Returns this state's id. */
+    public int getStateId() {
+        return stateId;
     }
 
     /**
@@ -215,7 +216,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
      * transitions from this state.
      */
     public String toScmString(LocalEventsChannelId localEventsChId) {
-        String ret = "state " + scmId + " :\n";
+        String ret = "state " + stateId + " :\n";
 
         String eStr;
         for (DistEventType e : transitions.keySet()) {
@@ -231,11 +232,52 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
             }
 
             for (FSMState next : transitions.get(e)) {
-                ret += "to " + next.getScmId() + " : when true , " + eStr
+                ret += "to " + next.getStateId() + " : when true , " + eStr
                         + " ;\n";
             }
         }
 
+        return ret;
+    }
+
+    /**
+     * Returns a Promela representation of this FSMState.
+     */
+    public String toPromelaString(String stateVar) {
+        String ret = ":: (" + stateVar + " == " + this.getStateId() + ") -> ";
+
+        if (transitions.keySet().size() == 1) {
+            DistEventType e = transitions.keySet().iterator().next();
+            // TODO:
+            String trans = "Y";
+            //
+            if (e.isCommEvent()) {
+                // TODO:
+                ret += "atomic{" + e.toPromelaString() + "; " + trans + "}";
+                //
+            } else {
+                // Local event:
+                ret += trans;
+            }
+            return ret;
+        }
+
+        ret += "\t do";
+        // TODO:
+        /*
+         * String eStr; for (DistEventType e : transitions.keySet()) { // Build
+         * an scm representation of this event type. if (e.isCommEvent()) { eStr
+         * = e.toString( Integer.toString(e.getChannelId().getScmId()), ' '); }
+         * else { // Local event: use local queue for local events. String
+         * eTypeStr = e.getScmEventFullString();
+         * localEventsChId.addLocalEventString(e, eTypeStr); eStr =
+         * localEventsChId.getScmId() + " ! " + eTypeStr; }
+         * 
+         * for (FSMState next : transitions.get(e)) { ret += "to " +
+         * next.getScmId() + " : when true , " + eStr + " ;\n"; } }
+         */
+
+        ret += "\t od";
         return ret;
     }
 

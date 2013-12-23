@@ -8,8 +8,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import mcscm.McScMCExample;
 import dynoptic.main.DynopticMain;
+import dynoptic.mc.MCcExample;
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.CFSM;
@@ -672,7 +672,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         return null;
     }
 
-    public Set<GFSMPath> getCExamplePaths(McScMCExample cExample, int pid) {
+    public Set<GFSMPath> getCExamplePaths(MCcExample cExample, int pid) {
         Set<GFSMPath> paths = Util.newSet();
 
         // Initialize paths with all the initial states in the model.

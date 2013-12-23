@@ -36,7 +36,7 @@ public class BadState {
         // Encode the state of all the FSMs in the CFSM.
         for (int pid = 0; pid < fsmState.getNumProcesses(); pid++) {
             ret += "automaton p" + pid + ":" + " in "
-                    + fsmState.getFSMState(pid).getScmId() + ": true\n";
+                    + fsmState.getFSMState(pid).getStateId() + ": true\n";
         }
 
         // Encode the queue regular expressions in SCM format, with '#'
