@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import dynoptic.mc.MC;
 import dynoptic.mc.MCProcess;
+import dynoptic.mc.MCResult;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -44,12 +45,11 @@ public class McScM extends MC {
      * invariant/local channel, or an actual channel that is part of the
      * system).
      */
-    public McScMResult getVerifyResult(List<ChannelId> cids)
-            throws IOException {
+    public MCResult getVerifyResult(List<ChannelId> cids) throws IOException {
         List<String> lines = mcProcess.getInputStreamContent();
 
-        logger.info("Verify returned: " + lines.toString());
-        McScMResult ret = new McScMResult(lines, cids);
+        logger.info("McScM returned: " + lines.toString());
+        MCResult ret = new McScMResult(lines, cids);
         return ret;
     }
 }

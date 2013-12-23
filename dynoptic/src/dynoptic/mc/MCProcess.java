@@ -73,7 +73,7 @@ public class MCProcess {
             t.interrupt();
         } else {
             // Otherwise: the process had to be killed by the timer thread.
-            throw new InterruptedException("Verify process killed.");
+            throw new InterruptedException("MC process killed.");
         }
     }
 

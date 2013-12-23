@@ -37,4 +37,12 @@ public abstract class MCResult {
         }
         return ret;
     }
+
+    @Override
+    public String toString() {
+        if (cExample != null) {
+            return "MC-CExample: " + this.cExample.toString();
+        }
+        return "MC-no-cexample";
+    }
 }

@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import dynoptic.mc.MCResult;
+import dynoptic.mc.MCSyntaxException;
 import dynoptic.mc.MCcExample;
 import dynoptic.model.fifosys.channel.channelid.InvChannelId;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
@@ -38,16 +39,6 @@ public class McScMResult extends MCResult {
 
     // //////////////////////////////////////////////////////////////////
 
-    @Override
-    public String toString() {
-        if (cExample != null) {
-            return "Verify-CExample: " + this.cExample.toString();
-        }
-        return "Verify-safe";
-    }
-
-    // //////////////////////////////////////////////////////////////////
-
     private void parseVerifyOutput(List<String> lines)
             throws VerifyOutputParseException {
 
@@ -55,7 +46,7 @@ public class McScMResult extends MCResult {
         int lineCnt = 0;
         for (String line : lines) {
             if (line.matches(syntaxErrRe)) {
-                throw new ScmSyntaxException(line);
+                throw new MCSyntaxException(line);
             }
 
             if (line.matches(safeRe)) {

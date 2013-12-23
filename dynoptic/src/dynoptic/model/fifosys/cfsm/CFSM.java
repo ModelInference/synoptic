@@ -331,7 +331,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
     }
 
     /**
-     * Generate a Promela representation of this CFSM, to be used with SPIN.
+     * Generates a Promela representation of this CFSM, to be used with SPIN.
      * This representation includes an appropriate LTL formula corresponding to
      * any invariants that augment this CFSM.
      */
