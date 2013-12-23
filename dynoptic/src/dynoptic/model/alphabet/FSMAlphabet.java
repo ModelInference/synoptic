@@ -15,7 +15,7 @@ import synoptic.model.event.IDistEventType;
  */
 public class FSMAlphabet<TxnEType extends IDistEventType> implements
         Set<TxnEType> {
-    private static final String EMPTY_STR_SCM_RE = "(_)";
+    // private static final String EMPTY_STR_SCM_RE = "(_)";
     Set<TxnEType> events;
 
     public FSMAlphabet() {
@@ -112,61 +112,22 @@ public class FSMAlphabet<TxnEType extends IDistEventType> implements
     public String toScmParametersString() {
         String ret = "";
 
-        for (String eStr : getUniqueEventStrings(null)) {
+        for (String eStr : getUniqueEventStrings()) {
             ret += "real " + eStr + " ;\n";
         }
         return ret;
     }
 
-    public String anyEventScmQRe() {
-        return scmQRe(null);
-    }
-
-    public String anyEventExceptOneScmQRe(TxnEType ignoreE) {
-        assert events.contains(ignoreE);
-
-        return scmQRe(ignoreE);
-    }
-
     // //////////////////////////////////////////////////////////////////
 
     /**
-     * Concatenates a list of event strings into a re expression representing a
-     * set of strings.
-     */
-    private String scmQRe(TxnEType ignoreE) {
-        String ret = "(";
-        Set<String> eventStrings = getUniqueEventStrings(ignoreE);
-        Iterator<String> iter = eventStrings.iterator();
-
-        while (iter.hasNext()) {
-            String e = iter.next();
-            ret = ret + e + " | ";
-        }
-
-        // The re encodes no events -- return empty string re.
-        if (ret.length() == 1) {
-            return EMPTY_STR_SCM_RE;
-        }
-
-        // Remove the dangling "."
-        ret = ret.substring(0, ret.length() - 3);
-
-        return ret + ")";
-    }
-
-    /**
      * This function exists because we might have duplication of event strings,
-     * event though the event types are unique. For example, the two event types
-     * '0!m' and '0?m' are unique, but the event string for both event types is
-     * 'm'.
+     * though the event types are unique. For example, the two event types '0!m'
+     * and '0?m' are unique, but the event string for both event types is 'm'.
      */
-    private Set<String> getUniqueEventStrings(TxnEType ignoreE) {
+    private Set<String> getUniqueEventStrings() {
         Set<String> ret = Util.newSet();
         for (TxnEType e : events) {
-            if ((ignoreE != null) && e.equals(ignoreE)) {
-                continue;
-            }
             ret.add(e.getScmEventString());
         }
         return ret;

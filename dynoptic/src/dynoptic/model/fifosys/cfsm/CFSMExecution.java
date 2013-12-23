@@ -2,15 +2,15 @@ package dynoptic.model.fifosys.cfsm;
 
 import java.util.List;
 
-import mcscm.McScMCExample;
+import dynoptic.mc.MCcExample;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.util.Util;
 
 public class CFSMExecution {
     private final List<FSMState> fsmPath;
-    private final McScMCExample cexample;
+    private final MCcExample cexample;
 
-    public CFSMExecution(McScMCExample cexample) {
+    public CFSMExecution(MCcExample cexample) {
         this.fsmPath = Util.newList();
         this.cexample = cexample;
     }

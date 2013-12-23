@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mcscm.Os;
-
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,6 +15,7 @@ import org.junit.rules.TestName;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.main.DynopticOptions;
+import dynoptic.mc.mcscm.Os;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;

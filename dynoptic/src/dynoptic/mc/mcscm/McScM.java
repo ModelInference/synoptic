@@ -1,29 +1,22 @@
-package mcscm;
+package dynoptic.mc.mcscm;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import dynoptic.mc.MC;
+import dynoptic.mc.MCProcess;
+
 import synoptic.model.channelid.ChannelId;
 
 /** An interface to the McScM model checker. */
-public class McScM {
+public class McScM extends MC {
+
     static Logger logger = Logger.getLogger("McScM");
 
-    /** Complete path to the McScM verify binary. */
-    private String verifyPath;
-
-    /** The started verify process. */
-    private Process verifyProcess;
-
-    /**
-     * Creates a new instance of McScM that will use the specified verifyPath.
-     * 
-     * @param verifyPath
-     */
-    public McScM(String verifyPath) {
-        this.verifyPath = verifyPath;
+    public McScM(String mcPath) {
+        super(mcPath);
     }
 
     /**
@@ -37,9 +30,10 @@ public class McScM {
     public void verify(String scmInput, int timeoutSecs) throws IOException,
             InterruptedException {
         File currentPath = new java.io.File(".");
-        verifyProcess = ProcessUtil.runVerifyProcess(new String[] { verifyPath,
-                "-no-validation", "-quiet" }, scmInput, currentPath,
-                timeoutSecs);
+
+        mcProcess = new MCProcess(new String[] { mcPath, "-no-validation",
+                "-quiet" }, scmInput, currentPath, timeoutSecs);
+        mcProcess.runProcess();
     }
 
     /**
@@ -50,13 +44,12 @@ public class McScM {
      * invariant/local channel, or an actual channel that is part of the
      * system).
      */
-    public VerifyResult getVerifyResult(List<ChannelId> cids)
+    public McScMResult getVerifyResult(List<ChannelId> cids)
             throws IOException {
-        List<String> lines = ProcessUtil.getInputStreamContent(verifyProcess
-                .getInputStream());
+        List<String> lines = mcProcess.getInputStreamContent();
 
         logger.info("Verify returned: " + lines.toString());
-        VerifyResult ret = new VerifyResult(lines, cids);
+        McScMResult ret = new McScMResult(lines, cids);
         return ret;
     }
 }

@@ -1,4 +1,4 @@
-package mcscm;
+package dynoptic.mc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,42 +10,61 @@ import java.util.List;
 
 import dynoptic.util.Util;
 
-/** Some process handling routines. */
-public class ProcessUtil {
+/** Represents a system process that hosts the model checker execution. */
+public class MCProcess {
+
+    // The started underlying MC process.
+    Process process = null;
+
+    String[] command;
+    String stdinInput;
+    File processDir;
+    int timeoutSecs;
+
+    public MCProcess(String[] command, String stdinInput, File processDir,
+            int timeoutSecs) {
+        assert timeoutSecs > 0;
+        assert !processDir.equals("");
+        assert command.length > 0;
+
+        this.command = command;
+        this.stdinInput = stdinInput;
+        this.processDir = processDir;
+        this.timeoutSecs = timeoutSecs;
+    }
 
     /**
      * Creates and executes a command in processDir, and passes along an
-     * scmString on its stdin. The process will be forcibly terminated after
-     * timeoutSecs -- timeout in seconds to wait for the process to terminate
-     * before killing it.
+     * stdinInput to its stdin (if it's not the empty string). The process will
+     * be forcibly terminated after timeoutSecs -- timeout in seconds to wait
+     * for the process to terminate before killing it.
      * 
      * @return the process
      * @throws IOException
      * @throws InterruptedException
      *             when the started process had to be killed forcibly
      */
-    public static Process runVerifyProcess(String[] command, String scmInput,
-            File processDir, int timeoutSecs) throws IOException,
-            InterruptedException {
+    public void runProcess() throws IOException, InterruptedException {
         ProcessBuilder pBuilder = new ProcessBuilder(command);
         pBuilder.directory(processDir);
-        Process p = null;
 
-        // Start the verify process.
-        p = pBuilder.start();
+        // Start the process.
+        process = pBuilder.start();
 
-        // Write to the scm input to the stdin of the verify process.
-        OutputStream oStream = p.getOutputStream();
-        oStream.write(scmInput.getBytes());
-        oStream.close();
+        // Write an input to the stdin of the process.
+        if (!stdinInput.equals("")) {
+            OutputStream oStream = process.getOutputStream();
+            oStream.write(stdinInput.getBytes());
+            oStream.close();
+        }
 
         // Timer setup.
-        ProcessKillTimer pkt = new ProcessKillTimer(p, timeoutSecs);
+        ProcessKillTimer pkt = new ProcessKillTimer(process, timeoutSecs);
         Thread t = new Thread(pkt);
         t.start();
 
         // Wait until the verify process terminates.
-        p.waitFor();
+        process.waitFor();
 
         // Clean up the timer thread.
         if (!pkt.killed) {
@@ -56,18 +75,20 @@ public class ProcessUtil {
             // Otherwise: the process had to be killed by the timer thread.
             throw new InterruptedException("Verify process killed.");
         }
-
-        return p;
     }
 
     /**
-     * Reads and caches content from inputStream.
+     * Reads and caches content from inputStream. Can only be invoked after
+     * runProcess.
      * 
      * @return a list of lines from inputStream.
      * @throws IOException
      */
-    public static List<String> getInputStreamContent(InputStream inputStream)
-            throws IOException {
+    public List<String> getInputStreamContent() throws IOException {
+        assert process != null;
+
+        InputStream inputStream = process.getInputStream();
+
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(inputStream));
 

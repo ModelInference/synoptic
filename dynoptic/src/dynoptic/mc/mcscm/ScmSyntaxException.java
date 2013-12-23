@@ -1,4 +1,4 @@
-package mcscm;
+package dynoptic.mc.mcscm;
 
 /**
  * Wraps/represents a command line scm (model checker's input file format)

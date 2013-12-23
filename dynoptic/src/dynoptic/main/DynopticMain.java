@@ -6,14 +6,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mcscm.McScM;
-import mcscm.McScMCExample;
-import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.mc.MC;
+import dynoptic.mc.MCResult;
+import dynoptic.mc.MCcExample;
+import dynoptic.mc.mcscm.McScM;
+import dynoptic.mc.spin.Spin;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
@@ -127,7 +129,7 @@ public class DynopticMain {
 
     // The Java McScM model checker bridge instance that interfaces with the
     // McScM verify binary.
-    private McScM mcscm = null;
+    private MC mc = null;
 
     // The channels associated with this Dynoptic execution. These are parsed in
     // checkOptions().
@@ -145,14 +147,10 @@ public class DynopticMain {
         this.opts = opts;
         setUpLogging(opts);
         checkOptions(opts);
-        mcscm = new McScM(opts.mcPath);
     }
 
     /**
      * Checks the input Dynoptic options for consistency and omissions.
-     * 
-     * @param optns
-     * @throws Exception
      */
     public void checkOptions(DynopticOptions optns) throws OptionException {
         String err = null;
@@ -195,6 +193,21 @@ public class DynopticMain {
         if (optns.mcPath == null) {
             err = "Specify path of the McScM model checker to use for verification:\n\t"
                     + opts.getOptDesc("mcPath");
+            throw new OptionException(err);
+        }
+
+        // Determine the model checker type.
+        if (optns.mcType.equals("spin")) {
+            mc = new Spin(opts.mcPath);
+            if (opts.spinChannelCapacity <= 0) {
+                err = "Invalid channel capacity for use with spin: "
+                        + opts.spinChannelCapacity;
+                throw new OptionException(err);
+            }
+        } else if (optns.mcType.equals("mcscm")) {
+            mc = new McScM(opts.mcPath);
+        } else {
+            err = "Invalid model checker type '" + opts.mcType + "'";
             throw new OptionException(err);
         }
     }
@@ -709,12 +722,24 @@ public class DynopticMain {
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
-            // Augment the CFSM with synthetic states/events to check curInv.
-            cfsm.augmentWithInvTracing(curInv);
+            String mcInputStr;
+            if (mc instanceof McScM) {
+                // Model check the CFSM using the McScM model checker.
 
-            // Model check the CFSM using the McScM model checker.
-            String cStr = cfsm.toScmString("checking_"
-                    + curInv.getConnectorString());
+                // Augment the CFSM with synthetic states/events to check
+                // curInv (only fone for McScM).
+                cfsm.augmentWithInvTracing(curInv);
+
+                mcInputStr = cfsm.toScmString("checking_scm_"
+                        + curInv.getConnectorString());
+            } else if (mc instanceof Spin) {
+                mcInputStr = cfsm.toPromelaString(
+                        "checking_pml_" + curInv.getConnectorString(),
+                        opts.spinChannelCapacity);
+            } else {
+                throw new RuntimeException(
+                        "Model checker is not properly specified.");
+            }
 
             logger.info("*******************************************************");
             logger.info("Checking ... " + curInv.toString() + ". Inv "
@@ -724,7 +749,7 @@ public class DynopticMain {
             logger.info("*******************************************************");
 
             try {
-                mcscm.verify(cStr, curTimeout);
+                mc.verify(mcInputStr, curTimeout);
             } catch (InterruptedException e) {
                 // The model checker timed out. First, record the timed-out
                 // invariant so that we are not stuck re-checking it.
@@ -764,7 +789,7 @@ public class DynopticMain {
             // curTimeout to base value.
             curTimeout = baseTimeout;
 
-            VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
+            MCResult result = mc.getVerifyResult(cfsm.getChannelIds());
             logger.info(result.toRawString());
             logger.info(result.toString());
 
@@ -818,7 +843,7 @@ public class DynopticMain {
      * @throws Exception
      *             if we were not able to eliminate the counter-example
      */
-    private void refineCExample(GFSM pGraph, McScMCExample cexample)
+    private void refineCExample(GFSM pGraph, MCcExample cexample)
             throws Exception {
 
         // Resolve all of the complete counter-example paths by:

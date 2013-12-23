@@ -4,15 +4,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import mcscm.McScM;
-import mcscm.VerifyResult;
-
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.mc.MCResult;
+import dynoptic.mc.mcscm.McScM;
 
 public class McScMCFSMTests extends CFSMTesting {
 
@@ -28,14 +27,14 @@ public class McScMCFSMTests extends CFSMTesting {
         mcscm = new McScM(verifyPath);
     }
 
-    public VerifyResult verifyAndPrint() throws IOException,
+    public MCResult verifyAndPrint() throws IOException,
             InterruptedException {
         String cStr = cfsm.toScmString("test");
 
         mcscm.verify(cStr, 60);
         logger.info(cStr);
 
-        VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
+        MCResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
         // logger.info(result.toRawString());
         // logger.info(result.toString());
         return result;
@@ -45,7 +44,7 @@ public class McScMCFSMTests extends CFSMTesting {
     public void verifyAFby() throws Exception {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
-        VerifyResult result = verifyAndPrint();
+        MCResult result = verifyAndPrint();
         assertTrue(result.getCExample() == null);
     }
 
@@ -53,7 +52,7 @@ public class McScMCFSMTests extends CFSMTesting {
     public void verifyNFby() throws Exception {
         NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
-        VerifyResult result = verifyAndPrint();
+        MCResult result = verifyAndPrint();
         assertTrue(result.getCExample() != null);
     }
 
@@ -61,7 +60,7 @@ public class McScMCFSMTests extends CFSMTesting {
     public void verifyAP() throws Exception {
         AlwaysPrecedes inv = new AlwaysPrecedes(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
-        VerifyResult result = verifyAndPrint();
+        MCResult result = verifyAndPrint();
         assertTrue(result.getCExample() == null);
     }
 

@@ -60,10 +60,10 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             Set<Integer> scmIds = Util.newSet();
             for (FSMState s : states) {
                 // NOTE: states might contain duplicates!
-                scmIds.add(s.getScmId());
+                scmIds.add(s.getStateId());
                 assert (states.containsAll(s.getNextStates()));
                 assert s.getPid() == pid;
-                assert nextScmFSMStateId > s.getScmId();
+                assert nextScmFSMStateId > s.getStateId();
             }
 
             for (FSMState s : initStates) {
@@ -308,9 +308,9 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         ret = null;
         for (FSMState s : initStates) {
             if (ret == null) {
-                ret = "initial : " + s.getScmId();
+                ret = "initial : " + s.getStateId();
             } else {
-                ret += " , " + s.getScmId();
+                ret += " , " + s.getStateId();
             }
         }
         ret += "\n";
@@ -320,6 +320,32 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             ret += "\n\n";
         }
 
+        return ret;
+    }
+
+    /**
+     * Generate Promela representation of this FSM.
+     */
+    public String toPromelaString(String stateVar) {
+        assert !initStates.isEmpty();
+
+        String ret = "";
+
+        // If we have more than one initial state, then we choose
+        // non-deterministically between the available initial states.
+        if (initStates.size() > 1) {
+            ret += "select(" + stateVar + " : 0 .. "
+                    + Integer.toString(initStates.size() - 1) + ")";
+        }
+
+        ret += "do\n";
+        ret += " :: ";
+        for (FSMState s : states) {
+            ret += s.toPromelaString(stateVar);
+            ret += "\n\n";
+        }
+
+        ret += "od\n";
         return ret;
     }
 }

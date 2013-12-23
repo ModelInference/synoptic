@@ -212,6 +212,7 @@ public class DistEventType extends EventType implements IDistEventType {
         } else if (isRecvEvent()) {
             return "ch" + channelId.getScmId() + "R" + eType;
         }
+        // Local event type.
         return eType + "p" + Integer.toString(pid) + "L";
     }
 
@@ -397,5 +398,10 @@ public class DistEventType extends EventType implements IDistEventType {
         result = 31 * result + (eventCls == null ? 0 : eventCls.hashCode());
         result = 31 * result + (channelId == null ? 0 : channelId.hashCode());
         return result;
+    }
+
+    public String toPromelaString() {
+        // TODO: need to pass a set of channels and an encoding for event types.
+        return "chanI!m";
     }
 }
