@@ -199,7 +199,7 @@ public class DynopticOptions extends Options {
      * Dump the complete list of mined synoptic.invariants for the set of input
      * files to stdout.
      */
-    @Option(value = "-d Output complete list of mined invariant to stdout")
+    @Option(value = "-d Output complete list of mined invariants to stdout")
     public boolean dumpInvariants = false;
 
     /**
