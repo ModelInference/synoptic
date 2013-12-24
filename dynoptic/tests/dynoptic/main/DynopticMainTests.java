@@ -33,7 +33,7 @@ public class DynopticMainTests extends DynopticTest {
 
     public List<String> getBasicArgsStr() throws Exception {
         List<String> args = Util.newList();
-        args.add("-v");
+        args.add("--mcPath");
         args.add(super.getMcPath());
         args.add("-o");
         args.add("test-output" + File.separator + "test");
