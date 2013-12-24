@@ -49,7 +49,7 @@ public class SynDagsToDynDagsTests extends DynopticTest {
         SynopticMain.instance = null;
 
         List<String> args = new ArrayList<String>();
-        args.add("-v");
+        args.add("--mcPath");
         args.add(super.getMcPath());
         args.add("-o");
         args.add("test-output" + File.separator);
