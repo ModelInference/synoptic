@@ -24,7 +24,6 @@ import synoptic.tests.PynopticTest;
 /**
  * Tests for refinement in Bisimulation based on invariants with time
  * constraints.
- * 
  */
 public class ConstrainedRefinementTests extends PynopticTest {
 
@@ -494,14 +493,31 @@ public class ConstrainedRefinementTests extends PynopticTest {
         }
     }
 
+    /**
+     * Verifies that refinement successfully resolves all IntrByLower
+     * counterexamples and does not hang
+     */
     @Test
-    public void IntrByRefinementTest2() throws Exception {
+    public void IntrByLowerSimpleRefinementTest() throws Exception {
         String[] events = { "login 0", "logout 6", "login 7", "action 8",
                 "logout 13" };
 
         // Generate partition graph and run refinement
         graph = genConstrainedPartitionGraph(events, TracingSet.IntrByLower);
-        // exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+    }
+
+    /**
+     * Verifies that refinement successfully resolves all IntrByUpper
+     * counterexamples and does not hang
+     */
+    @Test
+    public void IntrByUpperSimpleRefinementTest() throws Exception {
+        String[] events = { "login 0", "logout 6", "login 7", "action 8",
+                "logout 13" };
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByUpper);
         Bisimulation.splitUntilAllInvsSatisfied(graph);
     }
 }
