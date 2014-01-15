@@ -28,7 +28,6 @@ import synoptic.model.PartitionGraph;
 
 /**
  * Common helper methods and variables for Pynoptic tests
- * 
  */
 public abstract class PynopticTest extends SynopticTest {
 
@@ -64,6 +63,7 @@ public abstract class PynopticTest extends SynopticTest {
      *            If non-null, generate partition graph using only this type of
      *            constrained invariant. Type of bound is ignored, e.g., passing
      *            IntrByUpper will use all constrained IntrBy invariants.
+     *            Currently, only IntrBy is supported.
      * @return PartitionGraph with constrained invariants
      * @throws Exception
      */
