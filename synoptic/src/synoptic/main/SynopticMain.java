@@ -87,9 +87,6 @@ public class SynopticMain {
      */
     public GraphExportFormatter graphExportFormatter = null;
 
-    // FOR DEBUGGING, REMOVE BEFORE MERGING INTO DEFAULT
-    // public static int numpartitions = 0;
-
     /**
      * Synoptic options parsed from the command line or set in some other way.
      */
