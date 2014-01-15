@@ -8,7 +8,6 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.TransitiveRelationPath;
 import synoptic.model.Trace;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
@@ -22,15 +21,16 @@ import synoptic.model.interfaces.IRelationPath;
  * <br/>
  * This algorithm has lower space usage than the transitive-closure-based
  * algorithms.
- * 
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {
-    
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
-            TemporalInvariantSet tmp = computeInvariants(g, r, multipleRelations);
+            TemporalInvariantSet tmp = computeInvariants(g, r,
+                    multipleRelations);
             result.add(tmp);
         }
         return result;
@@ -100,21 +100,24 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            
+
             if (multipleRelations && !relation.equals(Event.defTimeRelationStr)) {
-                IRelationPath relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
+                IRelationPath relationPath = trace.getBiRelationalPath(
+                        relation, Event.defTimeRelationStr);
                 relationPaths.add(relationPath);
             } else {
-                Set<IRelationPath> subgraphs = trace.getSingleRelationPaths(relation);
-                if (relation.equals(Event.defTimeRelationStr) && subgraphs.size() != 1) {
-                    throw new IllegalStateException("Multiple relation subraphs for ordering relation graph");
+                Set<IRelationPath> subgraphs = trace
+                        .getSingleRelationPaths(relation);
+                if (relation.equals(Event.defTimeRelationStr)
+                        && subgraphs.size() != 1) {
+                    throw new IllegalStateException(
+                            "Multiple relation subraphs for ordering relation graph");
                 }
                 relationPaths.addAll(subgraphs);
             }
 
-            
         }
-        
+
         for (IRelationPath relationPath : relationPaths) {
             eTypes.addAll(relationPath.getSeen());
             Map<EventType, Integer> relationPathEventCounts = relationPath
@@ -134,7 +137,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks precedence counts.
         Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
-        
+        // Tracks interrupted-by counts.
         Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
 
         // Initialize the event-type contents of the maps that persist
@@ -176,9 +179,16 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
             Map<EventType, Map<EventType, Integer>> relationPathFollowedByCounts = relationPath
                     .getFollowedByCounts();
             addCounts(relationPathFollowedByCounts, gFollowedByCnts);
-            
-            Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath.getPossibleInterrupts();
-            intersectInterrupts(relationPathPossibleInterrupts, gPossibleInterrupts);
+
+            /*
+             * Updates the graph global InterruptedBy counts with the
+             * RelationPath counts
+             */
+
+            Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
+                    .getPossibleInterrupts();
+            intersectInterrupts(relationPathPossibleInterrupts,
+                    gPossibleInterrupts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this RelationPath.
@@ -196,18 +206,26 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         }
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, gPossibleInterrupts, null,
-                AlwaysFollowsINITIALSet, multipleRelations));
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                gPossibleInterrupts, null, AlwaysFollowsINITIALSet,
+                multipleRelations));
     }
 
+    /**
+     * Prune and update global possible InterruptedBy invariant counts by
+     * retaining only those that are valid in this RelationPath and updating
+     * their counts
+     */
     private static void intersectInterrupts(
             Map<EventType, Set<EventType>> relationPathPossibleInterrupts,
             Map<EventType, Set<EventType>> gPossibleInterrupts) {
         for (EventType et : relationPathPossibleInterrupts.keySet()) {
             if (gPossibleInterrupts.containsKey(et)) {
-                gPossibleInterrupts.get(et).retainAll(relationPathPossibleInterrupts.get(et));
+                gPossibleInterrupts.get(et).retainAll(
+                        relationPathPossibleInterrupts.get(et));
             } else {
-                gPossibleInterrupts.put(et, relationPathPossibleInterrupts.get(et));
+                gPossibleInterrupts.put(et,
+                        relationPathPossibleInterrupts.get(et));
             }
         }
     }
