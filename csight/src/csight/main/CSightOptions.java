@@ -241,8 +241,8 @@ public class CSightOptions extends Options {
 
     /**
      * Use this constructor to create a blank set of options, that can then be
-     * populated manually, one at a time. This is useful when CSight is used
-     * as a library or in tests, and options do not come from the command line.
+     * populated manually, one at a time. This is useful when CSight is used as
+     * a library or in tests, and options do not come from the command line.
      */
     public CSightOptions() {
         randomSeed = System.currentTimeMillis();
@@ -266,8 +266,8 @@ public class CSightOptions extends Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "Verify Options", "Output Options",
-                "Strategy Options"));
+                "Input Options", "Debugging Options", "Model Checking Options",
+                "Output Options", "Strategy Options"));
     }
 
     @Override
