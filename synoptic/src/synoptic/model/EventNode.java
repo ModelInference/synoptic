@@ -61,7 +61,7 @@ public class EventNode implements INode<EventNode> {
     /**
      * The process local successor node -- node with closest larger timestamp
      * corresponding to the same process as this node. This is set during
-     * immediate successor computation and is used by Dynoptic
+     * immediate successor computation and is used by CSight
      */
     private EventNode processLocalSucc = null;
 
@@ -205,9 +205,9 @@ public class EventNode implements INode<EventNode> {
             }
         }
 
-        // ///////////////// Dynoptic-related:
+        // ///////////////// CSight-related:
         // As we search for direct successors, we also find the nearest
-        // process-local successor. This is used by Dynoptic.
+        // process-local successor. This is used by CSight.
         //
         // NOTE: for this to work, the DistEventType must be first interpreted
         // with interpretEType()
@@ -220,7 +220,7 @@ public class EventNode implements INode<EventNode> {
             // Whether or not e1Succ1 is a direct successor of e2.
             boolean directSuccessor = true;
 
-            // ///////////////// Dynoptic-related:
+            // ///////////////// CSight-related:
             if (((DistEventType) e1Succ1.getEType()).getPid() == localPid) {
                 if (processLocalSucc == null
                         || e1Succ1.getTime().lessThan(
@@ -245,7 +245,7 @@ public class EventNode implements INode<EventNode> {
             }
         }
 
-        // ///////////////// Dynoptic-related:
+        // ///////////////// CSight-related:
         e1.setProcessLocalSuccessor(processLocalSucc);
 
         return e1DirectSuccessors;
