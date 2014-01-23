@@ -61,7 +61,6 @@
     <target name="synopticgwt" depends="synoptic">
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="build"/>
-      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="jar"/>
     </target>
 
     <!--=====================================================================-->
