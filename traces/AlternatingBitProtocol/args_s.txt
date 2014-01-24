@@ -1,0 +1,4 @@
+-r ^(?<TYPE>)$
+-r ^#(?<HIDE=>true).+$
+-s ^--$
+-o output/abr_s
