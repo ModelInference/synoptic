@@ -151,7 +151,40 @@ public class InvariMintOptions extends Options {
     // end option group "Synoptic Options"
 
     // //////////////////////////////////////////////////
-
+    
+    /**
+     * Run with property type always followed by.
+     */
+    @OptionGroup("Property Type Options")
+    @Option(value = "Run with Always Followed by property type.",
+    		aliases ={"--AFby"})
+    public boolean alwaysFollowedBy = false;
+    
+    /**
+     * Run with property type always precedes.
+     */
+    @Option(value = "Run with Always Precedes property type.",
+    		aliases ={"--AP"})
+    public boolean alwaysPrecedes = false;
+    
+    /**
+     *Run with property type never followed by.
+     */
+    @Option(value = "Run with Never Followed by property type.",
+    		aliases ={"--NFby"})
+    public boolean neverFollowedBy = false;
+    
+    /**
+     * Run with property type can be immediately followed by.
+     */
+    @Option(value = "Run with Can be Immediately Followed by property type",
+    		aliases ={"--IFby"})
+    public boolean immediatelyFollowedBy = false;
+    
+    
+    
+    // //////////////////////////////////////////////////
+    
     /**
      * Whether to remove spurious edges from the InvariMint model.
      */
