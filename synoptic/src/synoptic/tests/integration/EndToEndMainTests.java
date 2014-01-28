@@ -16,7 +16,7 @@ import junit.framework.Assert;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
-
+// test
 /**
  * Tests main with a variety of known input log files from the traces/
  * directory. The test oracle is successful execution -- no crashes.
