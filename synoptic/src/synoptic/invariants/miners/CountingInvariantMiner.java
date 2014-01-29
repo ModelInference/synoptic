@@ -14,6 +14,7 @@ import synoptic.invariants.birelational.APBiRelationInvariant;
 import synoptic.invariants.birelational.NFBiRelationInvariant;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
+import synoptic.model.ChainRelationPath;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
@@ -97,12 +98,13 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                     }
                 }
 
-                if (interrupts(gPossibleInterrupts, e1, e2)) {
+                if (interruptedBy(gPossibleInterrupts, e1, e2)) {
                     if (multipleRelations) {
                         // TODO: Add Bi Invariant
                         throw new NotImplementedException();
                     }
-                    invariants.add(new InterruptedByInvariant(e1, e2, relation));
+                    invariants
+                            .add(new InterruptedByInvariant(e1, e2, relation));
                 }
             }
         }
@@ -122,7 +124,21 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
         return invariants;
     }
 
-    protected boolean interrupts(
+    /**
+     * Returns true if and only if <code>e1</code> gets interrupted by
+     * <code>e2</code>.
+     * 
+     * @param gPossibleInterrupts
+     *            pre-calculated map of possible interrupter invariants (see
+     *            e.g. {@link ChainRelationPath#getPossibleInterrupts()}
+     * @param e1
+     *            event which gets interrupted
+     * @param e2
+     *            interrupter event
+     * @return true if and only if <code>e1</code> gets interrupted by
+     *         <code>e2</code>
+     */
+    protected boolean interruptedBy(
             Map<EventType, Set<EventType>> gPossibleInterrupts, EventType e1,
             EventType e2) {
         if (gPossibleInterrupts.containsKey(e1)

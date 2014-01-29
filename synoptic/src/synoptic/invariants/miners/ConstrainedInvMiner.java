@@ -32,16 +32,16 @@ import synoptic.util.time.ITime;
  * unconstrained invariants are simply augmented with constraints.
  * </p>
  * <p>
- * The only two invariants that can be constrained are AlwaysFollowedInvariant
- * and AlwaysPrecedesInvariant.
+ * The only three invariants that can be constrained are
+ * AlwaysFollowedInvariant, AlwaysPrecedesInvariant and InterruptedByInvariant.
  * </p>
  * <p>
  * Uses other totally ordered invariant miners to first mine the unconstrained
  * invariants (if not given these explicitly). Mines constraints for these
  * unconstrained invariants by walking the trace directly. Walking the trace
- * consists of traversing the log for every constrained AFby and AP invariant.
- * Each traversal finds a lower bound and upper bound constraint for an
- * unconstrained invariant. Two constrained invariants are then created (for
+ * consists of traversing the log for every constrained AFby, AP and IntrBy
+ * invariant. Each traversal finds a lower bound and upper bound constraint for
+ * an unconstrained invariant. Two constrained invariants are then created (for
  * lower bound and upper bound) and added in the resulting constrained invariant
  * set.
  * </p>
@@ -60,8 +60,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
     /**
      * Uses the miner passed into the constructor to first mine unconstrained
      * invariants. Then walks the trace to compute constraints for
-     * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Returns a set of
-     * these constrained invariants.
+     * AlwaysFollowedInvariant, AlwaysPrecedesInvariant and
+     * InterruptedByInvariant. Returns a set of these constrained invariants.
      * 
      * @param miner
      *            The miner to use for mining regular (unconstrained)
@@ -82,7 +82,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
     /**
      * Given a set of unconstrained invariants, walks the trace graph to compute
-     * constraints for AFby and AP invariants. Augments these existing
+     * constraints for AFby, AP and IntrBy invariants. Augments these existing
      * invariants with constraints. Returns a set of these constrained
      * invariants.
      * 
