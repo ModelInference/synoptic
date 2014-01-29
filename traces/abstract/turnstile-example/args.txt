@@ -1,0 +1,4 @@
+-o turnstile.png
+-r (?<day>)\\{(?<STATE>.+)\\}
+-r (?<day>)(?<TYPE>)
+-m \\k<day>
