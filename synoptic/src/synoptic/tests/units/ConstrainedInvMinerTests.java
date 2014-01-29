@@ -180,7 +180,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
     }
 
     /**
-     * TODO: document me
+     * Tests for a simple lower and upper bound on the IntrBy with same
+     * constraints.
      * 
      * @throws Exception
      */
@@ -206,7 +207,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
     }
 
     /**
-     * TODO: document me
+     * Tests a more complex IntrBy by checking that both "a IntrBy b" and
+     * "b IntrBy a" can be mined.
      * 
      * @throws Exception
      */
@@ -223,8 +225,6 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         // a IntrBy b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
-
-        System.out.println("***" + minedInvs);
 
         ITime actualLower = new DTotalTime(3.0);
         ITime actualUpper = new DTotalTime(8.0);
@@ -248,7 +248,7 @@ public class ConstrainedInvMinerTests extends PynopticTest {
     }
 
     /**
-     * TODO: document me
+     * Test IntrBy with different lower and upper constraints.
      * 
      * @throws Exception
      */

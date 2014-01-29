@@ -8,7 +8,9 @@ import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
- * TODO: document this
+ * IntrBy Invariant
+ * 
+ * @author sfiss
  */
 public class InterruptedByInvariant extends BinaryInvariant {
 
@@ -67,7 +69,7 @@ public class InterruptedByInvariant extends BinaryInvariant {
     }
 
     /**
-     * TODO: document this
+     * Shorten the trace.
      * 
      * <pre>
      * NOTE: x Intr x cannot be true, so we will never have a counter-example
@@ -86,7 +88,7 @@ public class InterruptedByInvariant extends BinaryInvariant {
     }
 
     /**
-     * TODO: document me!
+     * Shortens the IntrBy trace. Right now, it returns the original trace.
      * 
      * @param trace
      * @param firstEvent
