@@ -44,8 +44,8 @@
     </manifestclasspath>
 
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
 
     <!--=====================================================================-->
     <target name="clean">
@@ -57,6 +57,8 @@
     <target name="build">
       <!-- Create the bin/ dir where compiled .class files will go. -->
       <mkdir dir="bin"/>
+
+      <echo message="Ant running on Java version ${ant.java.version}"/>
       
       <echo message="${ant.project.name}: ${ant.file}"/>
       <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
