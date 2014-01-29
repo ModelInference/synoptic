@@ -224,15 +224,37 @@ public class ConstrainedInvMiner extends InvariantMiner {
     }
 
     /**
-     * TODO: document me!
+     * Walks each relationPath and checks for nodes either of EventType a or b.
+     * Uses ITime values of these nodes to update and compute a lower and upper
+     * bound constraint for an invariant with predicates a and b. The algorithm
+     * to compute an lower bound is as follows: For each relationPath Node
+     * recentA Walking down the trace If see a node of EventType a set recentA
+     * to this node If see a node of EventType b && recentA set obtain delta
+     * (difference between time of this node and recentA) The lower bound is the
+     * min delta value out of all the deltas The algorithm to compute an upper
+     * bound is as follows: For each relationPath Walking down the trace Find
+     * the first node of EventType a Find the last node of EventType b Obtain a
+     * delta value (difference between time of first and last) for relationPath
+     * The upper bound is the max delta value out of all the deltas Returns the
+     * computed lower and upper bound constraints as a pair. The left is the
+     * lower bound constraint and the right is the upper bound constraint. This
+     * method provides an additional param to the overloaded computeConstraints
+     * method: The IntrBy varies as it must compute lower bounds between two
+     * a's. The upper bound is also computed that way, but can reuse the
+     * original implementation. TODO: refactor this at some point
      * 
      * @param a
+     *            first invariant predicate
      * @param b
-     * @param distinct
-     * @return
+     *            second invariant predicate
+     * @param intrBy
+     *            marks if the invariant is an IntrBy
+     * @return IThresholdConstraint pair where the left represents the lower
+     *         bound constraint and the right represents the upper bound
+     *         constraint
      */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            EventType a, EventType b, boolean distinct) {
+            EventType a, EventType b, boolean intrBy) {
 
         ITime lowerBound = null;
         ITime upperBound = null;
@@ -261,7 +283,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
             while (true) {
                 if (curr.getEType().equals(a)) {
-                    if (distinct) {
+                    // for IntrBy: compute lowerBound between two a's
+                    if (intrBy) {
                         if (recentA != null) {
                             ITime delta = curr.getTime().computeDelta(
                                     recentA.getTime());
@@ -271,7 +294,9 @@ public class ConstrainedInvMiner extends InvariantMiner {
                             }
                         }
                     }
+                    // mark last recent occurence of a
                     recentA = curr;
+                    // mark first occurence of a (for upper bound)
                     if (firstA == null) {
                         firstA = curr.getTime();
                     }
@@ -280,14 +305,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 if (curr.getEType().equals(b)) {
                     // If node of event type a is found already, then we can
                     // obtain a delta value since we now found node of event
-                    // type b.
-                    if (recentA != null && !distinct) {
+                    // type b. (NOT FOR IntrBy, lowerBound already covert by
+                    // previous check)
+                    if (recentA != null && !intrBy) {
                         ITime delta = curr.getTime().computeDelta(
                                 recentA.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;
                         }
                     }
+                    // mark last occurence of b (for upper bound)
                     lastB = curr.getTime();
                 }
 
