@@ -1,6 +1,7 @@
 package synoptic.invariants.miners;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,7 +9,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
@@ -1029,6 +1034,25 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
                         dst.get(eEntry.getKey()) + eEntry.getValue());
             }
         }
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+        set.add(AlwaysFollowedInvariant.class);
+        set.add(AlwaysPrecedesInvariant.class);
+        set.add(NeverFollowedInvariant.class);
+
+        return set;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+
+        set.add(InterruptedByInvariant.class);
+
+        return set;
     }
 
     // /Without NeverConcurrent invariant versions

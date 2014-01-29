@@ -6,6 +6,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Trace;
@@ -14,10 +19,13 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IRelationPath;
 
 /**
- * Implements a temporal invariant mining algorithm whose running time is linear
- * in the number events in the log, and whose space usage is quadratic in the
- * number of event types and running time also depends on partition sizes. A
- * more detailed complexity break-down is given below. <br/>
+ * Implements a temporal invariant mining algorithm which mines AFby, AP, NFby
+ * and, in addition to the {@link TransitiveClosureInvMiner}, the IntrBy
+ * invariants. <br/>
+ * <br/>
+ * The running time is linear in the number events in the log, and the space
+ * usage is quadratic in the number of event types and running time also depends
+ * on partition sizes. A more detailed complexity break-down is given below. <br/>
  * <br/>
  * This algorithm has lower space usage than the transitive-closure-based
  * algorithms.
@@ -40,9 +48,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * Compute invariants of a graph g by mining invariants directly from the
      * partitions associated with the graph. /**
      * <p>
-     * Mines AFby, AP, NFby invariants from a list of partitions -- each of
-     * which is a list of LogEvents. It does this by leveraging the following
-     * three observations:
+     * Mines AFby, AP, NFby, IntrBy invariants from a list of partitions -- each
+     * of which is a list of LogEvents. It does this by leveraging the following
+     * four observations:
      * </p>
      * <p>
      * (1) To check a AFby b it is sufficient to count the number of times a
@@ -60,6 +68,12 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * number of times a b instance in a partition was preceded transitively by
      * an a in the same partition, and declare a AP b true iff this count equals
      * the number of b's seen across all partitions.
+     * </p>
+     * <p>
+     * (4) To check a IntrBy b it is sufficient to iterate over all events in
+     * all relation paths. All event types found between any pair of the same
+     * event type are candidates for interrupted by invariants, narrowing down
+     * the candidates to the actual invariants over the process.
      * </p>
      * </p>
      * <p>
@@ -251,5 +265,23 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
                 dstBValues.put(b, count);
             }
         }
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+        set.add(AlwaysFollowedInvariant.class);
+        set.add(AlwaysPrecedesInvariant.class);
+        set.add(NeverFollowedInvariant.class);
+        set.add(InterruptedByInvariant.class);
+
+        return set;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+
+        return set;
     }
 }

@@ -159,6 +159,9 @@ public class ChainRelationPath implements IRelationPath {
             // least once beforehand
             if (eventCounts.get(b) != null) {
                 Set<EventType> typesInBetween = new HashSet<EventType>();
+
+                // All event types in between b and the last occurrence of b are
+                // possible interrupter invariants
                 for (EventType a : history) {
                     if (a.equals(b)) {
                         break;
@@ -176,6 +179,8 @@ public class ChainRelationPath implements IRelationPath {
             }
 
             seen.add(b);
+
+            // Used for the interrupter invariant, needs to keep order
             history.addFirst(b);
 
             // Update the trace event counts.
