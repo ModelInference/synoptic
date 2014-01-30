@@ -207,10 +207,14 @@ public class SynopticMain {
             testClasses.addAll(SynopticJar
                     .getTestsInPackage("synoptic.tests.integration."));
             SynopticLibTest.runTests(testClasses);
+            // Terminate after we are done running tests.
+            return null;
         } else if (opts.runTests) {
             List<String> testClassesUnits = SynopticJar
                     .getTestsInPackage("synoptic.tests.units.");
             SynopticLibTest.runTests(testClassesUnits);
+            // Terminate after we are done running tests.
+            return null;
         }
 
         if (opts.logFilenames.size() == 0) {
