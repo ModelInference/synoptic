@@ -231,8 +231,8 @@ public abstract class GraphExportFormatter {
 
         int length = str.length();
 
-        // Cannot trim empty or 1-char strings
-        if (length <= 1) {
+        // Cannot trim empty or 1-char strings or strings without a period
+        if (length <= 1 || str.indexOf('.') == -1) {
             return str;
         }
 
