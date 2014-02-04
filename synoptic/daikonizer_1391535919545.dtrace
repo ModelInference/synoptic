@@ -1,0 +1,74 @@
+decl-version 2.0
+var-comparability implicit
+
+ppt SynopticPoint:::ENTER
+ppt-type enter
+ variable KEY
+  var-kind variable
+  dec-type java.lang.String
+  rep-type java.lang.String
+ variable pin
+  var-kind variable
+  dec-type java.lang.String
+  rep-type java.lang.String
+
+
+ppt SynopticPoint:::EXIT1
+ppt-type subexit
+ variable KEY
+  var-kind variable
+  dec-type java.lang.String
+  rep-type java.lang.String
+ variable pin
+  var-kind variable
+  dec-type java.lang.String
+  rep-type java.lang.String
+
+SynopticPoint:::ENTER
+KEY
+"1234"
+1
+pin
+"1234"
+1
+
+SynopticPoint:::EXIT1
+KEY
+"1234"
+1
+pin
+"1234"
+1
+
+SynopticPoint:::ENTER
+KEY
+"1234"
+1
+pin
+"0000"
+1
+
+SynopticPoint:::EXIT1
+KEY
+"1234"
+1
+pin
+"0000"
+1
+
+SynopticPoint:::ENTER
+KEY
+"1234"
+1
+pin
+"9999"
+1
+
+SynopticPoint:::EXIT1
+KEY
+"1234"
+1
+pin
+"9999"
+1
+

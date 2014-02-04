@@ -16,7 +16,7 @@ import junit.framework.Assert;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
-// test
+
 /**
  * Tests main with a variety of known input log files from the traces/
  * directory. The test oracle is successful execution -- no crashes.
@@ -38,20 +38,24 @@ public class EndToEndMainTests extends SynopticTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-        String tracesBasePath = File.separator + "traces" + File.separator
-                + "EndToEndTests" + File.separator;
+        String tracesBasePath = File.separator + "traces" + File.separator;
+                //+ "abstract" + File.separator;
         // Two paths that we will test to find traces/args files.
         List<String> possibleTracesPaths = Arrays.asList(new String[] {
                 "." + tracesBasePath, ".." + tracesBasePath });
 
         Collection<Object[]> argsList = new LinkedList<Object[]>();
 
+        //FIX THIS SO THE PATH DOESN'T DEPEND ON SIMLINKS
         // List of input sub-dirs that contains end-to-end test examples.
-        String[] testPaths = { "mid_branching", "osx-login-example",
-                "shopping-cart-example", "ticket-reservation-example" };
+        String[] testPaths = { "abstract" + File.separator + "mid_branching", 
+        		"abstract" + File.separator + "osx-login-example",
+        		"abstract" + File.separator + "shopping-cart-example", 
+        		"abstract" + File.separator + "ticket-reservation-example" };
 
         // Examples for test generation.
-        String[] testGenerationPaths = { "turnstile-example", "verify-pin" };
+        String[] testGenerationPaths = { "abstract" + File.separator + "turnstile-example",  
+        		File.separator + "VerifyPin" };
 
         // Determine where the input traces/args are located -- try two options:
         String tracesPath = findWorkingPath(possibleTracesPaths, testPaths[0]
