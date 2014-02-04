@@ -16,6 +16,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -28,13 +29,13 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
+import synoptic.tests.PynopticTest;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
 /**
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
- * 
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
@@ -226,6 +227,27 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("a", "b",
                 Event.defTimeRelationStr));
         assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    @Test
+    public void mineIntrByTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "l", "f", "l", "a", "--", "l", "f", "a",
+                "--", "l", "a", "--", "l", "f", "l", "f", "l", "a", "--", "l",
+                "g", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("l", "f",
+                Event.defTimeRelationStr));
+        trueInvs.add(new InterruptedByInvariant("f", "l",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
     /**
