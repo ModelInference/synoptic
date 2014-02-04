@@ -15,6 +15,7 @@ import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
+import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.tests.SynopticTest;
 
@@ -40,7 +41,8 @@ public class GraphVizExporterTests extends SynopticTest {
         // Randomize the order in which we add events to the graph
         List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
-        Collections.shuffle(pathCopy, SynopticMain.getInstanceWithExistenceCheck().random);
+        Collections.shuffle(pathCopy,
+                SynopticMain.getInstanceWithExistenceCheck().random);
         for (EventNode event : pathCopy) {
             g.add(event);
         }
@@ -49,8 +51,7 @@ public class GraphVizExporterTests extends SynopticTest {
 
         for (int i = 0; i < path.size() - 1; i++) {
             EventNode event = path.get(i);
-            event.addTransition(path.get(i + 1),
-                    Event.defTimeRelationStr);
+            event.addTransition(path.get(i + 1), Event.defTimeRelationStr);
         }
 
         StringWriter writer = new StringWriter();
@@ -75,5 +76,29 @@ public class GraphVizExporterTests extends SynopticTest {
         assertTrue(gStr1.equals(gStr2));
 
         // TODO: expand this to more complex graph topologies.
+    }
+
+    /**
+     * Check that Perfume edge trimming correctly trims trailing 0s and periods
+     */
+    @Test
+    public void perfumeEdgeTrimTest() {
+
+        // Input strings for testing
+        String inStrings[] = { "900", "30.1", "0.0400", "1.00", "20.00",
+                "3.330" };
+        // Correct output strings
+        String outStrings[] = { "900", "30.1", "0.04", "1", "20", "3.33" };
+
+        for (int i = 0; i < inStrings.length; ++i) {
+            // Trim the input string
+            String resultStr = GraphExportFormatter
+                    .removeTrailingZeros(inStrings[i]);
+
+            // Verify that the trimmed input string matches the output string
+            assertTrue("Trimmed version of '" + inStrings[i] + "' should be '"
+                    + outStrings[i] + "' but instead was '" + resultStr + "'",
+                    resultStr.equals(outStrings[i]));
+        }
     }
 }

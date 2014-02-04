@@ -227,11 +227,11 @@ public abstract class GraphExportFormatter {
      * Return a string that is "str" minus any trailing zeros and periods,
      * except the first character will not be removed
      */
-    private String removeTrailingZeros(String str) {
+    public static String removeTrailingZeros(String str) {
 
         int length = str.length();
 
-        // Cannot trim empty or 1-char strings or strings without a period
+        // Cannot trim empty or 1-char strings or strings without a decimal
         if (length <= 1 || str.indexOf('.') == -1) {
             return str;
         }
@@ -244,6 +244,11 @@ public abstract class GraphExportFormatter {
         while (trimInd > 0
                 && (str.charAt(trimInd) == '0' || str.charAt(trimInd) == '.')) {
             trimInd--;
+
+            // Don't trim 0s left of the decimal
+            if (str.charAt(trimInd + 1) == '.') {
+                break;
+            }
         }
 
         // Trim and return
