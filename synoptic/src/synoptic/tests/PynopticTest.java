@@ -203,7 +203,7 @@ public abstract class PynopticTest extends SynopticTest {
      * @return A new invariant set containing only the constrained IntrBy
      *         invariants from the original set
      */
-    protected static TemporalInvariantSet getOnlyIntrByInvs(
+    public static TemporalInvariantSet getOnlyIntrByInvs(
             TemporalInvariantSet invariants) {
 
         // New invariant set
@@ -222,6 +222,10 @@ public abstract class PynopticTest extends SynopticTest {
                 if (constInvType instanceof InterruptedByInvariant) {
                     onlyIntrBy.add(inv);
                 }
+            }
+            // also add non constrained IntrBy
+            else if (inv instanceof InterruptedByInvariant) {
+                onlyIntrBy.add(inv);
             }
         }
         return onlyIntrBy;
