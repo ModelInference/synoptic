@@ -163,15 +163,15 @@ public class ConstrainedInvMiner extends InvariantMiner {
             return;
         }
 
+        // constraints.left represents lower bound constraint.
+        // constraints.right represents upper bound constraint.
         Pair<IThresholdConstraint, IThresholdConstraint> constraints;
 
-        // IntrBy's constraints are between a&a, not a&b
         if (inv instanceof InterruptedByInvariant) {
+            // IntrBy's constraints are between a&a, not a&b
             constraints = computeConstraints(a, a, true);
         } else {
-            // Return pair.left represents lower bound constraint.
-            // Return pair.right represents upper bound constraint.
-            constraints = computeConstraints(a, b);
+            constraints = computeConstraints(a, b, false);
         }
 
         // Create two TempConstrainedInvariant objects using the lower bound and
@@ -206,37 +206,6 @@ public class ConstrainedInvMiner extends InvariantMiner {
      * delta value (difference between time of first and last) for relationPath
      * The upper bound is the max delta value out of all the deltas Returns the
      * computed lower and upper bound constraints as a pair. The left is the
-     * lower bound constraint and the right is the upper bound constraint.
-     * 
-     * @param relationPaths
-     *            set of relationPaths to walk
-     * @param a
-     *            first invariant predicate
-     * @param b
-     *            second invariant predicate
-     * @return IThresholdConstraint pair where the left represents the lower
-     *         bound constraint and the right represents the upper bound
-     *         constraint
-     */
-    private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            EventType a, EventType b) {
-        return computeConstraints(a, b, false);
-    }
-
-    /**
-     * Walks each relationPath and checks for nodes either of EventType a or b.
-     * Uses ITime values of these nodes to update and compute a lower and upper
-     * bound constraint for an invariant with predicates a and b. The algorithm
-     * to compute an lower bound is as follows: For each relationPath Node
-     * recentA Walking down the trace If see a node of EventType a set recentA
-     * to this node If see a node of EventType b && recentA set obtain delta
-     * (difference between time of this node and recentA) The lower bound is the
-     * min delta value out of all the deltas The algorithm to compute an upper
-     * bound is as follows: For each relationPath Walking down the trace Find
-     * the first node of EventType a Find the last node of EventType b Obtain a
-     * delta value (difference between time of first and last) for relationPath
-     * The upper bound is the max delta value out of all the deltas Returns the
-     * computed lower and upper bound constraints as a pair. The left is the
      * lower bound constraint and the right is the upper bound constraint. This
      * method provides an additional param to the overloaded computeConstraints
      * method: The IntrBy varies as it must compute lower bounds between two
@@ -247,14 +216,18 @@ public class ConstrainedInvMiner extends InvariantMiner {
      *            first invariant predicate
      * @param b
      *            second invariant predicate
-     * @param intrBy
-     *            marks if the invariant is an IntrBy
+     * @param betweenFirstAndFirstPredicate
+     *            If the invariant's bounds are calculated between two instances
+     *            of the first predicate (between a&a) instead of between an
+     *            instance of the first predicate and an instance of the second
+     *            predicate (between a&b). This currently only applies to
+     *            IntrBy.
      * @return IThresholdConstraint pair where the left represents the lower
      *         bound constraint and the right represents the upper bound
      *         constraint
      */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            EventType a, EventType b, boolean intrBy) {
+            EventType a, EventType b, boolean betweenFirstAndFirstPredicate) {
 
         ITime lowerBound = null;
         ITime upperBound = null;
@@ -284,7 +257,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
             while (true) {
                 if (curr.getEType().equals(a)) {
                     // for IntrBy: compute lowerBound between two a's
-                    if (intrBy) {
+                    if (betweenFirstAndFirstPredicate) {
                         if (recentA != null) {
                             ITime delta = curr.getTime().computeDelta(
                                     recentA.getTime());
@@ -294,9 +267,9 @@ public class ConstrainedInvMiner extends InvariantMiner {
                             }
                         }
                     }
-                    // mark last recent occurence of a
+                    // mark last recent occurrence of a
                     recentA = curr;
-                    // mark first occurence of a (for upper bound)
+                    // mark first occurrence of a (for upper bound)
                     if (firstA == null) {
                         firstA = curr.getTime();
                     }
@@ -305,16 +278,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 if (curr.getEType().equals(b)) {
                     // If node of event type a is found already, then we can
                     // obtain a delta value since we now found node of event
-                    // type b. (NOT FOR IntrBy, lowerBound already covert by
+                    // type b. (NOT FOR IntrBy, lowerBound already covered by
                     // previous check)
-                    if (recentA != null && !intrBy) {
+                    if (recentA != null && !betweenFirstAndFirstPredicate) {
                         ITime delta = curr.getTime().computeDelta(
                                 recentA.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;
                         }
                     }
-                    // mark last occurence of b (for upper bound)
+                    // mark last occurrence of b (for upper bound)
                     lastB = curr.getTime();
                 }
 
