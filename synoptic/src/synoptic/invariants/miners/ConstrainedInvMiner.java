@@ -39,7 +39,7 @@ import synoptic.util.time.ITime;
  * Uses other totally ordered invariant miners to first mine the unconstrained
  * invariants (if not given these explicitly). Mines constraints for these
  * unconstrained invariants by walking the trace directly. Walking the trace
- * consists of traversing the log for every constrained AFby, AP and IntrBy
+ * consists of traversing the log for every constrained AFby, AP, and IntrBy
  * invariant. Each traversal finds a lower bound and upper bound constraint for
  * an unconstrained invariant. Two constrained invariants are then created (for
  * lower bound and upper bound) and added in the resulting constrained invariant
@@ -60,7 +60,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
     /**
      * Uses the miner passed into the constructor to first mine unconstrained
      * invariants. Then walks the trace to compute constraints for
-     * AlwaysFollowedInvariant, AlwaysPrecedesInvariant and
+     * AlwaysFollowedInvariant, AlwaysPrecedesInvariant, and
      * InterruptedByInvariant. Returns a set of these constrained invariants.
      * 
      * @param miner
@@ -82,7 +82,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
     /**
      * Given a set of unconstrained invariants, walks the trace graph to compute
-     * constraints for AFby, AP and IntrBy invariants. Augments these existing
+     * constraints for AFby, AP, and IntrBy invariants. Augments these existing
      * invariants with constraints. Returns a set of these constrained
      * invariants.
      * 
@@ -130,8 +130,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 constrainedInvs.add(inv);
             }
 
-            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)
-                    && !(inv instanceof InterruptedByInvariant)) {
+            if (!(inv instanceof AlwaysFollowedInvariant
+                    || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterruptedByInvariant)) {
                 continue;
             }
             computeInvariants((BinaryInvariant) inv);
