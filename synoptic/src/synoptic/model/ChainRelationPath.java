@@ -29,7 +29,7 @@ public class ChainRelationPath implements IRelationPath {
      */
     private boolean counted;
 
-    /** The list of nodes seen prior to some point in the trace. */
+    /** The set of nodes seen prior to some point in the trace. */
     private Set<EventType> seen;
     /** Maintains the current event count in the path. */
     private Map<EventType, Integer> eventCounts;
@@ -74,15 +74,17 @@ public class ChainRelationPath implements IRelationPath {
 
     /**
      * Assumes tracegraph is already constructed. Walks over the tracegraph that
-     * eNode is part of to populate seen, eventcounts, followedByCounts, and
-     * precedesCounts. Throws an error if a node has multiple transitions for a
-     * single relation (i.e., not a totally ordered relation path).
+     * eNode is part of to populate seen, eventcounts, followedByCounts,
+     * precedesCounts and possibleInterrupts. Throws an error if a node has
+     * multiple transitions for a single relation (i.e., not a totally ordered
+     * relation path).
      */
     private void count() {
         if (counted) {
             return;
         }
 
+        // Used for IntrBy, which needs to record order
         LinkedList<EventType> history = new LinkedList<EventType>();
 
         Set<String> relationSet = new HashSet<String>();
@@ -170,6 +172,11 @@ public class ChainRelationPath implements IRelationPath {
                     typesInBetween.add(a);
                 }
 
+                // The recently found typesInBetween get intersected with the
+                // already found typesInBetween of earlier pairs of b, until
+                // there are only Interrupted by invariants which hold for all
+                // pairs of b.
+
                 if (!possibleInterrupts.containsKey(b)) {
                     possibleInterrupts.put(b, new HashSet<EventType>(
                             typesInBetween));
@@ -180,7 +187,6 @@ public class ChainRelationPath implements IRelationPath {
 
             seen.add(b);
 
-            // Used for IntrBy, which needs to record order
             history.addFirst(b);
 
             // Update the trace event counts.
@@ -238,6 +244,9 @@ public class ChainRelationPath implements IRelationPath {
         return Collections.unmodifiableMap(precedesCounts);
     }
 
+    /**
+     * Map<a, Set<b>> iff a gets interrupted by b.
+     */
     public Map<EventType, Set<EventType>> getPossibleInterrupts() {
         count();
         // TODO: Make the return type deeply unmodifiable
