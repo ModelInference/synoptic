@@ -34,7 +34,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
- * 
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
@@ -200,7 +199,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         // Remove all IntrBy invariants
-        minedInvs = filterInterrupterInvariant(minedInvs);
+        minedInvs = filterIntrByInvariants(minedInvs);
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "b", Event.defTimeRelationStr));
@@ -243,7 +242,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         // Remove all IntrBy invariants
-        minedInvs = filterInterrupterInvariant(minedInvs);
+        minedInvs = filterIntrByInvariants(minedInvs);
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "a", Event.defTimeRelationStr));
@@ -341,7 +340,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
                 false);
 
-        minedInvs = filterInterrupterInvariant(minedInvs);
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
 
         // Test with FSM checker.
         SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();

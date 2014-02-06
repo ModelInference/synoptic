@@ -100,7 +100,6 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
 
                 if (interruptedBy(gPossibleInterrupts, e1, e2)) {
                     if (multipleRelations) {
-                        // TODO: Add Bi Invariant
                         throw new NotImplementedException();
                     }
                     invariants
@@ -129,8 +128,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
      * <code>e2</code>.
      * 
      * @param gPossibleInterrupts
-     *            pre-calculated map of possible interrupter invariants (see
-     *            e.g. {@link ChainRelationPath#getPossibleInterrupts()}
+     *            pre-calculated map of possible IntrBy invariants (see e.g.,
+     *            {@link ChainRelationPath#getPossibleInterrupts()}
      * @param e1
      *            event which gets interrupted
      * @param e2
