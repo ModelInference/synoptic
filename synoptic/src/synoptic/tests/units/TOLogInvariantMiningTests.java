@@ -229,6 +229,11 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
+    /**
+     * Tests for Issue352. Mines both "a IntrBy b" and "b IntrBy a".
+     * 
+     * @throws Exception
+     */
     @Test
     public void mineIntrByTest() throws Exception {
         // login l, failed f, auth a
@@ -246,6 +251,81 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new InterruptedByInvariant("f", "l",
                 Event.defTimeRelationStr));
         // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Mines one IntrBy from a simple log.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineIntrBySimpleTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "a", "b", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("a", "b",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a complex IntrBy.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineIntrByComplexTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "a", "b", "a", "b", "--", "a", "a", "b",
+                "a", "c", "b", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("b", "a",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * CHecks that the IntrBy is not mined, according to the definition
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNotIntrByTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log;
+        TemporalInvariantSet minedInvs, trueInvs;
+        // FIXME: only valid for one miner and uses perfume method
+        log = new String[] { "a", "--" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+
+        log = new String[] { "a", "b", "--" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+
+        log = new String[] { "b", "b", "a", "b" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
         if (miner instanceof ChainWalkingTOInvMiner)
             assertTrue(trueInvs.sameInvariants(minedInvs));
     }
