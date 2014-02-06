@@ -38,7 +38,9 @@ import synoptic.model.interfaces.ITransition;
  * That is, it counts the number of times x is followed-by y, and the number of
  * times x precedes y for all event types x and y in the traces. It then re-uses
  * TemporalInvariantSet.extractInvariantsFromWalkCounts() to turn these counts
- * into valid temporal invariants.
+ * into valid temporal invariants. <br/>
+ * <br/>
+ * Note that this miner DOES NOT mine the IntrBy invariant so far.
  */
 public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         IPOInvariantMiner, ITOInvariantMiner {
@@ -62,9 +64,6 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
     // The set of all event types seen in a single trace.
     Set<EventType> tSeenETypes = new LinkedHashSet<EventType>();
-
-    // TODO: IntrBy not used in POMiner so far
-    Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
 
     // Maps a node in the trace DAG to the number of parents this node has
     // in the DAG. This is computed during a pre-traversal of the DAG
@@ -463,9 +462,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
-                gPossibleInterrupts, gEventCoOccurrences,
-                gAlwaysFollowsINITIALSet, false);
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
+                gEventCoOccurrences, gAlwaysFollowsINITIALSet, false);
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
