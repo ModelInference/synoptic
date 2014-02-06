@@ -36,6 +36,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
      * a AFby b <=> #F(a->b) == #a
      * a AP b   <=> #P(a->b) == #b
      * a NFby b <=> #F(a->b) == 0
+     * a IntrBy b <=> b \in gPossibleInterrupts[a]
      * INITIAL AFby a <=> a \in AlwaysFollowsINITIALSet
      * 
      * Where:
@@ -140,7 +141,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
     protected boolean interruptedBy(
             Map<EventType, Set<EventType>> gPossibleInterrupts, EventType e1,
             EventType e2) {
-        if (gPossibleInterrupts.containsKey(e1)
+        if (gPossibleInterrupts != null && gPossibleInterrupts.containsKey(e1)
                 && gPossibleInterrupts.get(e1).contains(e2)) {
             return true;
         }
