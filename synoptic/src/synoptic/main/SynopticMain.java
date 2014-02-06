@@ -59,8 +59,8 @@ import synoptic.util.SynopticJar;
 import synoptic.util.time.ITime;
 
 /**
- * Contains entry points for command line version of Synoptic, as well as for
- * libraries that want to use Synoptic from a jar. The instance of Main is a
+ * Contains entry points for the command line version of Synoptic, as well as
+ * for libraries that want to use Synoptic from a jar. The instance of Main is a
  * singleton that maintains Synoptic options, and other state for a single run
  * of Synoptic.
  */
