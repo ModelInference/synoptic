@@ -88,7 +88,11 @@ public class InterruptedByInvariant extends BinaryInvariant {
     }
 
     /**
-     * Shortens the IntrBy trace. Right now, it returns the original trace.
+     * TODO: check if this is implemented correctly, and most of all if it is
+     * logically correct Shortens the IntrBy trace. Also, why (and this is for
+     * the NFBy as well) do we need to keep the trace before the first occurence
+     * of "a". Returns the path "... a ... a", where there is no "b" between the
+     * two "a". If there are no such "a", there is no counter example
      * 
      * @param trace
      * @param firstEvent
@@ -97,8 +101,25 @@ public class InterruptedByInvariant extends BinaryInvariant {
      */
     public static <T extends INode<T>> List<T> shorten(List<T> trace,
             EventType firstEvent, EventType secondEvent) {
-        // TODO: implement correct shortening
-        return trace;
+        boolean first_seen = false;
+        for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
+            T message = trace.get(trace_pos);
+            // a seen
+            if (message.getEType().equals(firstEvent) && !first_seen) {
+                first_seen = true;
+            }
+
+            // a seen again
+            if (message.getEType().equals(firstEvent) && first_seen) {
+                return trace.subList(0, trace_pos + 1);
+            }
+
+            // b seen, so reset to initial state
+            if (message.getEType().equals(secondEvent)) {
+                first_seen = false;
+            }
+        }
+        return null;
     }
 
     @Override
