@@ -19,7 +19,6 @@ import synoptic.util.InternalSynopticException;
  * Represents a connected subgraph over a relation through a trace. Supports
  * operations to count event Occurrences, Follows, and Precedes over the
  * specified relation within the trace.
- * 
  */
 public class TransitiveRelationPath implements IRelationPath {
 
@@ -223,8 +222,8 @@ public class TransitiveRelationPath implements IRelationPath {
                 bValues.put(b, eventCounts.get(a));
             }
 
-            // For the Interrupt invariant, event type b must have occurred at
-            // least once beforehand
+            // For IntrBy, event type b must have occurred at least once
+            // beforehand
             if (eventCounts.get(b) != null) {
                 Set<EventType> typesInBetween = new HashSet<EventType>();
                 for (EventType a : seen) {

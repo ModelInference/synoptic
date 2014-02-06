@@ -71,8 +71,8 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * <p>
      * (4) To check a IntrBy b it is sufficient to iterate over all events in
      * all relation paths. All event types found between any pair of the same
-     * event type are candidates for interrupted by invariants, narrowing down
-     * the candidates for actual invariants in the process.
+     * event type are candidates for IntrBy invariants, narrowing down the
+     * candidates for actual invariants in the process.
      * </p>
      * </p>
      * <p>
