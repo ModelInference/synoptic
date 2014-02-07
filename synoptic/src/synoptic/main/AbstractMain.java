@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.ConsoleHandler;
@@ -54,7 +53,6 @@ import synoptic.model.interfaces.IRelationPath;
 import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.SynopticJar;
 import synoptic.util.time.ITime;
 
@@ -98,56 +96,6 @@ public abstract class AbstractMain {
 
     public static SynopticMain getInstance() {
         return instance;
-    }
-
-    /**
-     * The synoptic.main method to perform the inference algorithm. See user
-     * documentation for an explanation of the options.
-     * 
-     * @param args
-     *            Command-line options
-     */
-    public static void main(String[] args) throws Exception {
-        SynopticMain mainInstance = processArgs(args);
-        if (mainInstance == null) {
-            return;
-        }
-
-        try {
-            Locale.setDefault(Locale.US);
-
-            PartitionGraph pGraph = mainInstance.createInitialPartitionGraph();
-            if (pGraph != null) {
-                mainInstance.runSynoptic(pGraph);
-            }
-        } catch (ParseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw InternalSynopticException.wrap(e);
-        }
-    }
-
-    /**
-     * Parses the set of arguments to the program, to set up static state in
-     * Main. This state includes everything necessary to run Synoptic -- input
-     * log files, regular expressions, etc. Returns null if there is a problem
-     * with the parsed options.
-     * 
-     * @param args
-     *            Command line arguments that specify how Synoptic should
-     *            behave.
-     * @return
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     * @throws ParseException
-     */
-    public static SynopticMain processArgs(String[] args) throws IOException,
-            URISyntaxException, IllegalArgumentException,
-            IllegalAccessException, ParseException {
-        SynopticOptions opts = new SynopticOptions(args);
-        return processArgs(opts);
     }
 
     /**
