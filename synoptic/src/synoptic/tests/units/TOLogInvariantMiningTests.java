@@ -22,6 +22,7 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
@@ -34,7 +35,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
- * 
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
@@ -73,7 +73,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         int numPartitions = 5;
 
         // Generate a random log.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         while (numPartitions != 0) {
             int rndIndex = syn.random.nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
@@ -335,7 +335,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 false);
 
         // Test with FSM checker.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         syn.options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);

@@ -17,7 +17,7 @@ import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
@@ -25,7 +25,6 @@ import synoptic.model.PartitionGraph;
 
 /**
  * Common helper methods and variables for Pynoptic tests
- * 
  */
 public abstract class PynopticTest extends SynopticTest {
 
@@ -42,13 +41,13 @@ public abstract class PynopticTest extends SynopticTest {
         // Set up SynopticLib state.
         super.setUp();
         // Enable performance debugging
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
+        AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
     }
 
     @After
     public void tearDown() {
         // Disable performance debugging
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
+        AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
     }
 
     /**

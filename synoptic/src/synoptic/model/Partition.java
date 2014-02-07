@@ -14,7 +14,7 @@ import java.util.Set;
 import daikonizer.DaikonInvariants;
 
 import synoptic.algorithms.graphops.PartitionSplit;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -32,7 +32,6 @@ import synoptic.util.time.ITime;
  * implementation here can only handle state based views where a partition
  * corresponds to a set of transitions that all have the same target (but
  * possibly different sources).
- * 
  */
 public class Partition implements INode<Partition> {
     /**
@@ -54,15 +53,15 @@ public class Partition implements INode<Partition> {
      * Event instances that contains this type of event.
      */
     private EventType eType = null;
-    
+
     /**
-     * Cached transitions with Daikon invariants.
-     * We need to cache these transitions because Daikon invariants are
-     * expensive to compute, and we may revisit the same transition many times
-     * while deriving abstract tests from a model (i.e., a PartitionGraph).
+     * Cached transitions with Daikon invariants. We need to cache these
+     * transitions because Daikon invariants are expensive to compute, and we
+     * may revisit the same transition many times while deriving abstract tests
+     * from a model (i.e., a PartitionGraph).
      */
     private final List<Transition<Partition>> cachedTransitionsWithInvs;
-    
+
     /**
      * Creates a new partition that will contain a set of event nodes.
      * 
@@ -486,7 +485,7 @@ public class Partition implements INode<Partition> {
     public void setParent(Partition parent) {
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * Return a set containing the timestamp of every Event in this Partition
      */
@@ -503,7 +502,7 @@ public class Partition implements INode<Partition> {
 
     private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
+        if (!AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
             return;
         }
         ITime srcTime = srcENode.getTime();
@@ -524,14 +523,16 @@ public class Partition implements INode<Partition> {
                 Partition childP = tr.getTarget().getParent();
                 Transition<Partition> tx;
 
-                // Create the transition if it doesn't exist, or retrieve it if it does
+                // Create the transition if it doesn't exist, or retrieve it if
+                // it does
                 if (transitions.containsKey(childP)) {
                     tx = transitions.get(childP);
                 } else {
-                    tx = new Transition<Partition>(this, childP, tr.getRelation());
+                    tx = new Transition<Partition>(this, childP,
+                            tr.getRelation());
                     transitions.put(childP, tx);
                 }
-                
+
                 // TODO: calling updateTransitionDeltas() is a fragile kind of
                 // initialization -- we have to remember to call this method
                 // whenever creating a new ITransition<Partition> instance.
@@ -540,9 +541,10 @@ public class Partition implements INode<Partition> {
                 updateTransitionDeltas(e, tr.getTarget(), tx);
             }
         }
-        
+
         // Return final list of transitions
-        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(transitions.values());
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(
+                transitions.values());
         return ret;
     }
 
@@ -561,28 +563,32 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithExactRelations(
             Set<String> relations) {
-        
+
         Map<Partition, Transition<Partition>> transitions = new HashMap<Partition, Transition<Partition>>();
-        
+
         for (EventNode e : events) {
-            for (ITransition<EventNode> tr : e.getTransitionsWithExactRelations(relations)) {
+            for (ITransition<EventNode> tr : e
+                    .getTransitionsWithExactRelations(relations)) {
                 Partition childP = tr.getTarget().getParent();
                 Transition<Partition> tx;
 
-                // Create the transition if it doesn't exist, or retrieve it if it does
+                // Create the transition if it doesn't exist, or retrieve it if
+                // it does
                 if (transitions.containsKey(childP)) {
                     tx = transitions.get(childP);
                 } else {
-                    tx = new Transition<Partition>(this, childP, tr.getRelation());
+                    tx = new Transition<Partition>(this, childP,
+                            tr.getRelation());
                     transitions.put(childP, tx);
                 }
-                
+
                 updateTransitionDeltas(e, tr.getTarget(), tx);
             }
         }
-        
+
         // Return final list of transitions
-        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(transitions.values());
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>(
+                transitions.values());
         return ret;
     }
 
@@ -601,28 +607,26 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * Generates and caches outgoing transitions of this partition, each of which
-     * has DaikonInvariants labeled on it.
-     * 
-     * NOTE:
-     * 1) This method must be called only when state processing logic is enabled.
-     * 2) Since this method caches transitions, it must be called only after
-     *    the final model is yield (i.e., no more changes to this Partition).
+     * Generates and caches outgoing transitions of this partition, each of
+     * which has DaikonInvariants labeled on it. NOTE: 1) This method must be
+     * called only when state processing logic is enabled. 2) Since this method
+     * caches transitions, it must be called only after the final model is yield
+     * (i.e., no more changes to this Partition).
      * 
      * @return transitions with Daikon invariants
      * @throws Exception
      */
     public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
-        assert (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing);
-        
+        assert (AbstractMain.getInstanceWithExistenceCheck().options.stateProcessing);
+
         if (!cachedTransitionsWithInvs.isEmpty() || isTerminal()) {
             return cachedTransitionsWithInvs;
         }
-        
+
         for (Partition childP : getAllSuccessors()) {
             Transition<Partition> tx = null;
             SynDaikonizer daikonizer = new SynDaikonizer();
-            
+
             if (isInitial()) {
                 // This is a dummy initial partition and its dummy event node
                 // has no post-event state. Instead, we need to get
@@ -630,12 +634,13 @@ public class Partition implements INode<Partition> {
                 // This partition contains only a single dummy event node.
                 assert events.size() == 1;
                 EventNode dummyInitEvent = events.iterator().next();
-                
-                for (ITransition<EventNode> tr : dummyInitEvent.getAllTransitions()) {
+
+                for (ITransition<EventNode> tr : dummyInitEvent
+                        .getAllTransitions()) {
                     // Add only states that are on transitions to childP
                     // to daikonizer.
-                    boolean stateAdded = addStateToDaikonizer(
-                            tr, childP, daikonizer, false);
+                    boolean stateAdded = addStateToDaikonizer(tr, childP,
+                            daikonizer, false);
                     // Create transition to childP iff it doesn't already exist
                     // and tr's destination is childP.
                     if (stateAdded && tx == null) {
@@ -647,12 +652,13 @@ public class Partition implements INode<Partition> {
                 // This is NOT a dummy initial partition. Its event nodes have
                 // post-event states.
                 for (EventNode event : events) {
-                    List<Transition<EventNode>> transitions = event.getAllTransitions();
+                    List<Transition<EventNode>> transitions = event
+                            .getAllTransitions();
                     // Events are totally ordered.
                     assert transitions.size() == 1;
                     ITransition<EventNode> tr = transitions.iterator().next();
-                    boolean stateAdded = addStateToDaikonizer(
-                            tr, childP, daikonizer, true);
+                    boolean stateAdded = addStateToDaikonizer(tr, childP,
+                            daikonizer, true);
                     if (stateAdded && tx == null) {
                         tx = createDaikonInvTransition(tr);
                         cachedTransitionsWithInvs.add(tx);
@@ -668,7 +674,7 @@ public class Partition implements INode<Partition> {
         }
         return cachedTransitionsWithInvs;
     }
-    
+
     /**
      * Adds a state that is on eventTrans to daikonizer iff the target of
      * eventTrans is in targetPartition.
@@ -676,12 +682,13 @@ public class Partition implements INode<Partition> {
      * @return true iff the state is added to daikonizer.
      * @throws Exception
      */
-    private static boolean addStateToDaikonizer(ITransition<EventNode> eventTrans,
-            Partition targetPartition, SynDaikonizer daikonizer, boolean post) {
+    private static boolean addStateToDaikonizer(
+            ITransition<EventNode> eventTrans, Partition targetPartition,
+            SynDaikonizer daikonizer, boolean post) {
         EventNode srcEvent = eventTrans.getSource();
         EventNode dstEvent = eventTrans.getTarget();
         Partition dstPartition = dstEvent.getParent();
-        
+
         if (dstPartition.compareTo(targetPartition) == 0) {
             State state = post ? srcEvent.getPostEventState() : dstEvent
                     .getPreEventState();
@@ -690,17 +697,18 @@ public class Partition implements INode<Partition> {
         }
         return false;
     }
-    
+
     /**
-     * Creates Partition transition from the given EventNode transition.
-     * This transition will be used to store Daikon invariants.
+     * Creates Partition transition from the given EventNode transition. This
+     * transition will be used to store Daikon invariants.
      */
     private static Transition<Partition> createDaikonInvTransition(
             ITransition<EventNode> eventTrans) {
         EventNode srcNode = eventTrans.getSource();
         EventNode targetNode = eventTrans.getTarget();
-        Transition<Partition> tx = new Transition<Partition>(srcNode.getParent(),
-                targetNode.getParent(), eventTrans.getRelation());
+        Transition<Partition> tx = new Transition<Partition>(
+                srcNode.getParent(), targetNode.getParent(),
+                eventTrans.getRelation());
         updateTransitionDeltas(srcNode, targetNode, tx);
         // But, tx has no invariants associated with it yet.
         return tx;

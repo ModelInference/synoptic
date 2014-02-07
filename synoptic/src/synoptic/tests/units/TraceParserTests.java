@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import junit.framework.Assert;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -38,7 +38,6 @@ import synoptic.util.time.VectorTime;
 
 /**
  * Tests for the synoptic.main.TraceParser class.
- * 
  */
 public class TraceParserTests extends SynopticTest {
     /**
@@ -63,7 +62,7 @@ public class TraceParserTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         parser = new TraceParser();
-        SynopticMain.getInstanceWithExistenceCheck().options.debugParse = true;
+        AbstractMain.getInstanceWithExistenceCheck().options.debugParse = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -221,8 +220,7 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test
-    public void addRegexAssignRequiredFieldRegTest()
-            throws ParseException {
+    public void addRegexAssignRequiredFieldRegTest() throws ParseException {
         parser.addRegex("^(?<TIME>)\\s(?<TYPE=>.+)$");
     }
 
@@ -252,17 +250,17 @@ public class TraceParserTests extends SynopticTest {
         // Second addRegex should throw the expected exception.
         parser.addRegex("^(?<" + t2 + ">)\\s(?<TYPE>)\\s$");
     }
-    
+
     /**
      * Add a regex with the STATE named group.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void addRegexStateTest() throws ParseException {
         parser.addRegex("^(?<STATE>)$");
     }
-    
+
     /**
      * Add a regex with an assignment to the STATE field.
      * 
@@ -272,15 +270,16 @@ public class TraceParserTests extends SynopticTest {
     public void addRegexAssignStateTest() throws ParseException {
         parser.addRegex("^(?<STATE=>a=1,b=2)$");
     }
-    
+
     /**
-     * Add a regex with both TYPE and STATE named groups --
-     * expect a ParseException.
+     * Add a regex with both TYPE and STATE named groups -- expect a
+     * ParseException.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void addRegexWithTypeAndStateGroupsExpExceptionTest() throws ParseException {
+    public void addRegexWithTypeAndStateGroupsExpExceptionTest()
+            throws ParseException {
         parser.addRegex("^(?<TYPE>\\S+)\\s(?<STATE>\\S+)$");
     }
 
@@ -1318,13 +1317,14 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Check that the type/pre- and post-event states of each log event
-     * in the list is correct.
+     * Check that the type/pre- and post-event states of each log event in the
+     * list is correct.
      * 
      * @throws ParseException
      */
     private void checkEventTypesAndStates(List<EventNode> eventNodes,
-            EventType[] types, State[] preEvent, State[] postEvent) throws ParseException {
+            EventType[] types, State[] preEvent, State[] postEvent)
+            throws ParseException {
         assertTrue(eventNodes.size() == types.length);
         for (int i = 0; i < eventNodes.size(); i++) {
             EventNode eventNode = eventNodes.get(i);
@@ -1335,7 +1335,7 @@ public class TraceParserTests extends SynopticTest {
                     || postEvent[i].equals(eventNode.getPostEventState()));
         }
     }
-    
+
     /**
      * Parse a trace that contains a single state -- expect parse exception.
      * 
@@ -1347,71 +1347,75 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^STATE:(?<STATE>)$");
         parser.parseTraceString(traceStr, "test", -1);
     }
-    
+
     /**
      * Parse an event with a pre-event state.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void parseEventWithPreEventStateTest() throws ParseException {
         String traceStr = "STATE:x=0,y=1\na\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType type = new StringEventType("a");
         State state = new State("x=0,y=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
                 new State[] { state }, new State[] { null });
     }
-    
+
     /**
      * Parse an event with a post-event state.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void parseEventWithPostEventStateTest() throws ParseException {
         String traceStr = "b\nSTATE:i=1,j=2\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType type = new StringEventType("b");
         State state = new State("i=1,j=2");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
                 new State[] { null }, new State[] { state });
     }
-    
+
     /**
      * Parse an event with pre- and post-event states.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void parseEventWithPrePostEventStatesTest() throws ParseException {
         String traceStr = "STATE:n=3,m=4\nc\nSTATE:p=0,q=1\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType type = new StringEventType("c");
         State preEvent = new State("n=3,m=4");
         State postEvent = new State("p=0,q=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { type },
                 new State[] { preEvent }, new State[] { postEvent });
     }
-    
+
     /**
-     * Parse 2 events interleaved by a state -- the first event should
-     * have a post-event and the second should have a pre-event.
+     * Parse 2 events interleaved by a state -- the first event should have a
+     * post-event and the second should have a pre-event.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void parseTwoEventsInterleavedByStateTest() throws ParseException {
         String traceStr = "a\nSTATE:x=0,y=1\nb\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
         State preEvent = new State("x=0,y=1");
@@ -1421,27 +1425,28 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse 2 events that follow a single state -- the first event
-     * should have a pre-event but the second event should not.
+     * Parse 2 events that follow a single state -- the first event should have
+     * a pre-event but the second event should not.
      * 
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Test
     public void parseTwoEventsFollowSingleStateTest() throws ParseException {
         String traceStr = "STATE:u=0,t=1\na\nb\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
         State state = new State("u=0,t=1");
         checkEventTypesAndStates(eventNodes, new EventType[] { a, b },
                 new State[] { state, null }, new State[] { null, null });
     }
-    
+
     /**
-     * Parse a string containing 2 traces. A state should not be merged to an event
-     * of different trace.
+     * Parse a string containing 2 traces. A state should not be merged to an
+     * event of different trace.
      * 
      * @throws ParseException
      */
@@ -1451,21 +1456,23 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
         parser.addPartitionsSeparator("^--$");
-        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test", -1);
+        List<EventNode> eventNodes = parser.parseTraceString(traceStr, "test",
+                -1);
         EventType a = new StringEventType("a");
         EventType b = new StringEventType("b");
         State state = new State("connected=true");
         checkEventTypesAndStates(eventNodes, new EventType[] { a, b },
                 new State[] { null, null }, new State[] { state, null });
     }
-    
+
     /**
      * Parse 2 consecutive states of same the trace -- expect parse exception.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void parseTwoConsecutiveStatesExpExceptionTest() throws ParseException {
+    public void parseTwoConsecutiveStatesExpExceptionTest()
+            throws ParseException {
         String traceStr = "a\nSTATE:x=0,y=1\nSTATE:connected=true\n";
         parser.addRegex("^(?<TYPE>[abc])$");
         parser.addRegex("^STATE:(?<STATE>)$");
@@ -1478,7 +1485,8 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void stateConstructorInvalidStateStrExpExceptionTest() throws ParseException {
+    public void stateConstructorInvalidStateStrExpExceptionTest()
+            throws ParseException {
         String stateStr = "q == 1";
         State state = new State(stateStr);
     }

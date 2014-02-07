@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 
 /**
  * A class to record performance metrics. It is a key value store, that keeps
@@ -13,7 +13,6 @@ import synoptic.main.SynopticMain;
  * record) will add the value to the previously recorded one. This also keeps
  * track of a hierarchy of tasks: createTask adds a task to the task stack, and
  * a call to the task's stop method pops it.
- * 
  */
 public class PerformanceMetrics {
     private static Logger logger = Logger.getLogger("Performance Metrics");
@@ -80,7 +79,7 @@ public class PerformanceMetrics {
     public void record(String key, long value) {
         if (!getAccumulativity(key)) {
             // Print all recorded values.
-            if (SynopticMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+            if (AbstractMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
                 logger.fine(key + " = " + value);
             }
         }

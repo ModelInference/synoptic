@@ -11,6 +11,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -51,7 +52,7 @@ public class PerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         syn.options.useFSMChecker = this.useFSMChecker;
         syn.options.logLvlExtraVerbose = false;
         syn.options.logLvlQuiet = true;
@@ -62,7 +63,7 @@ public class PerformanceTests extends SynopticTest {
                 .println(testName.getMethodName()
                         + ":"
                         + "\n\tuseFSMChecker "
-                        + SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker
+                        + AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker
                         + "\n\tType " + traceType + "\n\ttotalEvents "
                         + totalEvents + "\n\tnumPartitions " + numPartitions
                         + "\n\tnumEventTypes " + numEventTypes
