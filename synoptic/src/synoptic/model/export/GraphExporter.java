@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import daikonizer.DaikonInvariants;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -64,7 +65,7 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         if (syn.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
                     + syn.options.getOptDesc("dotExecutablePath"));
@@ -153,7 +154,7 @@ public class GraphExporter {
     public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         try {
             // Begin graph.
             writer.write(syn.graphExportFormatter.beginGraphString());

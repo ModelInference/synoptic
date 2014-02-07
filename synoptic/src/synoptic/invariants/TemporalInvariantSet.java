@@ -19,6 +19,7 @@ import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
@@ -124,7 +125,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
         try {
-            if (SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
+            if (AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
                 return FsmModelChecker.getCounterExample((BinaryInvariant) inv,
                         g);
             }
@@ -149,7 +150,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             IGraph<T> graph) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getAllCounterExamples", false);
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
         try {
             List<CExamplePath<T>> paths = null;
             if (syn.options.useFSMChecker) {
@@ -211,7 +212,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
-            if (SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
+            if (AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, g);
@@ -275,7 +276,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         int percentReduction = possibleInvariants == 0 ? 0 : 100
                 - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+        if (AbstractMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
             logger.info("BENCHM: "
                     + overapproximatedInvariantsSet.numInvariants()
                     + " true invariants, approximation guessed "
