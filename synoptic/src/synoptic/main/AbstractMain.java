@@ -26,7 +26,6 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.ConstrainedInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.IPOInvariantMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
@@ -183,12 +182,12 @@ public abstract class AbstractMain {
         return mainInstance;
     }
 
-    static private long loggerInfoStart(String msg) {
+    protected static long loggerInfoStart(String msg) {
         logger.info(msg);
         return System.currentTimeMillis();
     }
 
-    static private void loggerInfoEnd(String msg, long startTime) {
+    protected static void loggerInfoEnd(String msg, long startTime) {
         logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
     }
 
@@ -472,6 +471,11 @@ public abstract class AbstractMain {
      */
     public TemporalInvariantSet mineTOInvariants(
             boolean useTransitiveClosureMining, ChainsTraceGraph traceGraph) {
+        return mineTOInvariantsCommon(useTransitiveClosureMining, traceGraph);
+    }
+
+    protected TemporalInvariantSet mineTOInvariantsCommon(
+            boolean useTransitiveClosureMining, ChainsTraceGraph traceGraph) {
         ITOInvariantMiner miner;
 
         if (useTransitiveClosureMining) {
@@ -484,14 +488,6 @@ public abstract class AbstractMain {
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
                 options.multipleRelations);
-
-        // Mine time-constrained invariants if requested
-        if (options.enablePerfDebugging) {
-            logger.info("Mining time-constrained invariants.");
-            ConstrainedInvMiner constMiner = new ConstrainedInvMiner();
-            minedInvs = constMiner.computeInvariants(traceGraph,
-                    options.multipleRelations, minedInvs);
-        }
 
         loggerInfoEnd("Mining took ", startTime);
 
