@@ -175,11 +175,11 @@ public class InvariMintOptions extends Options {
     public boolean neverFollowedBy = false;
     
     /**
-     * Run with property type can be immediately followed by.
+     * Run with property type never immediately followed by.
      */
-    @Option(value = "Run with Can be Immediately Followed by property type",
-    		aliases ={"--IFby"})
-    public boolean immediatelyFollowedBy = false;
+    @Option(value = "Run with Never Immediately Followed by property type",
+    		aliases ={"--NIFby"})
+    public boolean neverImmediatelyFollowedBy = false;
     
     
     
