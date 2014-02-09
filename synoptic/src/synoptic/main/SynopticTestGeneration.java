@@ -47,7 +47,7 @@ public class SynopticTestGeneration {
     public static AbstractTestCase convertPathToAbstractTest(
             List<Partition> path) {
         assert !path.isEmpty();
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
 
         Action currAction = new Action(path.get(0).getEType());
         AbstractTestCase testCase = new AbstractTestCase(currAction);
@@ -60,7 +60,7 @@ public class SynopticTestGeneration {
             ITransition<Action> actionTrans = new Transition<Action>(
                     currAction, nextAction, timeRelation);
 
-            if (syn.options.stateProcessing) {
+            if (main.options.stateProcessing) {
                 Partition curr = path.get(i);
                 List<? extends ITransition<Partition>> transitions = curr
                         .getTransitionsWithDaikonInvariants();

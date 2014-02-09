@@ -13,15 +13,31 @@ import synoptic.util.InternalSynopticException;
 
 /**
  * Contains entry points for the command line version of Synoptic, as well as
- * for libraries that want to use Synoptic from a jar. The instance of Main is a
- * singleton that maintains Synoptic options, and other state for a single run
- * of Synoptic.
+ * for libraries that want to use Synoptic from a jar.
  */
 public class SynopticMain extends AbstractMain {
 
     /**
-     * The synoptic.main method to perform the inference algorithm. See user
-     * documentation for an explanation of the options.
+     * Return the singleton instance of SynopticMain, first asserting that the
+     * instance isn't null.
+     */
+    public static SynopticMain getInstanceWithExistenceCheck() {
+        assert (instance != null);
+        assert (instance instanceof SynopticMain);
+        return (SynopticMain) instance;
+    }
+
+    /**
+     * Return the singleton instance of SynopticMain.
+     */
+    public static SynopticMain getInstance() {
+        assert (instance instanceof SynopticMain);
+        return (SynopticMain) instance;
+    }
+
+    /**
+     * The synoptic.main method to perform the Synoptic inference algorithm. See
+     * user documentation for an explanation of the options.
      * 
      * @param args
      *            Command-line options
@@ -65,8 +81,12 @@ public class SynopticMain extends AbstractMain {
     public static SynopticMain processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
+        // Parse and process command line options
         SynopticOptions opts = new SynopticOptions(args);
-        return processArgs(opts);
+        AbstractMain newMain = processArgs(opts);
+
+        assert (newMain instanceof SynopticMain);
+        return (SynopticMain) newMain;
     }
 
     /**

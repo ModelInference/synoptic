@@ -20,7 +20,6 @@ import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.ltlcheck.Pair;
 import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -86,7 +85,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
                 "mineInvariants", false);
         Set<ITemporalInvariant> overapproximatedInvariantsSet;
 
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
 
         // Compute the over-approximated set of invariants for the input graph.
         try {
@@ -100,7 +99,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
 
             // Get the over-approximation.
             itc.stop();
-            if (syn.options.doBenchmarking) {
+            if (main.options.doBenchmarking) {
                 logger.info("BENCHM: " + itc);
             }
             TimedTask io = PerformanceMetrics.createTask(
@@ -117,7 +116,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             }
 
             io.stop();
-            if (syn.options.doBenchmarking) {
+            if (main.options.doBenchmarking) {
                 logger.info("BENCHM: " + io);
             }
             // logger.info("Over-approx set: "

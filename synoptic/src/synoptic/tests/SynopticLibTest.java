@@ -139,13 +139,13 @@ public abstract class SynopticLibTest {
     protected <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
-        if (syn.options.logLvlVerbose && !syn.options.logLvlExtraVerbose) {
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        if (main.options.logLvlVerbose && !main.options.logLvlExtraVerbose) {
             return;
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
 
-        syn.exportTraceGraph(path, g);
+        main.exportTraceGraph(path, g);
     }
 }
