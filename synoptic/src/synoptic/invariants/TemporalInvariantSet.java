@@ -20,7 +20,6 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -150,10 +149,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             IGraph<T> graph) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getAllCounterExamples", false);
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
         try {
             List<CExamplePath<T>> paths = null;
-            if (syn.options.useFSMChecker) {
+            if (main.options.useFSMChecker) {
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
@@ -191,7 +190,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             return paths;
         } finally {
             violations.stop();
-            if (syn.options.doBenchmarking) {
+            if (main.options.doBenchmarking) {
                 logger.info("BENCHM: " + violations.toString());
             }
         }

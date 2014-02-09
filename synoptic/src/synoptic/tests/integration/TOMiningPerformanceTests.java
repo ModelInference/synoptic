@@ -14,7 +14,6 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -57,9 +56,9 @@ public class TOMiningPerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
-        syn.options.logLvlExtraVerbose = false;
-        syn.options.logLvlQuiet = true;
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        main.options.logLvlExtraVerbose = false;
+        main.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {

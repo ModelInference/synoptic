@@ -22,7 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
 import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
 import synoptic.model.ChainsTraceGraph;
@@ -834,8 +833,8 @@ public class TraceParser {
             ret += " from file [" + fileName + "]";
         }
 
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
-        if (syn.options.logLvlVerbose || syn.options.logLvlExtraVerbose) {
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        if (main.options.logLvlVerbose || main.options.logLvlExtraVerbose) {
             // Include the actual line if verbose output is desired.
             return ret + " line [" + line + "]";
         }
@@ -852,7 +851,7 @@ public class TraceParser {
         Event event = null;
         ITime nextTime = null;
 
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
 
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);
@@ -916,7 +915,7 @@ public class TraceParser {
             EventType eType;
             // Check if this line contains event type or state.
             if (matched.containsKey(typeGroup)) {
-                if (syn.options.internCommonStrings) {
+                if (main.options.internCommonStrings) {
                     eTypeLabel = matched.get(typeGroup).intern();
                 } else {
                     eTypeLabel = matched.get(typeGroup);
@@ -1034,7 +1033,7 @@ public class TraceParser {
                     String errMsg = buildLineErrorLocString(line, fileName,
                             lineNum)
                             + " Unable to parse time field on log line.";
-                    if (syn.options.ignoreNonMatchingLines) {
+                    if (main.options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
                                 + " Ignoring line and continuing.");
                         continue;
@@ -1063,7 +1062,7 @@ public class TraceParser {
                 }
             }
 
-            if (syn.options.partitionRegExp.equals("\\k<FILE>")) {
+            if (main.options.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -1077,7 +1076,7 @@ public class TraceParser {
                 }
             }
 
-            if (syn.options.debugParse) {
+            if (main.options.debugParse) {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
@@ -1113,7 +1112,7 @@ public class TraceParser {
                 State state = new State(stateStr);
                 eventNode.setPostEventState(state);
                 // State is parsed. Enable state processing.
-                syn.options.stateProcessing = true;
+                main.options.stateProcessing = true;
             }
 
             // We want to add eventNode->eventRelations to allEventRelations
@@ -1135,7 +1134,7 @@ public class TraceParser {
             return eventNode;
         }
 
-        if (syn.options.recoverFromParseErrors) {
+        if (main.options.recoverFromParseErrors) {
             logger.warning(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
@@ -1156,7 +1155,7 @@ public class TraceParser {
                     filter.substitute(new LinkedHashMap<String, String>()));
             return eventNode;
 
-        } else if (syn.options.ignoreNonMatchingLines) {
+        } else if (main.options.ignoreNonMatchingLines) {
             logger.fine(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Ignoring line and continuing.");
             return null;

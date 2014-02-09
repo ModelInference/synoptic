@@ -66,7 +66,7 @@ public abstract class AbstractMain {
     /**
      * Singleton instance of this class.
      */
-    public static SynopticMain instance = null;
+    public static AbstractMain instance = null;
 
     /**
      * The current Synoptic version.
@@ -88,12 +88,19 @@ public abstract class AbstractMain {
      */
     public SynopticOptions options = null;
 
-    public static SynopticMain getInstanceWithExistenceCheck() {
+    /**
+     * Return the singleton instance of AbstractMain, first asserting that the
+     * instance isn't null.
+     */
+    public static AbstractMain getInstanceWithExistenceCheck() {
         assert (instance != null);
         return instance;
     }
 
-    public static SynopticMain getInstance() {
+    /**
+     * Return the singleton instance of AbstractMain.
+     */
+    public static AbstractMain getInstance() {
         return instance;
     }
 
@@ -111,7 +118,7 @@ public abstract class AbstractMain {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static SynopticMain processArgs(SynopticOptions opts)
+    public static AbstractMain processArgs(SynopticOptions opts)
             throws IOException, URISyntaxException, IllegalArgumentException,
             IllegalAccessException {
 

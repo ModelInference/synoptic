@@ -74,7 +74,7 @@ public class Bisimulation {
 
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
         if (syn.options.dumpIntermediateStages) {
             syn.exportNonInitialGraph(syn.getIntermediateDumpFilename("r", 0),
                     pGraph);
@@ -626,7 +626,7 @@ public class Bisimulation {
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
 
         IOperation arbitrarySplit = null;
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
 
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
@@ -651,7 +651,7 @@ public class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, syn.random);
+            Collections.shuffle(candidateSplits, main.random);
 
             // Save an arbitrary split to return to caller, if we haven't saved
             // one already.
@@ -679,7 +679,7 @@ public class Bisimulation {
             // might have found earlier (for previous counter-examples).
             //
             for (PartitionSplit candidateSplit : candidateSplits) {
-                if (syn.options.performExtraChecks) {
+                if (main.options.performExtraChecks) {
                     // getSplits() should never generate invalid splits.
                     if (!candidateSplit.isValid()) {
                         throw new InternalSynopticException(
@@ -791,7 +791,7 @@ public class Bisimulation {
         // violations.
         Map<Partition, Set<Partition>> mergeBlacklist = new LinkedHashMap<Partition, Set<Partition>>();
 
-        SynopticMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain syn = AbstractMain.getInstanceWithExistenceCheck();
         while (true) {
             if (syn.options.dumpIntermediateStages) {
                 syn.exportNonInitialGraph(
