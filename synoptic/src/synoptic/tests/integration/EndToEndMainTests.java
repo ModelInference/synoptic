@@ -1,6 +1,7 @@
 package synoptic.tests.integration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -12,10 +13,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import junit.framework.Assert;
-
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
+import synoptic.util.Pair;
 
 /**
  * Tests main with a variety of known input log files from the traces/
@@ -39,7 +40,6 @@ public class EndToEndMainTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         String tracesBasePath = File.separator + "traces" + File.separator;
-                //+ "abstract" + File.separator;
         // Two paths that we will test to find traces/args files.
         List<String> possibleTracesPaths = Arrays.asList(new String[] {
                 "." + tracesBasePath, ".." + tracesBasePath });
@@ -48,26 +48,28 @@ public class EndToEndMainTests extends SynopticTest {
 
         //FIX THIS SO THE PATH DOESN'T DEPEND ON SIMLINKS
         // List of input sub-dirs that contains end-to-end test examples.
-        String[] testPaths = { "abstract" + File.separator + "mid_branching", 
-        		"abstract" + File.separator + "osx-login-example",
-        		"abstract" + File.separator + "shopping-cart-example", 
-        		"abstract" + File.separator + "ticket-reservation-example" };
+        List<Pair<String,String>> testPaths = new ArrayList<Pair<String,String>>();
+        testPaths.add(new Pair("abstract" + File.separator, "mid_branching"));
+        testPaths.add(new Pair("abstract" + File.separator, "osx-login-example"));
+        testPaths.add(new Pair("abstract" + File.separator, "shopping-cart-example"));
+        testPaths.add(new Pair("abstract" + File.separator, "ticket-reservation-example"));
 
         // Examples for test generation.
-        String[] testGenerationPaths = { "abstract" + File.separator + "turnstile-example",  
-        		File.separator + "VerifyPin" };
+        List<Pair<String,String>> testGenerationPaths = new ArrayList<Pair<String, String>>();
+        testGenerationPaths.add(new Pair("abstract" + File.separator, "turnstile-example"));
+        testGenerationPaths.add(new Pair("", "VerifyPin"));
 
         // Determine where the input traces/args are located -- try two options:
-        String tracesPath = findWorkingPath(possibleTracesPaths, testPaths[0]
-                + File.separator + "args.txt");
+        String tracesPath = findWorkingPath(possibleTracesPaths, 
+        		testPaths.get(0).getLeft() + testPaths.get(0).getRight() + File.separator + "args.txt");
 
         // Compose a set of args to Synoptic for each end-to-end test case.
-        for (String tPath : testPaths) {
+        for (Pair<String,String> tPath : testPaths) {
             composeArgs(tracesPath, tPath, argsList, false);
             // Check that the specific input files for this test exists.
-            String argsFilename = tracesPath + tPath + File.separator
+            String argsFilename = tracesPath + tPath.getLeft() + tPath.getRight() + File.separator
                     + "args.txt";
-            String traceFilename = tracesPath + tPath + File.separator
+            String traceFilename = tracesPath + tPath.getLeft() + tPath.getRight() + File.separator
                     + "trace.txt";
             File f1 = new File(argsFilename);
             File f2 = new File(traceFilename);
@@ -79,18 +81,18 @@ public class EndToEndMainTests extends SynopticTest {
         }
 
         // Add tests for stateful synoptic
-        for (String tPath : testGenerationPaths) {
+        for (Pair<String,String> tPath : testGenerationPaths) {
             composeArgs(tracesPath, tPath, argsList, true);
         }
 
         return argsList;
     }
 
-    private static void composeArgs(String tracesPath, String tPath,
+    private static void composeArgs(String tracesPath, Pair<String,String> tPath,
             Collection<Object[]> argsList, boolean enableTestGen) {
         // Check that the specific input files for this test exists.
-        String argsFilename = tracesPath + tPath + File.separator + "args.txt";
-        String traceFilename = tracesPath + tPath + File.separator
+        String argsFilename = tracesPath + tPath.getLeft() + tPath.getRight() + File.separator + "args.txt";
+        String traceFilename = tracesPath + tPath.getLeft() + tPath.getRight() + File.separator
                 + "trace.txt";
         File f1 = new File(argsFilename);
         File f2 = new File(traceFilename);
@@ -99,7 +101,7 @@ public class EndToEndMainTests extends SynopticTest {
                     + argsFilename + "], trace[" + traceFilename + "]");
         }
 
-        String outputPrefix = testOutputDir + tPath;
+        String outputPrefix = testOutputDir + tPath.getRight();
 
         // TODO: A hidden path dependency is in the output file.
         // Synoptic always produces graph output, and writes it to a default

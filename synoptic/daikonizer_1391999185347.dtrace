@@ -1,0 +1,56 @@
+decl-version 2.0
+var-comparability implicit
+
+ppt SynopticPoint:::ENTER
+ppt-type enter
+ variable entryCount
+  var-kind variable
+  dec-type int
+  rep-type int
+ variable coinCount
+  var-kind variable
+  dec-type int
+  rep-type int
+ variable locked
+  var-kind variable
+  dec-type boolean
+  rep-type boolean
+
+
+ppt SynopticPoint:::EXIT1
+ppt-type subexit
+ variable entryCount
+  var-kind variable
+  dec-type int
+  rep-type int
+ variable coinCount
+  var-kind variable
+  dec-type int
+  rep-type int
+ variable locked
+  var-kind variable
+  dec-type boolean
+  rep-type boolean
+
+SynopticPoint:::ENTER
+entryCount
+2
+1
+coinCount
+3
+1
+locked
+false
+1
+
+SynopticPoint:::EXIT1
+entryCount
+2
+1
+coinCount
+3
+1
+locked
+false
+1
+
