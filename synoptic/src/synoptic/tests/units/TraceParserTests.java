@@ -62,7 +62,7 @@ public class TraceParserTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         parser = new TraceParser();
-        AbstractMain.getInstanceWithExistenceCheck().options.debugParse = true;
+        AbstractMain.getInstance().options.debugParse = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////

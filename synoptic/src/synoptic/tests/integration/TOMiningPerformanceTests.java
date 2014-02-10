@@ -56,7 +56,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         main.options.logLvlExtraVerbose = false;
         main.options.logLvlQuiet = true;
     }

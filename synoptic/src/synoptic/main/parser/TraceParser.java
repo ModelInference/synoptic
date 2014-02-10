@@ -481,7 +481,7 @@ public class TraceParser {
 
         }
 
-        if (AbstractMain.getInstanceWithExistenceCheck().options.debugParse) {
+        if (AbstractMain.getInstance().options.debugParse) {
             logger.info("input: " + input_regex);
             logger.info("processed: " + regex);
             logger.info("standard: " + parser.standardPattern());
@@ -640,7 +640,7 @@ public class TraceParser {
         String strLine = null;
 
         String tName = traceName;
-        if (AbstractMain.getInstanceWithExistenceCheck().options.internCommonStrings) {
+        if (AbstractMain.getInstance().options.internCommonStrings) {
             tName = tName.intern();
         }
 
@@ -662,7 +662,7 @@ public class TraceParser {
         // parseLine methods so that State is separated from EventNode.
         // At this point, each node in results either represents an event or
         // a state. We need to bundle pre- and post-event states and events.
-        if (AbstractMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+        if (AbstractMain.getInstance().options.stateProcessing) {
             mergeStatesWithEventNodes(results);
         }
 
@@ -833,7 +833,7 @@ public class TraceParser {
             ret += " from file [" + fileName + "]";
         }
 
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         if (main.options.logLvlVerbose || main.options.logLvlExtraVerbose) {
             // Include the actual line if verbose output is desired.
             return ret + " line [" + line + "]";
@@ -851,7 +851,7 @@ public class TraceParser {
         Event event = null;
         ITime nextTime = null;
 
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);

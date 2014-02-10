@@ -21,16 +21,8 @@ public class SynopticMain extends AbstractMain {
      * Return the singleton instance of SynopticMain, first asserting that the
      * instance isn't null.
      */
-    public static SynopticMain getInstanceWithExistenceCheck() {
-        assert (instance != null);
-        assert (instance instanceof SynopticMain);
-        return (SynopticMain) instance;
-    }
-
-    /**
-     * Return the singleton instance of SynopticMain.
-     */
     public static SynopticMain getInstance() {
+        assert (instance != null);
         assert (instance instanceof SynopticMain);
         return (SynopticMain) instance;
     }

@@ -139,7 +139,7 @@ public abstract class SynopticLibTest {
     protected <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         if (main.options.logLvlVerbose && !main.options.logLvlExtraVerbose) {
             return;
         }

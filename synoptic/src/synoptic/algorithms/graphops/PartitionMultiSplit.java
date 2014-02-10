@@ -61,7 +61,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // //////////////
 
-        if (AbstractMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+        if (AbstractMain.getInstance().options.performExtraChecks) {
             g.checkSanity();
         }
 

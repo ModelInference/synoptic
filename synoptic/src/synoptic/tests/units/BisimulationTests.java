@@ -30,7 +30,7 @@ public class BisimulationTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         // Main.dumpIntermediateStages = true;
-        AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker = true;
+        AbstractMain.getInstance().options.useFSMChecker = true;
     }
 
     /**

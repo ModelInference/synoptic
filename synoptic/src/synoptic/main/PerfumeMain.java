@@ -23,16 +23,8 @@ public class PerfumeMain extends AbstractMain {
      * Return the singleton instance of PerfumeMain, first asserting that the
      * instance isn't null.
      */
-    public static PerfumeMain getInstanceWithExistenceCheck() {
-        assert (instance != null);
-        assert (instance instanceof PerfumeMain);
-        return (PerfumeMain) instance;
-    }
-
-    /**
-     * Return the singleton instance of PerfumeMain.
-     */
     public static PerfumeMain getInstance() {
+        assert (instance != null);
         assert (instance instanceof PerfumeMain);
         return (PerfumeMain) instance;
     }

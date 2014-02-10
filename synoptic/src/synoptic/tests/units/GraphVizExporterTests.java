@@ -42,7 +42,7 @@ public class GraphVizExporterTests extends SynopticTest {
         List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
         Collections.shuffle(pathCopy,
-                AbstractMain.getInstanceWithExistenceCheck().random);
+                AbstractMain.getInstance().random);
         for (EventNode event : pathCopy) {
             g.add(event);
         }

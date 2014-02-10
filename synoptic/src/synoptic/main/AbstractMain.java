@@ -92,15 +92,8 @@ public abstract class AbstractMain {
      * Return the singleton instance of AbstractMain, first asserting that the
      * instance isn't null.
      */
-    public static AbstractMain getInstanceWithExistenceCheck() {
-        assert (instance != null);
-        return instance;
-    }
-
-    /**
-     * Return the singleton instance of AbstractMain.
-     */
     public static AbstractMain getInstance() {
+        assert (instance != null);
         return instance;
     }
 
