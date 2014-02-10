@@ -33,7 +33,6 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -74,10 +73,10 @@ public class Bisimulation {
 
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.dumpIntermediateStages) {
-            syn.exportNonInitialGraph(syn.getIntermediateDumpFilename("r", 0),
-                    pGraph);
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        if (main.options.dumpIntermediateStages) {
+            main.exportNonInitialGraph(
+                    main.getIntermediateDumpFilename("r", 0), pGraph);
         }
 
         int numSplitSteps = 0;
@@ -142,9 +141,10 @@ public class Bisimulation {
 
         }
 
-        if (syn.options.dumpIntermediateStages) {
-            syn.exportNonInitialGraph(
-                    syn.getIntermediateDumpFilename("r", numSplitSteps), pGraph);
+        if (main.options.dumpIntermediateStages) {
+            main.exportNonInitialGraph(
+                    main.getIntermediateDumpFilename("r", numSplitSteps),
+                    pGraph);
         }
 
         PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);

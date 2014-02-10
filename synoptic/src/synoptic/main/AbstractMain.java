@@ -118,7 +118,7 @@ public abstract class AbstractMain {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static AbstractMain processArgs(SynopticOptions opts)
+    public static GraphExportFormatter processArgs(SynopticOptions opts)
             throws IOException, URISyntaxException, IllegalArgumentException,
             IllegalAccessException {
 
@@ -185,8 +185,7 @@ public abstract class AbstractMain {
             opts.printOptionValues();
         }
 
-        SynopticMain mainInstance = new SynopticMain(opts, graphExportFormatter);
-        return mainInstance;
+        return graphExportFormatter;
     }
 
     protected static long loggerInfoStart(String msg) {

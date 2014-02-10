@@ -49,6 +49,8 @@ public class PerfumeMain extends AbstractMain {
         if (mainInstance == null) {
             return;
         }
+        // TEMP HACK
+        mainInstance.options.enablePerfDebugging = true;
 
         try {
             Locale.setDefault(Locale.US);
@@ -84,10 +86,11 @@ public class PerfumeMain extends AbstractMain {
             IllegalAccessException, ParseException {
         // Parse and process command line options
         SynopticOptions opts = new SynopticOptions(args);
-        AbstractMain newMain = processArgs(opts);
+        GraphExportFormatter graphExportFormatter = processArgs(opts);
 
-        assert (newMain instanceof PerfumeMain);
-        return (PerfumeMain) newMain;
+        // Construct and return main object
+        PerfumeMain newMain = new PerfumeMain(opts, graphExportFormatter);
+        return newMain;
     }
 
     /**
