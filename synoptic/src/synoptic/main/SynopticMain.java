@@ -47,6 +47,8 @@ public class SynopticMain extends AbstractMain {
         if (mainInstance == null) {
             return;
         }
+        // TEMP HACK
+        mainInstance.options.enablePerfDebugging = false;
 
         try {
             Locale.setDefault(Locale.US);
@@ -83,10 +85,11 @@ public class SynopticMain extends AbstractMain {
             IllegalAccessException, ParseException {
         // Parse and process command line options
         SynopticOptions opts = new SynopticOptions(args);
-        AbstractMain newMain = processArgs(opts);
+        GraphExportFormatter graphExportFormatter = processArgs(opts);
 
-        assert (newMain instanceof SynopticMain);
-        return (SynopticMain) newMain;
+        // Construct and return main object
+        SynopticMain newMain = new SynopticMain(opts, graphExportFormatter);
+        return newMain;
     }
 
     /**
