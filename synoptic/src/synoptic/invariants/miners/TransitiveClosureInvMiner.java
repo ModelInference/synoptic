@@ -85,7 +85,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
                 "mineInvariants", false);
         Set<ITemporalInvariant> overapproximatedInvariantsSet;
 
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         // Compute the over-approximated set of invariants for the input graph.
         try {

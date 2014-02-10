@@ -64,7 +64,7 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         if (main.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
                     + main.options.getOptDesc("dotExecutablePath"));
@@ -153,7 +153,7 @@ public class GraphExporter {
     public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         try {
             // Begin graph.
             writer.write(main.graphExportFormatter.beginGraphString());

@@ -47,7 +47,7 @@ public class SynopticTestGeneration {
     public static AbstractTestCase convertPathToAbstractTest(
             List<Partition> path) {
         assert !path.isEmpty();
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         Action currAction = new Action(path.get(0).getEType());
         AbstractTestCase testCase = new AbstractTestCase(currAction);

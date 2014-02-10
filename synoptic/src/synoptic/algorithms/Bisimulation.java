@@ -73,7 +73,7 @@ public class Bisimulation {
 
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         if (main.options.dumpIntermediateStages) {
             main.exportNonInitialGraph(
                     main.getIntermediateDumpFilename("r", 0), pGraph);
@@ -181,7 +181,7 @@ public class Bisimulation {
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
         Collections.shuffle(counterExampleTraces,
-                AbstractMain.getInstanceWithExistenceCheck().random);
+                AbstractMain.getInstance().random);
 
         // logger.fine("" + counterExampleTraces.size()
         // + " unsatisfied invariants and counter-examples: "
@@ -227,12 +227,10 @@ public class Bisimulation {
 
         // logger.fine(logStr);
 
-        if (AbstractMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            AbstractMain.getInstanceWithExistenceCheck()
-                    .exportNonInitialGraph(
-                            AbstractMain.getInstanceWithExistenceCheck()
-                                    .getIntermediateDumpFilename("r",
-                                            numSplitSteps + 1), pGraph);
+        if (AbstractMain.getInstance().options.dumpIntermediateStages) {
+            AbstractMain.getInstance().exportNonInitialGraph(
+                    AbstractMain.getInstance().getIntermediateDumpFilename("r",
+                            numSplitSteps + 1), pGraph);
         }
 
         return numSplitSteps + 1;
@@ -420,7 +418,7 @@ public class Bisimulation {
             }
         }
 
-        Random rand = AbstractMain.getInstanceWithExistenceCheck().random;
+        Random rand = AbstractMain.getInstance().random;
 
         // Get all other events that are neither incoming nor outgoing min/max
         // events
@@ -626,7 +624,7 @@ public class Bisimulation {
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
 
         IOperation arbitrarySplit = null;
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
@@ -791,7 +789,7 @@ public class Bisimulation {
         // violations.
         Map<Partition, Set<Partition>> mergeBlacklist = new LinkedHashMap<Partition, Set<Partition>>();
 
-        AbstractMain syn = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain syn = AbstractMain.getInstance();
         while (true) {
             if (syn.options.dumpIntermediateStages) {
                 syn.exportNonInitialGraph(
@@ -884,7 +882,7 @@ public class Bisimulation {
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 
-                    if (AbstractMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+                    if (AbstractMain.getInstance().options.performExtraChecks) {
                         pGraph.checkSanity();
                     }
 

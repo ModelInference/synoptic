@@ -51,7 +51,7 @@ public class PerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         main.options.useFSMChecker = this.useFSMChecker;
         main.options.logLvlExtraVerbose = false;
         main.options.logLvlQuiet = true;
@@ -62,7 +62,7 @@ public class PerformanceTests extends SynopticTest {
                 .println(testName.getMethodName()
                         + ":"
                         + "\n\tuseFSMChecker "
-                        + AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker
+                        + AbstractMain.getInstance().options.useFSMChecker
                         + "\n\tType " + traceType + "\n\ttotalEvents "
                         + totalEvents + "\n\tnumPartitions " + numPartitions
                         + "\n\tnumEventTypes " + numEventTypes

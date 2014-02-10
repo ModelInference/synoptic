@@ -124,7 +124,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
         try {
-            if (AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
+            if (AbstractMain.getInstance().options.useFSMChecker) {
                 return FsmModelChecker.getCounterExample((BinaryInvariant) inv,
                         g);
             }
@@ -149,7 +149,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             IGraph<T> graph) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getAllCounterExamples", false);
-        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         try {
             List<CExamplePath<T>> paths = null;
             if (main.options.useFSMChecker) {
@@ -211,7 +211,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
-            if (AbstractMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
+            if (AbstractMain.getInstance().options.useFSMChecker) {
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, g);
@@ -275,7 +275,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         int percentReduction = possibleInvariants == 0 ? 0 : 100
                 - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
 
-        if (AbstractMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+        if (AbstractMain.getInstance().options.doBenchmarking) {
             logger.info("BENCHM: "
                     + overapproximatedInvariantsSet.numInvariants()
                     + " true invariants, approximation guessed "

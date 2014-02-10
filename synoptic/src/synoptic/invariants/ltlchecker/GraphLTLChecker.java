@@ -87,7 +87,7 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
         transToMC.stop();
         if (DEBUG) {
-            AbstractMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
+            AbstractMain.getInstance().exportNonInitialGraph(
                     "output/sourceGraph-" + relation, sourceGraph);
             writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
         }

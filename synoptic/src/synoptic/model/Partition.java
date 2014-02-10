@@ -502,7 +502,7 @@ public class Partition implements INode<Partition> {
 
     private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
+        if (!AbstractMain.getInstance().options.enablePerfDebugging) {
             return;
         }
         ITime srcTime = srcENode.getTime();
@@ -617,7 +617,7 @@ public class Partition implements INode<Partition> {
      * @throws Exception
      */
     public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
-        assert (AbstractMain.getInstanceWithExistenceCheck().options.stateProcessing);
+        assert (AbstractMain.getInstance().options.stateProcessing);
 
         if (!cachedTransitionsWithInvs.isEmpty() || isTerminal()) {
             return cachedTransitionsWithInvs;
