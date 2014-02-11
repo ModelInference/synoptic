@@ -49,15 +49,15 @@ public class EndToEndMainTests extends SynopticTest {
         //FIX THIS SO THE PATH DOESN'T DEPEND ON SIMLINKS
         // List of input sub-dirs that contains end-to-end test examples.
         List<Pair<String,String>> testPaths = new ArrayList<Pair<String,String>>();
-        testPaths.add(new Pair("abstract" + File.separator, "mid_branching"));
-        testPaths.add(new Pair("abstract" + File.separator, "osx-login-example"));
-        testPaths.add(new Pair("abstract" + File.separator, "shopping-cart-example"));
-        testPaths.add(new Pair("abstract" + File.separator, "ticket-reservation-example"));
+        testPaths.add(new Pair<String, String>("abstract" + File.separator, "mid_branching"));
+        testPaths.add(new Pair<String, String>("abstract" + File.separator, "osx-login-example"));
+        testPaths.add(new Pair<String, String>("abstract" + File.separator, "shopping-cart-example"));
+        testPaths.add(new Pair<String, String>("abstract" + File.separator, "ticket-reservation-example"));
 
         // Examples for test generation.
         List<Pair<String,String>> testGenerationPaths = new ArrayList<Pair<String, String>>();
-        testGenerationPaths.add(new Pair("abstract" + File.separator, "turnstile-example"));
-        testGenerationPaths.add(new Pair("", "VerifyPin"));
+        testGenerationPaths.add(new Pair<String, String>("abstract" + File.separator, "turnstile-example"));
+        testGenerationPaths.add(new Pair<String, String>("", "VerifyPin"));
 
         // Determine where the input traces/args are located -- try two options:
         String tracesPath = findWorkingPath(possibleTracesPaths, 
