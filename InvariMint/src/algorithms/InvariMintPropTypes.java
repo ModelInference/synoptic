@@ -49,7 +49,8 @@ public class InvariMintPropTypes {
      */
     public InvariMintPropTypes(InvariMintOptions opts) {
         invMintAlgName = "InvariMintPropTypes";
-        logger = Logger.getLogger(invMintAlgName);
+        logger = Logger.getLogger(invMintAlgName); // IB: initialize statically,
+                                                   // as it is a static field.
         this.opts = opts;
     }
 
@@ -73,6 +74,7 @@ public class InvariMintPropTypes {
 
     }
 
+    // IB: give a bit of "how" in the method-level comment.
     /**
      * Mines invariants specified in opts into minedInvs
      * 
@@ -84,6 +86,8 @@ public class InvariMintPropTypes {
         // This will add NIFby invariants to minedInvs if specified
         initializeModel();
 
+        // IB: explain what invsToDelete does -- this will seem
+        // counter-intuitive to someone who doesn't know the code well.
         ArrayList<String> invsToDelete = new ArrayList<String>();
 
         if (!opts.alwaysFollowedBy) {
@@ -95,6 +99,10 @@ public class InvariMintPropTypes {
         if (!opts.neverFollowedBy) {
             invsToDelete.add("NFby");
         }
+
+        // IB: by "other specified invariants", do you mean invariants that are
+        // not in the invsToDelete list? It would help to clarify this in the
+        // comment.
 
         // This adds other specified invariants
         if (invsToDelete.size() < 3) {
@@ -115,6 +123,7 @@ public class InvariMintPropTypes {
 
             logger.fine("Removing unspecified invariants");
             Iterator<ITemporalInvariant> i = invs.iterator();
+            // IB: add comment(s) to explain what this does.
             while (i.hasNext()) {
                 ITemporalInvariant inv = i.next();
                 if (invsToDelete.contains(inv.getShortName()))
@@ -122,11 +131,16 @@ public class InvariMintPropTypes {
             }
 
             minedInvs.add(invs);
+            // IB: maybe change this to log
+            // "remain X invariants after removing invariants of type [a,b,c]"
             logger.fine("There remain " + minedInvs.numInvariants()
                     + "mined invariant(s).");
         }
 
     }
+
+    // IB: Maybe separate out the logic of creating an all-accepting model from
+    // the NIFby invariants mining/intersection?
 
     /**
      * Creates an initial, all-accepting model from mined NIFby invariants.
@@ -149,6 +163,10 @@ public class InvariMintPropTypes {
         logger.fine("Creating an initial, all-accepting, model.");
         invMintModel = new InvsModel(encodings);
 
+        // IB: What's the point of mining NIFby invariants if you're not going
+        // to need them. Maybe place this check at the beginning of the method?
+        // Though you do need to set the initial, all-accepting model first.
+
         if (opts.neverImmediatelyFollowedBy) {
             logger.fine("Adding NIfby invariants to mined invariants");
             minedInvs.add(NIFbys);
@@ -164,6 +182,16 @@ public class InvariMintPropTypes {
 
     // TODO: this is just copied from PGraphInvariMint, it seems like bad
     // practice to have this in here.
+
+    // IB: yes, this is bad practice. You may want to make the original method
+    // public, or refactor the code so that you can use it from here.
+
+    // IB: Actually, it looks like you need the traceGraph just to mine the
+    // NIFby invariants. So, perhaps you could abstract this process and create
+    // a method in Synoptic-land that mines NIFby invariants without needing a
+    // trace graph (i.e., it would create a trace graph internally to mine the
+    // invariants).
+
     /** Generate the traceGraph from input log files. */
     private ChainsTraceGraph getSynopticChainsTraceGraph() throws Exception {
         // Set up options in Synoptic Main that are used by the library.
