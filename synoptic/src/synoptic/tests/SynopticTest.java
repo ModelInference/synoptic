@@ -9,6 +9,9 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
@@ -48,6 +51,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * 
      * @throws ParseException
      */
+    @Override
     @Before
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
@@ -260,4 +264,24 @@ public abstract class SynopticTest extends SynopticLibTest {
         return ret;
     }
 
+    /**
+     * Given a set of invariants, return a copy of the set but without IntrBy
+     * invariants
+     * 
+     * @param invariants
+     *            The original set of invariants
+     * @return A copy of the original set but without IntrBy invariants
+     */
+    public static TemporalInvariantSet filterIntrByInvariants(
+            TemporalInvariantSet invariants) {
+
+        TemporalInvariantSet filtered = new TemporalInvariantSet();
+
+        for (ITemporalInvariant inv : invariants) {
+            if (!(inv instanceof InterruptedByInvariant)) {
+                filtered.add(inv);
+            }
+        }
+        return filtered;
+    }
 }

@@ -1,6 +1,7 @@
 package synoptic.invariants.miners;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,7 +9,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
@@ -33,7 +38,9 @@ import synoptic.model.interfaces.ITransition;
  * That is, it counts the number of times x is followed-by y, and the number of
  * times x precedes y for all event types x and y in the traces. It then re-uses
  * TemporalInvariantSet.extractInvariantsFromWalkCounts() to turn these counts
- * into valid temporal invariants.
+ * into valid temporal invariants. <br/>
+ * <br/>
+ * Note that this miner DOES NOT mine the IntrBy invariant so far.
  */
 public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         IPOInvariantMiner, ITOInvariantMiner {
@@ -190,12 +197,14 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return mineNeverConcurrentWith;
     }
 
+    @Override
     public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
         mineConcurrencyInvariants = true;
         return computeInvariants(g, Event.defTimeRelationStr);
     }
 
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+    @Override
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
         mineConcurrencyInvariants = false;
         return computeInvariants(g, Event.defTimeRelationStr);
@@ -453,7 +462,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
                 gEventCoOccurrences, gAlwaysFollowsINITIALSet, false);
 
         if (mineConcurrencyInvariants) {
@@ -1023,6 +1032,25 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
                         dst.get(eEntry.getKey()) + eEntry.getValue());
             }
         }
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+        set.add(AlwaysFollowedInvariant.class);
+        set.add(AlwaysPrecedesInvariant.class);
+        set.add(NeverFollowedInvariant.class);
+
+        return set;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+
+        set.add(InterruptedByInvariant.class);
+
+        return set;
     }
 
     // /Without NeverConcurrent invariant versions

@@ -7,6 +7,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.IThresholdConstraint;
@@ -31,16 +32,16 @@ import synoptic.util.time.ITime;
  * unconstrained invariants are simply augmented with constraints.
  * </p>
  * <p>
- * The only two invariants that can be constrained are AlwaysFollowedInvariant
- * and AlwaysPrecedesInvariant.
+ * The only three invariants that can be constrained are
+ * AlwaysFollowedInvariant, AlwaysPrecedesInvariant and InterruptedByInvariant.
  * </p>
  * <p>
  * Uses other totally ordered invariant miners to first mine the unconstrained
  * invariants (if not given these explicitly). Mines constraints for these
  * unconstrained invariants by walking the trace directly. Walking the trace
- * consists of traversing the log for every constrained AFby and AP invariant.
- * Each traversal finds a lower bound and upper bound constraint for an
- * unconstrained invariant. Two constrained invariants are then created (for
+ * consists of traversing the log for every constrained AFby, AP, and IntrBy
+ * invariant. Each traversal finds a lower bound and upper bound constraint for
+ * an unconstrained invariant. Two constrained invariants are then created (for
  * lower bound and upper bound) and added in the resulting constrained invariant
  * set.
  * </p>
@@ -59,8 +60,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
     /**
      * Uses the miner passed into the constructor to first mine unconstrained
      * invariants. Then walks the trace to compute constraints for
-     * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Returns a set of
-     * these constrained invariants.
+     * AlwaysFollowedInvariant, AlwaysPrecedesInvariant, and
+     * InterruptedByInvariant. Returns a set of these constrained invariants.
      * 
      * @param miner
      *            The miner to use for mining regular (unconstrained)
@@ -81,7 +82,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
     /**
      * Given a set of unconstrained invariants, walks the trace graph to compute
-     * constraints for AFby and AP invariants. Augments these existing
+     * constraints for AFby, AP, and IntrBy invariants. Augments these existing
      * invariants with constraints. Returns a set of these constrained
      * invariants.
      * 
@@ -129,7 +130,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 constrainedInvs.add(inv);
             }
 
-            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)) {
+            if (!(inv instanceof AlwaysFollowedInvariant
+                    || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterruptedByInvariant)) {
                 continue;
             }
             computeInvariants((BinaryInvariant) inv);
@@ -149,7 +151,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
      */
     public void computeInvariants(BinaryInvariant inv) {
 
-        assert (inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant);
+        assert (inv instanceof AlwaysFollowedInvariant
+                || inv instanceof AlwaysPrecedesInvariant || inv instanceof InterruptedByInvariant);
 
         EventType a = inv.getFirst();
         EventType b = inv.getSecond();
@@ -160,10 +163,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
             return;
         }
 
-        // Return pair.left represents lower bound constraint.
-        // Return pair.right represents upper bound constraint.
-        Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
-                a, b);
+        // constraints.left represents lower bound constraint.
+        // constraints.right represents upper bound constraint.
+        Pair<IThresholdConstraint, IThresholdConstraint> constraints;
+
+        if (inv instanceof InterruptedByInvariant) {
+            // IntrBy's constraints are between a&a, not a&b
+            constraints = computeConstraints(a, a, true);
+        } else {
+            constraints = computeConstraints(a, b, false);
+        }
 
         // Create two TempConstrainedInvariant objects using the lower bound and
         // upper bound computed.
@@ -197,20 +206,28 @@ public class ConstrainedInvMiner extends InvariantMiner {
      * delta value (difference between time of first and last) for relationPath
      * The upper bound is the max delta value out of all the deltas Returns the
      * computed lower and upper bound constraints as a pair. The left is the
-     * lower bound constraint and the right is the upper bound constraint.
+     * lower bound constraint and the right is the upper bound constraint. This
+     * method provides an additional param to the overloaded computeConstraints
+     * method: The IntrBy varies as it must compute lower bounds between two
+     * a's. The upper bound is also computed that way, but can reuse the
+     * original implementation. TODO: refactor this at some point
      * 
-     * @param relationPaths
-     *            set of relationPaths to walk
      * @param a
      *            first invariant predicate
      * @param b
      *            second invariant predicate
+     * @param betweenFirstAndFirstPredicate
+     *            If the invariant's bounds are calculated between two instances
+     *            of the first predicate (between a&a) instead of between an
+     *            instance of the first predicate and an instance of the second
+     *            predicate (between a&b). This currently only applies to
+     *            IntrBy.
      * @return IThresholdConstraint pair where the left represents the lower
      *         bound constraint and the right represents the upper bound
      *         constraint
      */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            EventType a, EventType b) {
+            EventType a, EventType b, boolean betweenFirstAndFirstPredicate) {
 
         ITime lowerBound = null;
         ITime upperBound = null;
@@ -239,7 +256,20 @@ public class ConstrainedInvMiner extends InvariantMiner {
 
             while (true) {
                 if (curr.getEType().equals(a)) {
+                    // for IntrBy: compute lowerBound between two a's
+                    if (betweenFirstAndFirstPredicate) {
+                        if (recentA != null) {
+                            ITime delta = curr.getTime().computeDelta(
+                                    recentA.getTime());
+                            if (lowerBound == null
+                                    || delta.lessThan(lowerBound)) {
+                                lowerBound = delta;
+                            }
+                        }
+                    }
+                    // mark last recent occurrence of a
                     recentA = curr;
+                    // mark first occurrence of a (for upper bound)
                     if (firstA == null) {
                         firstA = curr.getTime();
                     }
@@ -248,14 +278,16 @@ public class ConstrainedInvMiner extends InvariantMiner {
                 if (curr.getEType().equals(b)) {
                     // If node of event type a is found already, then we can
                     // obtain a delta value since we now found node of event
-                    // type b.
-                    if (recentA != null) {
+                    // type b. (NOT FOR IntrBy, lowerBound already covered by
+                    // previous check)
+                    if (recentA != null && !betweenFirstAndFirstPredicate) {
                         ITime delta = curr.getTime().computeDelta(
                                 recentA.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;
                         }
                     }
+                    // mark last occurrence of b (for upper bound)
                     lastB = curr.getTime();
                 }
 

@@ -34,7 +34,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
- * 
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
@@ -199,6 +198,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
+
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "b", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -239,11 +241,15 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
+
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "a", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 Event.defTimeRelationStr));
         logger.info("minedInvs: " + minedInvs.toString());
+
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
@@ -333,6 +339,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
                 false);
+
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
 
         // Test with FSM checker.
         SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();

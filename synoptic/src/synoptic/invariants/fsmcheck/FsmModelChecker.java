@@ -15,6 +15,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
@@ -29,7 +30,6 @@ import synoptic.model.interfaces.INode;
  * synoptic.invariants at once in one relatively efficient pass. Following this
  * pass, a less efficient synoptic.model is invoked, which keeps track of the
  * path required to end up in the failing state.
- * 
  */
 public class FsmModelChecker {
     /**
@@ -195,7 +195,8 @@ public class FsmModelChecker {
             stateset = new APTracingSet<Node>(invariant);
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
-
+        } else if (invClass.equals(InterruptedByInvariant.class)) {
+            stateset = new IntrByTracingSet<Node>(invariant);
         } else if (invClass.equals(TempConstrainedInvariant.class)) {
 
             BinaryInvariant constInvInv = ((TempConstrainedInvariant<?>) invariant)
@@ -220,6 +221,15 @@ public class FsmModelChecker {
                 // AP Lower
                 else if (constInvConst instanceof LowerBoundConstraint) {
                     stateset = new APLowerTracingSet<Node>(invariant);
+                }
+            } else if (constInvInv instanceof InterruptedByInvariant) {
+                // IntrBy Upper
+                if (constInvConst instanceof UpperBoundConstraint) {
+                    stateset = new IntrByUpperTracingSet<Node>(invariant);
+                }
+                // IntrBy Lower
+                else if (constInvConst instanceof LowerBoundConstraint) {
+                    stateset = new IntrByLowerTracingSet<Node>(invariant);
                 }
             }
         }

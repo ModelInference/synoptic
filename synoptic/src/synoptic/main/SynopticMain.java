@@ -547,6 +547,11 @@ public class SynopticMain {
             miner = new ChainWalkingTOInvMiner();
         }
 
+        logger.info("Invariants being mined:"
+                + invariantClassNamesToString(miner.getMinedInvariants()));
+        logger.info("Invariants NOT being mined:"
+                + invariantClassNamesToString(miner.getIgnoredInvariants()));
+
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
@@ -565,6 +570,17 @@ public class SynopticMain {
         // Miner can be garbage-collected.
         miner = null;
         return minedInvs;
+    }
+
+    private String invariantClassNamesToString(
+            Set<Class<? extends ITemporalInvariant>> invariants) {
+        StringBuilder builder = new StringBuilder();
+        for (Class<? extends ITemporalInvariant> c : invariants) {
+            builder.append(" ");
+            builder.append(c.getSimpleName());
+        }
+
+        return builder.toString();
     }
 
     /**

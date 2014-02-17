@@ -7,6 +7,7 @@ import org.junit.Before;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.AFbyLowerTracingSet;
@@ -14,6 +15,8 @@ import synoptic.invariants.fsmcheck.AFbyUpperTracingSet;
 import synoptic.invariants.fsmcheck.APLowerTracingSet;
 import synoptic.invariants.fsmcheck.APUpperTracingSet;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
+import synoptic.invariants.fsmcheck.IntrByLowerTracingSet;
+import synoptic.invariants.fsmcheck.IntrByUpperTracingSet;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
@@ -25,7 +28,6 @@ import synoptic.model.PartitionGraph;
 
 /**
  * Common helper methods and variables for Pynoptic tests
- * 
  */
 public abstract class PynopticTest extends SynopticTest {
 
@@ -33,7 +35,7 @@ public abstract class PynopticTest extends SynopticTest {
     protected TempConstrainedInvariant<?> inv;
 
     protected enum TracingSet {
-        APUpper, APLower, AFbyUpper, AFbyLower
+        APUpper, APLower, AFbyUpper, AFbyLower, IntrByLower, IntrByUpper
     }
 
     @Before
@@ -57,11 +59,16 @@ public abstract class PynopticTest extends SynopticTest {
      * 
      * @param events
      *            Log of events with timings
+     * @param type
+     *            If non-null, generate partition graph using only this type of
+     *            constrained invariant. Type of bound is ignored, e.g., passing
+     *            IntrByUpper will use all constrained IntrBy invariants.
+     *            Currently, only IntrBy is supported.
      * @return PartitionGraph with constrained invariants
      * @throws Exception
      */
-    protected PartitionGraph genConstrainedPartitionGraph(String[] events)
-            throws Exception {
+    protected PartitionGraph genConstrainedPartitionGraph(String[] events,
+            TracingSet type) throws Exception {
 
         // Generate trace graph from passed events
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
@@ -74,6 +81,14 @@ public abstract class PynopticTest extends SynopticTest {
         // Generate constrained invariants
         TemporalInvariantSet invs = constMiner.computeInvariants(miner,
                 inputGraph, false);
+
+        // Retain only the requested type of constrained invariant
+        if (type != null) {
+            if (type == TracingSet.IntrByUpper
+                    || type == TracingSet.IntrByLower) {
+                invs = getOnlyIntrByInvs(invs);
+            }
+        }
 
         // Construct and return partition graph
         return new PartitionGraph(inputGraph, true, invs);
@@ -153,7 +168,7 @@ public abstract class PynopticTest extends SynopticTest {
             throws Exception {
 
         // Get partition graph
-        graph = genConstrainedPartitionGraph(events);
+        graph = genConstrainedPartitionGraph(events, null);
 
         // Retrieve test invariant
         inv = getConstrainedInv(graph.getInvariants(), invString);
@@ -168,10 +183,47 @@ public abstract class PynopticTest extends SynopticTest {
             tracingSet = new AFbyUpperTracingSet<Partition>(inv);
         } else if (type == TracingSet.AFbyLower) {
             tracingSet = new AFbyLowerTracingSet<Partition>(inv);
+        } else if (type == TracingSet.IntrByUpper) {
+            tracingSet = new IntrByUpperTracingSet<Partition>(inv);
+        } else if (type == TracingSet.IntrByLower) {
+            tracingSet = new IntrByLowerTracingSet<Partition>(inv);
         }
 
         // Run initial partition graph through the state machine for the
         // retrieved constrained invariant, get tracing sets
         return FsmModelChecker.runChecker(tracingSet, graph, true);
+    }
+
+    /**
+     * Given a set of invariants, a new set containing only constrained IntrBy
+     * invariants
+     * 
+     * @param invariants
+     *            The original set of invariants
+     * @return A new invariant set containing only the constrained IntrBy
+     *         invariants from the original set
+     */
+    protected static TemporalInvariantSet getOnlyIntrByInvs(
+            TemporalInvariantSet invariants) {
+
+        // New invariant set
+        TemporalInvariantSet onlyIntrBy = new TemporalInvariantSet();
+
+        for (ITemporalInvariant inv : invariants) {
+
+            // Only consider constrained invariants
+            if (inv instanceof TempConstrainedInvariant) {
+
+                // Get underlying invariant type
+                BinaryInvariant constInvType = ((TempConstrainedInvariant<?>) inv)
+                        .getInv();
+
+                // If true, inv is both constrained and IntrBy, so keep it
+                if (constInvType instanceof InterruptedByInvariant) {
+                    onlyIntrBy.add(inv);
+                }
+            }
+        }
+        return onlyIntrBy;
     }
 }
