@@ -32,6 +32,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -180,7 +181,7 @@ public class Bisimulation {
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
         Collections.shuffle(counterExampleTraces,
-                SynopticMain.getInstanceWithExistenceCheck().random);
+                AbstractMain.getInstanceWithExistenceCheck().random);
 
         // logger.fine("" + counterExampleTraces.size()
         // + " unsatisfied invariants and counter-examples: "
@@ -226,10 +227,10 @@ public class Bisimulation {
 
         // logger.fine(logStr);
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck()
+        if (AbstractMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
+            AbstractMain.getInstanceWithExistenceCheck()
                     .exportNonInitialGraph(
-                            SynopticMain.getInstanceWithExistenceCheck()
+                            AbstractMain.getInstanceWithExistenceCheck()
                                     .getIntermediateDumpFilename("r",
                                             numSplitSteps + 1), pGraph);
         }
@@ -426,7 +427,7 @@ public class Bisimulation {
             }
         }
 
-        Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
+        Random rand = AbstractMain.getInstanceWithExistenceCheck().random;
 
         // Get all other events that are neither incoming nor outgoing min/max
         // events
@@ -632,7 +633,7 @@ public class Bisimulation {
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
 
         IOperation arbitrarySplit = null;
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
 
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
@@ -657,7 +658,7 @@ public class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, syn.random);
+            Collections.shuffle(candidateSplits, main.random);
 
             // Save an arbitrary split to return to caller, if we haven't saved
             // one already.
@@ -685,7 +686,7 @@ public class Bisimulation {
             // might have found earlier (for previous counter-examples).
             //
             for (PartitionSplit candidateSplit : candidateSplits) {
-                if (syn.options.performExtraChecks) {
+                if (main.options.performExtraChecks) {
                     // getSplits() should never generate invalid splits.
                     if (!candidateSplit.isValid()) {
                         throw new InternalSynopticException(
@@ -797,7 +798,7 @@ public class Bisimulation {
         // violations.
         Map<Partition, Set<Partition>> mergeBlacklist = new LinkedHashMap<Partition, Set<Partition>>();
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain syn = AbstractMain.getInstanceWithExistenceCheck();
         while (true) {
             if (syn.options.dumpIntermediateStages) {
                 syn.exportNonInitialGraph(
@@ -890,7 +891,7 @@ public class Bisimulation {
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 
-                    if (SynopticMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+                    if (AbstractMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
                         pGraph.checkSanity();
                     }
 

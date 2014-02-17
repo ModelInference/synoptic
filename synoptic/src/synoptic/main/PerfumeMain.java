@@ -5,45 +5,47 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Random;
 
+import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ConstrainedInvMiner;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphExportFormatter;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Contains entry points for the command line version of Synoptic, as well as
- * for libraries that want to use Synoptic from a jar.
+ * Contains entry points for the command line version of Perfume.
  */
-public class SynopticMain extends AbstractMain {
+public class PerfumeMain extends AbstractMain {
 
     /**
-     * Return the singleton instance of SynopticMain, first asserting that the
+     * Return the singleton instance of PerfumeMain, first asserting that the
      * instance isn't null.
      */
-    public static SynopticMain getInstanceWithExistenceCheck() {
+    public static PerfumeMain getInstanceWithExistenceCheck() {
         assert (instance != null);
-        assert (instance instanceof SynopticMain);
-        return (SynopticMain) instance;
+        assert (instance instanceof PerfumeMain);
+        return (PerfumeMain) instance;
     }
 
     /**
-     * Return the singleton instance of SynopticMain.
+     * Return the singleton instance of PerfumeMain.
      */
-    public static SynopticMain getInstance() {
-        assert (instance instanceof SynopticMain);
-        return (SynopticMain) instance;
+    public static PerfumeMain getInstance() {
+        assert (instance instanceof PerfumeMain);
+        return (PerfumeMain) instance;
     }
 
     /**
-     * The synoptic.main method to perform the Synoptic inference algorithm. See
+     * The synoptic.main method to perform the Perfume inference algorithm. See
      * user documentation for an explanation of the options.
      * 
      * @param args
      *            Command-line options
      */
     public static void main(String[] args) throws Exception {
-        SynopticMain mainInstance = processArgs(args);
+        PerfumeMain mainInstance = processArgs(args);
         if (mainInstance == null) {
             return;
         }
@@ -64,13 +66,12 @@ public class SynopticMain extends AbstractMain {
 
     /**
      * Parses the set of arguments to the program, to set up static state in
-     * SynopticMain. This state includes everything necessary to run Synoptic --
+     * PerfumeMain. This state includes everything necessary to run Perfume --
      * input log files, regular expressions, etc. Returns null if there is a
      * problem with the parsed options.
      * 
      * @param args
-     *            Command line arguments that specify how Synoptic should
-     *            behave.
+     *            Command line arguments that specify how Perfume should behave.
      * @return
      * @throws IOException
      * @throws URISyntaxException
@@ -78,15 +79,15 @@ public class SynopticMain extends AbstractMain {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static SynopticMain processArgs(String[] args) throws IOException,
+    public static PerfumeMain processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
         // Parse and process command line options
         SynopticOptions opts = new SynopticOptions(args);
         AbstractMain newMain = processArgs(opts);
 
-        assert (newMain instanceof SynopticMain);
-        return (SynopticMain) newMain;
+        assert (newMain instanceof PerfumeMain);
+        return (PerfumeMain) newMain;
     }
 
     /**
@@ -98,7 +99,7 @@ public class SynopticMain extends AbstractMain {
      * @param graphExportFormatter
      *            Graph export formatter for outputting the model
      */
-    public SynopticMain(SynopticOptions opts,
+    public PerfumeMain(SynopticOptions opts,
             GraphExportFormatter graphExportFormatter) {
         setUpLogging(opts);
 
@@ -111,5 +112,32 @@ public class SynopticMain extends AbstractMain {
         this.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
         AbstractMain.instance = this;
+    }
+
+    @Override
+    public TemporalInvariantSet mineTOInvariants(
+            boolean useTransitiveClosureMining, ChainsTraceGraph traceGraph) {
+
+        if (useTransitiveClosureMining) {
+            logger.warning("Using transitive closure mining was requested, but this is not supported by Perfume. Continuing without transitive closure mining.");
+        }
+
+        // Mine unconstrained Synoptic invariants
+        TemporalInvariantSet unconstrainedInvs = mineTOInvariantsCommon(false,
+                traceGraph);
+
+        // Mine performance-constrained invariants
+        long startTime = loggerInfoStart("Mining performance-constrained invariants...");
+        ConstrainedInvMiner constrainedMiner = new ConstrainedInvMiner();
+
+        // Augment unconstrained invariants with performance information. A
+        // 'false' parameter is hard-coded because Perfume does not support the
+        // multipleRelations flag.
+        TemporalInvariantSet allInvs = constrainedMiner.computeInvariants(
+                traceGraph, false, unconstrainedInvs);
+
+        loggerInfoEnd("Constrained mining took ", startTime);
+
+        return allInvs;
     }
 }

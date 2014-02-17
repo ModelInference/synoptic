@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -35,7 +35,7 @@ public class TraceNormalizationTests extends PynopticTest {
                 iEvents, genITimeParser());
 
         // Normalize trace graph
-        SynopticMain.normalizeTraceGraph(traceGraph);
+        AbstractMain.normalizeTraceGraph(traceGraph);
 
         // Get all events in trace graph
         Set<EventNode> events = traceGraph.getNodes();
@@ -157,7 +157,7 @@ public class TraceNormalizationTests extends PynopticTest {
                 rawEvents, parser);
 
         // Normalize trace graph
-        SynopticMain.normalizeTraceGraph(traceGraph);
+        AbstractMain.normalizeTraceGraph(traceGraph);
 
         // Get all events in trace graph
         Set<EventNode> events = traceGraph.getNodes();
