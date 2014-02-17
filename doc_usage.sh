@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Documents usage screens (generated with the -H option) for all of
-# the projects hosted by the repo --- Synoptic, Dynoptic,
+# the projects hosted by the repo --- Synoptic, CSight,
 # InvariMint. These are written to wiki pages (e.g.,
 # 'DocsSynopticCmdLineHelpScreen') and can be found online, e.g.,:
 # http://code.google.com/p/synoptic/wiki/DocsSynopticCmdLineHelpScreen
@@ -62,16 +62,16 @@ function gen_wiki_page() {
 
 # Location of the usage screen wiki pages.
 syn_usagef=${wiki_repo}/DocsSynopticCmdLineHelpScreen.wiki
-dyn_usagef=${wiki_repo}/DocsDynopticCmdLineHelpScreen.wiki
+dyn_usagef=${wiki_repo}/DocsCSightCmdLineHelpScreen.wiki
 invmint_usagef=${wiki_repo}/DocsInvariMintCmdLineHelpScreen.wiki
 
 ############################## Synoptic usage
 # Generate the synoptic usage:
 gen_wiki_page $syn_usagef "./synoptic.sh -H" "Synoptic";
 
-############################## Dynoptic usage
-# Generate the dynoptic usage:
-gen_wiki_page $dyn_usagef "./dynoptic.sh -H" "Dynoptic";
+############################## CSight usage
+# Generate the csight usage:
+gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight";
 
 ############################## InvariMint usage
 # Generate the invarimint usage:

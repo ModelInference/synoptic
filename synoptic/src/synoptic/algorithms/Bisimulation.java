@@ -28,10 +28,8 @@ import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
-import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.main.SynopticMain;
@@ -303,32 +301,18 @@ public class Bisimulation {
         // constrained invariants
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
 
-        boolean isIntrBy = false;
-
-        // Check if invariant type is IntrBy
-        BinaryInvariant constInvType = ((TempConstrainedInvariant<?>) counterexampleTrace.invariant)
-                .getInv();
-        if (constInvType instanceof InterruptedByInvariant) {
-            isIntrBy = true;
-        }
-
         int traversalStart;
         int traversalEnd;
 
-        if (isIntrBy) {
-            // For IntrBy, traverse the full violation subpath
-            traversalStart = counterexampleTrace.violationEnd;
-            traversalEnd = counterexampleTrace.violationStart;
-        } else {
-            // For AFby and AP, traverse the violation subpath from its second
-            // last partition to its second partition. First and last are not
-            // considered for splitting because they cannot possibly contain a
-            // stitch: transitions into the start partition have no bearing on
-            // the violation, and neither do transitions out of the end
-            // partition.
-            traversalStart = counterexampleTrace.violationEnd - 1;
-            traversalEnd = counterexampleTrace.violationStart + 1;
-        }
+        // For AFby and AP, traverse the violation subpath from its second
+        // last partition to its second partition. First and last are not
+        // considered for splitting because they cannot possibly contain a
+        // stitch: transitions into the start partition have no bearing on
+        // the violation, and neither do transitions out of the end
+        // partition. This should also work for the IntrBy
+        traversalStart = counterexampleTrace.violationEnd - 1;
+        traversalEnd = counterexampleTrace.violationStart + 1;
+
         for (int i = traversalStart; i >= traversalEnd; --i) {
 
             // Check if partition at i is null

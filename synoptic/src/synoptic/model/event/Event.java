@@ -10,7 +10,7 @@ import synoptic.util.time.ITime;
  * as well as information to identify where the event came from (e.g., filename,
  * line number, etc).
  * <p>
- * This class is also used by Dynoptic where it represents an event that was
+ * This class is also used by CSight where it represents an event that was
  * observed or mined from a log of an execution of a FIFO system.
  * </p>
  */

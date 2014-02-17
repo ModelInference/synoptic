@@ -19,9 +19,8 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IRelationPath;
 
 /**
- * Implements a temporal invariant mining algorithm which mines AFby, AP, NFby
- * and, in addition to the {@link TransitiveClosureInvMiner}, the IntrBy
- * invariants. <br/>
+ * Implements a temporal invariant mining algorithm which mines the invariants
+ * AFby, AP, NFby and (unlike {@link TransitiveClosureInvMiner}) IntrBy. <br/>
  * <br/>
  * The running time is linear in the number events in the log, and the space
  * usage is quadratic in the number of event types and running time also depends
@@ -72,8 +71,8 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * <p>
      * (4) To check a IntrBy b it is sufficient to iterate over all events in
      * all relation paths. All event types found between any pair of the same
-     * event type are candidates for interrupted by invariants, narrowing down
-     * the candidates to the actual invariants over the process.
+     * event type are candidates for IntrBy invariants, narrowing down the
+     * candidates for actual invariants in the process.
      * </p>
      * </p>
      * <p>

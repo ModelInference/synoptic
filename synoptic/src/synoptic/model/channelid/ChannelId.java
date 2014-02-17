@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 /**
  * <p>
- * This class is used solely by Dynoptic and is included in Synoptic to simplify
- * compatibility and to keep Synoptic independent of Dynoptic.
+ * This class is used solely by CSight and is included in Synoptic to simplify
+ * compatibility and to keep Synoptic independent of CSight.
  * </p>
  * <p>
  * Immutable class.
