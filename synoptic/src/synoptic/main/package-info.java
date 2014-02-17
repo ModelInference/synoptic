@@ -9,4 +9,8 @@ package synoptic.main;
  * binary as well as top-level library routines for (1) parsing logs, (2) mining
  * invariants, and (3) refining/coarsening the model.
  * </p>
+ * <p>
+ * Also provides corresponding versions of these functions for Perfume through
+ * the classes PerfumeMain and PerfumeOptions.
+ * </p>
  */

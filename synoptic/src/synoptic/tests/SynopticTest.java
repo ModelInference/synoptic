@@ -13,7 +13,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -56,7 +56,7 @@ public abstract class SynopticTest extends SynopticLibTest {
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
         super.setUp();
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
+        AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
     }
 
     // //////////////////////////////////////////////

@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -42,7 +42,7 @@ public class GraphVizExporterTests extends SynopticTest {
         List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
         Collections.shuffle(pathCopy,
-                SynopticMain.getInstanceWithExistenceCheck().random);
+                AbstractMain.getInstanceWithExistenceCheck().random);
         for (EventNode event : pathCopy) {
             g.add(event);
         }

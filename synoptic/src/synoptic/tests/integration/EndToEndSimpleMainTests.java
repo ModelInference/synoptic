@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
@@ -42,7 +43,7 @@ public class EndToEndSimpleMainTests extends SynopticTest {
 
     @Test
     public void argsTest() throws Exception {
-        SynopticMain.instance = null;
+        AbstractMain.instance = null;
         SynopticMain.main(args);
     }
 }

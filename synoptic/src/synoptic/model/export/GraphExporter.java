@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 import daikonizer.DaikonInvariants;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -64,12 +64,12 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.dotExecutablePath == null) {
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        if (main.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + syn.options.getOptDesc("dotExecutablePath"));
+                    + main.options.getOptDesc("dotExecutablePath"));
         }
-        return syn.options.dotExecutablePath;
+        return main.options.dotExecutablePath;
     }
 
     /**
@@ -153,10 +153,10 @@ public class GraphExporter {
     public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
         try {
             // Begin graph.
-            writer.write(syn.graphExportFormatter.beginGraphString());
+            writer.write(main.graphExportFormatter.beginGraphString());
 
             // ////////////////////////// Write out graph body.
 
@@ -179,8 +179,8 @@ public class GraphExporter {
                 T node = nodesIter.next();
 
                 // On user request, do not show the initial/terminal nodes.
-                if ((!syn.options.showInitialNode && node.isInitial())
-                        || (!syn.options.showTerminalNode && node.isTerminal())) {
+                if ((!main.options.showInitialNode && node.isInitial())
+                        || (!main.options.showTerminalNode && node.isTerminal())) {
                     // Remove the node from nodes to export (so that we do not
                     // show the edges corresponding to the nodes).
                     nodesIter.remove();
@@ -188,7 +188,7 @@ public class GraphExporter {
                 }
 
                 // Output the node record -- its id along with its attributes.
-                writer.write(syn.graphExportFormatter.nodeToString(nodeCnt,
+                writer.write(main.graphExportFormatter.nodeToString(nodeCnt,
                         node, node.isInitial(), node.isTerminal()));
                 // Remember the identifier assigned to this node (used for
                 // outputting transitions between nodes).
@@ -201,7 +201,7 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                if (syn.options.stateProcessing && node instanceof Partition) {
+                if (main.options.stateProcessing && node instanceof Partition) {
                     // We need to do these castings because INode<T> doesn't
                     // have getTransitionsWithDaikonInvariants method, but
                     // Partition has.
@@ -211,8 +211,8 @@ public class GraphExporter {
                 }
                 // If perf debugging and state processing aren't enabled,
                 // then output weights, else add the edge labels later.
-                else if (outputEdgeLabels && !syn.options.enablePerfDebugging
-                        && !syn.options.stateProcessing) {
+                else if (outputEdgeLabels && !main.options.enablePerfDebugging
+                        && !main.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -242,24 +242,24 @@ public class GraphExporter {
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571
                         assert (((INode<?>) (trans.getSource())) instanceof EventNode);
-                        s = syn.graphExportFormatter.edgeToStringWithTraceId(
+                        s = main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
                                 ((EventNode) ((INode<?>) trans.getSource()))
                                         .getTraceID(), trans.getRelation());
                     } else {
                         if (outputEdgeLabels) {
 
-                            if (syn.options.stateProcessing) {
+                            if (main.options.stateProcessing) {
                                 // Label Daikon invariants on this transition.
                                 DaikonInvariants daikonInvs = trans.getLabels()
                                         .getDaikonInvariants();
                                 assert (daikonInvs != null);
-                                s = syn.graphExportFormatter
+                                s = main.graphExportFormatter
                                         .edgeToStringWithDaikonInvs(nodeSrc,
                                                 nodeDst, daikonInvs,
                                                 trans.getRelation());
 
-                            } else if (syn.options.enablePerfDebugging) {
+                            } else if (main.options.enablePerfDebugging) {
                                 // Calculate the min and max time deltas
                                 ITime timeMin = null;
                                 ITime timeMax = null;
@@ -269,19 +269,19 @@ public class GraphExporter {
                                     timeMax = trans.getDeltaSeries()
                                             .computeMax();
                                 }
-                                s = syn.graphExportFormatter
+                                s = main.graphExportFormatter
                                         .edgeToStringWithITimes(nodeSrc,
                                                 nodeDst, timeMin, timeMax,
                                                 trans.getRelation());
 
                             } else {
                                 double prob = trans.getProbability();
-                                s = syn.graphExportFormatter
+                                s = main.graphExportFormatter
                                         .edgeToStringWithProb(nodeSrc, nodeDst,
                                                 prob, trans.getRelation());
                             }
                         } else {
-                            s = syn.graphExportFormatter
+                            s = main.graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
                                             trans.getRelation());
                         }
@@ -294,7 +294,7 @@ public class GraphExporter {
             // //////////////////////////
 
             // End graph.
-            writer.write(syn.graphExportFormatter.endGraphString());
+            writer.write(main.graphExportFormatter.endGraphString());
 
         } catch (IOException e) {
             throw new RuntimeException(

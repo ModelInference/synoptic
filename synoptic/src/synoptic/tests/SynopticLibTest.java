@@ -10,6 +10,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.runner.JUnitCore;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
@@ -25,7 +26,6 @@ import synoptic.model.interfaces.INode;
  * <pre>
  * Requires JUnit 4.7 or higher.
  * </pre>
- * 
  */
 public abstract class SynopticLibTest {
     /**
@@ -102,7 +102,7 @@ public abstract class SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        if (SynopticMain.instance == null) {
+        if (AbstractMain.instance == null) {
             SynopticMain synopticMain = new SynopticMain(new SynopticOptions(),
                     new DotExportFormatter());
         }
@@ -139,13 +139,13 @@ public abstract class SynopticLibTest {
     protected <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.logLvlVerbose && !syn.options.logLvlExtraVerbose) {
+        AbstractMain main = AbstractMain.getInstanceWithExistenceCheck();
+        if (main.options.logLvlVerbose && !main.options.logLvlExtraVerbose) {
             return;
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
 
-        syn.exportTraceGraph(path, g);
+        main.exportTraceGraph(path, g);
     }
 }
