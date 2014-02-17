@@ -17,14 +17,14 @@ public class DistEventType extends EventType implements IDistEventType {
 
     // The name of the process that generated the event. This is a string, like
     // "client", but it could also be a process id, like "0". This is used by
-    // Synoptic, but not Dynoptic.
+    // Synoptic, but not CSight.
     private String processName;
 
     // Used by INITIAL and TERMINAL event types (that are not process-specific).
     private final static String syntheticEventProcessName = "-1";
 
     // ////////////////////////////////////////////////////////////////
-    // Dynoptic-specific class members:
+    // CSight-specific class members:
     // ////////////////////////////////////////////////////////////////
 
     /**
@@ -75,7 +75,7 @@ public class DistEventType extends EventType implements IDistEventType {
     protected ChannelId channelId = null;
 
     /**
-     * Used by Dynoptic.<br/>
+     * Used by CSight.<br/>
      * <br/>
      * Interprets/parses the String eType into either a local, a send, or a
      * receive event. Can only be called once. For send/receive events uses
@@ -212,6 +212,7 @@ public class DistEventType extends EventType implements IDistEventType {
         } else if (isRecvEvent()) {
             return "ch" + channelId.getScmId() + "R" + eType;
         }
+        // Local event type.
         return eType + "p" + Integer.toString(pid) + "L";
     }
 
@@ -252,7 +253,7 @@ public class DistEventType extends EventType implements IDistEventType {
     }
 
     // ////////////////////////////////////////////////////////////////
-    // end Dynoptic-specific class members
+    // end CSight-specific class members
     // ////////////////////////////////////////////////////////////////
 
     private DistEventType(String eType, String pName,
@@ -397,5 +398,10 @@ public class DistEventType extends EventType implements IDistEventType {
         result = 31 * result + (eventCls == null ? 0 : eventCls.hashCode());
         result = 31 * result + (channelId == null ? 0 : channelId.hashCode());
         return result;
+    }
+
+    public String toPromelaString() {
+        // TODO: need to pass a set of channels and an encoding for event types.
+        return "chanI!m";
     }
 }

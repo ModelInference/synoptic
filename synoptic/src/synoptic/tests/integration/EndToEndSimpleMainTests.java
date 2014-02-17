@@ -42,6 +42,7 @@ public class EndToEndSimpleMainTests extends SynopticTest {
 
     @Test
     public void argsTest() throws Exception {
+        SynopticMain.instance = null;
         SynopticMain.main(args);
     }
 }

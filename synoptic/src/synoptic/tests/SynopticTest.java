@@ -272,7 +272,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      *            The original set of invariants
      * @return A copy of the original set but without IntrBy invariants
      */
-    public static TemporalInvariantSet filterInterrupterInvariant(
+    public static TemporalInvariantSet filterIntrByInvariants(
             TemporalInvariantSet invariants) {
 
         TemporalInvariantSet filtered = new TemporalInvariantSet();

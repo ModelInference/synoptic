@@ -18,14 +18,14 @@
     <target name="clean">
       <ant inheritAll="false" antfile="./daikonizer/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
-      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./csight/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./InvariMint/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticjung/build.xml" target="clean"/>
     </target>
 
     <!--=====================================================================-->
-    <target name="build" depends="synoptic, dynoptic, invarimint, synopticgwt, synopticjung">
+    <target name="build" depends="synoptic, csight, invarimint, synopticgwt, synopticjung">
       <echo message="Built all projects in the repository." />
     </target>
 
@@ -44,10 +44,10 @@
     </target>
 
     <!--=====================================================================-->
-    <target name="dynoptic" depends="synoptic">
-      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="clean"/>
-      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="build"/>
-      <ant inheritAll="false" antfile="./dynoptic/build.xml" target="jar"/>
+    <target name="csight" depends="synoptic">
+      <ant inheritAll="false" antfile="./csight/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./csight/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./csight/build.xml" target="jar"/>
     </target>
 
     <!--=====================================================================-->
@@ -61,7 +61,6 @@
     <target name="synopticgwt" depends="synoptic">
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="build"/>
-      <ant inheritAll="false" antfile="./synopticgwt/build.xml" target="jar"/>
     </target>
 
     <!--=====================================================================-->
