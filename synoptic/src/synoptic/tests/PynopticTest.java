@@ -45,12 +45,14 @@ public abstract class PynopticTest extends SynopticTest {
         super.setUp();
         // Enable performance debugging
         AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
+        AbstractMain.getInstanceWithExistenceCheck().options.keepOrder = true;
     }
 
     @After
     public void tearDown() {
         // Disable performance debugging
         AbstractMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
+        AbstractMain.getInstanceWithExistenceCheck().options.keepOrder = false;
     }
 
     /**
