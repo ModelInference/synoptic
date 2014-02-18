@@ -289,14 +289,12 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
                 genDTimeParser());
 
-        System.out.println(minedInvs);
-
         // a IntrBy b lower
         TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
-                "a AFBy b lower");
+                "a AFby b lower");
         // a IntrBy b upper
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
-                "a AFBy b upper");
+                "a AFby b upper");
 
         ITime actualLower = new DTotalTime(1.0);
         ITime actualUpper = new DTotalTime(6.0);
@@ -304,7 +302,50 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
         assertEquals(actualUpper, upper.getConstraint().getThreshold());
+    }
 
+    @Test
+    public void testNonMonotonicBounds() throws Exception {
+        String[] log = new String[] { "a 4", "b 10", "a 6", "b 8" };
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+
+        System.out.println(minedInvs);
+
+        // a IntrBy b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a AFby b lower");
+        // a IntrBy b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a AFby b upper");
+
+        ITime actualLower = new DTotalTime(2.0);
+        ITime actualUpper = new DTotalTime(6.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
+    }
+
+    @Test
+    public void testNonMonotonicBoundsNegative() throws Exception {
+        String[] log = new String[] { "a 3", "b -1", "a 2", "b -6" };
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+
+        // a IntrBy b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a AFby b lower");
+        // a IntrBy b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a AFby b upper");
+
+        ITime actualLower = new DTotalTime(-9);
+        ITime actualUpper = new DTotalTime(-4);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
     }
 
     /**
