@@ -201,6 +201,14 @@ public class SynopticOptions extends Options {
     @Option(value = "-c Command line arguments input filename",
             aliases = { "-argsfile" })
     public String argsFilename = null;
+
+    /**
+     * Whether or not to keep the order of the log events as present in the log
+     * file and not sort by the supplied values.
+     */
+    @Option(
+            value = "-k Keep log events order and do not sort by supplied values")
+    public boolean keepOrder = false;
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
