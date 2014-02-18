@@ -49,10 +49,12 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         super(initEvent, termEvent);
     }
 
+    @Override
     public void tagTerminal(EventNode terminalNode, Set<String> relations) {
         super.tagTerminal(terminalNode, relations);
     }
 
+    @Override
     public void tagTerminal(EventNode terminalNode, String relation) {
         super.tagTerminal(terminalNode, relation);
     }
@@ -63,6 +65,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         this.tagInitial(initialNode, relations);
     }
 
+    @Override
     public void tagInitial(EventNode initialNode, Set<String> relations) {
         if (relations == null) {
             throw new NullPointerException("Null relation set");
@@ -107,7 +110,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         for (EventNode curNode : events) {
 
             if (prevNode != null
-                    && prevNode.getTime().equals(curNode.getTime())) {
+                    && prevNode.getTime().equals(curNode.getTime())
+                    && !AbstractMain.getInstance().options.enablePerfDebugging) {
                 String error = "Found two events with identical timestamps: (1) "
                         + prevNode.toString() + " (2) " + curNode.toString();
                 logger.severe(error);
@@ -189,6 +193,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * Returns the number of trace ids that are immediately reachable from the
      * initNode.
      */
+    @Override
     public int getNumTraces() {
         return traceIdToInitNodes.size();
     }
@@ -201,6 +206,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * NOTE: an assumption of this code is that although there might be multiple
      * relations, the graph remains a linear chain.
      */
+    @Override
     public TransitiveClosure getTransitiveClosure(Set<String> relations) {
         assert relations != null;
 
@@ -240,6 +246,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
     // Used by tests only (so that DAGWalking invariant miner can operate on
     // ChainsTraceGraph)
+    @Override
     public Map<Integer, Set<EventNode>> getTraceIdToInitNodes() {
         Map<Integer, Set<EventNode>> map = new LinkedHashMap<Integer, Set<EventNode>>();
         for (Integer k : traceIdToInitNodes.keySet()) {

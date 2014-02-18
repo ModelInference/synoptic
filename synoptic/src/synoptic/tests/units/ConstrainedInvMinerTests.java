@@ -283,6 +283,30 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         genTimeInvariants(log, false, genDTimeParser());
     }
 
+    @Test
+    public void testNonMonotonicBoundsSimple() throws Exception {
+        String[] log = new String[] { "a 3", "b 5", "a 4", "a 2", "b 5", "b 8" };
+        TemporalInvariantSet minedInvs = genTimeInvariants(log, false,
+                genDTimeParser());
+
+        System.out.println(minedInvs);
+
+        // a IntrBy b lower
+        TempConstrainedInvariant<?> lower = getConstrainedInv(minedInvs,
+                "a AFBy b lower");
+        // a IntrBy b upper
+        TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
+                "a AFBy b upper");
+
+        ITime actualLower = new DTotalTime(1.0);
+        ITime actualUpper = new DTotalTime(6.0);
+
+        assertEquals(actualLower, lower.getConstraint().getThreshold());
+
+        assertEquals(actualUpper, upper.getConstraint().getThreshold());
+
+    }
+
     /**
      * Tests that computed lower and upper bounds are correct for a log with
      * multiple time deltas for a AFby b and a AP c.
