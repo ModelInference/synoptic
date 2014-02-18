@@ -36,6 +36,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
      * a AFby b <=> #F(a->b) == #a
      * a AP b   <=> #P(a->b) == #b
      * a NFby b <=> #F(a->b) == 0
+     * a IntrBy b <=> b \in gPossibleInterrupts[a]
      * INITIAL AFby a <=> a \in AlwaysFollowsINITIALSet
      * 
      * Where:
