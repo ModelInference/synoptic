@@ -58,8 +58,8 @@ public class TransitiveRelationPath implements IRelationPath {
      */
     private final boolean initialTransitivelyConnected;
 
-    /** The list of nodes seen prior to some point in the trace. */
-    private final LinkedList<EventType> seen;
+    /** The set of nodes seen prior to some point in the trace. */
+    private Set<EventType> seen;
     /** Maintains the current event count in the path. */
     private final Map<EventType, Integer> eventCounts;
     /**
@@ -96,7 +96,7 @@ public class TransitiveRelationPath implements IRelationPath {
         this.eFinal = eFinal;
         this.relation = relation;
         this.counted = false;
-        this.seen = new LinkedList<EventType>();
+        this.seen = new HashSet<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
@@ -114,6 +114,9 @@ public class TransitiveRelationPath implements IRelationPath {
         if (counted) {
             return;
         }
+
+        // Used for IntrBy, which needs to record order
+        LinkedList<EventType> history = new LinkedList<EventType>();
 
         Set<String> orderingRelationSet = new HashSet<String>();
         orderingRelationSet.add(orderingRelation);
@@ -222,17 +225,25 @@ public class TransitiveRelationPath implements IRelationPath {
                 bValues.put(b, eventCounts.get(a));
             }
 
-            // For IntrBy, event type b must have occurred at least once
-            // beforehand
+            // For the InterruptedBy invariant, event type b must have occurred
+            // at least once beforehand
             if (eventCounts.get(b) != null) {
                 Set<EventType> typesInBetween = new HashSet<EventType>();
-                for (EventType a : seen) {
+
+                // All event types in between b and the last occurrence of b are
+                // possible IntrBy invariants
+                for (EventType a : history) {
                     if (a.equals(b)) {
                         break;
                     }
 
                     typesInBetween.add(a);
                 }
+
+                // The recently found typesInBetween get intersected with the
+                // already found typesInBetween of earlier pairs of b, until
+                // there are only Interrupted by invariants which hold for all
+                // pairs of b.
 
                 if (!possibleInterrupts.containsKey(b)) {
                     possibleInterrupts.put(b, new HashSet<EventType>(
@@ -242,7 +253,9 @@ public class TransitiveRelationPath implements IRelationPath {
                 }
             }
 
-            seen.addFirst(b);
+            seen.add(b);
+
+            history.addFirst(b);
 
             // Update the trace event counts.
             if (!eventCounts.containsKey(b)) {
@@ -311,6 +324,9 @@ public class TransitiveRelationPath implements IRelationPath {
         return Collections.unmodifiableMap(precedesCounts);
     }
 
+    /**
+     * Map<a, Set<b>> iff a gets interrupted by b.
+     */
     @Override
     public Map<EventType, Set<EventType>> getPossibleInterrupts() {
         count();

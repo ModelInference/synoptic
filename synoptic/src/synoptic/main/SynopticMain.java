@@ -568,6 +568,14 @@ public class SynopticMain {
         return minedInvs;
     }
 
+    /**
+     * Converts a set of invariant class names into a nice looking printable
+     * string.
+     * 
+     * @param invariants
+     *            set of invariant classes
+     * @return nice looking string containing the invariant class names
+     */
     private String invariantClassNamesToString(
             Set<Class<? extends ITemporalInvariant>> invariants) {
         StringBuilder builder = new StringBuilder();
