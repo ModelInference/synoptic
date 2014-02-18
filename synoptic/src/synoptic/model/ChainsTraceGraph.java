@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.algorithms.TransitiveClosure;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
@@ -85,14 +86,16 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             Map<EventNode, Set<Relation>> eventRelations) throws ParseException {
         assert events.size() > 0;
 
-        // Sort the events in this group/trace according to the totally order
-        // time relation.
-        Collections.sort(events, new Comparator<EventNode>() {
-            @Override
-            public int compare(EventNode e1, EventNode e2) {
-                return e1.getTime().compareTo(e2.getTime());
-            }
-        });
+        if (!AbstractMain.getInstance().options.keepOrder) {
+            // Sort the events in this group/trace according to the totally
+            // order time relation.
+            Collections.sort(events, new Comparator<EventNode>() {
+                @Override
+                public int compare(EventNode e1, EventNode e2) {
+                    return e1.getTime().compareTo(e2.getTime());
+                }
+            });
+        }
 
         Map<String, EventNode> lastSeenNodeForRelation = new HashMap<String, EventNode>();
         EventNode prevNode = null;
