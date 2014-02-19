@@ -1,5 +1,6 @@
 package algorithms;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -40,6 +41,9 @@ public class InvariMintInitializer {
      */
     public InvariMintInitializer(InvariMintOptions opts) throws Exception {
         this.opts = opts;
+        allEvents = new HashSet<EventType>();
+        logger = Logger.getLogger("InvMintInitializer");
+
         // generates and initializes traceGraph field
         getSynopticChainsTraceGraph();
 

@@ -41,6 +41,7 @@ public class InvariMintPropTypes {
     public InvariMintPropTypes(InvariMintOptions opts) {
         logger = Logger.getLogger(invMintAlgName);
         this.opts = opts;
+        minedInvs = new TemporalInvariantSet();
     }
 
     /**
@@ -91,10 +92,6 @@ public class InvariMintPropTypes {
                     + " NIFby invariant(s).");
             logger.fine("Adding NIfby invariants to mined invariants");
             minedInvs.add(NIFbys);
-            logger.fine("Intersecting model with mined NIFby invariants (minimizeIntersections="
-                    + opts.minimizeIntersections + ")");
-            invMintModel = InvComposition.intersectModelWithInvs(NIFbys,
-                    opts.minimizeIntersections, invMintModel);
 
         }
 
@@ -113,37 +110,37 @@ public class InvariMintPropTypes {
         }
 
         // If none of AFby, AP and NFby were chosen, invsToDelete.size() = 3 and
-        // this is not run. Else we mine all the property types
+        // this is not run. Else we mine all the property types.
         if (invsToDelete.size() < 3) {
             ITOInvariantMiner synMiner = new ChainWalkingTOInvMiner();
 
             long startTime = System.currentTimeMillis();
+
+            // mine AFby, AP and NFby invariants
             logger.info("Mining invariants [" + synMiner.getClass().getName()
                     + "]..");
-
             TemporalInvariantSet invs = synMiner.computeInvariants(traceGraph,
                     false);
-
             long endTime = System.currentTimeMillis();
             logger.info("Mining took " + (endTime - startTime) + "ms");
-
             logger.fine("Mined " + invs.numInvariants()
-                    + "AFby, AP, NFby invariant(s).");
+                    + " AFby, AP, NFby invariant(s).");
 
+            // Iterate through the set of mined invariants to remove those that
+            // were not in opts -- i.e. those whose names are in invsToDelete
             logger.fine("Removing unspecified invariants");
             Iterator<ITemporalInvariant> i = invs.iterator();
-            // IB: add comment(s) to explain what this does.
             while (i.hasNext()) {
                 ITemporalInvariant inv = i.next();
                 if (invsToDelete.contains(inv.getShortName()))
                     i.remove();
             }
-
+            System.out.println(invs.toString());
+            // add the remaining invariants -- those specified in opts
             minedInvs.add(invs);
-            // IB: maybe change this to log
-            // "remain X invariants after removing invariants of type [a,b,c]"
             logger.fine("There remain " + minedInvs.numInvariants()
-                    + "mined invariant(s).");
+                    + " mined invariant(s) after removing invariants of type "
+                    + invsToDelete.toString() + ".");
         }
 
     }
