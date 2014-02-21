@@ -12,6 +12,7 @@ import model.PartitionGraphAutomaton;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
@@ -206,7 +207,7 @@ public abstract class PGraphInvariMint {
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = SynopticMain.parseEvents(parser,
+        List<EventNode> parsedEvents = AbstractMain.parseEvents(parser,
                 opts.logFilenames);
 
         String errMsg = null;

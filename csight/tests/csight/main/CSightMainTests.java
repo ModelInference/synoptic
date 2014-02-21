@@ -14,16 +14,13 @@ import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
 import csight.invariants.EventuallyHappens;
 import csight.invariants.NeverFollowedBy;
-import csight.main.CSightMain;
-import csight.main.CSightOptions;
-import csight.main.OptionException;
 import csight.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.channelid.ChannelId;
@@ -47,7 +44,7 @@ public class CSightMainTests extends CSightTest {
     public void setUp() throws Exception {
         super.setUp();
         // Reset the SynopticMain singleton reference.
-        SynopticMain.instance = null;
+        AbstractMain.instance = null;
     }
 
     // //////////////////// Check error conditions during options processing.
