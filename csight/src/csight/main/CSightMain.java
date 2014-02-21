@@ -28,6 +28,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
@@ -46,8 +47,8 @@ import synoptic.util.InternalSynopticException;
  * </p>
  * <p>
  * Unlike the synoptic code-base, DynopticMain is not a singleton and can be
- * instantiated for every new execution of CSight. However, DynopticMain
- * cannot be re-used. That is, a new version _must_ be instantiated for each new
+ * instantiated for every new execution of CSight. However, DynopticMain cannot
+ * be re-used. That is, a new version _must_ be instantiated for each new
  * execution of the CSight process.
  * </p>
  * <p>
@@ -225,8 +226,8 @@ public class CSightMain {
     // complete CSight pipeline:
 
     /**
-     * Runs the CSight process based on the settings in opts. In particular,
-     * we expect that the logFilenames are specified in opts.
+     * Runs the CSight process based on the settings in opts. In particular, we
+     * expect that the logFilenames are specified in opts.
      * 
      * @throws Exception
      */
@@ -250,7 +251,7 @@ public class CSightMain {
 
         // //////////////////
         // Generate the Synoptic DAG from parsed events
-        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
+        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser,
                 parsedEvents);
 
         // Parser can now be garbage-collected.
@@ -260,8 +261,8 @@ public class CSightMain {
     }
 
     /**
-     * Runs CSight based on setting in opts, but uses the log from the passed
-     * in String, and not from the logFilenames defined in opts.
+     * Runs CSight based on setting in opts, but uses the log from the passed in
+     * String, and not from the logFilenames defined in opts.
      * 
      * @param log
      * @throws Exception
@@ -283,7 +284,7 @@ public class CSightMain {
 
         // //////////////////
         // Generate the Synoptic DAG from parsed events
-        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
+        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser,
                 parsedEvents);
 
         // Parser can now be garbage-collected.
@@ -454,7 +455,7 @@ public class CSightMain {
 
         List<EventNode> parsedEvents;
 
-        parsedEvents = SynopticMain.parseEvents(parser, logFilenames);
+        parsedEvents = AbstractMain.parseEvents(parser, logFilenames);
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             throw new OptionException(

@@ -53,7 +53,7 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        SynopticMain syn = SynopticMain.getInstance();
         if (syn.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
                     + syn.options.getOptDesc("dotExecutablePath"));
