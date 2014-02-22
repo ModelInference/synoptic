@@ -139,7 +139,7 @@ public class SynopticOptions extends Options implements AbstractOptions {
      * Synoptic never uses performance information. Enabling this option would
      * effectively run Perfume.
      */
-    public boolean enablePerfDebugging = false;
+    public boolean usePerformanceInfo = false;
 
     /**
      * Synoptic doesn't support JSON output

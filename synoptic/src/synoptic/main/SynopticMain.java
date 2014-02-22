@@ -40,7 +40,7 @@ public class SynopticMain extends AbstractMain {
             return;
         }
         // TEMP HACK
-        mainInstance.options.enablePerfDebugging = false;
+        mainInstance.options.usePerformanceInfo = false;
 
         try {
             Locale.setDefault(Locale.US);
