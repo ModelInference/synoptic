@@ -22,7 +22,9 @@ public interface AbstractOptions {
     // Parser Options
 
     String separatorRegExpStr = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions";
+    public static final String regExpDefault = "(?<TYPE>.*)";
     String regExpsStr = "-r Parser reg-exp: extracts event type and event time from a log line";
+    public static final String partitionRegExpDefault = "\\k<FILE>";
     String partitionRegExpStr = "-m Partitions mapping reg-exp: maps a log line to a partition";
     String ignoreNonMatchingLinesStr = "-i Ignore lines that do not match any of the passed regular expressions";
     String outputJSONStr = "-j Output the final model as a JSON object";

@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
 import synoptic.model.ChainsTraceGraph;
@@ -166,9 +167,9 @@ public class TraceParser {
         assert (partitioningRegExp != null);
 
         logger.fine("Setting up the log file parser.");
-        if (partitioningRegExp.equals(SynopticOptions.partitionRegExpDefault)) {
+        if (partitioningRegExp.equals(AbstractOptions.partitionRegExpDefault)) {
             logger.info("Using the default partitions mapping regex: "
-                    + SynopticOptions.partitionRegExpDefault);
+                    + AbstractOptions.partitionRegExpDefault);
         }
 
         if (!rExps.isEmpty()) {
@@ -188,14 +189,14 @@ public class TraceParser {
                     + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
-            this.addRegex(SynopticOptions.regExpDefault);
+            this.addRegex(AbstractOptions.regExpDefault);
             this.setPartitionsMap(partitioningRegExp);
         }
 
         if (sepRegExp != null) {
             this.addPartitionsSeparator(sepRegExp);
             if (!partitioningRegExp
-                    .equals(SynopticOptions.partitionRegExpDefault)) {
+                    .equals(AbstractOptions.partitionRegExpDefault)) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
