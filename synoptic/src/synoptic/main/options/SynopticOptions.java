@@ -13,27 +13,27 @@ import plume.OptionGroup;
  * and the corresponding help messages. This library also provides support for
  * parsing and populating instances of these options.
  */
-public class SynopticOptions extends Options {
+public class SynopticOptions extends Options implements AbstractOptions {
     // //////////////////////////////////////////////////
     /**
      * Print the short usage message. This does not include verbosity or
      * debugging options.
      */
     @OptionGroup("General Options")
-    @Option(value = "-h Print short usage message", aliases = { "-help" })
+    @Option(value = helpStr, aliases = { "-help" })
     public boolean help = false;
 
     /**
      * Print the extended usage message. This includes verbosity and debugging
      * options but not internal options.
      */
-    @Option("-H Print extended usage message (includes debugging options)")
+    @Option(allHelpStr)
     public boolean allHelp = false;
 
     /**
      * Print the current Synoptic version.
      */
-    @Option(value = "-V Print program version", aliases = { "-version" })
+    @Option(value = versionStr, aliases = { "-version" })
     public boolean version = false;
     // end option group "General Options"
 
@@ -42,57 +42,50 @@ public class SynopticOptions extends Options {
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
     @OptionGroup("Execution Options")
-    @Option(value = "-q Be quiet, do not print much information",
-            aliases = { "-quiet" })
+    @Option(value = logLvlQuietStr, aliases = { "-quiet" })
     public boolean logLvlQuiet = false;
 
     /**
      * Be verbose, print extra detailed information. Sets the log level to FINE.
      */
-    @Option(value = "-v Print detailed information during execution",
-            aliases = { "-verbose" })
+    @Option(value = logLvlVerboseStr, aliases = { "-verbose" })
     public boolean logLvlVerbose = false;
 
     /**
      * Use the new FSM checker instead of the LTL checker.
      */
-    @Option(
-            value = "-f Use FSM checker instead of the default NASA LTL-based checker",
-            aliases = { "-use-fsm-checker" })
+    @Option(value = useFSMCheckerStr, aliases = { "-use-fsm-checker" })
     public boolean useFSMChecker = true;
 
     /**
      * Sets the random seed for Synoptic's source of pseudo-random numbers.
      */
-    @Option(
-            value = "Use a specific random seed for pseudo-random number generator")
+    @Option(randomSeedStr)
     public Long randomSeed = null;
 
     /**
      * Use vector time indexes to partition the output graph into a set of
      * graphs, one per distributed system node type.
      */
-    @Option(
-            value = "Vector time index sets for partitioning the graph by system node type, e.g. '1,2;3,4'")
+    @Option(separateVTimeIndexSetsStr)
     public String separateVTimeIndexSets = null;
 
     /**
      * Mine multiple-relations
      */
-    @Option("Mine multiple relations from the trace graph")
+    @Option(multipleRelationsStr)
     public boolean multipleRelations = false;
 
     /**
      * States are parsed. Enable state processing.
      */
-    @Option("Enable state processing")
+    @Option(stateProcessingStr)
     public boolean stateProcessing = false;
 
     /**
      * Enable abstract test generation.
      */
-    @Option(value = "-t Enable abstract test generation",
-            aliases = { "-test-generation" })
+    @Option(value = testGenerationStr, aliases = { "-test-generation" })
     public boolean testGeneration = false;
 
     // //////////////////////////////////////////////////
@@ -105,9 +98,7 @@ public class SynopticOptions extends Options {
      * to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(
-            value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions",
-            aliases = { "-partition-separator" })
+    @Option(value = separatorRegExpStr, aliases = { "-partition-separator" })
     public String separatorRegExp = null;
 
     /**
@@ -121,9 +112,7 @@ public class SynopticOptions extends Options {
      * this, detailed in the online documentation.
      */
     public static final String regExpDefault = "(?<TYPE>.*)";
-    @Option(
-            value = "-r Parser reg-exp: extracts event type and event time from a log line",
-            aliases = { "-regexp" })
+    @Option(value = regExpsStr, aliases = { "-regexp" })
     public List<String> regExps = null;
 
     /**
@@ -132,9 +121,7 @@ public class SynopticOptions extends Options {
      * behavior of the system.
      */
     public static final String partitionRegExpDefault = "\\k<FILE>";
-    @Option(
-            value = "-m Partitions mapping reg-exp: maps a log line to a partition",
-            aliases = { "-partition-mapping" })
+    @Option(value = partitionRegExpStr, aliases = { "-partition-mapping" })
     public String partitionRegExp = partitionRegExpDefault;
 
     /**
@@ -147,31 +134,27 @@ public class SynopticOptions extends Options {
      * lines that they are not interested in. This also help to avoid parsing of
      * lines that are corrupted.
      */
-    @Option(
-            value = "-i Ignore lines that do not match any of the passed regular expressions")
+    @Option(ignoreNonMatchingLinesStr)
     public boolean ignoreNonMatchingLines = false;
 
     /**
-     * This option allows the user to debug their system in terms of
-     * performance.
+     * This indicates that the Synoptic algorithm is run without including
+     * performance information, i.e., Perfume is not run. TODO: make final,
+     * modify test libraries that rely on this option, rename
      */
-    @Option(value = "-p Enable performance debugging support")
     public boolean enablePerfDebugging = false;
 
     /**
      * Allows outputting the final model as a JSON object to the output prefix
      * specified by -o or -output-prefix.
      */
-    @Option(value = "-j Output the final model as a JSON object",
-            aliases = { "-output-json" })
+    @Option(value = outputJSONStr, aliases = { "-output-json" })
     public boolean outputJSON = false;
 
     /**
      * Allows performing trace-wise normalization, requires enablePerfDebugging
      */
-    @Option(
-            value = "Independently normalize each trace; requires --enablePerfDebugging (or -p)",
-            aliases = { "-trace-norm" })
+    @Option(value = traceNormalizationStr, aliases = { "-trace-norm" })
     public boolean traceNormalization = false;
 
     /**
@@ -179,17 +162,14 @@ public class SynopticOptions extends Options {
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(
-            value = "Ignore parser warnings and attempt to recover from parse errors if possible",
+    @Option(value = recoverFromParseErrorsStr,
             aliases = { "-ignore-parse-errors" })
     public boolean recoverFromParseErrors = false;
 
     /**
      * Output the fields extracted from each log line and terminate.
      */
-    @Option(
-            value = "Debug the parser by printing field values extracted from the log and then terminate.",
-            aliases = { "-debugParse" })
+    @Option(value = debugParseStr, aliases = { "-debugParse" })
     public boolean debugParse = false;
     // end option group "Parser Options"
 
@@ -198,8 +178,7 @@ public class SynopticOptions extends Options {
      * Command line arguments input filename to use.
      */
     @OptionGroup("Input Options")
-    @Option(value = "-c Command line arguments input filename",
-            aliases = { "-argsfile" })
+    @Option(value = argsFilenameStr, aliases = { "-argsfile" })
     public String argsFilename = null;
     // end option group "Input Options"
 
@@ -212,54 +191,48 @@ public class SynopticOptions extends Options {
      * --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(
-            value = "-o Output path prefix for generating Graphviz dot files graphics",
-            aliases = { "-output-prefix" })
+    @Option(value = outputPathPrefixStr, aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
 
     /**
      * Whether or not to output the list of invariants to a file, with one
      * invariant per line.
      */
-    @Option(value = "Output invariants to a file")
+    @Option(outputInvariantsToFileStr)
     public boolean outputInvariantsToFile = false;
 
     /**
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
-    @Option(value = "Export models as GML and not DOT files",
-            aliases = { "-export-as-gml" })
+    @Option(value = exportAsGMLStr, aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
 
     /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
-    @Option(value = "-d Path to the Graphviz dot command executable to use",
-            aliases = { "-dot-executable" })
+    @Option(value = dotExecutablePathStr, aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
      * This sets the output edge labels on graphs that are exported.
      */
-    @Option(
-            value = "Output edge labels on graphs to indicate transition probabilities",
-            aliases = { "-outputEdgeLabels" })
+    @Option(value = outputEdgeLabelsStr, aliases = { "-outputEdgeLabels" })
     public boolean outputEdgeLabels = true;
 
     /**
      * Whether or not the output graphs include the common TERMINAL state, to
      * which all final trace nodes have an edge.
      */
-    @Option(value = "Show TERMINAL node in generated graphs.")
+    @Option(showTerminalNodeStr)
     public boolean showTerminalNode = true;
 
     /**
      * Whether or not the output graphs include the common INITIAL state, which
      * has an edge to all the start trace nodes.
      */
-    @Option(value = "Show INITIAL node in generated graphs.")
+    @Option(showInitialNodeStr)
     public boolean showInitialNode = true;
 
     // end option group "Output Options"
@@ -271,7 +244,7 @@ public class SynopticOptions extends Options {
      * in the default usage message
      */
     @OptionGroup(value = "Verbosity Options", unpublicized = true)
-    @Option("Dump complete list of mined invariant to stdout")
+    @Option(dumpInvariantsStr)
     public boolean dumpInvariants = false;
 
     /**
@@ -281,7 +254,7 @@ public class SynopticOptions extends Options {
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message
      */
-    @Option("Dump the DOT file for the trace graph to file <outputPathPrefix>.tracegraph.dot")
+    @Option(dumpTraceGraphDotFileStr)
     public boolean dumpTraceGraphDotFile = false;
 
     /**
@@ -290,7 +263,7 @@ public class SynopticOptions extends Options {
      * filename of the final Synoptic output. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Dump the PNG of the trace graph to file <outputPathPrefix>.tracegraph.dot.png")
+    @Option(dumpTraceGraphPngFileStr)
     public boolean dumpTraceGraphPngFile = false;
 
     /**
@@ -300,7 +273,7 @@ public class SynopticOptions extends Options {
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message.
      */
-    @Option("Dump the initial condensed partition graph")
+    @Option(dumpInitialPartitionGraphStr)
     public boolean dumpInitialPartitionGraph = false;
 
     /**
@@ -313,7 +286,7 @@ public class SynopticOptions extends Options {
      * with the -o option (see above). This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
-    @Option("Dump dot files from intermediate Synoptic stages to files of form outputPathPrefix.stage-S.round-R.dot")
+    @Option(dumpIntermediateStagesStr)
     public boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
@@ -323,19 +296,19 @@ public class SynopticOptions extends Options {
      * Be extra verbose, print extra detailed information. Sets the log level to
      * FINEST.
      */
-    @Option(value = "Print extra detailed information during execution")
+    @Option(value = logLvlExtraVerboseStr)
     public boolean logLvlExtraVerbose = false;
 
     /**
      * Used to select the algorithm for mining invariants.
      */
-    @Option("Ignore invariants that include event types from the following set (use ';' to separate event types).")
+    @Option(ignoreInvsOverETypeSetStr)
     public String ignoreInvsOverETypeSet = null;
 
     /**
      * Used to select the algorithm for mining invariants.
      */
-    @Option("Use the transitive closure invariant mining algorithm (usually slower)")
+    @Option(useTransitiveClosureMiningStr)
     public boolean useTransitiveClosureMining = false;
 
     /**
@@ -344,13 +317,13 @@ public class SynopticOptions extends Options {
      * useTransitiveClosureMining = false (i.e., it only works for the DAG
      * walking invariant miner, not the TC-based miner).
      */
-    @Option("Mine the NeverConcurrentWith invariant (only changes behavior for PO traces with useTransitiveClosureMining=false)")
+    @Option(mineNeverConcurrentWithInvStr)
     public boolean mineNeverConcurrentWithInv = true;
 
     /**
      * Used to tell Synoptic to not go past mining invariants.
      */
-    @Option("Mine invariants and then quit.")
+    @Option(onlyMineInvariantsStr)
     public boolean onlyMineInvariants = false;
 
     /**
@@ -358,14 +331,14 @@ public class SynopticOptions extends Options {
      * the most refined representation. This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
-    @Option("Do not perform the coarsening stage")
+    @Option(noCoarseningStr)
     public boolean noCoarsening = false;
 
     /**
      * Perform benchmarking and output benchmark information. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Perform benchmarking and output benchmark information")
+    @Option(doBenchmarkingStr)
     public boolean doBenchmarking = false;
 
     /**
@@ -373,7 +346,7 @@ public class SynopticOptions extends Options {
      * optimization. This option is <i>unpublicized</i>; it will not appear in
      * the default usage message
      */
-    @Option("Intern commonly occurring strings, such as event types, as a memory-usage optimization")
+    @Option(internCommonStringsStr)
     public boolean internCommonStrings = true;
 
     /**
@@ -381,7 +354,7 @@ public class SynopticOptions extends Options {
      * terminate. This option is <i>unpublicized</i>; it will not appear in the
      * default usage message
      */
-    @Option("Run all tests in synoptic.tests.units, and then terminate.")
+    @Option(runTestsStr)
     public boolean runTests = false;
 
     /**
@@ -389,14 +362,14 @@ public class SynopticOptions extends Options {
      * terminate. This option is <i>unpublicized</i>; it will not appear in the
      * default usage message
      */
-    @Option("Run all tests in synoptic.tests, and then terminate.")
+    @Option(runAllTestsStr)
     public boolean runAllTests = false;
 
     /**
      * Turns on correctness checks that are disabled by default due to their
      * expensive cpu\memory usage profiles.
      */
-    @Option("Perform extra correctness checks at the expense of cpu and memory usage.")
+    @Option(performExtraChecksStr)
     public boolean performExtraChecks = false;
 
     /**
@@ -406,7 +379,7 @@ public class SynopticOptions extends Options {
      * 'dumpInvariants' above). This option is <i>unpublicized</i>; it will not
      * appear in the default usage message
      */
-    @Option("Do not perform refinement")
+    @Option(noRefinementStr)
     public boolean noRefinement = false;
     // end option group "Debugging Options"
 
