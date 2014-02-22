@@ -267,7 +267,7 @@ public class EventNode implements INode<EventNode> {
         }
 
         EventNode dest = transition.getTarget();
-        if (AbstractMain.getInstance().options.enablePerfDebugging) {
+        if (AbstractMain.getInstance().options.usePerformanceInfo) {
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
                 transition.setTimeDelta(delta);

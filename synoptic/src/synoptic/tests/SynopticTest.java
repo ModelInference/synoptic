@@ -52,7 +52,7 @@ public abstract class SynopticTest extends SynopticLibTest {
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
         super.setUp();
-        AbstractMain.getInstance().options.enablePerfDebugging = false;
+        AbstractMain.getInstance().options.usePerformanceInfo = false;
     }
 
     // //////////////////////////////////////////////

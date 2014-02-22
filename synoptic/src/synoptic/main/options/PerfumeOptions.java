@@ -132,7 +132,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
     /**
      * Perfume always uses performance information
      */
-    public boolean enablePerfDebugging = false;
+    public boolean usePerformanceInfo = false;
 
     /**
      * Output a JSON object of the final model to the output prefix specified by

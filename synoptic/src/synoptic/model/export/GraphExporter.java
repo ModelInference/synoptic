@@ -211,7 +211,7 @@ public class GraphExporter {
                 }
                 // If perf debugging and state processing aren't enabled,
                 // then output weights, else add the edge labels later.
-                else if (outputEdgeLabels && !main.options.enablePerfDebugging
+                else if (outputEdgeLabels && !main.options.usePerformanceInfo
                         && !main.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
@@ -259,7 +259,7 @@ public class GraphExporter {
                                                 nodeDst, daikonInvs,
                                                 trans.getRelation());
 
-                            } else if (main.options.enablePerfDebugging) {
+                            } else if (main.options.usePerformanceInfo) {
                                 // Calculate the min and max time deltas
                                 ITime timeMin = null;
                                 ITime timeMax = null;

@@ -502,7 +502,7 @@ public class Partition implements INode<Partition> {
 
     private static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!AbstractMain.getInstance().options.enablePerfDebugging) {
+        if (!AbstractMain.getInstance().options.usePerformanceInfo) {
             return;
         }
         ITime srcTime = srcENode.getTime();

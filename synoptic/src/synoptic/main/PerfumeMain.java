@@ -42,7 +42,7 @@ public class PerfumeMain extends AbstractMain {
             return;
         }
         // TEMP HACK
-        mainInstance.options.enablePerfDebugging = true;
+        mainInstance.options.usePerformanceInfo = true;
 
         try {
             Locale.setDefault(Locale.US);
