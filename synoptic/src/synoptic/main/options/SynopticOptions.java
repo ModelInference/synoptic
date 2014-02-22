@@ -111,7 +111,6 @@ public class SynopticOptions extends Options implements AbstractOptions {
      * significant components of the log line. There are a few more variants on
      * this, detailed in the online documentation.
      */
-    public static final String regExpDefault = "(?<TYPE>.*)";
     @Option(value = regExpsStr, aliases = { "-regexp" })
     public List<String> regExps = null;
 
@@ -120,7 +119,6 @@ public class SynopticOptions extends Options implements AbstractOptions {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    public static final String partitionRegExpDefault = "\\k<FILE>";
     @Option(value = partitionRegExpStr, aliases = { "-partition-mapping" })
     public String partitionRegExp = partitionRegExpDefault;
 
@@ -138,24 +136,20 @@ public class SynopticOptions extends Options implements AbstractOptions {
     public boolean ignoreNonMatchingLines = false;
 
     /**
-     * This indicates that the Synoptic algorithm is run without including
-     * performance information, i.e., Perfume is not run. TODO: make final,
-     * modify test libraries that rely on this option, rename
+     * Synoptic never uses performance information. Enabling this option would
+     * effectively run Perfume.
      */
     public boolean enablePerfDebugging = false;
 
     /**
-     * Allows outputting the final model as a JSON object to the output prefix
-     * specified by -o or -output-prefix.
+     * Synoptic doesn't support JSON output
      */
-    @Option(value = outputJSONStr, aliases = { "-output-json" })
-    public boolean outputJSON = false;
+    public final boolean outputJSON = false;
 
     /**
-     * Allows performing trace-wise normalization, requires enablePerfDebugging
+     * Synoptic doesn't support trace-wise normalization
      */
-    @Option(value = traceNormalizationStr, aliases = { "-trace-norm" })
-    public boolean traceNormalization = false;
+    public final boolean traceNormalization = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
@@ -186,9 +180,8 @@ public class SynopticOptions extends Options implements AbstractOptions {
     /**
      * Specifies the prefix of where to store the final Synoptic representation
      * output. This prefix is also used to determine filenames of intermediary
-     * files as well, like corresponding dot file and intermediate stage
-     * representations and dot files (if specified, e.g. with
-     * --dumpIntermediateStages).
+     * files, like corresponding dot file and intermediate stage representations
+     * (if specified, e.g. with --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
     @Option(value = outputPathPrefixStr, aliases = { "-output-prefix" })
