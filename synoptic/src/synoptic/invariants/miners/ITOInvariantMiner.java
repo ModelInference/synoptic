@@ -25,7 +25,7 @@ public interface ITOInvariantMiner {
      * Returns a set of classes of the invariants which will be mined by this
      * miner.
      * 
-     * @return array of classes of the invariants which will be mined by this
+     * @return a set of classes of the invariants which will be mined by this
      *         miner
      */
     public Set<Class<? extends ITemporalInvariant>> getMinedInvariants();
@@ -34,8 +34,8 @@ public interface ITOInvariantMiner {
      * Returns a set of classes of the invariants which will NOT be mined by
      * this miner.
      * 
-     * @return set of classes of the invariants which will NOT be mined by this
-     *         miner
+     * @return a set of classes of the invariants which will NOT be mined by
+     *         this miner
      */
     public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants();
 }
