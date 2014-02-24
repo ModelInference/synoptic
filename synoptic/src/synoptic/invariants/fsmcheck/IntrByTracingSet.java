@@ -5,9 +5,9 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-    HistoryNode<T> none;
-    HistoryNode<T> singleA;
-    HistoryNode<T> failure;
+    HistoryNode<T> aNotSeen;
+    HistoryNode<T> aSeenOnce;
+    HistoryNode<T> aSeenMoreThanOnce;
 
     EventType a, b;
 
@@ -24,11 +24,11 @@ public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public void setInitial(T x) {
         EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
-        none = singleA = failure = null;
+        aNotSeen = aSeenOnce = aSeenMoreThanOnce = null;
         if (a.equals(name)) {
-            singleA = newHistory;
+            aSeenOnce = newHistory;
         } else {
-            none = newHistory;
+            aNotSeen = newHistory;
         }
     }
 
@@ -40,59 +40,59 @@ public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         boolean isB = b.equals(name);
 
         if (isA) {
-            failure = preferShorter(singleA, failure);
-            singleA = none;
-            none = null;
+            aSeenMoreThanOnce = preferShorter(aSeenOnce, aSeenMoreThanOnce);
+            aSeenOnce = aNotSeen;
+            aNotSeen = null;
         }
 
         if (isB) {
-            none = preferShorter(singleA, none);
-            singleA = null;
+            aNotSeen = preferShorter(aSeenOnce, aNotSeen);
+            aSeenOnce = null;
         }
 
         // Advance history for all states.
-        none = extend(x, none);
-        singleA = extend(x, singleA);
-        failure = extend(x, failure);
+        aNotSeen = extend(x, aNotSeen);
+        aSeenOnce = extend(x, aSeenOnce);
+        aSeenMoreThanOnce = extend(x, aSeenMoreThanOnce);
     }
 
     @Override
     public HistoryNode<T> failpath() {
-        return failure;
+        return aSeenMoreThanOnce;
     }
 
     @Override
     public IntrByTracingSet<T> copy() {
         IntrByTracingSet<T> result = new IntrByTracingSet<T>(a, b);
-        result.none = none;
-        result.singleA = singleA;
-        result.failure = failure;
+        result.aNotSeen = aNotSeen;
+        result.aSeenOnce = aSeenOnce;
+        result.aSeenMoreThanOnce = aSeenMoreThanOnce;
         return result;
     }
 
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         IntrByTracingSet<T> casted = (IntrByTracingSet<T>) other;
-        none = preferShorter(none, casted.none);
-        singleA = preferShorter(singleA, casted.singleA);
-        failure = preferShorter(failure, casted.failure);
+        aNotSeen = preferShorter(aNotSeen, casted.aNotSeen);
+        aSeenOnce = preferShorter(aSeenOnce, casted.aSeenOnce);
+        aSeenMoreThanOnce = preferShorter(aSeenMoreThanOnce, casted.aSeenMoreThanOnce);
     }
 
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
         IntrByTracingSet<T> casted = (IntrByTracingSet<T>) other;
-        if (casted.none == null) {
-            if (none != null) {
+        if (casted.aNotSeen == null) {
+            if (aNotSeen != null) {
                 return false;
             }
         }
-        if (casted.singleA == null) {
-            if (singleA != null) {
+        if (casted.aSeenOnce == null) {
+            if (aSeenOnce != null) {
                 return false;
             }
         }
-        if (casted.failure == null) {
-            if (failure != null) {
+        if (casted.aSeenMoreThanOnce == null) {
+            if (aSeenMoreThanOnce != null) {
                 return false;
             }
         }
@@ -103,11 +103,11 @@ public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("IntrBy: ");
-        appendWNull(result, failure); // Failure case first.
+        appendWNull(result, aSeenMoreThanOnce); // Failure case first.
         result.append(" | ");
-        appendWNull(result, singleA);
+        appendWNull(result, aSeenOnce);
         result.append(" | ");
-        appendWNull(result, none);
+        appendWNull(result, aNotSeen);
         return result.toString();
     }
 }
