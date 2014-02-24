@@ -30,7 +30,8 @@ import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.IPOInvariantMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.options.SynopticOptions;
+import synoptic.main.options.AbstractOptions;
+import synoptic.main.options.Options;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -84,9 +85,16 @@ public abstract class AbstractMain {
     public GraphExportFormatter graphExportFormatter = null;
 
     /**
-     * Synoptic options parsed from the command line or set in some other way.
+     * Options parsed from the command line or set in some other way.
      */
-    public SynopticOptions options = null;
+    public AbstractOptions options = null;
+
+    /**
+     * The instance of either SynopticOptions or PerfumeOptions from which plume
+     * methods can be called and from which the AbstractOptions object above
+     * (options) was created
+     */
+    public static Options plumeOpts = null;
 
     /**
      * Return the singleton instance of AbstractMain, first asserting that the
@@ -102,7 +110,7 @@ public abstract class AbstractMain {
      * everything necessary to run Synoptic -- input log files, regular
      * expressions, etc.
      * 
-     * @param opts
+     * @param options
      *            Parsed command line arguments.
      * @return
      * @throws IOException
@@ -111,25 +119,25 @@ public abstract class AbstractMain {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static GraphExportFormatter processArgs(SynopticOptions opts)
+    public static GraphExportFormatter processArgs(AbstractOptions options)
             throws IOException, URISyntaxException, IllegalArgumentException,
             IllegalAccessException {
 
-        setUpLogging(opts);
+        setUpLogging(options);
 
         // Display help for all option groups, including unpublicized ones
-        if (opts.allHelp) {
-            opts.printLongHelp();
+        if (options.allHelp) {
+            options.printLongHelp();
             return null;
         }
 
         // Display help just for the 'publicized' option groups
-        if (opts.help) {
-            opts.printShortHelp();
+        if (options.help) {
+            AbstractOptions.plumeOpts.printShortHelp();
             return null;
         }
 
-        if (opts.version) {
+        if (options.version) {
             System.out
                     .println("Synoptic version " + AbstractMain.versionString);
             String changesetID = SynopticJar.getHgChangesetID();
@@ -141,13 +149,13 @@ public abstract class AbstractMain {
 
         // Setup the appropriate graph export formatter object.
         GraphExportFormatter graphExportFormatter;
-        if (opts.exportAsGML) {
+        if (options.exportAsGML) {
             graphExportFormatter = new GmlExportFormatter();
         } else {
             graphExportFormatter = new DotExportFormatter();
         }
 
-        if (opts.runAllTests) {
+        if (options.runAllTests) {
             List<String> testClasses = SynopticJar
                     .getTestsInPackage("synoptic.tests.units.");
             testClasses.addAll(SynopticJar
@@ -155,7 +163,7 @@ public abstract class AbstractMain {
             SynopticLibTest.runTests(testClasses);
             // Terminate after we are done running tests.
             return null;
-        } else if (opts.runTests) {
+        } else if (options.runTests) {
             List<String> testClassesUnits = SynopticJar
                     .getTestsInPackage("synoptic.tests.units.");
             SynopticLibTest.runTests(testClassesUnits);
@@ -163,19 +171,20 @@ public abstract class AbstractMain {
             return null;
         }
 
-        if (opts.logFilenames.size() == 0) {
+        if (AbstractOptions.plumeOpts.logFilenames.size() == 0) {
             logger.severe("No log filenames specified, exiting. Specify log files at the end of the command line with no options.");
             return null;
         }
 
-        if (opts.dumpIntermediateStages && opts.outputPathPrefix == null) {
+        if (options.dumpIntermediateStages
+                && AbstractOptions.outputPathPrefix == null) {
             logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
-                    + opts.getOptDesc("outputPathPrefix"));
+                    + AbstractOptions.plumeOpts.getOptDesc("outputPathPrefix"));
             return null;
         }
 
-        if (opts.logLvlVerbose || opts.logLvlExtraVerbose) {
-            opts.printOptionValues();
+        if (options.logLvlVerbose || options.logLvlExtraVerbose) {
+            AbstractOptions.plumeOpts.printOptionValues();
         }
 
         return graphExportFormatter;
@@ -198,7 +207,7 @@ public abstract class AbstractMain {
      * Assumes that Main.options is initialized.
      * </pre>
      */
-    public static void setUpLogging(SynopticOptions opts) {
+    public static void setUpLogging(AbstractOptions opts) {
         if (logger != null) {
             return;
         }
@@ -291,8 +300,8 @@ public abstract class AbstractMain {
      * @return string filename for an intermediate dot file
      */
     public String getIntermediateDumpFilename(String stageName, int roundNum) {
-        return options.outputPathPrefix + ".stage-" + stageName + ".round-"
-                + roundNum;
+        return AbstractOptions.outputPathPrefix + ".stage-" + stageName
+                + ".round-" + roundNum;
     }
 
     /**
@@ -305,9 +314,9 @@ public abstract class AbstractMain {
             IGraph<T> g, boolean outputEdgeLabelsCondition,
             boolean imageGenCondition) {
 
-        if (options.outputPathPrefix == null) {
+        if (AbstractOptions.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + options.getOptDesc("outputPathPrefix"));
+                    + AbstractOptions.plumeOpts.getOptDesc("outputPathPrefix"));
             return;
         }
 
@@ -369,11 +378,12 @@ public abstract class AbstractMain {
         parser = null;
 
         // TODO: vector time index sets aren't used yet.
-        if (options.separateVTimeIndexSets != null) {
+        if (AbstractOptions.separateVTimeIndexSets != null) {
             // separateVTimeIndexSets is assumed to be in a format like:
             // "1,2;3;4,5,6" where the sets are {1,2}, {3}, {4,5,6}.
             LinkedList<LinkedHashSet<Integer>> indexSets = new LinkedList<LinkedHashSet<Integer>>();
-            for (String strSet : options.separateVTimeIndexSets.split(";")) {
+            for (String strSet : AbstractOptions.separateVTimeIndexSets
+                    .split(";")) {
                 LinkedHashSet<Integer> iSet = new LinkedHashSet<Integer>();
                 indexSets.add(iSet);
                 for (String index : strSet.split(",")) {
@@ -403,7 +413,7 @@ public abstract class AbstractMain {
         }
 
         if (options.outputInvariantsToFile) {
-            String invariantsFilename = options.outputPathPrefix
+            String invariantsFilename = AbstractOptions.outputPathPrefix
                     + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
@@ -534,13 +544,15 @@ public abstract class AbstractMain {
      */
     public PartitionGraph createInitialPartitionGraph() throws Exception {
         TraceParser parser = new TraceParser(options.regExps,
-                options.partitionRegExp, options.separatorRegExp);
+                AbstractOptions.partitionRegExp,
+                AbstractOptions.separatorRegExp);
         List<EventNode> parsedEvents;
         try {
-            parsedEvents = parseEvents(parser, options.logFilenames);
+            parsedEvents = parseEvents(parser,
+                    AbstractOptions.plumeOpts.logFilenames);
         } catch (ParseException e) {
             logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + options.getOptDesc("help"));
+                    + AbstractOptions.plumeOpts.getOptDesc("help"));
             logger.severe(e.toString());
             return null;
         }
@@ -579,7 +591,7 @@ public abstract class AbstractMain {
         if (options.dumpTraceGraphDotFile) {
             logger.info("Exporting trace graph ["
                     + traceGraph.getNodes().size() + " nodes]..");
-            exportTraceGraph(options.outputPathPrefix + ".tracegraph",
+            exportTraceGraph(AbstractOptions.outputPathPrefix + ".tracegraph",
                     traceGraph);
         }
 
@@ -590,11 +602,11 @@ public abstract class AbstractMain {
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
-        if (options.ignoreInvsOverETypeSet != null) {
+        if (AbstractOptions.ignoreInvsOverETypeSet != null) {
 
             // Split string options.ignoreInvsOverETypeSet by the ";" delimiter:
             List<String> stringEtypesToIgnore = Arrays
-                    .asList(options.ignoreInvsOverETypeSet.split(";"));
+                    .asList(AbstractOptions.ignoreInvsOverETypeSet.split(";"));
 
             logger.info("Ignoring invariants over event-types set: "
                     + stringEtypesToIgnore.toString());
@@ -628,7 +640,7 @@ public abstract class AbstractMain {
         }
 
         if (options.outputInvariantsToFile) {
-            String invariantsFilename = options.outputPathPrefix
+            String invariantsFilename = AbstractOptions.outputPathPrefix
                     + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
@@ -646,8 +658,8 @@ public abstract class AbstractMain {
         // //////////////////
 
         if (options.dumpInitialPartitionGraph) {
-            exportGraph(options.outputPathPrefix + ".condensed", pGraph, true,
-                    true);
+            exportGraph(AbstractOptions.outputPathPrefix + ".condensed",
+                    pGraph, true, true);
         }
 
         return pGraph;
@@ -780,12 +792,12 @@ public abstract class AbstractMain {
         // unsatisfied in the result
 
         // export the resulting graph
-        if (options.outputPathPrefix != null) {
+        if (AbstractOptions.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
                     + " nodes]..");
             startTime = System.currentTimeMillis();
 
-            exportNonInitialGraph(options.outputPathPrefix, pGraph);
+            exportNonInitialGraph(AbstractOptions.outputPathPrefix, pGraph);
 
             logger.info("Exporting took "
                     + (System.currentTimeMillis() - startTime) + "ms");
@@ -797,15 +809,15 @@ public abstract class AbstractMain {
                         .deriveAbstractTests(pGraph);
                 int testID = 0;
                 for (AbstractTestCase testCase : testSuite) {
-                    String baseFilename = options.outputPathPrefix + "-test"
-                            + testID;
+                    String baseFilename = AbstractOptions.outputPathPrefix
+                            + "-test" + testID;
                     exportNonInitialGraph(baseFilename, testCase);
                     testID++;
                 }
             }
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
-                    + options.getOptDesc("outputPathPrefix"));
+                    + AbstractOptions.plumeOpts.getOptDesc("outputPathPrefix"));
         }
 
         // Export a JSON object if requested
@@ -813,7 +825,8 @@ public abstract class AbstractMain {
             logger.info("Exporting final graph as a JSON object...");
             startTime = System.currentTimeMillis();
 
-            JsonExporter.exportJsonObject(options.outputPathPrefix, pGraph);
+            JsonExporter.exportJsonObject(AbstractOptions.outputPathPrefix,
+                    pGraph);
 
             logger.info("Exporting JSON object took "
                     + (System.currentTimeMillis() - startTime) + "ms");

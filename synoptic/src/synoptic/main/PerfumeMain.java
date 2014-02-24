@@ -7,7 +7,8 @@ import java.util.Random;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ConstrainedInvMiner;
-import synoptic.main.options.SynopticOptions;
+import synoptic.main.options.AbstractOptions;
+import synoptic.main.options.PerfumeOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.PartitionGraph;
@@ -41,8 +42,6 @@ public class PerfumeMain extends AbstractMain {
         if (mainInstance == null) {
             return;
         }
-        // TEMP HACK
-        mainInstance.options.usePerformanceInfo = true;
 
         try {
             Locale.setDefault(Locale.US);
@@ -77,11 +76,11 @@ public class PerfumeMain extends AbstractMain {
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
         // Parse and process command line options
-        SynopticOptions opts = new SynopticOptions(args);
-        GraphExportFormatter graphExportFormatter = processArgs(opts);
+        AbstractOptions options = new PerfumeOptions(args).toAbstractOptions();
+        GraphExportFormatter graphExportFormatter = processArgs(options);
 
         // Construct and return main object
-        PerfumeMain newMain = new PerfumeMain(opts, graphExportFormatter);
+        PerfumeMain newMain = new PerfumeMain(options, graphExportFormatter);
         return newMain;
     }
 
@@ -94,7 +93,7 @@ public class PerfumeMain extends AbstractMain {
      * @param graphExportFormatter
      *            Graph export formatter for outputting the model
      */
-    public PerfumeMain(SynopticOptions opts,
+    public PerfumeMain(AbstractOptions opts,
             GraphExportFormatter graphExportFormatter) {
         setUpLogging(opts);
 

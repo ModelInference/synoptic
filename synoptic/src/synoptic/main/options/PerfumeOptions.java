@@ -7,33 +7,36 @@ import java.util.List;
 import plume.Option;
 import plume.OptionGroup;
 
+import synoptic.main.AbstractMain;
+
 /**
  * Defines and maintains command line arguments to Perfume. It uses plume-lib
  * for defining command line options, their types, and the corresponding help
  * messages. This library also provides support for parsing and populating
- * instances of these options.
+ * instances of these options. All options can be exported to AbstractOptions
+ * (the common options for all Synoptic projects) using toAbstractOptions().
  */
-public class PerfumeOptions extends Options implements AbstractOptions {
+public class PerfumeOptions extends Options {
     // //////////////////////////////////////////////////
     /**
      * Print the short usage message. This does not include verbosity or
      * debugging options.
      */
     @OptionGroup("General Options")
-    @Option(value = helpStr, aliases = { "-help" })
+    @Option(value = AbstractOptions.helpStr, aliases = { "-help" })
     public boolean help = false;
 
     /**
      * Print the extended usage message. This includes verbosity and debugging
      * options but not internal options.
      */
-    @Option(allHelpStr)
+    @Option(AbstractOptions.allHelpStr)
     public boolean allHelp = false;
 
     /**
      * Print the current Perfume version.
      */
-    @Option(value = versionStr, aliases = { "-version" })
+    @Option(value = AbstractOptions.versionStr, aliases = { "-version" })
     public boolean version = false;
     // end option group "General Options"
 
@@ -42,43 +45,43 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
     @OptionGroup("Execution Options")
-    @Option(value = logLvlQuietStr, aliases = { "-quiet" })
+    @Option(value = AbstractOptions.logLvlQuietStr, aliases = { "-quiet" })
     public boolean logLvlQuiet = false;
 
     /**
      * Be verbose, print extra detailed information. Sets the log level to FINE.
      */
-    @Option(value = logLvlVerboseStr, aliases = { "-verbose" })
+    @Option(value = AbstractOptions.logLvlVerboseStr, aliases = { "-verbose" })
     public boolean logLvlVerbose = false;
 
     /**
-     * TODO: Perfume always uses the FSM checker
+     * Perfume always uses the FSM checker
      */
     public final boolean useFSMChecker = true;
 
     /**
      * Sets the random seed for Perfume's source of pseudo-random numbers.
      */
-    @Option(randomSeedStr)
+    @Option(AbstractOptions.randomSeedStr)
     public Long randomSeed = null;
 
     /**
-     * TODO: Perfume doesn't support vector time
+     * Perfume doesn't support vector time
      */
     public final String separateVTimeIndexSets = null;
 
     /**
-     * TODO: Perfume doesn't support multiple relations
+     * Perfume doesn't support multiple relations
      */
     public final boolean multipleRelations = false;
 
     /**
-     * TODO: Perfume doesn't support state processing
+     * Perfume doesn't support state processing
      */
     public final boolean stateProcessing = false;
 
     /**
-     * TODO: Pefume doesn't support abstract test generation
+     * Pefume doesn't support abstract test generation
      */
     public final boolean testGeneration = false;
 
@@ -92,7 +95,8 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(value = separatorRegExpStr, aliases = { "-partition-separator" })
+    @Option(value = AbstractOptions.separatorRegExpStr,
+            aliases = { "-partition-separator" })
     public String separatorRegExp = null;
 
     /**
@@ -105,7 +109,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * significant components of the log line. There are a few more variants on
      * this, detailed in the online documentation.
      */
-    @Option(value = regExpsStr, aliases = { "-regexp" })
+    @Option(value = AbstractOptions.regExpsStr, aliases = { "-regexp" })
     public List<String> regExps = null;
 
     /**
@@ -113,8 +117,9 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    @Option(value = partitionRegExpStr, aliases = { "-partition-mapping" })
-    public String partitionRegExp = partitionRegExpDefault;
+    @Option(value = AbstractOptions.partitionRegExpStr,
+            aliases = { "-partition-mapping" })
+    public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
 
     /**
      * This flag indicates whether Perfume should partition traces by file
@@ -126,25 +131,19 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * lines that they are not interested in. This also help to avoid parsing of
      * lines that are corrupted.
      */
-    @Option(ignoreNonMatchingLinesStr)
+    @Option(AbstractOptions.ignoreNonMatchingLinesStr)
     public boolean ignoreNonMatchingLines = false;
 
     /**
      * Perfume always uses performance information
      */
-    public boolean usePerformanceInfo = false;
-
-    /**
-     * Output a JSON object of the final model to the output prefix specified by
-     * -o or -output-prefix.
-     */
-    @Option(value = outputJSONStr, aliases = { "-output-json" })
-    public boolean outputJSON = false;
+    public final boolean usePerformanceInfo = true;
 
     /**
      * Perform trace-wise normalization
      */
-    @Option(value = traceNormalizationStr, aliases = { "-trace-norm" })
+    @Option(value = AbstractOptions.traceNormalizationStr,
+            aliases = { "-trace-norm" })
     public boolean traceNormalization = false;
 
     /**
@@ -152,14 +151,14 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(value = recoverFromParseErrorsStr,
+    @Option(value = AbstractOptions.recoverFromParseErrorsStr,
             aliases = { "-ignore-parse-errors" })
     public boolean recoverFromParseErrors = false;
 
     /**
      * Output the fields extracted from each log line and terminate.
      */
-    @Option(value = debugParseStr, aliases = { "-debugParse" })
+    @Option(value = AbstractOptions.debugParseStr, aliases = { "-debugParse" })
     public boolean debugParse = false;
     // end option group "Parser Options"
 
@@ -168,7 +167,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * Command line arguments input filename to use.
      */
     @OptionGroup("Input Options")
-    @Option(value = argsFilenameStr, aliases = { "-argsfile" })
+    @Option(value = AbstractOptions.argsFilenameStr, aliases = { "-argsfile" })
     public String argsFilename = null;
     // end option group "Input Options"
 
@@ -180,28 +179,31 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * (if specified, e.g. with --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(value = outputPathPrefixStr, aliases = { "-output-prefix" })
+    @Option(value = AbstractOptions.outputPathPrefixStr,
+            aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
 
     /**
      * Whether or not to output the list of invariants to a file, with one
      * invariant per line.
      */
-    @Option(outputInvariantsToFileStr)
+    @Option(AbstractOptions.outputInvariantsToFileStr)
     public boolean outputInvariantsToFile = false;
 
     /**
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
-    @Option(value = exportAsGMLStr, aliases = { "-export-as-gml" })
+    @Option(value = AbstractOptions.exportAsGMLStr,
+            aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
 
     /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Perfume models
      */
-    @Option(value = dotExecutablePathStr, aliases = { "-dot-executable" })
+    @Option(value = AbstractOptions.dotExecutablePathStr,
+            aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
@@ -213,15 +215,22 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * Whether or not the output graphs include the common TERMINAL state, to
      * which all final trace nodes have an edge.
      */
-    @Option(showTerminalNodeStr)
+    @Option(AbstractOptions.showTerminalNodeStr)
     public boolean showTerminalNode = true;
 
     /**
      * Whether or not the output graphs include the common INITIAL state, which
      * has an edge to all the start trace nodes.
      */
-    @Option(showInitialNodeStr)
+    @Option(AbstractOptions.showInitialNodeStr)
     public boolean showInitialNode = true;
+
+    /**
+     * Output a JSON object of the final model to the output prefix specified by
+     * -o or -output-prefix.
+     */
+    @Option(value = AbstractOptions.outputJSONStr, aliases = { "-output-json" })
+    public boolean outputJSON = false;
 
     // end option group "Output Options"
 
@@ -232,7 +241,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * in the default usage message
      */
     @OptionGroup(value = "Verbosity Options", unpublicized = true)
-    @Option(dumpInvariantsStr)
+    @Option(AbstractOptions.dumpInvariantsStr)
     public boolean dumpInvariants = false;
 
     /**
@@ -242,7 +251,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message
      */
-    @Option(dumpTraceGraphDotFileStr)
+    @Option(AbstractOptions.dumpTraceGraphDotFileStr)
     public boolean dumpTraceGraphDotFile = false;
 
     /**
@@ -251,7 +260,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * filename of the final Perfume output. This option is <i>unpublicized</i>;
      * it will not appear in the default usage message
      */
-    @Option(dumpTraceGraphPngFileStr)
+    @Option(AbstractOptions.dumpTraceGraphPngFileStr)
     public boolean dumpTraceGraphPngFile = false;
 
     /**
@@ -261,7 +270,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message.
      */
-    @Option(dumpInitialPartitionGraphStr)
+    @Option(AbstractOptions.dumpInitialPartitionGraphStr)
     public boolean dumpInitialPartitionGraph = false;
 
     /**
@@ -274,7 +283,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * with the -o option (see above). This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
-    @Option(dumpIntermediateStagesStr)
+    @Option(AbstractOptions.dumpIntermediateStagesStr)
     public boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
@@ -284,20 +293,19 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * Be extra verbose, print extra detailed information. Sets the log level to
      * FINEST.
      */
-    @Option(value = logLvlExtraVerboseStr)
+    @Option(AbstractOptions.logLvlExtraVerboseStr)
     public boolean logLvlExtraVerbose = false;
 
     /**
-     * Used to select the algorithm for mining invariants.
+     * Ignore invariants including certain event types.
      */
-    @Option(ignoreInvsOverETypeSetStr)
+    @Option(AbstractOptions.ignoreInvsOverETypeSetStr)
     public String ignoreInvsOverETypeSet = null;
 
     /**
-     * Used to select the algorithm for mining invariants.
+     * Perfume doesn't support transitive closure mining
      */
-    @Option(useTransitiveClosureMiningStr)
-    public boolean useTransitiveClosureMining = false;
+    public final boolean useTransitiveClosureMining = false;
 
     /**
      * Perfume doesn't support the NeverConcurrentWith invariant
@@ -307,7 +315,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
     /**
      * Used to tell Perfume to not go past mining invariants.
      */
-    @Option(onlyMineInvariantsStr)
+    @Option(AbstractOptions.onlyMineInvariantsStr)
     public boolean onlyMineInvariants = false;
 
     /**
@@ -315,14 +323,14 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * the most refined representation. This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
-    @Option(noCoarseningStr)
+    @Option(AbstractOptions.noCoarseningStr)
     public boolean noCoarsening = false;
 
     /**
      * Perform benchmarking and output benchmark information. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option(doBenchmarkingStr)
+    @Option(AbstractOptions.doBenchmarkingStr)
     public boolean doBenchmarking = false;
 
     /**
@@ -330,7 +338,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * optimization. This option is <i>unpublicized</i>; it will not appear in
      * the default usage message
      */
-    @Option(internCommonStringsStr)
+    @Option(AbstractOptions.internCommonStringsStr)
     public boolean internCommonStrings = true;
 
     /**
@@ -338,7 +346,7 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * terminate. This option is <i>unpublicized</i>; it will not appear in the
      * default usage message
      */
-    @Option(runTestsStr)
+    @Option(AbstractOptions.runTestsStr)
     public boolean runTests = false;
 
     /**
@@ -346,14 +354,14 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * terminate. This option is <i>unpublicized</i>; it will not appear in the
      * default usage message
      */
-    @Option(runAllTestsStr)
+    @Option(AbstractOptions.runAllTestsStr)
     public boolean runAllTests = false;
 
     /**
      * Turns on correctness checks that are disabled by default due to their
      * expensive cpu\memory usage profiles.
      */
-    @Option(performExtraChecksStr)
+    @Option(AbstractOptions.performExtraChecksStr)
     public boolean performExtraChecks = false;
 
     /**
@@ -363,12 +371,12 @@ public class PerfumeOptions extends Options implements AbstractOptions {
      * 'dumpInvariants' above). This option is <i>unpublicized</i>; it will not
      * appear in the default usage message
      */
-    @Option(noRefinementStr)
+    @Option(AbstractOptions.noRefinementStr)
     public boolean noRefinement = false;
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    private static final String usageString = "perfume [options] <logfiles-to-analyze>";
+    public static final String usageString = "perfume [options] <logfiles-to-analyze>";
 
     /**
      * Use this constructor to create a blank set of options, that can then be
@@ -415,5 +423,83 @@ public class PerfumeOptions extends Options implements AbstractOptions {
     @Override
     public String getArgsFilename() {
         return argsFilename;
+    }
+
+    public AbstractOptions toAbstractOptions() {
+        AbstractOptions absOpts = new AbstractOptions();
+
+        // General options
+
+        absOpts.help = help;
+        absOpts.allHelp = allHelp;
+        absOpts.version = version;
+
+        // Execution options
+
+        absOpts.logLvlQuiet = logLvlQuiet;
+        absOpts.logLvlVerbose = logLvlVerbose;
+        absOpts.useFSMChecker = useFSMChecker;
+        absOpts.randomSeed = randomSeed;
+        AbstractOptions.separateVTimeIndexSets = separateVTimeIndexSets;
+        absOpts.multipleRelations = multipleRelations;
+        absOpts.stateProcessing = stateProcessing;
+        absOpts.testGeneration = testGeneration;
+
+        // Parser options
+
+        AbstractOptions.separatorRegExp = separatorRegExp;
+        absOpts.regExps = regExps;
+        AbstractOptions.partitionRegExp = partitionRegExp;
+        absOpts.partitionViaFile = partitionViaFile;
+        absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
+        absOpts.usePerformanceInfo = usePerformanceInfo;
+        absOpts.traceNormalization = traceNormalization;
+        absOpts.recoverFromParseErrors = recoverFromParseErrors;
+        absOpts.debugParse = debugParse;
+
+        // Input options
+
+        AbstractOptions.argsFilename = argsFilename;
+
+        // Output options
+
+        AbstractOptions.outputPathPrefix = outputPathPrefix;
+        absOpts.outputInvariantsToFile = outputInvariantsToFile;
+        absOpts.exportAsGML = exportAsGML;
+        AbstractOptions.dotExecutablePath = dotExecutablePath;
+        absOpts.outputEdgeLabels = outputEdgeLabels;
+        absOpts.showTerminalNode = showTerminalNode;
+        absOpts.showInitialNode = showInitialNode;
+        absOpts.outputJSON = outputJSON;
+
+        // Verbosity Options
+
+        absOpts.dumpInvariants = dumpInvariants;
+        absOpts.dumpTraceGraphDotFile = dumpTraceGraphDotFile;
+        absOpts.dumpTraceGraphPngFile = dumpTraceGraphPngFile;
+        absOpts.dumpInitialPartitionGraph = dumpInitialPartitionGraph;
+        absOpts.dumpIntermediateStages = dumpIntermediateStages;
+
+        // Debugging Options
+
+        absOpts.logLvlExtraVerbose = logLvlExtraVerbose;
+        AbstractOptions.ignoreInvsOverETypeSet = ignoreInvsOverETypeSet;
+        absOpts.useTransitiveClosureMining = useTransitiveClosureMining;
+        absOpts.mineNeverConcurrentWithInv = mineNeverConcurrentWithInv;
+        absOpts.onlyMineInvariants = onlyMineInvariants;
+        absOpts.noCoarsening = noCoarsening;
+        absOpts.doBenchmarking = doBenchmarking;
+        absOpts.internCommonStrings = internCommonStrings;
+        absOpts.runTests = runTests;
+        absOpts.runAllTests = runAllTests;
+        absOpts.performExtraChecks = performExtraChecks;
+        absOpts.noRefinement = noRefinement;
+
+        // Set this as the definitive plume options object in AbstractMain and
+        // AbstractOptions
+        AbstractMain.plumeOpts = this;
+        AbstractOptions.plumeOpts = this;
+
+        return absOpts;
     }
 }

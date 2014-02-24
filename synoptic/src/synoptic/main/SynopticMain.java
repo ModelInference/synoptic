@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Random;
 
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.model.PartitionGraph;
@@ -39,8 +40,6 @@ public class SynopticMain extends AbstractMain {
         if (mainInstance == null) {
             return;
         }
-        // TEMP HACK
-        mainInstance.options.usePerformanceInfo = false;
 
         try {
             Locale.setDefault(Locale.US);
@@ -76,11 +75,11 @@ public class SynopticMain extends AbstractMain {
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
         // Parse and process command line options
-        SynopticOptions opts = new SynopticOptions(args);
-        GraphExportFormatter graphExportFormatter = processArgs(opts);
+        AbstractOptions options = new SynopticOptions(args).toAbstractOptions();
+        GraphExportFormatter graphExportFormatter = processArgs(options);
 
         // Construct and return main object
-        SynopticMain newMain = new SynopticMain(opts, graphExportFormatter);
+        SynopticMain newMain = new SynopticMain(options, graphExportFormatter);
         return newMain;
     }
 
@@ -93,7 +92,7 @@ public class SynopticMain extends AbstractMain {
      * @param graphExportFormatter
      *            Graph export formatter for outputting the model
      */
-    public SynopticMain(SynopticOptions opts,
+    public SynopticMain(AbstractOptions opts,
             GraphExportFormatter graphExportFormatter) {
         setUpLogging(opts);
 
