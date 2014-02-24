@@ -24,7 +24,6 @@ import synoptic.util.time.ITotalTime;
 /**
  * Tests for finding counter-example paths using TracingStateSets for
  * constrained temporal invariants
- * 
  */
 public class ConstrainedTracingSetTests extends PynopticTest {
 

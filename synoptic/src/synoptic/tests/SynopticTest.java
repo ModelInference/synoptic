@@ -10,7 +10,6 @@ import org.junit.rules.TestName;
 import junit.framework.Assert;
 
 import synoptic.invariants.miners.ITOInvariantMiner;
-import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -49,10 +48,10 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      */
     @Before
+    @Override
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
         super.setUp();
-        AbstractMain.getInstance().options.usePerformanceInfo = false;
     }
 
     // //////////////////////////////////////////////

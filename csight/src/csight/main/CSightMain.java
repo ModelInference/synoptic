@@ -30,6 +30,7 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.DAGsTraceGraph;
@@ -424,11 +425,11 @@ public class CSightMain {
     public void initializeSynoptic() {
         assert synMain == null;
 
-        SynopticOptions synOpts = new SynopticOptions();
-        synOpts.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
-        synOpts.recoverFromParseErrors = opts.recoverFromParseErrors;
-        synOpts.debugParse = opts.debugParse;
-        this.synMain = new SynopticMain(synOpts, new DotExportFormatter());
+        AbstractOptions options = new SynopticOptions().toAbstractOptions();
+        options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
+        options.recoverFromParseErrors = opts.recoverFromParseErrors;
+        options.debugParse = opts.debugParse;
+        this.synMain = new SynopticMain(options, new DotExportFormatter());
     }
 
     /**

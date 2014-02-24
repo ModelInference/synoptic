@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 import synoptic.main.AbstractMain;
 import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.Options;
-import synoptic.main.options.SynopticOptions;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -185,8 +184,8 @@ public class TraceParser {
             logger.warning("Using a default regular expression to parse log-lines: "
                     + "will map the entire log line to an event type."
                     + "\nTo use a custom regular expressions use the option:\n\t"
-                    + Options.getOptDesc("regExps", SynopticOptions.class)
-                    + "\n\t");
+                    + Options.getOptDesc("regExps",
+                            AbstractOptions.plumeOpts.getClass()) + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
             this.addRegex(AbstractOptions.regExpDefault);
@@ -1042,10 +1041,10 @@ public class TraceParser {
                     String error = errMsg
                             + "\n\tTry cmd line options:\n\t"
                             + Options.getOptDesc("ignoreNonMatchingLines",
-                                    SynopticOptions.class)
+                                    AbstractOptions.plumeOpts.getClass())
                             + "\n\t"
                             + Options.getOptDesc("debugParse",
-                                    SynopticOptions.class);
+                                    AbstractOptions.plumeOpts.getClass());
                     logger.severe(error);
                     logger.severe(e.toString());
                     ParseException parseException = new ParseException(errMsg);
@@ -1063,7 +1062,7 @@ public class TraceParser {
                 }
             }
 
-            if (main.options.partitionRegExp.equals("\\k<FILE>")) {
+            if (AbstractOptions.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -1168,8 +1167,10 @@ public class TraceParser {
         String loggerError = exceptionError
                 + "\nTry cmd line options:\n\t"
                 + Options.getOptDesc("ignoreNonMatchingLines",
-                        SynopticOptions.class) + "\n\t"
-                + Options.getOptDesc("debugParse", SynopticOptions.class);
+                        AbstractOptions.plumeOpts.getClass())
+                + "\n\t"
+                + Options.getOptDesc("debugParse",
+                        AbstractOptions.plumeOpts.getClass());
 
         logger.severe(loggerError);
         ParseException parseException = new ParseException(exceptionError);

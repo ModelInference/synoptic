@@ -3,6 +3,7 @@ package synopticjung;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.model.PartitionGraph;
 import synoptic.util.InternalSynopticException;
@@ -105,7 +106,7 @@ public class SynopticJungMain implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        JungGui gui = new JungGui(pGraph, SynopticMain.getInstance().options);
+        JungGui gui = new JungGui(pGraph, AbstractMain.getInstance().options);
         gui.init();
         synchronized (gui) {
             gui.wait();

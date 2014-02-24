@@ -67,7 +67,7 @@ public class GraphExporter {
         AbstractMain main = AbstractMain.getInstance();
         if (main.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + main.options.getOptDesc("dotExecutablePath"));
+                    + main.options.plumeOpts.getOptDesc("dotExecutablePath"));
         }
         return main.options.dotExecutablePath;
     }
