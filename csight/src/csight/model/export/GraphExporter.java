@@ -16,7 +16,8 @@ import csight.model.fifosys.gfsm.GFSM;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import csight.util.Util;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.model.event.IDistEventType;
 import synoptic.util.InternalSynopticException;
 
@@ -53,12 +54,12 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.dotExecutablePath == null) {
+        AbstractMain syn = AbstractMain.getInstance();
+        if (AbstractOptions.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + syn.options.getOptDesc("dotExecutablePath"));
+                    + AbstractMain.plumeOpts.getOptDesc("dotExecutablePath"));
         }
-        return syn.options.dotExecutablePath;
+        return AbstractOptions.dotExecutablePath;
     }
 
     /**

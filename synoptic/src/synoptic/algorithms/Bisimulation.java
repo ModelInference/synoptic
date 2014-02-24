@@ -32,7 +32,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -73,10 +73,10 @@ public class Bisimulation {
 
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.dumpIntermediateStages) {
-            syn.exportNonInitialGraph(syn.getIntermediateDumpFilename("r", 0),
-                    pGraph);
+        AbstractMain main = AbstractMain.getInstance();
+        if (main.options.dumpIntermediateStages) {
+            main.exportNonInitialGraph(
+                    main.getIntermediateDumpFilename("r", 0), pGraph);
         }
 
         int numSplitSteps = 0;
@@ -141,9 +141,10 @@ public class Bisimulation {
 
         }
 
-        if (syn.options.dumpIntermediateStages) {
-            syn.exportNonInitialGraph(
-                    syn.getIntermediateDumpFilename("r", numSplitSteps), pGraph);
+        if (main.options.dumpIntermediateStages) {
+            main.exportNonInitialGraph(
+                    main.getIntermediateDumpFilename("r", numSplitSteps),
+                    pGraph);
         }
 
         PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);
@@ -180,7 +181,7 @@ public class Bisimulation {
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
         Collections.shuffle(counterExampleTraces,
-                SynopticMain.getInstanceWithExistenceCheck().random);
+                AbstractMain.getInstance().random);
 
         // logger.fine("" + counterExampleTraces.size()
         // + " unsatisfied invariants and counter-examples: "
@@ -226,12 +227,10 @@ public class Bisimulation {
 
         // logger.fine(logStr);
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck()
-                    .exportNonInitialGraph(
-                            SynopticMain.getInstanceWithExistenceCheck()
-                                    .getIntermediateDumpFilename("r",
-                                            numSplitSteps + 1), pGraph);
+        if (AbstractMain.getInstance().options.dumpIntermediateStages) {
+            AbstractMain.getInstance().exportNonInitialGraph(
+                    AbstractMain.getInstance().getIntermediateDumpFilename("r",
+                            numSplitSteps + 1), pGraph);
         }
 
         return numSplitSteps + 1;
@@ -419,7 +418,7 @@ public class Bisimulation {
             }
         }
 
-        Random rand = SynopticMain.getInstanceWithExistenceCheck().random;
+        Random rand = AbstractMain.getInstance().random;
 
         // Get all other events that are neither incoming nor outgoing min/max
         // events
@@ -625,7 +624,7 @@ public class Bisimulation {
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
 
         IOperation arbitrarySplit = null;
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
@@ -650,7 +649,7 @@ public class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, syn.random);
+            Collections.shuffle(candidateSplits, main.random);
 
             // Save an arbitrary split to return to caller, if we haven't saved
             // one already.
@@ -678,7 +677,7 @@ public class Bisimulation {
             // might have found earlier (for previous counter-examples).
             //
             for (PartitionSplit candidateSplit : candidateSplits) {
-                if (syn.options.performExtraChecks) {
+                if (main.options.performExtraChecks) {
                     // getSplits() should never generate invalid splits.
                     if (!candidateSplit.isValid()) {
                         throw new InternalSynopticException(
@@ -790,7 +789,7 @@ public class Bisimulation {
         // violations.
         Map<Partition, Set<Partition>> mergeBlacklist = new LinkedHashMap<Partition, Set<Partition>>();
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain syn = AbstractMain.getInstance();
         while (true) {
             if (syn.options.dumpIntermediateStages) {
                 syn.exportNonInitialGraph(
@@ -883,7 +882,7 @@ public class Bisimulation {
                     // Undo the merge.
                     pGraph.apply(rewindOperation);
 
-                    if (SynopticMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+                    if (AbstractMain.getInstance().options.performExtraChecks) {
                         pGraph.checkSanity();
                     }
 

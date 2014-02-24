@@ -9,10 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import csight.CSightTest;
-import csight.main.CSightMain;
-import csight.main.CSightOptions;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
@@ -48,7 +46,7 @@ public class SynDagsToDynDagsTests extends CSightTest {
     public void setUp() throws Exception {
         super.setUp();
         // Reset the SynopticMain singleton reference.
-        SynopticMain.instance = null;
+        AbstractMain.instance = null;
 
         List<String> args = new ArrayList<String>();
         args.add("--mcPath");

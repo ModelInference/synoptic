@@ -10,7 +10,10 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.runner.JUnitCore;
 
+import synoptic.main.AbstractMain;
+import synoptic.main.PerfumeMain;
 import synoptic.main.SynopticMain;
+import synoptic.main.options.PerfumeOptions;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.model.export.DotExportFormatter;
@@ -25,7 +28,6 @@ import synoptic.model.interfaces.INode;
  * <pre>
  * Requires JUnit 4.7 or higher.
  * </pre>
- * 
  */
 public abstract class SynopticLibTest {
     /**
@@ -102,10 +104,28 @@ public abstract class SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        if (SynopticMain.instance == null) {
-            SynopticMain synopticMain = new SynopticMain(new SynopticOptions(),
-                    new DotExportFormatter());
-        }
+        AbstractMain main;
+
+        // Clear the old instance
+        AbstractMain.instance = null;
+
+        // Create a Synoptic instance
+        main = new SynopticMain(new SynopticOptions().toAbstractOptions(),
+                new DotExportFormatter());
+    }
+
+    /**
+     * Sets up the Perfume state that is necessary for running tests.
+     */
+    public void setUpPerfume() {
+        AbstractMain main;
+
+        // Clear the old instance
+        AbstractMain.instance = null;
+
+        // Create a Perfume instance
+        main = new PerfumeMain(new PerfumeOptions().toAbstractOptions(),
+                new DotExportFormatter());
     }
 
     // //////////////////////////////////////////////
@@ -139,13 +159,13 @@ public abstract class SynopticLibTest {
     protected <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.logLvlVerbose && !syn.options.logLvlExtraVerbose) {
+        AbstractMain main = AbstractMain.getInstance();
+        if (main.options.logLvlVerbose && !main.options.logLvlExtraVerbose) {
             return;
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
 
-        syn.exportTraceGraph(path, g);
+        main.exportTraceGraph(path, g);
     }
 }

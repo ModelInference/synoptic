@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
@@ -21,7 +21,6 @@ import synoptic.util.time.ITime;
 
 /**
  * The event node class -- a node in a graph that contains an event.
- * 
  */
 public class EventNode implements INode<EventNode> {
     /**
@@ -38,12 +37,12 @@ public class EventNode implements INode<EventNode> {
      * Pre-event state.
      */
     private State preEventState;
-    
+
     /**
      * Post-event state.
      */
     private State postEventState;
-    
+
     /**
      * A Unique trace identifier
      */
@@ -119,19 +118,19 @@ public class EventNode implements INode<EventNode> {
     public void setPreEventState(State state) {
         this.preEventState = state;
     }
-    
+
     public void setPostEventState(State state) {
         this.postEventState = state;
     }
-    
+
     public State getPreEventState() {
         return preEventState;
     }
-    
+
     public State getPostEventState() {
         return postEventState;
     }
-    
+
     @Override
     public String toString() {
         return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
@@ -268,7 +267,7 @@ public class EventNode implements INode<EventNode> {
         }
 
         EventNode dest = transition.getTarget();
-        if (SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
+        if (AbstractMain.getInstance().options.usePerformanceInfo) {
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
                 transition.setTimeDelta(delta);

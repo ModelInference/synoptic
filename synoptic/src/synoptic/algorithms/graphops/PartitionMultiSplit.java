@@ -5,14 +5,13 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 
 /**
  * Implements a partition split that splits a partition into multiple others.
- * 
  */
 public class PartitionMultiSplit implements IOperation {
     private final ArrayList<Set<EventNode>> partitioning = new ArrayList<Set<EventNode>>();
@@ -62,7 +61,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // //////////////
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+        if (AbstractMain.getInstance().options.performExtraChecks) {
             g.checkSanity();
         }
 

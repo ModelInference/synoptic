@@ -21,9 +21,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.Options;
-import synoptic.main.options.SynopticOptions;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -49,7 +49,6 @@ import synoptic.util.time.VectorTime;
 /**
  * A generic trace parser, configured in terms of Java 7 style named capture
  * regular expressions.
- * 
  */
 public class TraceParser {
 
@@ -82,8 +81,9 @@ public class TraceParser {
             .compile("\\(\\?<(\\w*)\\+\\+>\\)");
     private static final Pattern matchDefault = Pattern
             .compile("\\(\\?<((\\w|\\*|\\-)*)>\\)");
-    
-    // All line-matching regexps will be checked to include either of the following
+
+    // All line-matching regexps will be checked to include either of the
+    // following
     // groups, but not both.
     // Event type group
     private static final String typeGroup = "TYPE";
@@ -127,9 +127,9 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
-    
+
     private static final String dummyEtypeLabel = "dummy-etype-for-line-with-state"
-        .intern();
+            .intern();
 
     /**
      * Returns an un-parameterized trace parser.
@@ -166,9 +166,9 @@ public class TraceParser {
         assert (partitioningRegExp != null);
 
         logger.fine("Setting up the log file parser.");
-        if (partitioningRegExp.equals(SynopticOptions.partitionRegExpDefault)) {
+        if (partitioningRegExp.equals(AbstractOptions.partitionRegExpDefault)) {
             logger.info("Using the default partitions mapping regex: "
-                    + SynopticOptions.partitionRegExpDefault);
+                    + AbstractOptions.partitionRegExpDefault);
         }
 
         if (!rExps.isEmpty()) {
@@ -184,18 +184,18 @@ public class TraceParser {
             logger.warning("Using a default regular expression to parse log-lines: "
                     + "will map the entire log line to an event type."
                     + "\nTo use a custom regular expressions use the option:\n\t"
-                    + Options.getOptDesc("regExps", SynopticOptions.class)
-                    + "\n\t");
+                    + Options.getOptDesc("regExps",
+                            AbstractOptions.plumeOpts.getClass()) + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
-            this.addRegex(SynopticOptions.regExpDefault);
+            this.addRegex(AbstractOptions.regExpDefault);
             this.setPartitionsMap(partitioningRegExp);
         }
 
         if (sepRegExp != null) {
             this.addPartitionsSeparator(sepRegExp);
             if (!partitioningRegExp
-                    .equals(SynopticOptions.partitionRegExpDefault)) {
+                    .equals(AbstractOptions.partitionRegExpDefault)) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
@@ -373,13 +373,15 @@ public class TraceParser {
         // supposed to generate event instances, while the hidden ones do not.
         if (!isHidden) {
             // Check that either type or state group is present, but not both.
-            boolean typePresent = groups.contains(typeGroup) || fields.contains(typeGroup);
-            boolean statePresent = groups.contains(stateGroup) || fields.contains(
-                    stateGroup);
+            boolean typePresent = groups.contains(typeGroup)
+                    || fields.contains(typeGroup);
+            boolean statePresent = groups.contains(stateGroup)
+                    || fields.contains(stateGroup);
             if (typePresent == statePresent) {
                 String error = "Regular expression: " + input_regex
-                        + " should contain either a " + typeGroup + " named group"
-                        + " or a " + stateGroup + " named group, but not both";
+                        + " should contain either a " + typeGroup
+                        + " named group" + " or a " + stateGroup
+                        + " named group, but not both";
                 logger.severe(error);
                 ParseException parseException = new ParseException(error);
                 parseException.setRegex(input_regex);
@@ -479,7 +481,7 @@ public class TraceParser {
 
         }
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.debugParse) {
+        if (AbstractMain.getInstance().options.debugParse) {
             logger.info("input: " + input_regex);
             logger.info("processed: " + regex);
             logger.info("standard: " + parser.standardPattern());
@@ -638,7 +640,7 @@ public class TraceParser {
         String strLine = null;
 
         String tName = traceName;
-        if (SynopticMain.getInstanceWithExistenceCheck().options.internCommonStrings) {
+        if (AbstractMain.getInstance().options.internCommonStrings) {
             tName = tName.intern();
         }
 
@@ -660,7 +662,7 @@ public class TraceParser {
         // parseLine methods so that State is separated from EventNode.
         // At this point, each node in results either represents an event or
         // a state. We need to bundle pre- and post-event states and events.
-        if (SynopticMain.getInstanceWithExistenceCheck().options.stateProcessing) {
+        if (AbstractMain.getInstance().options.stateProcessing) {
             mergeStatesWithEventNodes(results);
         }
 
@@ -690,8 +692,8 @@ public class TraceParser {
                             logger.severe(error);
                             throw new ParseException(error);
                         }
-                        ((DistEventType) eNode.getEType()).setProcessName(Integer
-                                .toString(pid));
+                        ((DistEventType) eNode.getEType())
+                                .setProcessName(Integer.toString(pid));
                     }
                     pid += 1;
                 }
@@ -717,8 +719,8 @@ public class TraceParser {
                 for (String pid : PIDs) {
                     // Select all events from the partition with the same PID
                     for (EventNode node : group) {
-                        if (((DistEventType) node.getEType()).getProcessName().equals(
-                                pid)) {
+                        if (((DistEventType) node.getEType()).getProcessName()
+                                .equals(pid)) {
                             pidEvents.add(node);
                         }
                     }
@@ -764,49 +766,49 @@ public class TraceParser {
                 + " events from [" + tName + "]");
         return results;
     }
-    
+
     /**
-     * Merge each state node in results with its surrounding event nodes
-     * of the same traceID.
+     * Merge each state node in results with its surrounding event nodes of the
+     * same traceID.
      * 
      * @throws ParseException
      */
-    private void mergeStatesWithEventNodes(List<EventNode> results) throws ParseException {
+    private void mergeStatesWithEventNodes(List<EventNode> results)
+            throws ParseException {
         int i = 0;
         while (i < results.size()) {
             EventNode node = results.get(i);
             State state = node.getPostEventState();
             if (state != null) {
                 // This node represents a state, not an event.
-                // Merge this node with surrounding event nodes of the same traceID.
+                // Merge this node with surrounding event nodes of the same
+                // traceID.
                 // Assumptions:
                 // (1) A trace cannot have 2 consecutive states.
-                // (2) If a trace contains a state, it also contains at least 1 event.
+                // (2) If a trace contains a state, it also contains at least 1
+                // event.
                 EventNode prevNode = i > 0 ? results.get(i - 1) : null;
-                EventNode nextNode = i < results.size() - 1 ? results.get(i + 1) : null;
+                EventNode nextNode = i < results.size() - 1 ? results
+                        .get(i + 1) : null;
                 int traceID = node.getTraceID();
                 boolean mergeFront = false;
                 boolean mergeBack = false;
-                if  (prevNode != null
-                        && prevNode.getTraceID() == traceID) {
+                if (prevNode != null && prevNode.getTraceID() == traceID) {
                     if (prevNode.getPostEventState() != null) {
                         // This trace has 2 consecutive states.
-                        throw new ParseException(
-                                "Found 2 consecutive states: "
+                        throw new ParseException("Found 2 consecutive states: "
                                 + prevNode.getPostEventState() + " and "
                                 + state + " in trace ID: " + traceID);
                     }
                     prevNode.setPostEventState(state);
                     mergeFront = true;
                 }
-                if (nextNode != null
-                        && nextNode.getTraceID() == traceID) {
+                if (nextNode != null && nextNode.getTraceID() == traceID) {
                     nextNode.setPreEventState(state);
                     mergeBack = true;
                 }
                 if (!mergeFront && !mergeBack) {
-                    throw new ParseException(
-                            "Trace ID: " + traceID
+                    throw new ParseException("Trace ID: " + traceID
                             + " contains a state: " + state
                             + " but does not contain any event");
                 }
@@ -831,8 +833,8 @@ public class TraceParser {
             ret += " from file [" + fileName + "]";
         }
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        if (syn.options.logLvlVerbose || syn.options.logLvlExtraVerbose) {
+        AbstractMain main = AbstractMain.getInstance();
+        if (main.options.logLvlVerbose || main.options.logLvlExtraVerbose) {
             // Include the actual line if verbose output is desired.
             return ret + " line [" + line + "]";
         }
@@ -849,7 +851,7 @@ public class TraceParser {
         Event event = null;
         ITime nextTime = null;
 
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
 
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);
@@ -913,7 +915,7 @@ public class TraceParser {
             EventType eType;
             // Check if this line contains event type or state.
             if (matched.containsKey(typeGroup)) {
-                if (syn.options.internCommonStrings) {
+                if (main.options.internCommonStrings) {
                     eTypeLabel = matched.get(typeGroup).intern();
                 } else {
                     eTypeLabel = matched.get(typeGroup);
@@ -924,7 +926,7 @@ public class TraceParser {
                 eTypeLabel = dummyEtypeLabel;
             } else {
                 // TODO: determine if this is desired + print warning
-                // In the absence of an event type, use the entire log line as      
+                // In the absence of an event type, use the entire log line as
                 // the type.
                 eTypeLabel = line;
             }
@@ -1031,7 +1033,7 @@ public class TraceParser {
                     String errMsg = buildLineErrorLocString(line, fileName,
                             lineNum)
                             + " Unable to parse time field on log line.";
-                    if (syn.options.ignoreNonMatchingLines) {
+                    if (main.options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
                                 + " Ignoring line and continuing.");
                         continue;
@@ -1039,10 +1041,10 @@ public class TraceParser {
                     String error = errMsg
                             + "\n\tTry cmd line options:\n\t"
                             + Options.getOptDesc("ignoreNonMatchingLines",
-                                    SynopticOptions.class)
+                                    AbstractOptions.plumeOpts.getClass())
                             + "\n\t"
                             + Options.getOptDesc("debugParse",
-                                    SynopticOptions.class);
+                                    AbstractOptions.plumeOpts.getClass());
                     logger.severe(error);
                     logger.severe(e.toString());
                     ParseException parseException = new ParseException(errMsg);
@@ -1060,7 +1062,7 @@ public class TraceParser {
                 }
             }
 
-            if (syn.options.partitionRegExp.equals("\\k<FILE>")) {
+            if (AbstractOptions.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -1074,7 +1076,7 @@ public class TraceParser {
                 }
             }
 
-            if (syn.options.debugParse) {
+            if (main.options.debugParse) {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
@@ -1090,27 +1092,29 @@ public class TraceParser {
                 logger.info(msg.toString());
             }
             event.setTime(nextTime);
-            
+
             Relation timeRelation = new Relation("time-relation",
                     Event.defTimeRelationStr, false);
             eventRelations.add(timeRelation);
 
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
-            
+
             // If a state is captured, save it to eventNode's post-event state
             // to indicate that this node represents a state and not an event.
-            // Use post-event state because, when merging state nodes to event nodes,
-            // pre-event state might be set before we check if that node represents
+            // Use post-event state because, when merging state nodes to event
+            // nodes,
+            // pre-event state might be set before we check if that node
+            // represents
             // state or event.
             if (eventStringArgs.containsKey(stateGroup)) {
                 String stateStr = eventStringArgs.get(stateGroup);
                 State state = new State(stateStr);
                 eventNode.setPostEventState(state);
                 // State is parsed. Enable state processing.
-                syn.options.stateProcessing = true;
+                main.options.stateProcessing = true;
             }
-            
+
             // We want to add eventNode->eventRelations to allEventRelations
             // ONLY IF eventNode actually represents an event, not a dummy
             // for state.
@@ -1118,9 +1122,9 @@ public class TraceParser {
                 if (!allEventRelations.containsKey(eventNode)) {
                     allEventRelations.put(eventNode, new HashSet<Relation>());
                 }
-    
+
                 Set<Relation> relations = allEventRelations.get(eventNode);
-    
+
                 // Relations are immutable so we don't have to worry about
                 // representation exposure.
                 relations.addAll(eventRelations);
@@ -1130,7 +1134,7 @@ public class TraceParser {
             return eventNode;
         }
 
-        if (syn.options.recoverFromParseErrors) {
+        if (main.options.recoverFromParseErrors) {
             logger.warning(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
@@ -1151,7 +1155,7 @@ public class TraceParser {
                     filter.substitute(new LinkedHashMap<String, String>()));
             return eventNode;
 
-        } else if (syn.options.ignoreNonMatchingLines) {
+        } else if (main.options.ignoreNonMatchingLines) {
             logger.fine(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Ignoring line and continuing.");
             return null;
@@ -1163,8 +1167,10 @@ public class TraceParser {
         String loggerError = exceptionError
                 + "\nTry cmd line options:\n\t"
                 + Options.getOptDesc("ignoreNonMatchingLines",
-                        SynopticOptions.class) + "\n\t"
-                + Options.getOptDesc("debugParse", SynopticOptions.class);
+                        AbstractOptions.plumeOpts.getClass())
+                + "\n\t"
+                + Options.getOptDesc("debugParse",
+                        AbstractOptions.plumeOpts.getClass());
 
         logger.severe(loggerError);
         ParseException parseException = new ParseException(exceptionError);
@@ -1173,12 +1179,11 @@ public class TraceParser {
     }
 
     /**
-     * Adds an event to an internal map of partitions.
-     * 
-     * NOTE: Only eventNodes that actually represent events (i.e., not pseudo
-     * eventNodes that represent states) can be added to the partitions.
-     * But, we create a partition for every pName, since every partition
-     * contains at least 1 event.
+     * Adds an event to an internal map of partitions. NOTE: Only eventNodes
+     * that actually represent events (i.e., not pseudo eventNodes that
+     * represent states) can be added to the partitions. But, we create a
+     * partition for every pName, since every partition contains at least 1
+     * event.
      * 
      * @param eventNode
      * @param pName
@@ -1197,7 +1202,7 @@ public class TraceParser {
             nextTraceID++;
         }
         eventNode.setTraceID(partitionNameToTraceID.get(pName));
-        
+
         // We want to add eventNode to partitions ONLY IF event actually
         // represents an event, not a dummy for state.
         if (!event.getEType().getETypeLabel().equals(dummyEtypeLabel)) {

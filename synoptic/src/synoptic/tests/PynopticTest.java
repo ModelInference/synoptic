@@ -2,7 +2,6 @@ package synoptic.tests;
 
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
 
 import synoptic.invariants.BinaryInvariant;
@@ -17,7 +16,6 @@ import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
-import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
@@ -25,7 +23,6 @@ import synoptic.model.PartitionGraph;
 
 /**
  * Common helper methods and variables for Pynoptic tests
- * 
  */
 public abstract class PynopticTest extends SynopticTest {
 
@@ -40,15 +37,7 @@ public abstract class PynopticTest extends SynopticTest {
     @Override
     public void setUp() throws ParseException {
         // Set up SynopticLib state.
-        super.setUp();
-        // Enable performance debugging
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = true;
-    }
-
-    @After
-    public void tearDown() {
-        // Disable performance debugging
-        SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging = false;
+        super.setUpPerfume();
     }
 
     /**

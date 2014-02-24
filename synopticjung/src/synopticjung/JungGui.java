@@ -72,9 +72,9 @@ import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.Options;
-import synoptic.main.options.SynopticOptions;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -145,7 +145,7 @@ public class JungGui extends JApplet implements Printable {
     /**
      * Command line arguments.
      */
-    SynopticOptions options;
+    AbstractOptions options;
 
     static final Color lightGreenColor;
     static {
@@ -159,7 +159,7 @@ public class JungGui extends JApplet implements Printable {
      * @param g
      * @throws Exception
      */
-    public JungGui(PartitionGraph g, SynopticOptions options) throws Exception {
+    public JungGui(PartitionGraph g, AbstractOptions options) throws Exception {
         this.options = options;
 
         unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
@@ -296,7 +296,7 @@ public class JungGui extends JApplet implements Printable {
                 if (filename != null && filename.length() > 0) {
                     if (options.outputPathPrefix != null) {
                         try {
-                            SynopticMain.getInstance().exportNonInitialGraph(
+                            AbstractMain.getInstance().exportNonInitialGraph(
                                     options.outputPathPrefix + "." + filename,
                                     pGraph);
                         } catch (Exception e1) {
@@ -309,9 +309,11 @@ public class JungGui extends JApplet implements Printable {
                                         "Cannot output "
                                                 + filename
                                                 + "graph. Specify output path prefix using:\n\t"
-                                                + Options.getOptDesc(
-                                                        "outputPathPrefix",
-                                                        SynopticOptions.class));
+                                                + Options
+                                                        .getOptDesc(
+                                                                "outputPathPrefix",
+                                                                AbstractOptions.plumeOpts
+                                                                        .getClass()));
                     }
                 }
             }

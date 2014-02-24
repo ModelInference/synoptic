@@ -10,14 +10,13 @@ import plume.OptionGroup;
 import synoptic.main.AbstractMain;
 
 /**
- * This class defines and maintains command line arguments to the Synoptic
- * process. It uses plume-lib for defining command line options, their types,
- * and the corresponding help messages. This library also provides support for
- * parsing and populating instances of these options. All options can be
- * exported to AbstractOptions (the common options for all Synoptic projects)
- * using toAbstractOptions().
+ * Defines and maintains command line arguments to Perfume. It uses plume-lib
+ * for defining command line options, their types, and the corresponding help
+ * messages. This library also provides support for parsing and populating
+ * instances of these options. All options can be exported to AbstractOptions
+ * (the common options for all Synoptic projects) using toAbstractOptions().
  */
-public class SynopticOptions extends Options {
+public class PerfumeOptions extends Options {
     // //////////////////////////////////////////////////
     /**
      * Print the short usage message. This does not include verbosity or
@@ -35,7 +34,7 @@ public class SynopticOptions extends Options {
     public boolean allHelp = false;
 
     /**
-     * Print the current Synoptic version.
+     * Print the current Perfume version.
      */
     @Option(value = AbstractOptions.versionStr, aliases = { "-version" })
     public boolean version = false;
@@ -56,43 +55,35 @@ public class SynopticOptions extends Options {
     public boolean logLvlVerbose = false;
 
     /**
-     * Use the new FSM checker instead of the LTL checker.
+     * Perfume always uses the FSM checker
      */
-    @Option(value = AbstractOptions.useFSMCheckerStr,
-            aliases = { "-use-fsm-checker" })
-    public boolean useFSMChecker = true;
+    public final boolean useFSMChecker = true;
 
     /**
-     * Sets the random seed for Synoptic's source of pseudo-random numbers.
+     * Sets the random seed for Perfume's source of pseudo-random numbers.
      */
     @Option(AbstractOptions.randomSeedStr)
     public Long randomSeed = null;
 
     /**
-     * Use vector time indexes to partition the output graph into a set of
-     * graphs, one per distributed system node type.
+     * Perfume doesn't support vector time
      */
-    @Option(AbstractOptions.separateVTimeIndexSetsStr)
-    public String separateVTimeIndexSets = null;
+    public final String separateVTimeIndexSets = null;
 
     /**
-     * Mine multiple-relations
+     * Perfume doesn't support multiple relations
      */
-    @Option(AbstractOptions.multipleRelationsStr)
-    public boolean multipleRelations = false;
+    public final boolean multipleRelations = false;
 
     /**
-     * States are parsed. Enable state processing.
+     * Perfume doesn't support state processing
      */
-    @Option(AbstractOptions.stateProcessingStr)
-    public boolean stateProcessing = false;
+    public final boolean stateProcessing = false;
 
     /**
-     * Enable abstract test generation.
+     * Pefume doesn't support abstract test generation
      */
-    @Option(value = AbstractOptions.testGenerationStr,
-            aliases = { "-test-generation" })
-    public boolean testGeneration = false;
+    public final boolean testGeneration = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -131,7 +122,7 @@ public class SynopticOptions extends Options {
     public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
 
     /**
-     * This flag indicates whether Synoptic should partition traces by file
+     * This flag indicates whether Perfume should partition traces by file
      */
     public boolean partitionViaFile = true;
 
@@ -144,15 +135,16 @@ public class SynopticOptions extends Options {
     public boolean ignoreNonMatchingLines = false;
 
     /**
-     * Synoptic never uses performance information. Enabling this option would
-     * effectively run Perfume.
+     * Perfume always uses performance information
      */
-    public boolean usePerformanceInfo = false;
+    public final boolean usePerformanceInfo = true;
 
     /**
-     * Synoptic doesn't support trace-wise normalization
+     * Perform trace-wise normalization
      */
-    public final boolean traceNormalization = false;
+    @Option(value = AbstractOptions.traceNormalizationStr,
+            aliases = { "-trace-norm" })
+    public boolean traceNormalization = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
@@ -181,7 +173,7 @@ public class SynopticOptions extends Options {
 
     // //////////////////////////////////////////////////
     /**
-     * Specifies the prefix of where to store the final Synoptic representation
+     * Specifies the prefix of where to store the final Perfume representation
      * output. This prefix is also used to determine filenames of intermediary
      * files, like corresponding dot file and intermediate stage representations
      * (if specified, e.g. with --dumpIntermediateStages).
@@ -208,18 +200,16 @@ public class SynopticOptions extends Options {
 
     /**
      * The absolute path to the dot command executable to use for outputting
-     * graphical representations of Synoptic models
+     * graphical representations of Perfume models
      */
     @Option(value = AbstractOptions.dotExecutablePathStr,
             aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
-     * This sets the output edge labels on graphs that are exported.
+     * Perfume always outputs performance labels on exported graph edges
      */
-    @Option(value = AbstractOptions.outputEdgeLabelsStr,
-            aliases = { "-outputEdgeLabels" })
-    public boolean outputEdgeLabels = true;
+    public final boolean outputEdgeLabels = true;
 
     /**
      * Whether or not the output graphs include the common TERMINAL state, to
@@ -236,15 +226,17 @@ public class SynopticOptions extends Options {
     public boolean showInitialNode = true;
 
     /**
-     * Synoptic doesn't support JSON output
+     * Output a JSON object of the final model to the output prefix specified by
+     * -o or -output-prefix.
      */
-    public final boolean outputJSON = false;
+    @Option(value = AbstractOptions.outputJSONStr, aliases = { "-output-json" })
+    public boolean outputJSON = false;
 
     // end option group "Output Options"
 
     // //////////////////////////////////////////////////
     /**
-     * Dump the complete list of mined synoptic.invariants for the set of input
+     * Dump the complete list of mined Perfume invariants for the set of input
      * files to stdout. This option is <i>unpublicized</i>; it will not appear
      * in the default usage message
      */
@@ -255,7 +247,7 @@ public class SynopticOptions extends Options {
     /**
      * Dump the DOT representation of the parsed trace graph to file. The file
      * will have the name <outputPathPrefix>.tracegraph.dot, where
-     * 'outputPathPrefix' is the filename of the final Synoptic output. This
+     * 'outputPathPrefix' is the filename of the final Perfume output. This
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message
      */
@@ -265,8 +257,8 @@ public class SynopticOptions extends Options {
     /**
      * Dump PNG of parsed trace graph to file. The file will have the name
      * <outputPathPrefix>.tracegraph.dot.png, where 'outputPathPrefix' is the
-     * filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
+     * filename of the final Perfume output. This option is <i>unpublicized</i>;
+     * it will not appear in the default usage message
      */
     @Option(AbstractOptions.dumpTraceGraphPngFileStr)
     public boolean dumpTraceGraphPngFile = false;
@@ -274,7 +266,7 @@ public class SynopticOptions extends Options {
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will
      * have the name <outputPathPrefix>.condensed.dot.png, where
-     * 'outputPathPrefix' is the filename of the final Synoptic output. This
+     * 'outputPathPrefix' is the filename of the final Perfume output. This
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message.
      */
@@ -282,10 +274,10 @@ public class SynopticOptions extends Options {
     public boolean dumpInitialPartitionGraph = false;
 
     /**
-     * Dump the dot representations for intermediate Synoptic steps to file.
-     * Each of these files will have a name like:
+     * Dump the dot representations for intermediate Perfume steps to file. Each
+     * of these files will have a name like:
      * outputPathPrefix.stage-S.round-R.dot where 'outputPathPrefix' is the
-     * filename of the final Synoptic output, 'S' is the name of the stage (e.g.
+     * filename of the final Perfume output, 'S' is the name of the stage (e.g.
      * r for refinement, and c for coarsening), and 'R' is the round number
      * within the stage. This option requires that the outputPathPrefix is set
      * with the -o option (see above). This option is <i>unpublicized</i>; it
@@ -311,28 +303,23 @@ public class SynopticOptions extends Options {
     public String ignoreInvsOverETypeSet = null;
 
     /**
-     * Used to select the algorithm for mining invariants.
+     * Perfume doesn't support transitive closure mining
      */
-    @Option(AbstractOptions.useTransitiveClosureMiningStr)
-    public boolean useTransitiveClosureMining = false;
+    public final boolean useTransitiveClosureMining = false;
 
     /**
-     * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
-     * false, this option changes mining behavior when
-     * useTransitiveClosureMining = false (i.e., it only works for the DAG
-     * walking invariant miner, not the TC-based miner).
+     * Perfume doesn't support the NeverConcurrentWith invariant
      */
-    @Option(AbstractOptions.mineNeverConcurrentWithInvStr)
-    public boolean mineNeverConcurrentWithInv = true;
+    public final boolean mineNeverConcurrentWithInv = false;
 
     /**
-     * Used to tell Synoptic to not go past mining invariants.
+     * Used to tell Perfume to not go past mining invariants.
      */
     @Option(AbstractOptions.onlyMineInvariantsStr)
     public boolean onlyMineInvariants = false;
 
     /**
-     * Do not perform the coarsening stage in Synoptic, and as final output use
+     * Do not perform the coarsening stage in Perfume, and as final output use
      * the most refined representation. This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
@@ -389,14 +376,14 @@ public class SynopticOptions extends Options {
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    public static final String usageString = "synoptic [options] <logfiles-to-analyze>";
+    public static final String usageString = "perfume [options] <logfiles-to-analyze>";
 
     /**
      * Use this constructor to create a blank set of options, that can then be
-     * populated manually, one at a time. This is useful when Synoptic is used
-     * as a library or in tests, and options do not come from the command line.
+     * populated manually, one at a time. This is useful when Perfume is used as
+     * a library or in tests, and options do not come from the command line.
      */
-    public SynopticOptions() {
+    public PerfumeOptions() {
         randomSeed = System.currentTimeMillis();
         logFilenames = new LinkedList<String>();
     }
@@ -410,7 +397,7 @@ public class SynopticOptions extends Options {
      *            an array of command line arguments
      * @throws IOException
      */
-    public SynopticOptions(String[] args) throws IOException {
+    public PerfumeOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);
         if (randomSeed == null) {

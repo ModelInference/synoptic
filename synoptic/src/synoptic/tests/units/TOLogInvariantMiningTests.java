@@ -22,7 +22,7 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.SynopticMain;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -34,7 +34,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Tests for mining invariants from totally ordered (TO) logs using three
  * different mining algorithms.
- * 
  */
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
@@ -73,9 +72,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         int numPartitions = 5;
 
         // Generate a random log.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        AbstractMain main = AbstractMain.getInstance();
         while (numPartitions != 0) {
-            int rndIndex = syn.random.nextInt(eventTypes.length);
+            int rndIndex = main.random.nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
             if (rndIndex == 0) {
                 numPartitions -= 1;
@@ -335,8 +334,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 false);
 
         // Test with FSM checker.
-        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
-        syn.options.useFSMChecker = true;
+        AbstractMain main = AbstractMain.getInstance();
+        main.options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
@@ -347,7 +346,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(cExamples == null);
 
         // Test with LTL checker.
-        syn.options.useFSMChecker = false;
+        main.options.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));
