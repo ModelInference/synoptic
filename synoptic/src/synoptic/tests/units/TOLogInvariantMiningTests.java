@@ -16,6 +16,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -28,6 +29,7 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
+import synoptic.tests.PynopticTest;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -198,6 +200,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
+
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "b", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -225,6 +230,107 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
+     * Tests for Issue352. Mines both "a IntrBy b" and "b IntrBy a".
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineIntrByTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "l", "f", "l", "a", "--", "l", "f", "a",
+                "--", "l", "a", "--", "l", "f", "l", "f", "l", "a", "--", "l",
+                "g", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("l", "f",
+                Event.defTimeRelationStr));
+        trueInvs.add(new InterruptedByInvariant("f", "l",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Mines one IntrBy from a simple log.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineIntrBySimpleTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "a", "b", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("a", "b",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a complex IntrBy.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineIntrByComplexTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log = new String[] { "a", "b", "a", "b", "--", "a", "a", "b",
+                "a", "c", "b", "a" };
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // TODO: create own utility method, as synoptic code should not be
+        // dependant on perfume
+        minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
+        trueInvs.add(new InterruptedByInvariant("b", "a",
+                Event.defTimeRelationStr));
+        // FIXME: only valid for one miner
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * CHecks that the IntrBy is not mined, according to the definition
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNotIntrByTest() throws Exception {
+        // login l, failed f, auth a
+        String[] log;
+        TemporalInvariantSet minedInvs, trueInvs;
+        // FIXME: only valid for one miner and uses perfume method
+        log = new String[] { "a", "--" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+
+        log = new String[] { "a", "b", "--" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+
+        log = new String[] { "b", "b", "a", "b" };
+        minedInvs = PynopticTest.getOnlyIntrByInvs(genInvariants(log, false));
+        trueInvs = new TemporalInvariantSet();
+        if (miner instanceof ChainWalkingTOInvMiner)
+            assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
      * Compose a log in which "a AP b" is the only true invariant. Except that
      * we making it the only invariant complicates the trace too much so we
      * settle for also including the INITIAL AFby a invariant.
@@ -238,11 +344,15 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
+
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "a", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 Event.defTimeRelationStr));
         logger.info("minedInvs: " + minedInvs.toString());
+
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
@@ -332,6 +442,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
                 false);
+
+        // Remove all IntrBy invariants
+        minedInvs = filterIntrByInvariants(minedInvs);
 
         // Test with FSM checker.
         AbstractMain main = AbstractMain.getInstance();

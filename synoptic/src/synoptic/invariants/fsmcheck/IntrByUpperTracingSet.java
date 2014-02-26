@@ -9,31 +9,31 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
 
 /**
- * NFA state set for the AFbyLower constrained invariant which keeps the
- * shortest path justifying a given state being inhabited. <br />
+ * NFA state set for the IntrByUpper constrained invariant which keeps the
+ * highest timed path justifying a given state being inhabited. <br />
  * <br />
  * State0 = states.get(0): A not seen <br />
- * State1 = states.get(1): A seen (reject state) <br />
- * State2 = states.get(2): A seen, then something other than B seen (reject
- * state) <br />
- * State3 = states.get(3): A seen, then B seen within time bound <br />
- * State4 = states.get(4): A seen, then B seen out of time bound (permanent
- * reject state)
+ * State1 = states.get(1): First A seen (very first time only) <br />
+ * State2 = states.get(2): First A seen, or second A seen after B within time
+ * bound (potentially a new "first A") <br />
+ * State3 = states.get(3): B seen after A <br />
+ * State4 = states.get(4): Two A's seen without B, or A then B then A seen out
+ * of time bound (permanent reject state)
  * 
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */
-public class AFbyLowerTracingSet<T extends INode<T>> extends
+public class IntrByUpperTracingSet<T extends INode<T>> extends
         ConstrainedTracingSet<T> {
 
     /**
      * Empty constructor for copy() and testing
      */
-    public AFbyLowerTracingSet() {
+    public IntrByUpperTracingSet() {
 
     }
 
-    public AFbyLowerTracingSet(BinaryInvariant inv) {
+    public IntrByUpperTracingSet(BinaryInvariant inv) {
         super(inv, 5);
     }
 
@@ -52,70 +52,73 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
             states.set(1, statesOld.get(0));
         }
 
-        // State2 -> State1
-        if (statesOld.get(2) != null && isA) {
-            states.set(1, preferMinTime(statesOld.get(2), states.get(1)));
-        }
-
-        // State3 -> State1
-        if (statesOld.get(3) != null && isA) {
-            states.set(1, preferMinTime(statesOld.get(3), states.get(1)));
-        }
-
         // State1 -> State2
-        if (statesOld.get(1) != null && !isB) {
+        if (statesOld.get(1) != null && !isA && !isB) {
             states.set(2, statesOld.get(1));
         }
 
         // State2 -> State2
         if (statesOld.get(2) != null && !isA && !isB) {
-            states.set(2, preferMinTime(statesOld.get(2), states.get(2)));
+            states.set(2, preferMaxTime(statesOld.get(2), states.get(2)));
+        }
+
+        // State3 -> State2
+        if (statesOld.get(3) != null && isA && !outOfBound.get(3)) {
+            states.set(2, preferMaxTime(statesOld.get(3), states.get(2)));
         }
 
         // State1 -> State3
-        if (statesOld.get(1) != null && isB && !outOfBound.get(1)) {
+        if (statesOld.get(1) != null && isB) {
             states.set(3, statesOld.get(1));
         }
 
         // State2 -> State3
-        if (statesOld.get(2) != null && isB && !outOfBound.get(2)) {
-            states.set(3, preferMinTime(statesOld.get(2), states.get(3)));
+        if (statesOld.get(2) != null && isB) {
+            states.set(3, preferMaxTime(statesOld.get(2), states.get(3)));
         }
 
         // State3 -> State3
         if (statesOld.get(3) != null && !isA) {
-            states.set(3, preferMinTime(statesOld.get(3), states.get(3)));
+            states.set(3, preferMaxTime(statesOld.get(3), states.get(3)));
         }
 
         // State1 -> State4
-        if (statesOld.get(1) != null && isB && outOfBound.get(1)) {
+        if (statesOld.get(1) != null && isA) {
             states.set(4, statesOld.get(1));
         }
 
         // State2 -> State4
-        if (statesOld.get(2) != null && isB && outOfBound.get(2)) {
-            states.set(4, preferMinTime(statesOld.get(2), states.get(4)));
+        if (statesOld.get(2) != null && isA) {
+            states.set(4, preferMaxTime(statesOld.get(2), states.get(4)));
+        }
+
+        // State3 -> State4
+        if (statesOld.get(3) != null && isA && outOfBound.get(3)) {
+            states.set(4, preferMaxTime(statesOld.get(3), states.get(4)));
         }
 
         // State4 -> State4
         if (statesOld.get(4) != null) {
-            states.set(4, preferMinTime(statesOld.get(4), states.get(4)));
+            states.set(4, preferMaxTime(statesOld.get(4), states.get(4)));
         }
 
-        // Retrieve the previously-found min time delta
-        ITime tMin = transitions.get(0).getTimeDelta();
-        if (tMin == null) {
-            tMin = tBound.getZeroTime();
+        // Retrieve the previously-found max time delta
+        ITime tMax = transitions.get(0).getTimeDelta();
+        if (tMax == null) {
+            tMax = tBound.getZeroTime();
         }
 
         // Update the running time deltas of any states which require it. State0
         // disregards time. State1 sets time to 0, which is the default value.
-        // State2,4 require updates.
+        // State2,3,4 require updates.
         if (states.get(2) != null) {
-            tRunning.set(2, tMin.incrBy(states.get(2).tDelta));
+            tRunning.set(2, tMax.incrBy(states.get(2).tDelta));
+        }
+        if (states.get(3) != null) {
+            tRunning.set(3, tMax.incrBy(states.get(3).tDelta));
         }
         if (states.get(4) != null) {
-            tRunning.set(4, tMin.incrBy(states.get(4).tDelta));
+            tRunning.set(4, tMax.incrBy(states.get(4).tDelta));
         }
 
         // Extend histories for each state
@@ -124,8 +127,8 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
                     extend(input, states.get(i), transitions, tRunning.get(i)));
         }
 
-        // The violation subpath started whenever we reach State1
-        if (states.get(1) != null) {
+        // The violation subpath started if we just reached State1
+        if (states.get(1) != null && statesOld.get(1) == null) {
             states.get(1).startViolationHere();
         }
 
@@ -142,6 +145,6 @@ public class AFbyLowerTracingSet<T extends INode<T>> extends
 
     @Override
     public ConstrainedTracingSet<T> newOfThisType() {
-        return new AFbyLowerTracingSet<T>();
+        return new IntrByUpperTracingSet<T>();
     }
 }
