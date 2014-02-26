@@ -3,9 +3,16 @@ package synoptic.main.options;
 import java.util.List;
 
 /**
+ * <p>
  * The common options for all Synoptic projects. Generally, this should not be
  * created manually. Instead, parse command line options using PerfumeOptions or
  * SynopticOptions, and then call toAbstractOptions() on that object.
+ * </p>
+ * <p>
+ * This class cannot be a superclass of PerfumeOptions and SynopticOptions
+ * containing options common to both of them because plume-lib doesn't support
+ * inheritance.
+ * </p>
  */
 public class AbstractOptions {
 
