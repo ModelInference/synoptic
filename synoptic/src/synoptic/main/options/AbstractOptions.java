@@ -97,6 +97,9 @@ public class AbstractOptions {
     static final String argsFilenameStr = "-c Command line arguments input filename";
     public static String argsFilename = null;
 
+    static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";
+    public static boolean keepOrder = false;
+
     // ////////////////////////////
     // Output options
     // ////////////////////////////
