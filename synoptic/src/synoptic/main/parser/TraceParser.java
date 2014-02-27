@@ -128,6 +128,9 @@ public class TraceParser {
     // to be used.
     private String selectedTimeGroup = null;
 
+    // Used to convert delta values into absolute values when the flag is set
+    private ITime lastTime;
+
     private static final String dummyEtypeLabel = "dummy-etype-for-line-with-state"
             .intern();
 
@@ -644,6 +647,8 @@ public class TraceParser {
             tName = tName.intern();
         }
 
+        lastTime = null;
+
         int lineNum = 0;
         // Process each line in sequence.
         while ((strLine = br.readLine()) != null) {
@@ -1028,6 +1033,17 @@ public class TraceParser {
                                 + selectedTimeGroup;
                         logger.severe(error);
                         throw new ParseException(error);
+                    }
+
+                    if (AbstractOptions.inputDelta) {
+                        // If this is the first node, assign the zero time to
+                        // lastTime
+                        if (lastTime == null) {
+                            lastTime = nextTime.getZeroTime();
+                        }
+
+                        nextTime = nextTime.incrBy(lastTime);
+                        lastTime = nextTime;
                     }
                 } catch (Exception e) {
                     String errMsg = buildLineErrorLocString(line, fileName,
