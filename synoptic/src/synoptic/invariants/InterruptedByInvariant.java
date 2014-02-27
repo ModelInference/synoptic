@@ -8,7 +8,7 @@ import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
- * IntrBy Invariant
+ * IntrBy Invariant.
  * 
  * @author sfiss
  */
@@ -88,11 +88,9 @@ public class InterruptedByInvariant extends BinaryInvariant {
     }
 
     /**
-     * TODO: check if this is implemented correctly, and most of all if it is
-     * logically correct Shortens the IntrBy trace. Also, why (and this is for
-     * the NFBy as well) do we need to keep the trace before the first occurence
-     * of "a". Returns the path "... a ... a", where there is no "b" between the
-     * two "a". If there are no such "a", there is no counter example
+     * Shortens the IntrBy trace. Returns the path "... a ... a", where there is
+     * no "b" between the two "a". If there are no such "a", there is no counter
+     * example
      * 
      * @param trace
      * @param firstEvent

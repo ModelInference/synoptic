@@ -493,6 +493,89 @@ public class ConstrainedRefinementTests extends PynopticTest {
         }
     }
 
+    @Test
+    public void IntrByRefinementNoSplitTest() throws Exception {
+        // Produces invariants 'x IntrBy z lower=2' and 'x IntrBy
+        // z upper=100'
+        String[] events = { "x 0", "z 4", "x 5", "--", "x 0", "z 1", "x 5",
+                "--", "x 0", "z 1", "x 2", "--", "x 0", "z 4", "x 100" };
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByUpper);
+
+        exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+        exportTestGraph(graph, 1);
+
+        // z-partition split once, two x-partitions and INIT/TERM should remain
+        int xparts = 0, zparts = 0;
+
+        for (Partition part : graph.getNodes()) {
+            EventType evType = part.getEType();
+
+            // No splits should occur
+            if (evType.equals(new StringEventType("x"))) {
+                xparts++;
+                assertTrue(part.size() == 8);
+            }
+
+            else if (evType.equals(new StringEventType("z"))) {
+                zparts++;
+                assertTrue(part.size() == 4);
+            }
+
+            // No other partition types should exist except INIT and TERM
+            else if (!part.isInitial() && !part.isTerminal()) {
+                throw new AssertionError("Unexpected partition type '" + evType
+                        + "' in constrained refinement run");
+            }
+        }
+
+        assertTrue(xparts == 1 && zparts == 1);
+    }
+
+    @Test
+    public void IntrByRefinementPartSplitTest() throws Exception {
+        // Produces invariants 'x IntrBy z lower=2' and 'x IntrBy
+        // z upper=100'
+        String[] events = { "x 0", "z 4", "x 5", "--", "x 0", "z 1", "x 5",
+                "--", "x 0", "z 1", "x 2", "--", "x 0", "z 1", "x 100" };
+
+        // Generate partition graph and run refinement
+        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByUpper);
+
+        exportTestGraph(graph, 0);
+        Bisimulation.splitUntilAllInvsSatisfied(graph);
+        exportTestGraph(graph, 1);
+
+        // z-partition split once, two x-partitions and INIT/TERM should remain
+        int xparts = 0, zparts = 0;
+
+        for (Partition part : graph.getNodes()) {
+            EventType evType = part.getEType();
+
+            // x shouldnt be split
+            if (evType.equals(new StringEventType("x"))) {
+                xparts++;
+                assertTrue(part.size() == 4);
+            }
+
+            // z should be split
+            else if (evType.equals(new StringEventType("z"))) {
+                zparts++;
+                assertTrue(part.size() < 4);
+            }
+
+            // No other partition types should exist except INIT and TERM
+            else if (!part.isInitial() && !part.isTerminal()) {
+                throw new AssertionError("Unexpected partition type '" + evType
+                        + "' in constrained refinement run");
+            }
+        }
+
+        assertTrue(xparts == 2 && zparts == 2);
+    }
+
     /**
      * Verifies that refinement successfully resolves all IntrByLower
      * counterexamples and does not hang
