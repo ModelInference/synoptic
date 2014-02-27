@@ -19,6 +19,7 @@ import org.junit.Test;
 import junit.framework.Assert;
 
 import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -1489,5 +1490,23 @@ public class TraceParserTests extends SynopticTest {
             throws ParseException {
         String stateStr = "q == 1";
         State state = new State(stateStr);
+    }
+
+    @Test
+    public void inputDeltaTest() throws ParseException {
+        AbstractOptions.inputDelta = true;
+        String traceStr = "5 a\n" + "4 b\n" + "2 c\n";
+        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+        List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
+
+        ITime a = new ITotalTime(5);
+        ITime b = new ITotalTime(9);
+        ITime c = new ITotalTime(11);
+
+        assertTrue(events.get(0).getTime().equals(a));
+        assertTrue(events.get(1).getTime().equals(b));
+        assertTrue(events.get(2).getTime().equals(c));
+
+        AbstractOptions.inputDelta = false;
     }
 }
