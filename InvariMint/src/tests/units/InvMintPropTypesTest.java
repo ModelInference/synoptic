@@ -99,8 +99,8 @@ public class InvMintPropTypesTest {
                 .getEncoding(b), one));
 
         EncodedAutomaton expectedDfa = new CustomModel(encodings, initialState);
-        System.out.println(dfa.toGraphviz());
-        System.out.println(expectedDfa.toGraphviz());
+        // System.out.println(dfa.toGraphviz());
+        // System.out.println(expectedDfa.toGraphviz());
         assertTrue(dfa.subsetOf(expectedDfa));
         assertTrue(expectedDfa.subsetOf(dfa));
 
@@ -182,10 +182,67 @@ public class InvMintPropTypesTest {
                 .getEncoding(terminal), term));
 
         EncodedAutomaton expectedDfa = new CustomModel(encodings, initialState);
+        // System.out.println(dfa.toGraphviz());
+        // System.out.println(expectedDfa.toGraphviz());
+        assertTrue(dfa.subsetOf(expectedDfa));
+        assertTrue(expectedDfa.subsetOf(dfa));
+
+    }
+
+    /**
+     * Tests InvariMintPropTypes with AFby on simple-model example in
+     * traces/abstract
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void simpleModelTestAFby() throws Exception {
+
+        String[] args = new String[] { "-r",
+                "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>",
+                "-o", testOutputDir + "ktail-simple-model-example", "--AFby",
+                simpleModelPath + "trace.txt" };
+        InvariMintOptions opts = new InvariMintOptions(args);
+        InvariMintPropTypes alg = new InvariMintPropTypes(opts);
+        EncodedAutomaton dfa = alg.runInvariMint();
+
+        // create dfa
+        EventTypeEncodings encodings = dfa.getEventEncodings();
+        State initialState = new State();
+        State inita = new State();
+        State gota = new State();
+        State gotb = new State();
+        State term = new State();
+
+        initialState.setAccept(true);
+        inita.setAccept(true);
+        gota.setAccept(true);
+        gotb.setAccept(true);
+        term.setAccept(true);
+
+        initialState.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(initial), inita));
+        initialState.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(a), gota));
+        initialState.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(b), gotb));
+        initialState.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(terminal), term));
+        inita.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(a), gota));
+        gota.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(a), gota));
+        gota.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(b), gotb));
+        gotb.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(b), gotb));
+        gotb.addTransition(new dk.brics.automaton.Transition(encodings
+                .getEncoding(terminal), term));
+
+        EncodedAutomaton expectedDfa = new CustomModel(encodings, initialState);
         System.out.println(dfa.toGraphviz());
         System.out.println(expectedDfa.toGraphviz());
         assertTrue(dfa.subsetOf(expectedDfa));
         assertTrue(expectedDfa.subsetOf(dfa));
-
     }
 }
