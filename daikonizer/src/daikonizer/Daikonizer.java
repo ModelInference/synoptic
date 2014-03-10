@@ -113,6 +113,7 @@ public class Daikonizer {
         // exit = filter_invs(exit);
         // flow = filter_invs(flow);
         
+        daikon.Daikon.cleanup();
         // clean up .dtrace and .inv.gz files
         deleteDaikonFiles();
         
@@ -157,6 +158,7 @@ public class Daikonizer {
 
         ps = new PrintStream(fout);
         ps.print(this.toDtraceString());
+        ps.close();
 
         // close the file
         try {
@@ -175,6 +177,7 @@ public class Daikonizer {
         File[] daikonFiles = currDir.listFiles(filter);
         
         for (File daikonFile : daikonFiles) {
+            // TODO: make this work on Windows. This fails for .dtrace files on Windows. See issue 366
             daikonFile.delete();
         }
     }
