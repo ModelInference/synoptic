@@ -15,8 +15,8 @@
     <property name="csight.jarpath" value="${util.synoptic.libdir}/csight.jar"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
 
     <!-- Where to find the generated synoptic classes. -->
     <path id="csight.classes.classpath">

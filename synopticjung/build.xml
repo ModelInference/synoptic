@@ -4,8 +4,8 @@
     <property environment="env"/>
     <property name="SYNOPTIC_LIB" value="../lib"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
 
 	<path id="SynopticJung.classpath">
         <pathelement location="bin"/>
