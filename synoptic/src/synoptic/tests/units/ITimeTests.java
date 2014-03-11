@@ -10,6 +10,7 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.LTotalTime;
 import synoptic.util.time.VectorTime;
 
 /**
@@ -83,6 +84,17 @@ public class ITimeTests extends SynopticTest {
     }
 
     /**
+     * Test that we can divide an LTotalTime instance.
+     */
+    @Test
+    public void testDivisionLTotalTIme() {
+        ITime t1 = new LTotalTime(10);
+        ITime t2 = t1.divBy(2);
+        ITime oracle = new LTotalTime(5);
+        assertEquals(oracle, t2);
+    }
+
+    /**
      * Test that we can divide a DTotalTime instance.
      */
     @Test
@@ -102,6 +114,18 @@ public class ITimeTests extends SynopticTest {
         ITime t2 = new ITotalTime(5);
         ITime result = t1.incrBy(t2);
         ITime oracle = new ITotalTime(6);
+        assertEquals(oracle, result);
+    }
+
+    /**
+     * Test that we can increment an LTotalTime instance.
+     */
+    @Test
+    public void testLTotalTimeIncr() {
+        ITime t1 = new LTotalTime(1);
+        ITime t2 = new LTotalTime(5);
+        ITime result = t1.incrBy(t2);
+        ITime oracle = new LTotalTime(6);
         assertEquals(oracle, result);
     }
 
