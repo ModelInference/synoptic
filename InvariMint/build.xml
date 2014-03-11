@@ -66,6 +66,7 @@
 	<delete>
           <fileset dir="test-output" includes="*" excludes=".hidden"/>
         </delete>
+	<delete file="${invarimint.jarpath}"/>
     </target>
 
     <!--=====================================================================-->
