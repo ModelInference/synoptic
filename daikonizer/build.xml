@@ -42,6 +42,7 @@
     <target name="clean">
       <delete dir="bin"/>
       <delete dir="junit"/>
+      <delete file="${daikonizer.jarpath}"/>
     </target>
 
     <!--=====================================================================-->
