@@ -61,8 +61,7 @@ public class DotExportFormatter extends GraphExportFormatter {
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             Set<String> relations) {
         String probStr = quote(probToString(prob));
-        String attributes = "label=\"" + probStr + "\", weight=\"" + probStr
-                + "\"";
+        String attributes = "label=\"" + probStr + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 
@@ -74,8 +73,7 @@ public class DotExportFormatter extends GraphExportFormatter {
         int sigDigits = 3;
         String timeStr = getITimeString(timeMin, timeMax, sigDigits);
 
-        String attributes = "label=\"" + timeStr + "\", weight=\"" + timeStr
-                + "\"";
+        String attributes = "label=\"" + timeStr + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 

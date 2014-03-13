@@ -274,7 +274,7 @@ public class CSightMainTests extends CSightTest {
         args.add("sc:0->1;cs:1->0");
         args.add("-i");
         args.add("-d");
-        args.add("../traces/Tcp/live-capture/po_tcp_log.txt");
+        args.add("../traces/Tcp/po_tcp_log.txt");
         runDynFromFileArgs(args);
     }
 

@@ -18,8 +18,8 @@
 
 	<property name="debuglevel" value="source,lines,vars"/>
 
-	<property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+	<property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
 
     <!-- Where to find the generated synoptic classes. -->
     <path id="invarimint.classes.classpath">
@@ -66,6 +66,7 @@
 	<delete>
           <fileset dir="test-output" includes="*" excludes=".hidden"/>
         </delete>
+	<delete file="${invarimint.jarpath}"/>
     </target>
 
     <!--=====================================================================-->

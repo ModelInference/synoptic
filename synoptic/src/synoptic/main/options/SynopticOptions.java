@@ -10,12 +10,18 @@ import plume.OptionGroup;
 import synoptic.main.AbstractMain;
 
 /**
+ * <p>
  * This class defines and maintains command line arguments to the Synoptic
  * process. It uses plume-lib for defining command line options, their types,
  * and the corresponding help messages. This library also provides support for
  * parsing and populating instances of these options. All options can be
  * exported to AbstractOptions (the common options for all Synoptic projects)
  * using toAbstractOptions().
+ * </p>
+ * <p>
+ * Options common between this class and PerfumeOptions cannot be pushed up into
+ * a superclass because plume-lib doesn't support inheritance.
+ * </p>
  */
 public class SynopticOptions extends Options {
     // //////////////////////////////////////////////////
