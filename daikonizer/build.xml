@@ -35,13 +35,14 @@
     </manifestclasspath>
 
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
 
     <!--=====================================================================-->
     <target name="clean">
       <delete dir="bin"/>
       <delete dir="junit"/>
+      <delete file="${daikonizer.jarpath}"/>
     </target>
 
     <!--=====================================================================-->

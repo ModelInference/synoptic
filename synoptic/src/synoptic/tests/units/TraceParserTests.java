@@ -136,27 +136,27 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * The LTIME group is built-in and should not be used in any regular
-     * expressions. These tests attempt to use LTIME in various ways -- expect a
-     * ParseException.
+     * The LOGTIME group is built-in and should not be used in any regular
+     * expressions. These tests attempt to use LOGTIME in various ways -- expect
+     * a ParseException.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeCustomRegExpExceptionTest()
             throws ParseException {
-        parser.addRegex("^(?<LTIME=>\\d\\d)\\s(?<TYPE>)$");
+        parser.addRegex("^(?<LOGTIME=>\\d\\d)\\s(?<TYPE>)$");
     }
 
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeHiddenRegExpExceptionTest()
             throws ParseException {
-        parser.addRegex("^(?<HIDE=>true)(?<LTIME>)\\s(?<TYPE=>hihi)$");
+        parser.addRegex("^(?<HIDE=>true)(?<LOGTIME>)\\s(?<TYPE=>hihi)$");
     }
 
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeRegExpExceptionTest() throws ParseException {
-        parser.addRegex("^(?<LTIME>)\\s(?<TYPE=>hihi)$");
+        parser.addRegex("^(?<LOGTIME>)\\s(?<TYPE=>hihi)$");
     }
 
     /**
