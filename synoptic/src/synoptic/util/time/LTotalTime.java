@@ -11,13 +11,8 @@ public class LTotalTime implements ITime {
      * Builds a Time object from an long
      * 
      * @param i
-     * @throws IllegalArgumentException
-     *             when i is negative
      */
     public LTotalTime(long i) {
-        if (i < 0) {
-            throw new IllegalArgumentException();
-        }
         time = i;
     }
 
