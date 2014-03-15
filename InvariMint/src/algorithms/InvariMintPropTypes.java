@@ -2,6 +2,7 @@ package algorithms;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import main.InvariMintOptions;
@@ -14,6 +15,7 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.event.EventType;
 
 /**
  * Represents an InvariMint algorithm using specified standard property types:
@@ -135,13 +137,30 @@ public class InvariMintPropTypes {
                 if (invsToDelete.contains(inv.getShortName()))
                     i.remove();
             }
-            System.out.println(invs.toString());
+
             // add the remaining invariants -- those specified in opts
             minedInvs.add(invs);
             logger.fine("There remain " + minedInvs.numInvariants()
                     + " mined invariant(s) after removing invariants of type "
                     + invsToDelete.toString() + ".");
         }
+
+        // Finally remove invariants with INITIAL/TERMINAL
+        // TODO: certain options will not delete these
+
+        logger.fine("Removing invariants involving initial/terminal events");
+        Iterator<ITemporalInvariant> i = minedInvs.iterator();
+        while (i.hasNext()) {
+            Set<EventType> events = i.next().getPredicates();
+            for (EventType event : events)
+                if (event.isSpecialEventType()) {
+                    i.remove();
+                    break;
+                }
+        }
+        logger.fine("There remain " + minedInvs.numInvariants()
+                + " mined invariant(s) after removing init/term invariants.");
+        System.out.println(minedInvs.toString());
 
     }
 
