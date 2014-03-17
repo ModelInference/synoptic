@@ -45,8 +45,6 @@ public class InvMintPropTypesTest {
         alphabet = new HashSet<EventType>();
         alphabet.add(a);
         alphabet.add(b);
-        alphabet.add(initial);
-        alphabet.add(terminal);
     }
 
     private EncodedAutomaton createAPdfa(EventType x, EventType y) {
@@ -98,28 +96,22 @@ public class InvMintPropTypesTest {
         EncodedAutomaton dfa = alg.runInvariMint();
 
         List<EventType> sequence = new ArrayList<EventType>();
-        sequence.add(initial);
         sequence.add(a);
         sequence.add(a);
         sequence.add(b);
         sequence.add(a);
-        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
         sequence.clear();
-        sequence.add(initial);
         sequence.add(a);
         sequence.add(b);
         sequence.add(b);
-        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
         sequence.clear();
-        sequence.add(initial);
         sequence.add(b);
         sequence.add(a);
         sequence.add(b);
-        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
 
         EncodedAutomaton expectedDfa = createAPdfa(a, b);
@@ -148,28 +140,22 @@ public class InvMintPropTypesTest {
         EncodedAutomaton dfa = alg.runInvariMint();
 
         List<EventType> sequence = new ArrayList<EventType>();
-        sequence.add(initial);
         sequence.add(a);
         sequence.add(b);
         sequence.add(a);
         sequence.add(b);
-        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
 
         sequence.clear();
-        sequence.add(initial);
         sequence.add(a);
         sequence.add(b);
         sequence.add(b);
-        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
         sequence.clear();
-        sequence.add(initial);
         sequence.add(b);
         sequence.add(a);
         sequence.add(b);
-        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
 
         // create dfa
