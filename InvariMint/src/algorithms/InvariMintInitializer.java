@@ -48,9 +48,12 @@ public class InvariMintInitializer {
         getSynopticChainsTraceGraph();
 
         // get all nodes from the traceGraph in order to add all events
+        // does not include initial and terminal events
+        // TODO: add opts to include initial and terminal events.
         Set<EventNode> allNodes = traceGraph.getNodes();
         for (EventNode node : allNodes) {
-            allEvents.add(node.getEType());
+            if (!node.getEType().isSpecialEventType())
+                allEvents.add(node.getEType());
         }
 
     }
@@ -110,7 +113,9 @@ public class InvariMintInitializer {
      */
     public InvsModel createAllAcceptingModel() {
         logger.fine("Creating EventType encoding.");
+
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
+
         logger.fine("Creating an initial, all-accepting, model.");
         return new InvsModel(encodings);
 

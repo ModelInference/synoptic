@@ -146,7 +146,8 @@ public class InvariMintPropTypes {
         }
 
         // Finally remove invariants with INITIAL/TERMINAL
-        // TODO: certain options will not delete these
+        // TODO: certain options will not delete these, figure out why this is
+        // necessary
 
         logger.fine("Removing invariants involving initial/terminal events");
         Iterator<ITemporalInvariant> i = minedInvs.iterator();
@@ -158,6 +159,7 @@ public class InvariMintPropTypes {
                     break;
                 }
         }
+
         logger.fine("There remain " + minedInvs.numInvariants()
                 + " mined invariant(s) after removing init/term invariants.");
         System.out.println(minedInvs.toString());
