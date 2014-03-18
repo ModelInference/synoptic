@@ -67,7 +67,7 @@
       
       <echo message="${ant.project.name}: ${ant.file}"/>
       <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
-	<!-- <compilerarg value="-Xlint" /> -->
+	<compilerarg value="-Xlint" />
         <src path="src"/>
         <classpath refid="synoptic.classpath"/>
       </javac>
