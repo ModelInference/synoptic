@@ -1,0 +1,2 @@
+-r (?<ip>) .+:(?<DTIME>.+)\\] "GET HTTP/1.1 /(?<TYPE>.+)"
+-m \\k<ip>
