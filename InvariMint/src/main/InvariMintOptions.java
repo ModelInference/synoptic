@@ -151,40 +151,38 @@ public class InvariMintOptions extends Options {
     // end option group "Synoptic Options"
 
     // //////////////////////////////////////////////////
-    
+
     /**
      * Run with property type always followed by.
      */
     @OptionGroup("Property Type Options")
     @Option(value = "Run with Always Followed by property type.",
-    		aliases ={"--AFby"})
+            aliases = { "--AFby" })
     public boolean alwaysFollowedBy = false;
-    
+
     /**
      * Run with property type always precedes.
      */
     @Option(value = "Run with Always Precedes property type.",
-    		aliases ={"--AP"})
+            aliases = { "--AP" })
     public boolean alwaysPrecedes = false;
-    
+
     /**
-     *Run with property type never followed by.
+     * Run with property type never followed by.
      */
     @Option(value = "Run with Never Followed by property type.",
-    		aliases ={"--NFby"})
+            aliases = { "--NFby" })
     public boolean neverFollowedBy = false;
-    
+
     /**
      * Run with property type never immediately followed by.
      */
     @Option(value = "Run with Never Immediately Followed by property type",
-    		aliases ={"--NIFby"})
+            aliases = { "--NIFby" })
     public boolean neverImmediatelyFollowedBy = false;
-    
-    
-    
+
     // //////////////////////////////////////////////////
-    
+
     /**
      * Whether to remove spurious edges from the InvariMint model.
      */
@@ -271,9 +269,10 @@ public class InvariMintOptions extends Options {
      */
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "kTails Options", "Synoptic Options",
-                "InvariMint Options", "Output Options"));
+        System.out.println(plumeOptions
+                .usage("General Options", "Input Options", "kTails Options",
+                        "Synoptic Options", "InvariMint Options",
+                        "Property Type Options", "Output Options"));
     }
 
     @Override
