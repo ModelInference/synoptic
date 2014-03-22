@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="CSight">
+    <description>
+      Provides targets to build, test, and package the CSight
+      project into a csight.jar archive.
+    </description>
+
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
+    <property environment="env"/>
+
+    <!-- Where to create the csight.jar file. -->
+    <property name="csight.jarpath" value="${util.synoptic.libdir}/csight.jar"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+    <!-- Where to find the generated synoptic classes. -->
+    <path id="csight.classes.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <path id="csight.depjars.classpath">
+        <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
+    	<pathelement location="${util.synoptic.libdir}/synoptic.jar"/>
+    	<pathelement location="${util.synoptic.libdir}/daikonizer.jar"/>
+    	<pathelement location="${util.synoptic.libdir}/automaton.jar"/>
+    </path>
+
+    <!-- The complete classpath for running the compiled synoptic. -->
+    <path id="csight.classpath">
+        <path refid="csight.classes.classpath"/>
+        <path refid="csight.depjars.classpath"/>
+    </path>
+
+	<manifestclasspath property="jar.liblist" jarfile="${csight.jarpath}">
+      <classpath refid="csight.depjars.classpath" />
+    </manifestclasspath>
+
+    <!--=====================================================================-->
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="junit"/>
+	<!-- Clear out any generated test output. -->
+	<delete>
+          <fileset dir="test-output" includes="*" excludes=".hidden"/>
+        </delete>
+    </target>
+
+    <!--=====================================================================-->
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
+            <src path="src"/>
+        	<src path="tests"/>
+            <classpath refid="csight.classpath"/>
+        </javac>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="tests" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+
+	<!-- Note that we will be forking the jvm, but just once. This
+   	     is essential for java assertions to be enabled in the
+   	     forked jvm. -->
+        <junit printsummary="withOutAndErr" showoutput="true" fork="true"  forkmode="once">
+	  <classpath refid="csight.classpath"/>
+	  <formatter type="xml"/>
+
+	  <!-- We need java built-in assertions enabled because some
+	       tests check for these.  -->
+	  <assertions>
+	    <enable/>
+	  </assertions>
+
+	  <batchtest todir="${junit.output.dir}">
+	    <fileset dir="bin/">
+	      <include name="**/*Tests.class"/>
+	    </fileset>
+	  </batchtest>
+
+        </junit>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="jar" depends="build,util.hg-rev-extract">
+      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+      <jar destfile="${csight.jarpath}"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="CSight" />
+	  <attribute name="Implementation-Version" value="0.0.1" />
+	  <attribute name="Main-Class" value="csight.main.CSightMain" />
+      <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
+	</manifest>
+      </jar>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+
+</project>

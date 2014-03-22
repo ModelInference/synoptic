@@ -1,0 +1,2 @@
+-r ^(?<TYPE>),(?<DTIME>),(?<trace>)
+-m \\k<trace>
