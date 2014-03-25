@@ -494,7 +494,8 @@ public class Bisimulation {
             }
             hot = successorEvents;
         }
-
+        assert (curPartition != null);
+        @SuppressWarnings("null")
         ITransition<Partition> outgoingTransition = curPartition
                 .getTransitionWithExactRelation(nextPartition, relationSet);
         ITransition<Partition> incomingTransition = null;

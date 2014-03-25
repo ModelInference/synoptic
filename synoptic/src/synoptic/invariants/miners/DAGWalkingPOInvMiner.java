@@ -195,7 +195,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return computeInvariants(g, Event.defTimeRelationStr);
     }
 
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
         mineConcurrencyInvariants = false;
         return computeInvariants(g, Event.defTimeRelationStr);
@@ -848,9 +848,10 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
      * @param tFollowingTypeCnts
      * @param gFollowedByCnts
      */
-    public void reverseTraverseTraceWithoutNeverConcurrent(EventNode curNode,
-            Map<EventType, Integer> tFollowingTypeCnts) {
-
+    public void reverseTraverseTraceWithoutNeverConcurrent(EventNode curNodeIn,
+            Map<EventType, Integer> tFollowingTypeCntsIn) {
+        Map<EventType, Integer> tFollowingTypeCnts = tFollowingTypeCntsIn;
+        EventNode curNode = curNodeIn;
         while (true) {
             // If we reach a node that has nodes we haven't seen followed before
             // then we want to include them in the tFollowingTypes.
@@ -932,9 +933,10 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
      * @param tPrecedingTypeCnts
      * @param gPrecedesCnts
      */
-    public void forwardTraverseTraceWithoutNeverConcurrent(EventNode curNode,
-            Map<EventType, Integer> tPrecedingTypeCnts) {
-
+    public void forwardTraverseTraceWithoutNeverConcurrent(EventNode curNodeIn,
+            Map<EventType, Integer> tPrecedingTypeCntsIn) {
+        Map<EventType, Integer> tPrecedingTypeCnts = tPrecedingTypeCntsIn;
+        EventNode curNode = curNodeIn;
         while (true) {
             // If we reach a node that has nodes preceding it
             // then we want to include them in the tPrecedingTypes and we want

@@ -65,13 +65,11 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        // AbstractMain main = AbstractMain.getInstance();
-        if (/* main.options */AbstractOptions.dotExecutablePath == null) {
+        if (AbstractOptions.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + /* main.options */AbstractOptions.plumeOpts
-                            .getOptDesc("dotExecutablePath"));
+                    + AbstractOptions.plumeOpts.getOptDesc("dotExecutablePath"));
         }
-        return /* main.options */AbstractOptions.dotExecutablePath;
+        return AbstractOptions.dotExecutablePath;
     }
 
     /**
@@ -152,6 +150,7 @@ public class GraphExporter {
      * @throws IOException
      *             In case there is a problem using the writer
      */
+    @SuppressWarnings("unchecked")
     public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 

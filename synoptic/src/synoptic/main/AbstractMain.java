@@ -368,8 +368,10 @@ public abstract class AbstractMain {
                 !options.exportAsGML);
     }
 
-    private void processPOLog(TraceParser parser, List<EventNode> parsedEvents)
+    private void processPOLog(TraceParser parserIn, List<EventNode> parsedEvents)
             throws ParseException, FileNotFoundException {
+        TraceParser parser = parserIn;
+
         // //////////////////
         DAGsTraceGraph traceGraph = genDAGsTraceGraph(parser, parsedEvents);
         // //////////////////

@@ -104,6 +104,7 @@ public abstract class SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
+        @SuppressWarnings("unused")
         AbstractMain main;
 
         // Clear the old instance
@@ -118,6 +119,7 @@ public abstract class SynopticLibTest {
      * Sets up the Perfume state that is necessary for running tests.
      */
     public void setUpPerfume() {
+        @SuppressWarnings("unused")
         AbstractMain main;
 
         // Clear the old instance
