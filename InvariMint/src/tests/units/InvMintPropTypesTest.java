@@ -49,7 +49,7 @@ public class InvMintPropTypesTest {
         encodings = new EventTypeEncodings(alphabet);
     }
 
-    private EncodedAutomaton createAPdfa(EventType x, EventType y) {
+    public EncodedAutomaton createAPdfa(EventType x, EventType y) {
 
         State preX = new State();
         State postX = new State();
@@ -80,7 +80,7 @@ public class InvMintPropTypesTest {
         return new CustomModel(encodings, preX);
     }
 
-    private EncodedAutomaton createNFbydfa(EventType x, EventType y) {
+    public EncodedAutomaton createNFbydfa(EventType x, EventType y) {
         State preX = new State();
         State postX = new State();
         preX.setAccept(true);
@@ -111,7 +111,7 @@ public class InvMintPropTypesTest {
         return new CustomModel(encodings, preX);
     }
 
-    private EncodedAutomaton createNIFbydfa(EventType x, EventType y) {
+    public EncodedAutomaton createNIFbydfa(EventType x, EventType y) {
         State preX = new State();
         State postX = new State();
         preX.setAccept(true);
@@ -147,7 +147,7 @@ public class InvMintPropTypesTest {
         return new CustomModel(encodings, preX);
     }
 
-    private EncodedAutomaton createAFbydfa(EventType x, EventType y) {
+    public EncodedAutomaton createAFbydfa(EventType x, EventType y) {
         State preX = new State();
         State postX = new State();
         preX.setAccept(true);

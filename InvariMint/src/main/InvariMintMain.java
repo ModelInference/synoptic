@@ -189,7 +189,7 @@ public class InvariMintMain {
                         || opts.compareToStandardAlg || opts.removeSpuriousEdges)) {
             err = "Cannot use exportStdAlgPGraph, exportStdAlgDFA, compareToStandardAlg, "
                     + "removeSpuriousEdges with individually specfied property types. "
-                    + "Remove these options or specify --invMintSynoptic or --onvMintKTails "
+                    + "Remove these options or specify --invMintSynoptic or --invMintKTails "
                     + "instead of individual property types.";
         }
         if (opts.invMintKTails && invMintPropTypes || opts.invMintSynoptic
