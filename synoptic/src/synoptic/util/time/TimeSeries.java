@@ -67,6 +67,7 @@ public class TimeSeries<TimeType extends ITime> implements
      * @return median delta time for transition, null if transition has zero
      *         delta times.
      */
+    @SuppressWarnings("unchecked")
     public TimeType computeMedian() {
         if (this.times.isEmpty()) {
             return null;
@@ -81,6 +82,8 @@ public class TimeSeries<TimeType extends ITime> implements
             return times.get(middle);
         }
         // Event length.
+        // TODO: make this a safe cast by having incrBy return a more concrete
+        // time than ITime.
         return (TimeType) times.get(middle - 1).incrBy(times.get(middle))
                 .divBy(2);
     }

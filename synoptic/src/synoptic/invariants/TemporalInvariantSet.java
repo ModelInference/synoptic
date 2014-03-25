@@ -20,7 +20,6 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.AbstractMain;
-import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -259,39 +258,39 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return ret && ret2;
     }
 
-    private static <T extends INode<T>> void printStats(IGraph<T> g,
-            TemporalInvariantSet overapproximatedInvariantsSet,
-            int overapproximatedInvariantsSetSize) {
-        Set<EventType> labels = new LinkedHashSet<EventType>();
-        for (T n : g.getNodes()) {
-            labels.add(n.getEType());
-        }
-        int possibleInvariants = 3 /* invariant types */
-                * labels.size() * labels.size(); /*
-                                                  * reflexive invariants are
-                                                  * allowed
-                                                  */
-
-        int percentReduction = possibleInvariants == 0 ? 0 : 100
-                - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
-
-        if (AbstractMain.getInstance().options.doBenchmarking) {
-            logger.info("BENCHM: "
-                    + overapproximatedInvariantsSet.numInvariants()
-                    + " true invariants, approximation guessed "
-                    + overapproximatedInvariantsSetSize
-                    + ", max possible invariants " + possibleInvariants + " ("
-                    + percentReduction + "% reduction through approximation).");
-        }
-
-        PerformanceMetrics.get().record("true_invariants",
-                overapproximatedInvariantsSet.numInvariants());
-        PerformanceMetrics.get().record("approx_invariants",
-                overapproximatedInvariantsSetSize);
-        PerformanceMetrics.get().record("max_possible_invariants",
-                possibleInvariants);
-        PerformanceMetrics.get().record("percentReduction", percentReduction);
-    }
+    // private static <T extends INode<T>> void printStats(IGraph<T> g,
+    // TemporalInvariantSet overapproximatedInvariantsSet,
+    // int overapproximatedInvariantsSetSize) {
+    // Set<EventType> labels = new LinkedHashSet<EventType>();
+    // for (T n : g.getNodes()) {
+    // labels.add(n.getEType());
+    // }
+    // int possibleInvariants = 3 /* invariant types */
+    // * labels.size() * labels.size(); /*
+    // * reflexive invariants are
+    // * allowed
+    // */
+    //
+    // int percentReduction = possibleInvariants == 0 ? 0 : 100
+    // - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
+    //
+    // if (AbstractMain.getInstance().options.doBenchmarking) {
+    // logger.info("BENCHM: "
+    // + overapproximatedInvariantsSet.numInvariants()
+    // + " true invariants, approximation guessed "
+    // + overapproximatedInvariantsSetSize
+    // + ", max possible invariants " + possibleInvariants + " ("
+    // + percentReduction + "% reduction through approximation).");
+    // }
+    //
+    // PerformanceMetrics.get().record("true_invariants",
+    // overapproximatedInvariantsSet.numInvariants());
+    // PerformanceMetrics.get().record("approx_invariants",
+    // overapproximatedInvariantsSetSize);
+    // PerformanceMetrics.get().record("max_possible_invariants",
+    // possibleInvariants);
+    // PerformanceMetrics.get().record("percentReduction", percentReduction);
+    // }
 
     // public TraceGraph getInvariantGraph(String shortName) {
     // LinkedHashMap<EventType, EventNode> messageMap = new

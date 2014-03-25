@@ -150,15 +150,16 @@ public class LTL2Buchi {
         Pool.reset_static();
     }
 
-    public static Graph translate(String formula, boolean rewrite,
+    public static Graph translate(String formulaIn, boolean rewrite,
             boolean bisim, boolean fair_sim) throws ParseErrorException {
-        logger.fine("Translating formula: " + formula);
+        logger.fine("Translating formula: " + formulaIn);
+        String formula = "";
         final boolean superset = true;
         final boolean scc = true;
 
         if (rewrite) {
             try {
-                formula = Rewriter.rewrite(formula);
+                formula = Rewriter.rewrite(formulaIn);
             } catch (final ParseErrorException e) {
                 throw new ParseErrorException(e.getMessage());
             }
