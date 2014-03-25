@@ -68,7 +68,8 @@ public class LTLFormulaPreprocessor {
         return replaced.toString();
     }
 
-    private static String processFairness(String formula) {
+    private static String processFairness(String formulaIn) {
+        String formula = formulaIn;
         formula = formula.trim();
         if (formula.startsWith(UFAIR + "(")) {
             if (!formula.endsWith(")")) {

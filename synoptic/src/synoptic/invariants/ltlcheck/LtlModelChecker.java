@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
 import gov.nasa.ltl.graph.Graph;
-import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
@@ -23,7 +22,7 @@ public class LtlModelChecker {
     // CACHE: cache translated graphs
 
     public static Counterexample check(Graph transitionSystem,
-            ITemporalInvariant invariant) throws ParseErrorException {
+            ITemporalInvariant invariant) {
 
         // Generate Did/Can Expanded Graph
         // Graph didCanTransitionSystem = transitionSystem;
