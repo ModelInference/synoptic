@@ -77,7 +77,6 @@ public class ModelCheckersTests extends SynopticTest {
      * cExampleExists) a counter-example for invariant inv, which is exactly the
      * expectedPath through the graph g.
      */
-    @SuppressWarnings("null")
     private static <T extends INode<T>> void testCExamplePath(IGraph<T> g,
             ITemporalInvariant inv, boolean cExampleExists, List<T> expectedPath)
             throws InternalSynopticException {

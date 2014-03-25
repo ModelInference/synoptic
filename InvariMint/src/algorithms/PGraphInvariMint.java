@@ -200,6 +200,7 @@ public abstract class PGraphInvariMint {
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
         if (AbstractMain.instance == null) {
+            @SuppressWarnings("unused")
             SynopticMain synMain = new SynopticMain(options,
                     new DotExportFormatter());
         }

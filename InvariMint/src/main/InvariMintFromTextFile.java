@@ -116,6 +116,7 @@ public class InvariMintFromTextFile {
                                 + invariant[0]);
                     }
                 }
+                input.close();
             }
             EventTypeEncodings encodings = new EventTypeEncodings(events);
             EncodedAutomaton dfa = new InvsModel(encodings);

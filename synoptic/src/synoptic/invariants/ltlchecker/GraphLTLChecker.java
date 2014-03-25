@@ -271,14 +271,14 @@ public class GraphLTLChecker<T extends INode<T>> {
             logger.finest("raw-counter-example: " + ce.toString());
             logger.finest("converted-counter-example: " + trace.toString());
 
-            if (trace != null) {
-                r = new CExamplePath<T>(inv, inv.shorten(trace));
-                if (r.path == null) {
-                    throw new InternalSynopticException(
-                            "counter-example shortening returned null for "
-                                    + inv + " and c-example trace " + trace);
-                }
+            // if (trace != null) {
+            r = new CExamplePath<T>(inv, inv.shorten(trace));
+            if (r.path == null) {
+                throw new InternalSynopticException(
+                        "counter-example shortening returned null for " + inv
+                                + " and c-example trace " + trace);
             }
+            // }
         } catch (ParseErrorException e) {
             throw InternalSynopticException.wrap(e);
         }

@@ -58,17 +58,14 @@ public class PerformanceTests extends SynopticTest {
     }
 
     public void reportTime(long msTime) {
-        System.out
-                .println(testName.getMethodName()
-                        + ":"
-                        + "\n\tuseFSMChecker "
-                        + AbstractMain.getInstance().options.useFSMChecker
-                        + "\n\tType " + traceType + "\n\ttotalEvents "
-                        + totalEvents + "\n\tnumPartitions " + numPartitions
-                        + "\n\tnumEventTypes " + numEventTypes
-                        + "\n\twithInvariants " + withInvariants
-                        + "\n\t==> TIME: " + msTime + "ms (averaged over "
-                        + numIterations + " iterations)\n");
+        System.out.println(testName.getMethodName() + ":"
+                + "\n\tuseFSMChecker "
+                + AbstractMain.getInstance().options.useFSMChecker
+                + "\n\tType " + traceType + "\n\ttotalEvents " + totalEvents
+                + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
+                + numEventTypes + "\n\twithInvariants " + withInvariants
+                + "\n\t==> TIME: " + msTime + "ms (averaged over "
+                + numIterations + " iterations)\n");
     }
 
     // public void testPerf() {
@@ -172,6 +169,7 @@ public class PerformanceTests extends SynopticTest {
         // TODO: vary k
         int k = 0;
         for (int iter = 0; iter < numIterations; iter++) {
+            @SuppressWarnings("unused")
             String[] traces = partitionTrace(structure1Trace());
             ScalableGraph sg = new ScalableGraph();
             // TODO

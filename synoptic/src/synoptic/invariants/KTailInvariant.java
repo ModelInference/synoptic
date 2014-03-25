@@ -19,11 +19,11 @@ import synoptic.model.interfaces.INode;
  * invariant as tails are of varying length. Currently construction of regular
  * expressions for kTail invariants is handled in the InvariMint.model.InvModel
  * class. TODO: move that logic here.
- * 
  */
 public class KTailInvariant implements ITemporalInvariant {
 
     // Set of all kTail invariants already created
+    @SuppressWarnings("unused")
     private static Map<List<EventType>, KTailInvariant> tails = new HashMap<List<EventType>, KTailInvariant>();
 
     private final String relations;
