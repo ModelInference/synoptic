@@ -76,7 +76,7 @@ gen_wiki_page $syn_usagef "./synoptic.sh -H" "Synoptic" false;
 
 ############################## CSight usage
 # Generate the csight usage:
-gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight" true;
+gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight" false;
 
 ############################## InvariMint usage
 # Generate the invarimint usage:
