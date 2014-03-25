@@ -8,7 +8,6 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.TransitiveRelationPath;
 import synoptic.model.Trace;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
@@ -22,15 +21,16 @@ import synoptic.model.interfaces.IRelationPath;
  * <br/>
  * This algorithm has lower space usage than the transitive-closure-based
  * algorithms.
- * 
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {
-    
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
-            TemporalInvariantSet tmp = computeInvariants(g, r, multipleRelations);
+            TemporalInvariantSet tmp = computeInvariants(g, r,
+                    multipleRelations);
             result.add(tmp);
         }
         return result;
@@ -100,21 +100,24 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            
+
             if (multipleRelations && !relation.equals(Event.defTimeRelationStr)) {
-                IRelationPath relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
+                IRelationPath relationPath = trace.getBiRelationalPath(
+                        relation, Event.defTimeRelationStr);
                 relationPaths.add(relationPath);
             } else {
-                Set<IRelationPath> subgraphs = trace.getSingleRelationPaths(relation);
-                if (relation.equals(Event.defTimeRelationStr) && subgraphs.size() != 1) {
-                    throw new IllegalStateException("Multiple relation subraphs for ordering relation graph");
+                Set<IRelationPath> subgraphs = trace
+                        .getSingleRelationPaths(relation);
+                if (relation.equals(Event.defTimeRelationStr)
+                        && subgraphs.size() != 1) {
+                    throw new IllegalStateException(
+                            "Multiple relation subraphs for ordering relation graph");
                 }
                 relationPaths.addAll(subgraphs);
             }
 
-            
         }
-        
+
         for (IRelationPath relationPath : relationPaths) {
             eTypes.addAll(relationPath.getSeen());
             Map<EventType, Integer> relationPathEventCounts = relationPath

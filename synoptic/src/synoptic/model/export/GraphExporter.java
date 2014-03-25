@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import daikonizer.DaikonInvariants;
 
 import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -64,12 +65,13 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        AbstractMain main = AbstractMain.getInstance();
-        if (main.options.dotExecutablePath == null) {
+        // AbstractMain main = AbstractMain.getInstance();
+        if (/* main.options */AbstractOptions.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + main.options.plumeOpts.getOptDesc("dotExecutablePath"));
+                    + /* main.options */AbstractOptions.plumeOpts
+                            .getOptDesc("dotExecutablePath"));
         }
-        return main.options.dotExecutablePath;
+        return /* main.options */AbstractOptions.dotExecutablePath;
     }
 
     /**

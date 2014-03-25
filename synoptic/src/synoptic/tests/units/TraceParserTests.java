@@ -1488,6 +1488,7 @@ public class TraceParserTests extends SynopticTest {
     public void stateConstructorInvalidStateStrExpExceptionTest()
             throws ParseException {
         String stateStr = "q == 1";
+        @SuppressWarnings("unused")
         State state = new State(stateStr);
     }
 }
