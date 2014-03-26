@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Documents usage screens (generated with the -H option) for all of
-# the projects hosted by the repo --- Synoptic, CSight,
-# InvariMint. These are written to wiki pages (e.g.,
+# the projects hosted by the repo --- Synoptic, CSight, InvariMint,
+# Perfume. These are written to wiki pages (e.g.,
 # 'DocsSynopticCmdLineHelpScreen') and can be found online, e.g.,:
 # http://code.google.com/p/synoptic/wiki/DocsSynopticCmdLineHelpScreen
 #
@@ -10,8 +10,8 @@
 # from within the default synoptic code branch. This script assume
 # that the working copy is at the tip.
 #
-# Preferably this script will be run whenever synoptic command
-# line options change.
+# Preferably this script will be run whenever command line options
+# change.
 #
 
 if [ -z "$1" ]
@@ -69,6 +69,7 @@ function gen_wiki_page() {
 syn_usagef=${wiki_repo}/DocsSynopticCmdLineHelpScreen.wiki
 dyn_usagef=${wiki_repo}/DocsCSightCmdLineHelpScreen.wiki
 invmint_usagef=${wiki_repo}/DocsInvariMintCmdLineHelpScreen.wiki
+perfume_usagef=${wiki_repo}/DocsPerfumeCmdLineHelpScreen.wiki
 
 ############################## Synoptic usage
 # Generate the synoptic usage:
@@ -82,6 +83,10 @@ gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight" false;
 # Generate the invarimint usage:
 gen_wiki_page $invmint_usagef "./invarimint.sh -H" "InvariMint" true;
 
+############################## InvariMint usage
+# Generate the perfume usage:
+gen_wiki_page $perfume_usagef "./perfume.sh -H" "Perfume" false;
+
 
 # 5. (An extra step for synoptic) Determine the synoptic version by
 # running synoptic.sh (assuming the current dir is the synoptic repo).
@@ -90,6 +95,6 @@ gen_wiki_page $invmint_usagef "./invarimint.sh -H" "InvariMint" true;
 
 
 # 6. Commit and push the edited wiki pages
-cd ${wiki_repo} && hg commit -m 'Updated usage screen docs for all projects' $syn_usagef $dyn_usagef $invmint_usagef && hg push
+cd ${wiki_repo} && hg commit -m 'Updated usage screen docs for all projects' $syn_usagef $dyn_usagef $invmint_usagef $perfume_usagef && hg push
 
 
