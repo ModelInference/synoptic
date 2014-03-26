@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import model.InvModel;
 import model.InvsModel;
 import algorithms.InvariMintKTails;
+import algorithms.InvariMintPropTypes;
 import algorithms.InvariMintSynoptic;
 import algorithms.PGraphInvariMint;
 
@@ -77,6 +78,14 @@ public class InvariMintMain {
      * Runs InvariMint with the given set of options.
      */
     public void runInvariMint() throws Exception {
+
+        // hacky fix to avoid conflicts caused by the fact InvariMintPropTypes
+        // does not implement PGraph,
+        if (opts.alwaysFollowedBy || opts.alwaysPrecedes
+                || opts.neverFollowedBy || opts.neverImmediatelyFollowedBy) {
+            runPropTypes();
+            return;
+        }
         // This sets the invmintDfa instance.
         runAlg(false);
 
@@ -160,6 +169,8 @@ public class InvariMintMain {
         }
 
         String err = null;
+        Boolean invMintPropTypes = opts.alwaysFollowedBy || opts.alwaysPrecedes
+                || opts.neverFollowedBy || opts.neverImmediatelyFollowedBy;
 
         if (opts.outputPathPrefix == null) {
             err = "Cannot output any models. Specify output path prefix using:\n\t"
@@ -171,12 +182,25 @@ public class InvariMintMain {
                     + opts.getOptDesc("help");
         }
 
-        if ((!opts.invMintSynoptic && !opts.invMintKTails)
-                || (opts.invMintSynoptic && opts.invMintKTails)) {
+        // hacky fix since InvariMintPropTypes does not implement PGraph so
+        // cannot use these options
+        if (invMintPropTypes
+                && (opts.exportStdAlgPGraph || opts.exportStdAlgDFA
+                        || opts.compareToStandardAlg || opts.removeSpuriousEdges)) {
+            err = "Cannot use exportStdAlgPGraph, exportStdAlgDFA, compareToStandardAlg, "
+                    + "removeSpuriousEdges with individually specfied property types. "
+                    + "Remove these options or specify --invMintSynoptic or --invMintKTails "
+                    + "instead of individual property types.";
+        }
+        if (opts.invMintKTails && invMintPropTypes || opts.invMintSynoptic
+                && invMintPropTypes) {
+            err = "Cannot specify individual property types with --invMintSynoptic or --invMintKTails.";
+        }
+        if ((opts.invMintSynoptic && opts.invMintKTails)) {
             err = "Must specify either --invMintSynoptic or --invMintKTails option, but not both.";
         }
 
-        if (!opts.invMintSynoptic && !opts.invMintKTails) {
+        if (!opts.invMintSynoptic && !opts.invMintKTails && !invMintPropTypes) {
             err = "InvariMint algorithm not specified.";
         }
 
@@ -225,4 +249,44 @@ public class InvariMintMain {
         logger.info("DONE Running " + strAlg + ". Duration = " + duration_secs);
     }
 
+    /**
+     * runAlg for InvariMintPropTypes. Since InvariMintPropTypes does implement
+     * PGraphInvariMint, the algorithm cannot be instantiated into invMintAlg,
+     * and so runAlg cannot be applied.
+     * 
+     * @throws Exception
+     */
+    private void runPropTypes() throws Exception {
+        InvariMintPropTypes invMintPropTypes = new InvariMintPropTypes(opts);
+
+        logger.info("Running InvariMintPropTypes");
+        long startTime = System.nanoTime();
+        long endTime;
+
+        invmintDfa = invMintPropTypes.runInvariMint();
+
+        endTime = System.nanoTime();
+        // Convert nanoseconds to seconds
+        double duration_secs = (endTime - startTime) / 1000000000.0;
+        logger.info("DONE Running InvariMintPropTypes. Duration = "
+                + duration_secs);
+
+        // Export final model.
+        String exportFname = opts.outputPathPrefix + "." + "InvMintPropTypes"
+                + ".dfa.dot";
+        invmintDfa.exportDotAndPng(exportFname);
+
+        // Export each of the mined DFAs
+        if (opts.exportMinedInvariantDFAs) {
+            int invID = 0;
+            String path;
+            for (InvModel invDFA : invmintDfa.getInvariants()) {
+                path = opts.outputPathPrefix + "." + "InvMintPropTypes"
+                        + ".InvDFA" + invID + ".dot";
+                invDFA.exportDotAndPng(path);
+                invID++;
+
+            }
+        }
+    }
 }
