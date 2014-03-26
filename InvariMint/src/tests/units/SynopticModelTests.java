@@ -16,6 +16,7 @@ import model.PartitionGraphAutomaton;
 import org.junit.Test;
 
 import synoptic.invariants.miners.ImmediateInvariantMiner;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.model.PartitionGraph;
 import synoptic.model.event.EventType;
@@ -26,8 +27,7 @@ import tests.InvariMintTest;
 /**
  * Basic tests for the SynopticModel class - checks that SynopticModels are
  * correctly translated. Models are considered correctly translated if the
- * languages accepted are equivalent.
- * 
+ * accepted languages are equivalent.
  */
 public class SynopticModelTests extends InvariMintTest {
 
@@ -50,6 +50,7 @@ public class SynopticModelTests extends InvariMintTest {
                 "(?<TYPE>.+)", "-s", "--", tracesPath + testTraceFName };
 
         // Set up Synoptic.
+        AbstractMain.instance = null;
         SynopticMain synMain = SynopticMain.processArgs(args);
         PartitionGraph pGraph = synMain.createInitialPartitionGraph();
         synMain.runSynoptic(pGraph);
