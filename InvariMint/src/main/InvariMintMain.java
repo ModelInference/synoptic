@@ -35,7 +35,7 @@ public class InvariMintMain {
     // The invarimint model derived with call to runInvariMint()
     private InvsModel invmintDfa = null;
 
-    // Whether or not the invarmint model is identical to the model derived
+    // Whether or not the invarimint model is identical to the model derived
     // using the standard algorithm.
     private boolean equalToStdAlg;
 
@@ -79,8 +79,8 @@ public class InvariMintMain {
      */
     public void runInvariMint() throws Exception {
 
-        // hacky fix to avoid conflicts caused by the fact InvariMintPropTypes
-        // does not implement PGraph,
+        // Hack to avoid conflicts caused by the fact InvariMintPropTypes
+        // does not implement PGraph.
         if (opts.alwaysFollowedBy || opts.alwaysPrecedes
                 || opts.neverFollowedBy || opts.neverImmediatelyFollowedBy) {
             runPropTypes();

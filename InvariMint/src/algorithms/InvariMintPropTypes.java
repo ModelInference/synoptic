@@ -23,7 +23,7 @@ import synoptic.model.event.EventType;
  */
 public class InvariMintPropTypes {
 
-    String invMintAlgName = "InvariMintPropTypes";
+    final String invMintAlgName = "InvariMintPropTypes";
 
     public static Logger logger;
     InvariMintOptions opts;
@@ -99,21 +99,21 @@ public class InvariMintPropTypes {
 
         // Since ChainWalkingTOInvMiner() mines AFby, AP and NFby Property
         // types, we create the list of property types not chosen in the options
-        // to delete after
-        ArrayList<String> invsToDelete = new ArrayList<String>();
+        // to delete.
+        ArrayList<String> invTypesToDelete = new ArrayList<String>();
         if (!opts.alwaysFollowedBy) {
-            invsToDelete.add("AFby");
+            invTypesToDelete.add("AFby");
         }
         if (!opts.alwaysPrecedes) {
-            invsToDelete.add("AP");
+            invTypesToDelete.add("AP");
         }
         if (!opts.neverFollowedBy) {
-            invsToDelete.add("NFby");
+            invTypesToDelete.add("NFby");
         }
 
-        // If none of AFby, AP and NFby were chosen, invsToDelete.size() = 3 and
-        // this is not run. Else we mine all the property types.
-        if (invsToDelete.size() < 3) {
+        // If none of AFby, AP and NFby were chosen, invTypesToDelete.size() = 3
+        // and this is not run. Else we mine all the property types.
+        if (invTypesToDelete.size() < 3) {
             ITOInvariantMiner synMiner = new ChainWalkingTOInvMiner();
 
             long startTime = System.currentTimeMillis();
@@ -134,18 +134,18 @@ public class InvariMintPropTypes {
             Iterator<ITemporalInvariant> i = invs.iterator();
             while (i.hasNext()) {
                 ITemporalInvariant inv = i.next();
-                if (invsToDelete.contains(inv.getShortName()))
+                if (invTypesToDelete.contains(inv.getShortName()))
                     i.remove();
             }
 
-            // add the remaining invariants -- those specified in opts
+            // Add the remaining invariants -- those specified in opts.
             minedInvs.add(invs);
             logger.fine("There remain " + minedInvs.numInvariants()
                     + " mined invariant(s) after removing invariants of type "
-                    + invsToDelete.toString() + ".");
+                    + invTypesToDelete.toString() + ".");
         }
 
-        // Finally remove invariants with INITIAL/TERMINAL
+        // Finally, remove invariants with INITIAL/TERMINAL
         // TODO: certain options will not delete these, figure out why this is
         // necessary
 
