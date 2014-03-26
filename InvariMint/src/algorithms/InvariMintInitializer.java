@@ -9,7 +9,9 @@ import main.InvariMintOptions;
 import model.EventTypeEncodings;
 import model.InvsModel;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -61,23 +63,23 @@ public class InvariMintInitializer {
     /** Generate the traceGraph from input log files. */
     private void getSynopticChainsTraceGraph() throws Exception {
         // Set up options in Synoptic Main that are used by the library.
-        SynopticOptions options = new SynopticOptions();
+        AbstractOptions options = new SynopticOptions().toAbstractOptions();
         options.logLvlExtraVerbose = true;
         options.internCommonStrings = true;
         options.recoverFromParseErrors = opts.recoverFromParseErrors;
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        SynopticMain synMain = SynopticMain.getInstance();
-        if (synMain == null) {
-            synMain = new SynopticMain(options, new DotExportFormatter());
+        if (AbstractMain.instance == null) {
+            SynopticMain synMain = new SynopticMain(options,
+                    new DotExportFormatter());
         }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = SynopticMain.parseEvents(parser,
+        List<EventNode> parsedEvents = AbstractMain.parseEvents(parser,
                 opts.logFilenames);
 
         String errMsg = null;
