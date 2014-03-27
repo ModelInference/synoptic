@@ -547,7 +547,7 @@ public abstract class AbstractMain {
     public PartitionGraph createInitialPartitionGraph() throws Exception {
         TraceParser parser = new TraceParser(options.regExps,
                 AbstractOptions.partitionRegExp,
-                AbstractOptions.separatorRegExp);
+                AbstractOptions.separatorRegExp, options.dateFormat);
         List<EventNode> parsedEvents;
         try {
             parsedEvents = parseEvents(parser,
