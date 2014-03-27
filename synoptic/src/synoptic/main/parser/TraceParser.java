@@ -232,6 +232,25 @@ public class TraceParser {
     }
 
     /**
+     * Specifies a specific date format for parsing DATETIME capture groups.
+     * 
+     * @param dateFormat
+     * @throws ParseException
+     */
+    public void addDateFormat(String dateFormat) throws ParseException {
+        if (dateFormat != null) {
+            try {
+                dateFormatter = new SimpleDateFormat(dateFormat);
+            } catch (Exception e) {
+                String error = "Date parsing format (" + dateFormat
+                        + ") is not well defined";
+                logger.severe(error);
+                throw new ParseException(error);
+            }
+        }
+    }
+
+    /**
      * Adds an individual trace line type, which consists of a regex with
      * additional syntax. <b>The regex must match the entire line.</b> The
      * additional syntax is as follows:
