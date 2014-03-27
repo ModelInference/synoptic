@@ -401,8 +401,10 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
+            // TODO: make the dateFormat string (last arg to TraceParser) a
+            // parameter.
             parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
-                    synOpts.separatorRegExp);
+                    synOpts.separatorRegExp, "dd/MMM/yyyy:HH:mm:ss");
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
 
         } catch (ParseException pe) {
