@@ -11,16 +11,17 @@ import gov.nasa.ltl.trans.ParseErrorException;
 import synoptic.invariants.ltlchecker.LTLFormula;
 import synoptic.model.event.EventType;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.InvariantStatistics;
 
 /**
  * Class for code that is shared by all binary temporal synoptic.invariants.
- * 
  */
 public abstract class BinaryInvariant implements ITemporalInvariant {
     public static Logger logger = Logger.getLogger("BinaryInvariant");
 
     protected EventType first;
     protected EventType second;
+    protected InvariantStatistics supportCount;
 
     /**
      * Role identifiers for each predicate. If the per-host model is used then
@@ -122,8 +123,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         final int prime = 31;
         int result = getClass().hashCode();
         result = prime * result + (first == null ? 0 : first.hashCode());
-        result = prime * result
-                + (relation == null ? 0 : relation.hashCode());
+        result = prime * result + (relation == null ? 0 : relation.hashCode());
         result = prime * result + (second == null ? 0 : second.hashCode());
         return result;
     }
@@ -217,6 +217,24 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      */
     public EventType getSecond() {
         return second;
+    }
+
+    /**
+     * Returns the support count.
+     * 
+     * @return
+     */
+    public InvariantStatistics getSupportCount() {
+        return supportCount;
+    }
+
+    /**
+     * Sets the support count.
+     * 
+     * @return
+     */
+    public void setSupportCount(InvariantStatistics supportCount) {
+        this.supportCount = supportCount;
     }
 
     /**

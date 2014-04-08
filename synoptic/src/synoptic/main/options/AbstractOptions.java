@@ -63,6 +63,9 @@ public class AbstractOptions {
     static final String testGenerationStr = "-t Enable abstract test generation";
     public boolean testGeneration = false;
 
+    static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
+    public int supportCountThreshold = 0;
+
     // ////////////////////////////
     // Parser Options
     // ////////////////////////////
@@ -110,6 +113,8 @@ public class AbstractOptions {
     // ////////////////////////////
     // Output options
     // ////////////////////////////
+    static final String outputSupportCountsStr = "Output support counts along with mined invariants";
+    public boolean outputSupportCount = false;
 
     static final String outputPathPrefixStr = "-o Output path prefix for generating Graphviz dot files graphics";
     public static String outputPathPrefix = null;

@@ -65,6 +65,11 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
         return computeTransClosureInvariants(g, true);
     }
 
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations, boolean supportCounts) {
+        return computeTransClosureInvariants(g, true);
+    }
+
     /**
      * Compute invariants of a graph g by mining invariants from the transitive
      * closure using {@code extractInvariantsUsingTC}, which returns an

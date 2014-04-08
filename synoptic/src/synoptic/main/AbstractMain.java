@@ -498,7 +498,13 @@ public abstract class AbstractMain {
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
-                options.multipleRelations);
+                options.multipleRelations, options.outputSupportCount);
+        // for (ITemporalInvariant minedInv : minedInvs) {
+        // int threshold = options.supportCountThreshold;
+        // if (minedInv.getSupportCount()) {
+
+        // }
+        // }
 
         loggerInfoEnd("Mining took ", startTime);
 
