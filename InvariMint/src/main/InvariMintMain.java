@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import model.InvModel;
 import model.InvsModel;
 import algorithms.InvariMintKTails;
-import algorithms.InvariMintPropTypes;
 import algorithms.InvariMintSynoptic;
 import algorithms.PGraphInvariMint;
 

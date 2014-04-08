@@ -100,6 +100,12 @@ public class SynopticOptions extends Options {
             aliases = { "-test-generation" })
     public boolean testGeneration = false;
 
+    /**
+     * Filter all invariants that have support values greater than the threshold
+     */
+    @Option(value = AbstractOptions.supportCountThresholdStr)
+    public int supportCountThreshold = 0;
+
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match
