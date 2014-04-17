@@ -77,7 +77,7 @@ public class InvariMintInitializer {
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = AbstractMain.parseEvents(parser,
                 opts.logFilenames);

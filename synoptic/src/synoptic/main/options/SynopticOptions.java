@@ -174,6 +174,12 @@ public class SynopticOptions extends Options {
      */
     @Option(value = AbstractOptions.debugParseStr, aliases = { "-debugParse" })
     public boolean debugParse = false;
+
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    @Option(value = AbstractOptions.dateFormatStr, aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
     // end option group "Parser Options"
 
     // //////////////////////////////////////////////////
@@ -475,6 +481,7 @@ public class SynopticOptions extends Options {
         absOpts.traceNormalization = traceNormalization;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
+        absOpts.dateFormat = dateFormat;
 
         // Input options
 

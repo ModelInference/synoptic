@@ -245,7 +245,7 @@ public class CSightMain {
         // //////////////////
         // Parse the input log files into _Synoptic_ structures.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = parseEventsFromFiles(parser,
                 opts.logFilenames);
@@ -279,7 +279,7 @@ public class CSightMain {
         // //////////////////
         // Parse the input string into _Synoptic_ structures.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = parseEventsFromString(parser, log);
 
