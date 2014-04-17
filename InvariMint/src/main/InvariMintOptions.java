@@ -118,6 +118,15 @@ public class InvariMintOptions extends Options {
             aliases = { "-debugParse" })
     public boolean debugParse = false;
 
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    // FIXME: this can become inconsistent with synoptic's
+    // AbstractOptions.dateFormatStr
+    @Option(
+            value = "Format of the dates contained in the log (required by DATETIME)",
+            aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////

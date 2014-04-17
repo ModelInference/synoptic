@@ -168,7 +168,7 @@ public class CSightMainTests extends CSightTest {
         dyn.initializeSynoptic();
 
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
         List<String> logFilenames = opts.logFilenames;
 
         List<EventNode> parsedEvents = dyn.parseEventsFromFiles(parser,
