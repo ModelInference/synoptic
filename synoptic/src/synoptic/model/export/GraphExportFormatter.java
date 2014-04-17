@@ -190,6 +190,28 @@ public abstract class GraphExportFormatter {
             ITime timeMin, ITime timeMax, Set<String> relations);
 
     /**
+     * Serializes a single node edge in a graph to a string given the min and
+     * max ITimes of any concrete transitions within this edge (between the
+     * source and target nodes) and the probability of the transition.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param timeMin
+     *            minimum ITime of any transition from source to target
+     * @param timeMax
+     *            maximum ITime of any transition from source to target
+     * @param freq
+     *            the frequency value or probability on the edge
+     * @param relations
+     *            a string representing the relations (e.g., "t")
+     */
+    public abstract String edgeToStringWithITimesAndProb(int nodeSrc,
+            int nodeDst, ITime timeMin, ITime timeMax, double freq,
+            Set<String> relations);
+
+    /**
      * Create the time delta string for an edge given the min and max ITimes
      * within it, rounding to the specified number of significant digits.
      * 

@@ -85,6 +85,19 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
+    public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst,
+            ITime timeMin, ITime timeMax, double prob, Set<String> relations) {
+
+        // Make time and probability strings
+        int sigDigits = 3;
+        String timeStr = getITimeString(timeMin, timeMax, sigDigits);
+        String probStr = quote(probToString(prob));
+
+        String attributes = "  label \"" + timeStr + " " + probStr + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+    }
+
+    @Override
     public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
             Set<String> relations) {
         return edgeToString(nodeSrc, nodeDst, "", relations);

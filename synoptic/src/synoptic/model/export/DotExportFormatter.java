@@ -15,12 +15,12 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String beginGraphString() {
-        return "digraph {\n";
+        return "digraph G {\n";
     }
 
     @Override
     public String endGraphString() {
-        return "} // digraph {\n";
+        return "}\n";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class DotExportFormatter extends GraphExportFormatter {
 
         String s = nodeSrc + "->" + nodeDst + " [";
         if (!attributes.equals("")) {
-            s += attributes + ",";
+            s += attributes;
         }
         // s += "color=" + getRelationColor(relations);
         return s + "];" + "\n";
@@ -74,6 +74,19 @@ public class DotExportFormatter extends GraphExportFormatter {
         String timeStr = getITimeString(timeMin, timeMax, sigDigits);
 
         String attributes = "label=\"" + timeStr + "\"";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+    }
+
+    @Override
+    public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst,
+            ITime timeMin, ITime timeMax, double prob, Set<String> relations) {
+
+        // Make time and probability strings
+        int sigDigits = 3;
+        String timeStr = getITimeString(timeMin, timeMax, sigDigits);
+        String probStr = quote(probToString(prob));
+
+        String attributes = "label=\"" + timeStr + " " + probStr + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 

@@ -210,10 +210,9 @@ public class GraphExporter {
                     transitions = (List<? extends ITransition<T>>) partition
                             .getTransitionsWithDaikonInvariants();
                 }
-                // If perf debugging and state processing aren't enabled,
-                // then output weights, else add the edge labels later.
-                else if (outputEdgeLabels && !main.options.usePerformanceInfo
-                        && !main.options.stateProcessing) {
+                // If state processing isn't enabled, then output weights, else
+                // add the edge labels later.
+                else if (outputEdgeLabels && !main.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -248,7 +247,33 @@ public class GraphExporter {
                                 ((EventNode) ((INode<?>) trans.getSource()))
                                         .getTraceID(), trans.getRelation());
                     } else {
-                        if (outputEdgeLabels) {
+                        // Set edge and edge label for Perfume
+                        if (main.options.usePerformanceInfo) {
+                            // Calculate the min and max time deltas
+                            ITime timeMin = null;
+                            ITime timeMax = null;
+                            if (trans.getDeltaSeries() != null) {
+                                timeMin = trans.getDeltaSeries().computeMin();
+                                timeMax = trans.getDeltaSeries().computeMax();
+                            }
+
+                            if (outputEdgeLabels) {
+                                // Show both metrics and probabilities on edges
+                                double prob = trans.getProbability();
+                                s = main.graphExportFormatter
+                                        .edgeToStringWithITimesAndProb(nodeSrc,
+                                                nodeDst, timeMin, timeMax,
+                                                prob, trans.getRelation());
+                            }
+
+                            else {
+                                // Show only metrics on edges
+                                s = main.graphExportFormatter
+                                        .edgeToStringWithITimes(nodeSrc,
+                                                nodeDst, timeMin, timeMax,
+                                                trans.getRelation());
+                            }
+                        } else if (outputEdgeLabels) {
 
                             if (main.options.stateProcessing) {
                                 // Label Daikon invariants on this transition.
@@ -258,21 +283,6 @@ public class GraphExporter {
                                 s = main.graphExportFormatter
                                         .edgeToStringWithDaikonInvs(nodeSrc,
                                                 nodeDst, daikonInvs,
-                                                trans.getRelation());
-
-                            } else if (main.options.usePerformanceInfo) {
-                                // Calculate the min and max time deltas
-                                ITime timeMin = null;
-                                ITime timeMax = null;
-                                if (trans.getDeltaSeries() != null) {
-                                    timeMin = trans.getDeltaSeries()
-                                            .computeMin();
-                                    timeMax = trans.getDeltaSeries()
-                                            .computeMax();
-                                }
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithITimes(nodeSrc,
-                                                nodeDst, timeMin, timeMax,
                                                 trans.getRelation());
 
                             } else {
