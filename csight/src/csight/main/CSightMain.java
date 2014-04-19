@@ -198,6 +198,12 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
+        if (opts.topKElements < 1) {
+            err = "Cannot compare queues with less than 1 top element, "
+                    + "set -topK >=1 or use default.";
+            throw new OptionException(err);
+        }
+
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
@@ -386,7 +392,12 @@ public class CSightMain {
         // we've created above. Use the default initial partitioning strategy,
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
-        GFSM pGraph = new GFSM(traces);
+        GFSM pGraph;
+        if (opts.topKElements == 1) {
+            pGraph = new GFSM(traces);
+        } else {
+            pGraph = new GFSM(traces, opts.topKElements);
+        }
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).

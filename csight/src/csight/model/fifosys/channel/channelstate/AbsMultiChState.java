@@ -1,5 +1,6 @@
 package csight.model.fifosys.channel.channelstate;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import csight.util.Util;
@@ -122,6 +123,28 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
         for (ChState<TxnEType> s : channelStates) {
             if (!s.isEmpty()) {
                 ret = 31 * ret + s.peek().hashCode();
+            } else {
+                // Empty queues have to be captured by the hash as well.
+                ret = 31 * ret;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns a hash of the list of top k event types of all of the queues in
+     * this multi-channel state.
+     */
+    public int topKOfQueuesHash(int k) {
+        int ret = 17;
+        for (ChState<TxnEType> s : channelStates) {
+            if (!s.isEmpty()) {
+                ChState<TxnEType> temp = s.clone();
+                List<TxnEType> topKelements = new LinkedList<TxnEType>();
+                for (int i = 0; i < k; i++) {
+                    topKelements.add(temp.dequeue());
+                }
+                ret = 31 * ret + topKelements.hashCode();
             } else {
                 // Empty queues have to be captured by the hash as well.
                 ret = 31 * ret;
