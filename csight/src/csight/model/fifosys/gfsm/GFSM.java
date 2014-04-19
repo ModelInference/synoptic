@@ -109,6 +109,54 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     }
 
     /**
+     * Creates a new GFSM from observed ObsFifoSys traces, using partitioning
+     * strategy comparing the list of topK top elements all of the queues in the
+     * system, from a list of traces.
+     * 
+     * @param traces
+     * @return
+     */
+    public GFSM(List<ObsFifoSys> traces, int topK) {
+        super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
+
+        // Compute the initial partitioning of the observed states by using the
+        // queue contents associated with each globally observed state.
+        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
+        Set<ObsFifoSysState> visited = Util.newSet();
+        for (ObsFifoSys t : traces) {
+            assert t.getNumProcesses() == numProcesses;
+            assert t.getChannelIds().equals(channelIds);
+
+            // DFS traversal to perform initial partitioning.
+            ObsFifoSysState init = t.getInitState();
+            addToQueueContentsHashMap(qTopHashToPartition, init, topK);
+            traverseAndPartition(init, qTopHashToPartition, visited, topK);
+            visited.clear();
+        }
+
+        Set<ObsFifoSysState> allObs = null;
+        if (CSightMain.assertsOn) {
+            allObs = Util.newSet();
+        }
+
+        // Create the GFSMState partitions based off of sets of observations.
+        for (Set<ObsFifoSysState> set : qTopHashToPartition.values()) {
+            states.add(new GFSMState(numProcesses, set));
+            if (CSightMain.assertsOn) {
+                allObs.addAll(set);
+            }
+        }
+        recomputeAlphabet();
+
+        // Now, assert that if two ObsFifoSysStates are identical, then they are
+        // assigned to the same partition.
+        if (CSightMain.assertsOn) {
+            checkPartitioningConsistency(allObs);
+        }
+
+    }
+
+    /**
      * Checks that the following property is true for a set of observations: if
      * two observations have identical process states, then belong to the same
      * GFSMState partition.
@@ -142,6 +190,23 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     }
 
     /**
+     * Constructor helper -- adds an observation to the map, by hashing on its
+     * top k of queue event types.
+     */
+    private void addToQueueContentsHashMap(
+            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
+            ObsFifoSysState obs, int k) {
+        int hash = obs.getChannelStates().topKOfQueuesHash(k);
+        if (!qTopHashToPartition.containsKey(hash)) {
+            logger.info("Creating a new partition for ch-states like: "
+                    + obs.getChannelStates().toString());
+            Set<ObsFifoSysState> partition = Util.newSet();
+            qTopHashToPartition.put(hash, partition);
+        }
+        qTopHashToPartition.get(hash).add(obs);
+    }
+
+    /**
      * Constructor helper -- DFS traversal of the observed traces, building up
      * an initial partitioning.
      */
@@ -156,6 +221,24 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             }
             addToQueueContentsHashMap(qTopHashToPartition, next);
             traverseAndPartition(next, qTopHashToPartition, visited);
+        }
+    }
+
+    /**
+     * Constructor helper -- DFS traversal of the observed traces, building up
+     * an initial partitioning with topK specification.
+     */
+    private void traverseAndPartition(ObsFifoSysState curr,
+            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
+            Set<ObsFifoSysState> visited, int k) {
+        visited.add(curr);
+        for (ObsFifoSysState next : curr.getNextStates()) {
+            // Ignore branches we've already visited.
+            if (visited.contains(next)) {
+                continue;
+            }
+            addToQueueContentsHashMap(qTopHashToPartition, next, k);
+            traverseAndPartition(next, qTopHashToPartition, visited, k);
         }
     }
 
