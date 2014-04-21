@@ -21,7 +21,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
 
     protected EventType first;
     protected EventType second;
-    protected InvariantStatistics supportCount;
+    protected InvariantStatistics statistics;
 
     /**
      * Role identifiers for each predicate. If the per-host model is used then
@@ -224,8 +224,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
-    public InvariantStatistics getSupportCount() {
-        return supportCount;
+    public InvariantStatistics getStatistics() {
+        return statistics;
     }
 
     /**
@@ -233,8 +233,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
-    public void setSupportCount(InvariantStatistics supportCount) {
-        this.supportCount = supportCount;
+    public void setStatistics(InvariantStatistics supportCount) {
+        this.statistics = supportCount;
     }
 
     /**
