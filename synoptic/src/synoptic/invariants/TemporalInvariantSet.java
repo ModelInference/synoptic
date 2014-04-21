@@ -102,6 +102,19 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return ret;
     }
 
+    public String supportCountToPrettyString() {
+        String ret = "";
+        for (ITemporalInvariant inv : invariants) {
+            if (inv instanceof BinaryInvariant) {
+                ret += (inv.toString() + "\n Invariant support count: "
+                        + ((BinaryInvariant) inv).getStatistics().supportCount + "\n");
+            } else {
+                ret += (inv.toString() + "\n No associated support count for this invariant");
+            }
+        }
+        return ret;
+    }
+
     public void add(ITemporalInvariant inv) {
         invariants.add(inv);
     }
@@ -323,11 +336,17 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            The filename to use for outputting the invariants.
      * @throws FileNotFoundException
      */
-    public void outputToFile(String fileName) throws FileNotFoundException {
+    public void outputToFile(String fileName, boolean supportCount)
+            throws FileNotFoundException {
         LinkedList<String> invariantsStr = new LinkedList<String>();
         // Construct a list of invariants' String representations
         for (ITemporalInvariant inv : invariants) {
-            invariantsStr.add(inv.toString());
+            String invString = inv.toString();
+            if (supportCount && inv instanceof BinaryInvariant) {
+                invString += ("\nInvariant support count: "
+                        + ((BinaryInvariant) inv).getStatistics().supportCount + "\n");
+            }
+            invariantsStr.add(invString);
         }
         // Sort the list of string invariants and output it to the file.
         Collections.sort(invariantsStr);

@@ -22,6 +22,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import synoptic.algorithms.Bisimulation;
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
@@ -418,7 +419,8 @@ public abstract class AbstractMain {
             String invariantsFilename = AbstractOptions.outputPathPrefix
                     + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
-            minedInvs.outputToFile(invariantsFilename);
+            minedInvs.outputToFile(invariantsFilename,
+                    options.outputSupportCount);
         }
     }
 
@@ -610,6 +612,16 @@ public abstract class AbstractMain {
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
+        // Check if the support counts for all the invariants is above the
+        // threshold and if not then remove the invariant
+        for (ITemporalInvariant inv : minedInvs.getSet()) {
+            if (inv instanceof BinaryInvariant) {
+                if (((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
+                    minedInvs.remove(inv);
+                }
+            }
+        }
+
         if (AbstractOptions.ignoreInvsOverETypeSet != null) {
 
             // Split string options.ignoreInvsOverETypeSet by the ";" delimiter:
@@ -647,11 +659,17 @@ public abstract class AbstractMain {
             logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
         }
 
+        if (options.outputSupportCount) {
+            logger.info("Mined invariants and support counts:\n"
+                    + minedInvs.supportCountToPrettyString());
+        }
+
         if (options.outputInvariantsToFile) {
             String invariantsFilename = AbstractOptions.outputPathPrefix
                     + ".invariants.txt";
-            logger.info("Outputting invarians to file: " + invariantsFilename);
-            minedInvs.outputToFile(invariantsFilename);
+            logger.info("Outputting invariants to file: " + invariantsFilename);
+            minedInvs.outputToFile(invariantsFilename,
+                    options.outputSupportCount);
         }
 
         if (options.onlyMineInvariants) {
