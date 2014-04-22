@@ -2,7 +2,6 @@ package synoptic.model.export;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -173,7 +172,7 @@ public abstract class GraphExportFormatter {
     /**
      * Serializes a single node edge in a graph to a string given the min and
      * max ITimes of any concrete transitions within this edge (between the
-     * source and target nodes).
+     * source and target nodes), and optionally, the median ITime.
      * 
      * @param nodeSrc
      *            the unique identifier for the source node
@@ -183,11 +182,14 @@ public abstract class GraphExportFormatter {
      *            minimum ITime of any transition from source to target
      * @param timeMax
      *            maximum ITime of any transition from source to target
+     * @param timeMedian
+     *            median ITime, or null to not display median
      * @param relations
      *            a string representing the relations (e.g., "t")
      */
     public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            ITime timeMin, ITime timeMax, Set<String> relations);
+            ITime timeMin, ITime timeMax, ITime timeMedian,
+            Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string given the min and
@@ -202,39 +204,53 @@ public abstract class GraphExportFormatter {
      *            minimum ITime of any transition from source to target
      * @param timeMax
      *            maximum ITime of any transition from source to target
+     * @param timeMedian
+     *            median ITime, or null to not display median
      * @param freq
      *            the frequency value or probability on the edge
      * @param relations
      *            a string representing the relations (e.g., "t")
      */
     public abstract String edgeToStringWithITimesAndProb(int nodeSrc,
-            int nodeDst, ITime timeMin, ITime timeMax, double freq,
-            Set<String> relations);
+            int nodeDst, ITime timeMin, ITime timeMax, ITime timeMedian,
+            double freq, Set<String> relations);
 
     /**
-     * Create the time delta string for an edge given the min and max ITimes
-     * within it, rounding to the specified number of significant digits.
+     * Create the time delta string for an edge given the min, max, and
+     * (optionally) median ITimes within it, rounding to the specified number of
+     * significant digits.
      * 
-     * @return If min==max, returns "min". Else, returns "[min,max]"
+     * @return If min==max, returns "min". Else, returns "[min,med,max]" if
+     *         median is specified or else "[min,max]" if not
      */
-    protected String getITimeString(ITime timeMin, ITime timeMax, int sigDigits) {
+    protected String getITimeString(ITime timeMin, ITime timeMax,
+            ITime timeMedian, int sigDigits) {
         // Make time string
         if (timeMin != null && timeMax != null) {
 
-            // Round the times to a few significant digits for readability
+            // Round min and max to a few significant digits for readability
             BigDecimal timeMinDec = new BigDecimal(timeMin.toString())
-                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
+                    .round(new MathContext(sigDigits));
             BigDecimal timeMaxDec = new BigDecimal(timeMax.toString())
-                    .round(new MathContext(sigDigits, RoundingMode.HALF_EVEN));
+                    .round(new MathContext(sigDigits));
 
-            // Remove trailing zeros and periods
+            // Remove trailing zeros and periods from min and max
             String timeMinStr = removeTrailingZeros(timeMinDec.toString());
             String timeMaxStr = removeTrailingZeros(timeMaxDec.toString());
 
-            // String is range if min != max time or else just the single time
-            // if they are equal
+            // Round and format median if provided
+            String timeMedStr = "";
+            if (timeMedian != null) {
+                BigDecimal timeMedDec = new BigDecimal(timeMedian.toString())
+                        .round(new MathContext(sigDigits));
+
+                timeMedStr = removeTrailingZeros(timeMedDec.toString()) + ",";
+            }
+
+            // String is range (possibly including median) if min != max time or
+            // else just the single time if they are equal
             if (!timeMinStr.equals(timeMaxStr)) {
-                return "[" + timeMinStr + "," + timeMaxStr + "]";
+                return "[" + timeMinStr + "," + timeMedStr + timeMaxStr + "]";
             }
             {
                 return timeMinStr;

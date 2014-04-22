@@ -125,6 +125,34 @@ public class TimeSeries<TimeType extends ITime> implements
     }
 
     /**
+     * @return Median time delta for transition, or null if transition has no
+     *         time deltas
+     */
+    public TimeType computeMed() {
+        // Check for empty or size-one time series
+        if (times.isEmpty()) {
+            return null;
+        } else if (times.size() == 1) {
+            return times.get(0);
+        }
+
+        // Median position if odd, or lower median position if even
+        int medianPos = (times.size() - 1) / 2;
+
+        // Times size is even, so calculate and return median
+        if (times.size() % 2 == 0) {
+            TimeType lowMedian = times.get(medianPos);
+            TimeType highMedian = times.get(medianPos + 1);
+            return (TimeType) lowMedian.incrBy(highMedian).divBy(2);
+        }
+
+        // Times size is odd, so just return median
+        {
+            return times.get(medianPos);
+        }
+    }
+
+    /**
      * @param findMax
      *            If true, find max. If false, find min.
      * @return Minimum or maximum time delta

@@ -226,6 +226,13 @@ public class PerfumeOptions extends Options {
     public boolean outputEdgeLabels = false;
 
     /**
+     * Whether or not to show the median metric value on edges between the min
+     * and max, e.g., [1,5,9] instead of [1,9] for min 1, median 5, max 9
+     */
+    @Option(AbstractOptions.showMedianStr)
+    public boolean showMedian = false;
+
+    /**
      * Whether or not the output graphs include the common TERMINAL state, to
      * which all final trace nodes have an edge.
      */
@@ -483,6 +490,7 @@ public class PerfumeOptions extends Options {
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputEdgeLabels = outputEdgeLabels;
+        absOpts.showMedian = showMedian;
         absOpts.showTerminalNode = showTerminalNode;
         absOpts.showInitialNode = showInitialNode;
         absOpts.outputJSON = outputJSON;
