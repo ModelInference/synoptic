@@ -249,12 +249,19 @@ public class GraphExporter {
                     } else {
                         // Set edge and edge label for Perfume
                         if (main.options.usePerformanceInfo) {
-                            // Calculate the min and max time deltas
+                            // Calculate the min, max, and median time deltas
                             ITime timeMin = null;
                             ITime timeMax = null;
+                            ITime timeMedian = null;
                             if (trans.getDeltaSeries() != null) {
                                 timeMin = trans.getDeltaSeries().computeMin();
                                 timeMax = trans.getDeltaSeries().computeMax();
+
+                                // Compute median only if requested
+                                if (main.options.showMedian) {
+                                    timeMedian = trans.getDeltaSeries()
+                                            .computeMed();
+                                }
                             }
 
                             if (outputEdgeLabels) {
@@ -263,7 +270,8 @@ public class GraphExporter {
                                 s = main.graphExportFormatter
                                         .edgeToStringWithITimesAndProb(nodeSrc,
                                                 nodeDst, timeMin, timeMax,
-                                                prob, trans.getRelation());
+                                                timeMedian, prob,
+                                                trans.getRelation());
                             }
 
                             else {
@@ -271,7 +279,7 @@ public class GraphExporter {
                                 s = main.graphExportFormatter
                                         .edgeToStringWithITimes(nodeSrc,
                                                 nodeDst, timeMin, timeMax,
-                                                trans.getRelation());
+                                                timeMedian, trans.getRelation());
                             }
                         } else if (outputEdgeLabels) {
 

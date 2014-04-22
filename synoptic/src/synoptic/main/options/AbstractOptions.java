@@ -126,6 +126,9 @@ public class AbstractOptions {
     static final String outputEdgeLabelsStr = "Output transition probabilities on the graph's edge labels";
     public boolean outputEdgeLabels = true;
 
+    static final String showMedianStr = "Show median metric value on edges in addition to min and max";
+    public boolean showMedian = false;
+
     static final String showTerminalNodeStr = "Show TERMINAL node in generated graphs.";
     public boolean showTerminalNode = true;
 
