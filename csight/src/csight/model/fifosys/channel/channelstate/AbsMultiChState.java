@@ -139,11 +139,15 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
         int ret = 17;
         for (ChState<TxnEType> s : channelStates) {
             if (!s.isEmpty()) {
+                // cloning to avoid modifying the channels
                 ChState<TxnEType> temp = s.clone();
                 List<TxnEType> topKelements = new LinkedList<TxnEType>();
+                // adding all relevant elements of the queue into a list in
+                // order
                 for (int i = 0; i < k; i++) {
                     topKelements.add(temp.dequeue());
                 }
+                // so that each combination can be hashed differently
                 ret = 31 * ret + topKelements.hashCode();
             } else {
                 // Empty queues have to be captured by the hash as well.

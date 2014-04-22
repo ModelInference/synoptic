@@ -109,9 +109,9 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     }
 
     /**
-     * Creates a new GFSM from observed ObsFifoSys traces, using partitioning
-     * strategy comparing the list of topK top elements all of the queues in the
-     * system, from a list of traces.
+     * Creates a new GFSM from observed ObsFifoSys traces from a list of traces,
+     * using partitioning strategy comparing the list of topK top elements of
+     * all of the queues in the system.
      * 
      * @param traces
      * @return
