@@ -612,11 +612,13 @@ public abstract class AbstractMain {
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
-        // Check if the support counts for all the invariants is above the
+        // Check if the support counts for all the invariants that have a count
+        // is above the
         // threshold and if not then remove the invariant
         for (ITemporalInvariant inv : minedInvs.getSet()) {
             if (inv instanceof BinaryInvariant) {
-                if (((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
+                if (((BinaryInvariant) inv).getStatistics() != null
+                        && ((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
                     minedInvs.remove(inv);
                 }
             }

@@ -140,7 +140,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                         relation);
                 if (supportCount) {
                     invariant.setStatistics(new InvariantStatistics(gEventCnts
-                            .size()));
+                            .get(label)));
                 }
                 invariants.add(invariant);
             } else {
@@ -149,7 +149,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                         relation);
                 if (supportCount) {
                     invariant.setStatistics(new InvariantStatistics(gEventCnts
-                            .size()));
+                            .get(label)));
                 }
                 invariants.add(invariant);
             }

@@ -163,6 +163,15 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         } else if (!second.equals(other.second)) {
             return false;
         }
+
+        if (statistics == null) {
+            if (other.statistics != null) {
+                return false;
+            }
+        } else if (!statistics.equals(other.statistics)) {
+            return false;
+        }
+
         return true;
     }
 
