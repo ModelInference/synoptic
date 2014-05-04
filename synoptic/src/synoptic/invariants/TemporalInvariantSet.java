@@ -343,10 +343,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         for (ITemporalInvariant inv : invariants) {
             String invString = inv.toString();
             if (supportCount && inv instanceof BinaryInvariant) {
-                invString += ("\nInvariant support count: "
-                        + ((BinaryInvariant) inv).getStatistics().supportCount + "\n");
+                invString += ("\tsupport count " + ((BinaryInvariant) inv)
+                        .getStatistics().supportCount);
             }
-            invariantsStr.add(invString);
+            invariantsStr.add(invString + "\n");
         }
         // Sort the list of string invariants and output it to the file.
         Collections.sort(invariantsStr);
