@@ -721,6 +721,8 @@ public class CSightMain {
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
 
+            //TODO: add break when partitions are singletons
+            
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
