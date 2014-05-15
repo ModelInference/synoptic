@@ -727,9 +727,8 @@ public class CSightMain {
 
             if (pGraph.isSingleton()) {
                 return mcCounter;
-            } else {
-                mcCounter++;
             }
+            mcCounter++;
 
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
