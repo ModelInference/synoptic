@@ -131,7 +131,7 @@ public class CSightTest {
         // Determine whether to use the Linux or the OSX McScM binary.
         String osStr = null;
         if (Os.isLinux()) {
-            osStr = "linux-x86";
+            osStr = "linux.static";
         } else if (Os.isMac()) {
             String version = Os.getMajorOSXVersion();
             String arch = Os.getOsArch();

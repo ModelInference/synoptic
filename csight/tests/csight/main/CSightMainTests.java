@@ -372,4 +372,13 @@ public class CSightMainTests extends CSightTest {
 
         dyn.run(log);
     }
+    
+    /**
+     * Test check and refine loop to skip model checking when all partitions
+     * are singletons
+     */
+    @Test
+    public void testcheckInvsRefineGFSMWithSingletonPartition() {
+    	// TODO
+    }
 }

@@ -802,7 +802,17 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 		return false;
 	}
 
-	// TODO: check when all partitions (GFSMStates are singletons
+	/**
+	 * Returns true if all partitions of GFSM has only one state
+	 */
+	public boolean isSingleton() {
+		for (GFSMState gstate : states) {
+			if (!gstate.isSingleton()) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	// //////////////////////////////////////////////////////////////////
 
