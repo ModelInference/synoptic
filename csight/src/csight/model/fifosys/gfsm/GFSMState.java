@@ -255,8 +255,12 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
 		}
 	}
 
-	// TODO: add check singleton method
-	// singleton iff observedStates.size() = 1
+	/**
+	 * Returns true if the GFSM state has only one observed state
+	 */
+	public boolean isSingleton() { 
+		return observedStates.size() == 1;
+	}
 
 	// //////////////////////////////////////////////////////////////////
 

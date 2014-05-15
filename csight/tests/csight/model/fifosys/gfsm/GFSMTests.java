@@ -14,8 +14,6 @@ import csight.CSightTest;
 import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
-import csight.model.fifosys.gfsm.GFSM;
-import csight.model.fifosys.gfsm.GFSMState;
 import csight.model.fifosys.gfsm.observed.ObsDistEventType;
 import csight.model.fifosys.gfsm.observed.ObsFSMState;
 import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
@@ -135,5 +133,11 @@ public class GFSMTests extends CSightTest {
 
         GraphExporter.generatePngFileFromDotFile(DOT_OUTPUT_FILENAME);
         assertEquals(1, getNumDotPngFiles());
+    }
+    
+    @Test
+    public void testIsSingleton() {
+        // TODO
+        // Test when GFSM has all partitions as singletons
     }
 }
