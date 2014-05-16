@@ -143,33 +143,4 @@ public class GFSMTests extends CSightTest {
         GFSM singleton = createSingletonGFSM();
         assertTrue(singleton.isSingleton());
     }
-    
-    /**
-     * Create a GFSM with all singleton partitions
-     * @return
-     */
-    private GFSM createSingletonGFSM() {
-        List<ObsFSMState> Pi = Util.newList();
-
-        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, true);
-        Pi.add(p0i);
-        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
-
-        // Empty channeldIds list -- no queues.
-        List<ChannelId> cids = Util.newList();
-        ImmutableMultiChState PiChstate = ImmutableMultiChState
-                .fromChannelIds(cids);
-
-        Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
-
-        List<ObsFifoSys> traces = Util.newList(1);
-
-        Set<ObsFifoSysState> states = Util.newSet();
-        states.add(Si);
-
-        ObsFifoSys trace = new ObsFifoSys(cids, Si, Si, states);
-        traces.add(trace);
-
-        return new GFSM(traces);
-    }
 }

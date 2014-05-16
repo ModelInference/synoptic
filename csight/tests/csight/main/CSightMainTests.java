@@ -14,6 +14,7 @@ import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
 import csight.invariants.EventuallyHappens;
 import csight.invariants.NeverFollowedBy;
+import csight.model.fifosys.gfsm.GFSM;
 import csight.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -379,6 +380,6 @@ public class CSightMainTests extends CSightTest {
      */
     @Test
     public void testcheckInvsRefineGFSMWithSingletonPartition() {
-    	// TODO
+    	assertEquals(0, checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph));
     }
 }

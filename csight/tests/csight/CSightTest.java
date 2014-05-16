@@ -8,6 +8,7 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,8 +20,11 @@ import org.junit.rules.TestName;
 import csight.main.CSightMain;
 import csight.main.CSightOptions;
 import csight.mc.mcscm.Os;
+import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import csight.model.fifosys.gfsm.GFSM;
 import csight.model.fifosys.gfsm.observed.ObsFSMState;
 import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
+import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 import csight.util.Util;
 
@@ -167,5 +171,34 @@ public class CSightTest {
         }
         in.close();
         return everything.toString();
+    }
+    
+    /**
+     * Create a GFSM with all singleton partitions
+     * @return
+     */
+    protected GFSM createSingletonGFSM() {
+        List<ObsFSMState> Pi = Util.newList();
+
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, true);
+        Pi.add(p0i);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
+
+        // Empty channeldIds list -- no queues.
+        List<ChannelId> cids = Util.newList();
+        ImmutableMultiChState PiChstate = ImmutableMultiChState
+                .fromChannelIds(cids);
+
+        ObsFifoSysState Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+
+        List<ObsFifoSys> traces = Util.newList(1);
+
+        Set<ObsFifoSysState> states = Util.newSet();
+        states.add(Si);
+
+        ObsFifoSys trace = new ObsFifoSys(cids, Si, Si, states);
+        traces.add(trace);
+
+        return new GFSM(traces);
     }
 }
