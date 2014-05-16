@@ -1,6 +1,7 @@
 package csight.model.fifosys.gfsm;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -137,7 +138,38 @@ public class GFSMTests extends CSightTest {
     
     @Test
     public void testIsSingleton() {
-        // TODO
-        // Test when GFSM has all partitions as singletons
+        assertFalse(g.isSingleton());
+        
+        GFSM singleton = createSingletonGFSM();
+        assertTrue(singleton.isSingleton());
+    }
+    
+    /**
+     * Create a GFSM with all singleton partitions
+     * @return
+     */
+    private GFSM createSingletonGFSM() {
+        List<ObsFSMState> Pi = Util.newList();
+
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, true);
+        Pi.add(p0i);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
+
+        // Empty channeldIds list -- no queues.
+        List<ChannelId> cids = Util.newList();
+        ImmutableMultiChState PiChstate = ImmutableMultiChState
+                .fromChannelIds(cids);
+
+        Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+
+        List<ObsFifoSys> traces = Util.newList(1);
+
+        Set<ObsFifoSysState> states = Util.newSet();
+        states.add(Si);
+
+        ObsFifoSys trace = new ObsFifoSys(cids, Si, Si, states);
+        traces.add(trace);
+
+        return new GFSM(traces);
     }
 }
