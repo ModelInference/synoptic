@@ -383,10 +383,8 @@ public class CSightMainTests extends CSightTest {
     }
 
     /**
-     * Test check and refine loop to skip model checking when all partitions are
-     * singletons
-     * 
-     * @throws Exception
+     * Test check and refine loop to skip model checking when all partitions
+     * of the GFSM are singletons
      */
     @Test
     public void testCheckInvsRefineGFSMWithSingletonPartition()
@@ -411,8 +409,8 @@ public class CSightMainTests extends CSightTest {
     }
 
     /**
-     * Test check and refine loop to not skip model checking when partitions are
-     * not singletons
+     * Test check and refine loop to not skip model checking when partitions
+     * of the GFSM are not singletons
      */
     @Test
     public void testCheckInvsRefineGFSMWithNonSingleton() throws Exception {
@@ -478,6 +476,7 @@ public class CSightMainTests extends CSightTest {
         BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
         invs.add(inv);
 
+        
         List<String> args = getBasicArgsStr();
         args.add("-q");
         args.add("M:0->1;A:1->0");

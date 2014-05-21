@@ -726,6 +726,7 @@ public class CSightMain {
                     + invsToSatisfy.size() == totalInvs;
 
             if (pGraph.isSingleton()) {
+                // Skip model checking if all partitions are singletons
                 return mcCounter;
             }
             mcCounter++;
