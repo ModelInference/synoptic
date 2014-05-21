@@ -715,6 +715,7 @@ public class CSightMain {
         exportIntermediateModels(pGraph, curInv, gfsmCounter,
                 gfsmPrefixFilename);
 
+        // TODO: Revise loop to allow for parallel McScM model checking processes
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
