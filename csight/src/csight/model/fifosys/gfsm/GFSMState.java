@@ -256,7 +256,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
     }
 
     /**
-     * Returns true if the GFSM state has only one observed fifo state
+     * Returns true if this partition has only one observed fifo state
      */
     public boolean isSingleton() {
         return observedStates.size() == 1;

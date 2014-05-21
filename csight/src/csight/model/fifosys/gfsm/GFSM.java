@@ -803,7 +803,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 	}
 
 	/**
-	 * Returns true if all partitions of GFSM has only one state
+	 * Returns true if all partitions of the GFSM contain only one observed
+	 * fifo state
 	 */
 	public boolean isSingleton() {
 		for (GFSMState gstate : states) {

@@ -176,7 +176,8 @@ public class CSightTest {
     }
 
     /**
-     * Create a GFSM with all singleton partitions
+     * Create a GFSM with all singleton partitions, and a send and receive
+     * event "e"
      * 
      * @return
      */
