@@ -22,6 +22,7 @@ import csight.main.CSightOptions;
 import csight.mc.mcscm.Os;
 import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import csight.model.fifosys.gfsm.GFSM;
+import csight.model.fifosys.gfsm.observed.ObsDistEventType;
 import csight.model.fifosys.gfsm.observed.ObsFSMState;
 import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
@@ -29,6 +30,7 @@ import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * Base test class for CSight tests.
@@ -172,29 +174,56 @@ public class CSightTest {
         in.close();
         return everything.toString();
     }
-    
+
     /**
      * Create a GFSM with all singleton partitions
+     * 
      * @return
      */
     protected GFSM createSingletonGFSM() {
         List<ObsFSMState> Pi = Util.newList();
+        List<ObsFSMState> Pm = Util.newList();
 
-        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, true);
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "M", true, true);
+        ObsFSMState p1i = ObsFSMState.namedObsFSMState(1, "A", true, true);
         Pi.add(p0i);
+        Pi.add(p1i);
         ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
 
-        // Empty channeldIds list -- no queues.
+        ObsFSMState p0m = ObsFSMState.namedObsFSMState(0, "M", false, false);
+        ObsFSMState p1m = ObsFSMState.namedObsFSMState(1, "A", false, false);
+        Pm.add(p0m);
+        Pm.add(p1m);
+        ObsMultFSMState obsPm = ObsMultFSMState.getMultiFSMState(Pm);
+
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        ChannelId cid1 = new ChannelId(1, 0, 1);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
         List<ChannelId> cids = Util.newList();
+        cids.add(cid0);
+        cids.add(cid1);
+
         ImmutableMultiChState PiChstate = ImmutableMultiChState
                 .fromChannelIds(cids);
+        ImmutableMultiChState PmChstate = PiChstate.getNextChState(eSend);
 
         ObsFifoSysState Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+        ObsFifoSysState Sm = ObsFifoSysState.getFifoSysState(obsPm, PmChstate);
+
+        ObsDistEventType obsESend = new ObsDistEventType(eSend, 0);
+        ObsDistEventType obsERecv = new ObsDistEventType(eRecv, 0);
+
+        // Si -> Sm -> Sf
+        Si.addTransition(obsESend, Sm);
+        Sm.addTransition(obsERecv, Si);
 
         List<ObsFifoSys> traces = Util.newList(1);
 
         Set<ObsFifoSysState> states = Util.newSet();
         states.add(Si);
+        states.add(Sm);
 
         ObsFifoSys trace = new ObsFifoSys(cids, Si, Si, states);
         traces.add(trace);
