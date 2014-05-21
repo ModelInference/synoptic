@@ -135,11 +135,11 @@ public class GFSMTests extends CSightTest {
         GraphExporter.generatePngFileFromDotFile(DOT_OUTPUT_FILENAME);
         assertEquals(1, getNumDotPngFiles());
     }
-    
+
     @Test
     public void testIsSingleton() {
         assertFalse(g.isSingleton());
-        
+
         GFSM singleton = createSingletonGFSM();
         assertTrue(singleton.isSingleton());
     }
