@@ -722,6 +722,9 @@ public class CSightMain {
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
 
+            // TODO: implement a MCRunner to run multiple inv checking at once
+            // using mc
+            
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 

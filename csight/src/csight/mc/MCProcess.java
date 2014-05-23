@@ -27,6 +27,8 @@ public class MCProcess {
         assert !processDir.equals("");
         assert command.length > 0;
 
+        // TODO: use .... &  to run parallel processes in Linux
+        //       use -n .... to run .................. in OSX
         this.command = command;
         this.stdinInput = stdinInput;
         this.processDir = processDir;
@@ -66,6 +68,8 @@ public class MCProcess {
         // Wait until the verify process terminates.
         process.waitFor();
 
+        // TODO: notify MCRunner of completion and kill other parallel processes
+        
         // Clean up the timer thread.
         if (!pkt.killed) {
             // The killed flag is false: verify process terminated naturally.
