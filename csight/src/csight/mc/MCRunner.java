@@ -41,14 +41,7 @@ public abstract class MCRunner {
     public void verify(GFSM pGraph, List<BinaryInvariant> invs, int timeOut,
             boolean minimize) throws IOException, InterruptedException {
         // TODO: use Java ExecutorService to run multiple mc process
-    }
-    
-    /**
-     * Stops all MC process and use the first result that is returned
-     * @param mc the finished mc process
-     */
-    public synchronized void onResult(MC mc) {
-        // TODO: stop all mc process when one terminates
+        // use invokeany
     }
     
     protected abstract void prepareMcInputString();

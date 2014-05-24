@@ -67,8 +67,6 @@ public class MCProcess {
 
         // Wait until the verify process terminates.
         process.waitFor();
-
-        // TODO: notify MCRunner of completion and kill other parallel processes
         
         // Clean up the timer thread.
         if (!pkt.killed) {
