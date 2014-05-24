@@ -14,8 +14,12 @@ public abstract class MCRunner {
     /** Complete path to the model checker binary (e.g., McScM verify). */
     protected String mcPath;
     
-    public MCRunner(String mcPath) {
+    /** The number of parallel process to run */
+    protected int numParallel;
+    
+    public MCRunner(String mcPath, int numParallel) {
         this.mcPath = mcPath;
+        this.numParallel = numParallel;
     }
     
     /**
@@ -47,5 +51,5 @@ public abstract class MCRunner {
         // TODO: stop all mc process when one terminates
     }
     
-    protected abstract prepareMcInputString()
+    protected abstract void prepareMcInputString();
 }
