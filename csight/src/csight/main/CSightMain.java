@@ -844,7 +844,6 @@ public class CSightMain {
                     timedOutInvs.clear();
                 }
             }
-            return mcCounter;
         }
     }
 
