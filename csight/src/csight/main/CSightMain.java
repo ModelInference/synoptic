@@ -666,6 +666,8 @@ public class CSightMain {
         assert invs != null;
         assert !invs.isEmpty();
 
+        // Note: For task, keep old code to allow comparison between new/old
+
         // Make a copy of invs, as we'll be modifying the list (removing
         // invariants once they are satisfied by the model).
         List<BinaryInvariant> invsToSatisfy = Util.newList(invs);
@@ -715,7 +717,8 @@ public class CSightMain {
         exportIntermediateModels(pGraph, curInv, gfsmCounter,
                 gfsmPrefixFilename);
 
-        // TODO: Revise loop to allow for parallel McScM model checking processes
+        // TODO: Revise loop to allow for parallel McScM model checking
+        // processes
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
@@ -724,7 +727,7 @@ public class CSightMain {
 
             // TODO: implement a MCRunner to run multiple inv checking at once
             // using mc
-            
+
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
@@ -747,6 +750,8 @@ public class CSightMain {
                         "Model checker is not properly specified.");
             }
 
+            // Notes: print all inv checked if num(inv)<=5
+            // print: checking... invsCounter (+ 5 being checked) / totalInvs
             logger.info("*******************************************************");
             logger.info("Checking ... " + curInv.toString() + ". Inv "
                     + invsCounter + " / " + totalInvs
@@ -825,6 +830,7 @@ public class CSightMain {
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
+                // Note: curInv to export is the inv with conter example
                 exportIntermediateModels(pGraph, curInv, gfsmCounter,
                         gfsmPrefixFilename);
 
