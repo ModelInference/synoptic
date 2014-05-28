@@ -8,7 +8,6 @@ import synoptic.model.channelid.ChannelId;
 /**
  * Represents a CFSM model checker.
  */
-// TODO: change to extend callable
 public abstract class MC {
     /** Complete path to the model checker binary (e.g., McScM verify). */
     protected String mcPath;
