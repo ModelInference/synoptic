@@ -735,27 +735,10 @@ public class CSightMain {
                 return mcCounter;
             }
             mcCounter++;
+            
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
-
-            String mcInputStr;
-            if (mc instanceof McScM) {
-                // Model check the CFSM using the McScM model checker.
-
-                // Augment the CFSM with synthetic states/events to check
-                // curInv (only fone for McScM).
-                cfsm.augmentWithInvTracing(curInv);
-
-                mcInputStr = cfsm.toScmString("checking_scm_"
-                        + curInv.getConnectorString());
-            } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.getConnectorString(),
-                        opts.spinChannelCapacity);
-            } else {
-                throw new RuntimeException(
-                        "Model checker is not properly specified.");
-            }
+            String mcInputStr = getMCInputString(cfsm, curInv);
 
             // Notes: print all inv checked if num(inv)<=5
             // print: checking... invsCounter (+ 5 being checked) / totalInvs
@@ -960,4 +943,32 @@ public class CSightMain {
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
+    /**
+     * Prepares the model checker input string given a CFSM model
+     * 
+     * @param pGraph
+     * @return
+     * @throws Exception
+     */
+    private String getMCInputString(CFSM cfsm, BinaryInvariant curInv) throws Exception {
+        String mcInputStr;
+        if (mc instanceof McScM) {
+            // Model check the CFSM using the McScM model checker.
+
+            // Augment the CFSM with synthetic states/events to check
+            // curInv (only fone for McScM).
+            cfsm.augmentWithInvTracing(curInv);
+
+            mcInputStr = cfsm.toScmString("checking_scm_"
+                    + curInv.getConnectorString());
+        } else if (mc instanceof Spin) {
+            mcInputStr = cfsm.toPromelaString(
+                    "checking_pml_" + curInv.getConnectorString(),
+                    opts.spinChannelCapacity);
+        } else {
+            throw new RuntimeException(
+                    "Model checker is not properly specified.");
+        }
+        return mcInputStr;
+    }
 }
