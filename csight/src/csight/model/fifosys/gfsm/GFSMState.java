@@ -255,6 +255,13 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
         }
     }
 
+    /**
+     * Returns true if this partition has only one observed fifo state
+     */
+    public boolean isSingleton() {
+        return observedStates.size() == 1;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Updates the cached transitions for a particular observed state. */
