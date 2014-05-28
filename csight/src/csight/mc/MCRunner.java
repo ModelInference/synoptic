@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import csight.invariants.BinaryInvariant;
+import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
 
 /**
@@ -44,7 +45,23 @@ public abstract class MCRunner {
         // use invokeany
     }
     
-    protected abstract void prepareMcInputString();
-    
+    /**
+     * Creates a new model checker
+     * @return
+     */
     protected abstract MC initMC();
+    
+    /**
+     * Returns an input string for model checking from a CFSM model and
+     * an invariant to check
+     * @return
+     * @throws Exception 
+     */
+    protected abstract String prepareMCInputString(CFSM cfsm,
+            BinaryInvariant curInv) throws Exception;
+    
+    /**
+     * Returns a MCResult of the successfully checked invariant
+     */
+    protected abstract MCResult getResult() throws IOException;
 }
