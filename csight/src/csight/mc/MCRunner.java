@@ -45,4 +45,6 @@ public abstract class MCRunner {
     }
     
     protected abstract void prepareMcInputString();
+    
+    protected abstract MC initMC();
 }
