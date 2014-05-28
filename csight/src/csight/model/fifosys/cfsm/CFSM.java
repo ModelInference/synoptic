@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import csight.invariants.AlwaysFollowedBy;
 import csight.invariants.AlwaysPrecedes;
@@ -341,15 +342,29 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         String ret = "/* Spin-promela " + cfsmName + " */\n\n";
 
         // Message types:
+        //
+        // mtype is global and can only be declared once.
+        // There is also limit of 255 for the size of mtype.
+
         ret += "/* Message types: */\n";
-        for (int i = 0; i < channelIds.size(); i++) {
-            String iStr = Integer.toString(i);
-            ret += "mtypesChan" + iStr + " = {";
-            //
-            // TODO: output channel event types here.
-            //
-            ret += "};";
+        ret += "mtype = { ";
+        Set<String> eventTypes = Util.newSet();
+        for (DistEventType e : alphabet) {
+            if (e.isSendEvent() || e.isRecvEvent()) {
+                eventTypes.add(e.getETypeLabel());
+            }
         }
+
+        boolean firstEvent = true;
+        for (String type : eventTypes) {
+            if (!firstEvent) {
+                ret += ", ";
+            }
+            ret += type;
+            firstEvent = false;
+        }
+
+        ret += " };\n";
         ret += "\n\n";
 
         // Channels:
@@ -357,7 +372,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         for (int i = 0; i < channelIds.size(); i++) {
             String iStr = Integer.toString(i);
             ret += "chan chan" + iStr + " = [" + Integer.toString(chanCapacity)
-                    + "] of { mtypesChan" + iStr + "}\n";
+                    + "] of { mtype };\n";
         }
         ret += "\n\n";
 
@@ -378,6 +393,12 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             ret += "}\n\n";
         }
         ret += "\n\n";
+
+        // TODO Remove debugging promela output.
+        Logger logger = Logger.getLogger("DynopticMain");
+        logger.finest("=====================Promela=============================");
+        logger.finest(ret);
+        logger.finest("=====================End Promela=========================");
 
         return ret;
     }
