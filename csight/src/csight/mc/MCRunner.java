@@ -13,10 +13,16 @@ import csight.model.fifosys.gfsm.GFSM;
  */
 public abstract class MCRunner {
     /** Complete path to the model checker binary (e.g., McScM verify). */
-    protected String mcPath;
+    protected final String mcPath;
     
     /** The number of parallel process to run */
-    protected int numParallel;
+    protected final int numParallel;
+    
+    /** The list of invariants that were ran in parallel */
+    protected List<BinaryInvariant> invsRan;
+    
+    /** The result of the first returned invariant */
+    private MCRunnerResult result;
     
     public MCRunner(String mcPath, int numParallel) {
         this.mcPath = mcPath;
@@ -36,6 +42,7 @@ public abstract class MCRunner {
      *            - Seconds to run model checking before timeout
      * @param minimize
      *            - whether to minimize each process of the FSM
+     * @return 
      * @throws IOException
      * @throws InterruptedException
      */
@@ -43,6 +50,29 @@ public abstract class MCRunner {
             boolean minimize) throws IOException, InterruptedException {
         // TODO: use Java ExecutorService to run multiple mc process
         // use invokeany
+    }
+    
+    /**
+     * Returns a MCResult of the successfully checked invariant
+     * @return
+     */
+    public MCResult getMCResult() {
+        return result.mcResult;
+    }
+    
+    /**
+     * Returns the invariant that was successfully checked
+     * @return
+     */
+    public BinaryInvariant getResultInvariant() {
+        return result.inv;
+    }
+    
+    /**
+     * Returns the list of invariants that were attempted to run
+     */
+    public List<BinaryInvariant> getInvariantsRan() {
+        return invsRan;
     }
     
     /**
@@ -61,7 +91,21 @@ public abstract class MCRunner {
             BinaryInvariant curInv) throws Exception;
     
     /**
-     * Returns a MCResult of the successfully checked invariant
+     * A result class that stores the completed invariant
+     * and its corresponding MCResult
      */
-    protected abstract MCResult getResult() throws IOException;
+    private final class MCRunnerResult {
+        
+        /** The invariant that was model-checked */
+        BinaryInvariant inv;
+        
+        /** The MCResult of the checked invariant */
+        MCResult mcResult;
+        
+        private MCRunnerResult(BinaryInvariant inv, MCResult res) {
+            this.inv = inv;
+            this.mcResult = res;
+        }
+        
+    }
 }
