@@ -1,0 +1,7 @@
+-r ^(?<TYPE>)$
+-s ^--$
+--minimizeIntersections=false
+--kTailLength=2
+--invMintKTails=true
+--compareToStandardAlg=false
+-o /tmp/

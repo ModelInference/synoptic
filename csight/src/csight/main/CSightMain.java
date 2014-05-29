@@ -659,8 +659,9 @@ public class CSightMain {
      * @throws Exception
      * @throws IOException
      * @throws InterruptedException
+     * @return The number of iteration of the model checking loop
      */
-    public void checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
+    public int checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
             throws Exception, IOException, InterruptedException {
         assert pGraph != null;
         assert invs != null;
@@ -709,6 +710,9 @@ public class CSightMain {
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
+        // This counts the number of times we've performed model checking on the
+        // gfsm
+        int mcCounter = 0;
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
@@ -720,6 +724,12 @@ public class CSightMain {
             assert curInv == invsToSatisfy.get(0);
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
+
+            if (pGraph.isSingleton()) {
+                // Skip model checking if all partitions are singletons
+                return mcCounter;
+            }
+            mcCounter++;
 
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -805,7 +815,7 @@ public class CSightMain {
                     // No more invariants to check. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
                             + totalInvs + " invariants.");
-                    return;
+                    return mcCounter;
                 }
 
                 // Grab and start checking the next invariant.
