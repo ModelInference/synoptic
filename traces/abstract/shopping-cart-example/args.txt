@@ -1,0 +1,5 @@
+-o www-example.png
+-r (?<ip>) .+ "GET HTTP/1.1 /(?<TYPE>.+).php"
+-m \\k<ip>
+
+

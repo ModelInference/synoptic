@@ -1,0 +1,12 @@
+-d /usr/bin/dot 
+-o ./output/revtr/revtr
+-r ^(?<DTIME>)(?<obj_id>)(?<src>)(?<dst>)(?<spoof_only>)(?<rec_route_cnt>)(?<ip_timestamp_cnt>)(?<method>)(?<extra1>)$(?<TYPE=>\\k<method>)
+-r ^(?<DTIME>)(?<obj_id>)(?<src>)(?<dst>)(?<spoof_only>)(?<rec_route_cnt>)(?<ip_timestamp_cnt>)(?<method>)(?<extra1>)(?<extra2>)$(?<TYPE=>\\k<method>)
+-r ^(?<DTIME>)(?<obj_id>)(?<src>)(?<dst>)(?<spoof_only>)(?<rec_route_cnt>)(?<ip_timestamp_cnt>)(?<method>)(?<extra1>)(?<extra2>)(?<extra3>)$(?<TYPE=>\\k<method>)
+-m \\k<obj_id>
+-i
+--dumpInvariants=true
+--internCommonStrings=true
+--showTerminalNode=false
+--showInitialNode=false
+-f
