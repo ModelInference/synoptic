@@ -1,9 +1,11 @@
 package csight.main;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,13 @@ import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
 import csight.invariants.EventuallyHappens;
 import csight.invariants.NeverFollowedBy;
+import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import csight.model.fifosys.gfsm.GFSM;
+import csight.model.fifosys.gfsm.observed.ObsDistEventType;
+import csight.model.fifosys.gfsm.observed.ObsFSMState;
+import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
+import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 import csight.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -371,5 +380,110 @@ public class CSightMainTests extends CSightTest {
                 + "3,4 M?m\n";
 
         dyn.run(log);
+    }
+
+    /**
+     * Test check and refine loop to skip model checking when all partitions
+     * of the GFSM are singletons
+     */
+    @Test
+    public void testCheckInvsRefineGFSMWithSingletonPartition()
+            throws Exception {
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
+        List<BinaryInvariant> invs = Util.newList();
+        BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
+        invs.add(inv);
+        GFSM pGraph = createSingletonGFSM();
+
+        List<String> args = getBasicArgsStr();
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertEquals(0, dyn.checkInvsRefineGFSM(invs, pGraph));
+    }
+
+    /**
+     * Test check and refine loop to not skip model checking when partitions
+     * of the GFSM are not singletons
+     */
+    @Test
+    public void testCheckInvsRefineGFSMWithNonSingleton() throws Exception {
+        List<ObsFSMState> Pi = Util.newList();
+        List<ObsFSMState> Pm = Util.newList();
+        List<ObsFSMState> Pf = Util.newList();
+
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "M", true, false);
+        ObsFSMState p1i = ObsFSMState.namedObsFSMState(1, "A", true, false);
+        Pi.add(p0i);
+        Pi.add(p1i);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
+
+        ObsFSMState p0m = ObsFSMState.namedObsFSMState(0, "M", false, false);
+        ObsFSMState p1m = ObsFSMState.namedObsFSMState(1, "A", false, false);
+        Pm.add(p0m);
+        Pm.add(p1m);
+        ObsMultFSMState obsPm = ObsMultFSMState.getMultiFSMState(Pm);
+
+        ObsFSMState p0f = ObsFSMState.namedObsFSMState(0, "M", false, true);
+        ObsFSMState p1f = ObsFSMState.namedObsFSMState(1, "A", false, true);
+        Pf.add(p0f);
+        Pf.add(p1f);
+        ObsMultFSMState obsPf = ObsMultFSMState.getMultiFSMState(Pf);
+
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        ChannelId cid1 = new ChannelId(1, 0, 1);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
+        List<ChannelId> cids = Util.newList();
+        cids.add(cid0);
+        cids.add(cid1);
+
+        ImmutableMultiChState PiChstate = ImmutableMultiChState
+                .fromChannelIds(cids);
+        ImmutableMultiChState PmChstate = PiChstate.getNextChState(eSend);
+        ImmutableMultiChState PfChstate = PmChstate.getNextChState(eRecv);
+
+        ObsFifoSysState Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+        ObsFifoSysState Sm = ObsFifoSysState.getFifoSysState(obsPm, PmChstate);
+        ObsFifoSysState Sf = ObsFifoSysState.getFifoSysState(obsPf, PfChstate);
+        ObsDistEventType obsESend = new ObsDistEventType(eSend, 0);
+        ObsDistEventType obsERecv = new ObsDistEventType(eRecv, 0);
+
+        // Si -> Sm -> Sf
+        Si.addTransition(obsESend, Sm);
+        Sm.addTransition(obsERecv, Sf);
+
+        List<ObsFifoSys> traces = Util.newList(1);
+
+        Set<ObsFifoSysState> states = Util.newSet();
+        states.add(Si);
+        states.add(Sm);
+        states.add(Sf);
+
+        ObsFifoSys trace = new ObsFifoSys(cids, Si, Sf, states);
+        traces.add(trace);
+
+        GFSM pGraph = new GFSM(traces);
+
+        List<BinaryInvariant> invs = Util.newList();
+        BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
+        invs.add(inv);
+
+        
+        List<String> args = getBasicArgsStr();
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertTrue(0 < dyn.checkInvsRefineGFSM(invs, pGraph));
     }
 }
