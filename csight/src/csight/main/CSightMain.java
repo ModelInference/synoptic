@@ -393,11 +393,7 @@ public class CSightMain {
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph;
-        if (opts.topKElements == 1) {
-            pGraph = new GFSM(traces);
-        } else {
-            pGraph = new GFSM(traces, opts.topKElements);
-        }
+        pGraph = new GFSM(traces, opts.topKElements);   
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).

@@ -114,22 +114,6 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
         return true;
     }
 
-    /**
-     * Returns a hash of the list of event types at the top of all of the queues
-     * in this multi-channel state.
-     */
-    public int topOfQueuesHash() {
-        int ret = 17;
-        for (ChState<TxnEType> s : channelStates) {
-            if (!s.isEmpty()) {
-                ret = 31 * ret + s.peek().hashCode();
-            } else {
-                // Empty queues have to be captured by the hash as well.
-                ret = 31 * ret;
-            }
-        }
-        return ret;
-    }
 
     /**
      * Returns a hash of the list of top k event types of all of the queues in
@@ -139,16 +123,16 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
         int ret = 17;
         for (ChState<TxnEType> s : channelStates) {
             if (!s.isEmpty()) {
-                // cloning to avoid modifying the channels
-                ChState<TxnEType> temp = s.clone();
-                List<TxnEType> topKelements = new LinkedList<TxnEType>();
-                // adding all relevant elements of the queue into a list in
-                // order
-                for (int i = 0; i < k; i++) {
-                    topKelements.add(temp.dequeue());
-                }
-                // so that each combination can be hashed differently
-                ret = 31 * ret + topKelements.hashCode();
+            	if (k == 1){
+            		//obtain top element of queue
+            		 ret = 31 * ret + s.peek().hashCode();
+            	} else {
+            		// obtain the top k elements of the queue
+            		List<TxnEType> topKelements =s.getQueue().subList(0, k-1);     
+            		// hashing on the (ordered) list so that each combination 
+            		// can be hashed differently
+            		ret = 31 * ret + topKelements.hashCode();
+            	}
             } else {
                 // Empty queues have to be captured by the hash as well.
                 ret = 31 * ret;

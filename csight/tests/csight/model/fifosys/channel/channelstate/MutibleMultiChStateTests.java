@@ -105,13 +105,13 @@ public class MutibleMultiChStateTests extends CSightTest {
         assertFalse(mc.equals(""));
         assertTrue(mc.equals(mc));
 
-        assertFalse(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
+        assertFalse(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
 
         DistEventType e2 = DistEventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 
         assertEquals(mc, mc2);
-        assertTrue(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
+        assertTrue(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
     }
 
 }

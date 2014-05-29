@@ -60,53 +60,6 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     /** Used when converting GFSM to a CFSM representation. */
     private int nextFsmStateId = 0;
 
-    /**
-     * Creates a new GFSM from observed ObsFifoSys traces, using default initial
-     * partitioning strategy (by the list of elements at the head of all of the
-     * queues in the system), from a list of traces.
-     * 
-     * @param traces
-     * @return
-     */
-    public GFSM(List<ObsFifoSys> traces) {
-        super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
-
-        // Compute the initial partitioning of the observed states by using the
-        // queue contents associated with each globally observed state.
-        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
-        Set<ObsFifoSysState> visited = Util.newSet();
-        for (ObsFifoSys t : traces) {
-            assert t.getNumProcesses() == numProcesses;
-            assert t.getChannelIds().equals(channelIds);
-
-            // DFS traversal to perform initial partitioning.
-            ObsFifoSysState init = t.getInitState();
-            addToQueueContentsHashMap(qTopHashToPartition, init);
-            traverseAndPartition(init, qTopHashToPartition, visited);
-            visited.clear();
-        }
-
-        Set<ObsFifoSysState> allObs = null;
-        if (CSightMain.assertsOn) {
-            allObs = Util.newSet();
-        }
-
-        // Create the GFSMState partitions based off of sets of observations.
-        for (Set<ObsFifoSysState> set : qTopHashToPartition.values()) {
-            states.add(new GFSMState(numProcesses, set));
-            if (CSightMain.assertsOn) {
-                allObs.addAll(set);
-            }
-        }
-        recomputeAlphabet();
-
-        // Now, assert that if two ObsFifoSysStates are identical, then they are
-        // assigned to the same partition.
-        if (CSightMain.assertsOn) {
-            checkPartitioningConsistency(allObs);
-        }
-
-    }
 
     /**
      * Creates a new GFSM from observed ObsFifoSys traces from a list of traces,
@@ -172,22 +125,6 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         }
     }
 
-    /**
-     * Constructor helper -- adds an observation to the map, by hashing on its
-     * top of queue event types.
-     */
-    private void addToQueueContentsHashMap(
-            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
-            ObsFifoSysState obs) {
-        int hash = obs.getChannelStates().topOfQueuesHash();
-        if (!qTopHashToPartition.containsKey(hash)) {
-            logger.info("Creating a new partition for ch-states like: "
-                    + obs.getChannelStates().toString());
-            Set<ObsFifoSysState> partition = Util.newSet();
-            qTopHashToPartition.put(hash, partition);
-        }
-        qTopHashToPartition.get(hash).add(obs);
-    }
 
     /**
      * Constructor helper -- adds an observation to the map, by hashing on its
@@ -206,23 +143,6 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         qTopHashToPartition.get(hash).add(obs);
     }
 
-    /**
-     * Constructor helper -- DFS traversal of the observed traces, building up
-     * an initial partitioning.
-     */
-    private void traverseAndPartition(ObsFifoSysState curr,
-            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
-            Set<ObsFifoSysState> visited) {
-        visited.add(curr);
-        for (ObsFifoSysState next : curr.getNextStates()) {
-            // Ignore branches we've already visited.
-            if (visited.contains(next)) {
-                continue;
-            }
-            addToQueueContentsHashMap(qTopHashToPartition, next);
-            traverseAndPartition(next, qTopHashToPartition, visited);
-        }
-    }
 
     /**
      * Constructor helper -- DFS traversal of the observed traces, building up
