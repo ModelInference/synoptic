@@ -237,7 +237,7 @@ public class DistEventType extends EventType implements IDistEventType {
             return cidString + separator + "?" + separator
                     + getScmEventString();
         }
-        return getScmEventString();
+        return getScmEventString() + "_" + processName;
     }
 
     /**
@@ -380,10 +380,6 @@ public class DistEventType extends EventType implements IDistEventType {
 
     @Override
     public String toString() {
-        // Old DistEventType:
-        //
-        // return eType + "_" + processId;
-
         if (channelId != null) {
             return toString(channelId.toString(), ' ');
         }
