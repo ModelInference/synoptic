@@ -36,6 +36,27 @@ public class McScM extends MC {
                 "-quiet" }, scmInput, currentPath, timeoutSecs);
         mcProcess.runProcess();
     }
+    
+    /**
+     * Runs the verify commands in parallel with the scmInput string as input.
+     * 
+     * @param scmInput
+     * @throws IOException
+     */
+    public void verifyParallel(String scmInput) throws IOException {
+        File currentPath = new java.io.File(".");
+
+        // TODO: use .... &  to run parallel processes in Linux
+        //       use -n .... to run .................. in OSX
+        mcProcess = new MCProcess(new String[] { mcPath, "-no-validation",
+                "-quiet" }, scmInput, currentPath, Integer.MAX_VALUE);
+        try {
+            mcProcess.runProcess();
+        } catch (InterruptedException e) {
+            // We don't need the timeout from MCProcess
+            // TODO: remove timeout from MCProcess when approved
+        }
+    }
 
     /**
      * Interprets the output of running verify and returns a VerifyResult
