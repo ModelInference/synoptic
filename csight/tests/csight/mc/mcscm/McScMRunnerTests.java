@@ -29,6 +29,8 @@ public class McScMRunnerTests extends CSightTest {
         // NOTE: hard-coded assumption about where the tests are run
         verifyPath = CSightTest.getMcPath();
         mcscm = new McScM(verifyPath);
+        
+        // TODO: set up GFSM here for testing
     }
     
     @Test
