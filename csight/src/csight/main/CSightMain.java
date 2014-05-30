@@ -726,40 +726,29 @@ public class CSightMain {
         exportIntermediateModels(pGraph, curInv, gfsmCounter,
                 gfsmPrefixFilename);
 
+        // TODO: Revise loop to allow for parallel McScM model checking
+        // processes
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
 
+            // TODO: implement a MCRunner to run multiple inv checking at once
+            // using mc
+
             if (pGraph.isSingleton()) {
                 // Skip model checking if all partitions are singletons
                 return mcCounter;
             }
             mcCounter++;
-
+            
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
+            String mcInputStr = getMCInputString(cfsm, curInv);
 
-            String mcInputStr;
-            if (mc instanceof McScM) {
-                // Model check the CFSM using the McScM model checker.
-
-                // Augment the CFSM with synthetic states/events to check
-                // curInv (only fone for McScM).
-                cfsm.augmentWithInvTracing(curInv);
-
-                mcInputStr = cfsm.toScmString("checking_scm_"
-                        + curInv.getConnectorString());
-            } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.getConnectorString(),
-                        opts.spinChannelCapacity);
-            } else {
-                throw new RuntimeException(
-                        "Model checker is not properly specified.");
-            }
-
+            // Notes: print all inv checked if num(inv)<=5
+            // print: checking... invsCounter (+ 5 being checked) / totalInvs
             logger.info("*******************************************************");
             logger.info("Checking ... " + curInv.toString() + ". Inv "
                     + invsCounter + " / " + totalInvs
@@ -838,6 +827,7 @@ public class CSightMain {
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
+                // Note: curInv to export is the inv with conter example
                 exportIntermediateModels(pGraph, curInv, gfsmCounter,
                         gfsmPrefixFilename);
 
@@ -960,4 +950,32 @@ public class CSightMain {
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
+    /**
+     * Prepares the model checker input string given a CFSM model
+     * 
+     * @param pGraph
+     * @return
+     * @throws Exception
+     */
+    private String getMCInputString(CFSM cfsm, BinaryInvariant curInv) throws Exception {
+        String mcInputStr;
+        if (mc instanceof McScM) {
+            // Model check the CFSM using the McScM model checker.
+
+            // Augment the CFSM with synthetic states/events to check
+            // curInv (only fone for McScM).
+            cfsm.augmentWithInvTracing(curInv);
+
+            mcInputStr = cfsm.toScmString("checking_scm_"
+                    + curInv.getConnectorString());
+        } else if (mc instanceof Spin) {
+            mcInputStr = cfsm.toPromelaString(
+                    "checking_pml_" + curInv.getConnectorString(),
+                    opts.spinChannelCapacity);
+        } else {
+            throw new RuntimeException(
+                    "Model checker is not properly specified.");
+        }
+        return mcInputStr;
+    }
 }
