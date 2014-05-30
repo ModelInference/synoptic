@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import csight.CSightTest;
-import csight.model.fifosys.channel.channelstate.MutableMultiChState;
 import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -105,13 +104,46 @@ public class MutibleMultiChStateTests extends CSightTest {
         assertFalse(mc.equals(""));
         assertTrue(mc.equals(mc));
 
+        DistEventType e2 = DistEventType.SendEvent("e", cid1);
+        mc2.enqueue(e2);
+        assertEquals(mc, mc2);
+        assertEquals(mc2, mc);
+    }
+
+    @Test
+    public void topKHashCode() {
+        DistEventType e = DistEventType.SendEvent("e", cid1);
+        mc.enqueue(e);
         assertFalse(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
+        assertFalse(mc.topKOfQueuesHash(2) == mc2.topKOfQueuesHash(2));
 
         DistEventType e2 = DistEventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 
-        assertEquals(mc, mc2);
         assertTrue(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
+        assertTrue(mc.topKOfQueuesHash(2) == mc2.topKOfQueuesHash(2));
+        assertTrue(mc.topKOfQueuesHash(3) == mc2.topKOfQueuesHash(3));
+        assertTrue(mc.topKOfQueuesHash(4) == mc2.topKOfQueuesHash(4));
+
+        DistEventType f = DistEventType.SendEvent("f", cid1);
+        mc.enqueue(f);
+        DistEventType f2 = DistEventType.SendEvent("f", cid1);
+        mc2.enqueue(f2);
+
+        assertTrue(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
+        assertTrue(mc.topKOfQueuesHash(2) == mc2.topKOfQueuesHash(2));
+        assertTrue(mc.topKOfQueuesHash(3) == mc2.topKOfQueuesHash(3));
+        assertTrue(mc.topKOfQueuesHash(4) == mc2.topKOfQueuesHash(4));
+
+        DistEventType f3 = DistEventType.SendEvent("f", cid1);
+        mc.enqueue(f3);
+        // mc contents : e,f,f
+        // mc2 contents: e,f
+
+        assertTrue(mc.topKOfQueuesHash(1) == mc2.topKOfQueuesHash(1));
+        assertTrue(mc.topKOfQueuesHash(2) == mc2.topKOfQueuesHash(2));
+        assertFalse(mc.topKOfQueuesHash(3) == mc2.topKOfQueuesHash(3));
+        assertFalse(mc.topKOfQueuesHash(4) == mc2.topKOfQueuesHash(4));
     }
 
 }
