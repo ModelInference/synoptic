@@ -133,9 +133,7 @@ public abstract class MCRunner {
                             + inv.getConnectorString());
                     
                     McScM mcscm = new McScM(mcPath);
-                    mcscm.verify(mcInputStr, Integer.MAX_VALUE);
-                    // NOTE: we don't need timeout provided by mcscm verify
-                    // this should be removed in future (TODO)
+                    mcscm.verifyParallel(mcInputStr);
                     
                     MCResult mcResult = mcscm.getVerifyResult(cfsm.getChannelIds());
                     return new MCRunnerResult(inv, mcResult);
