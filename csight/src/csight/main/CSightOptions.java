@@ -172,6 +172,8 @@ public class CSightOptions extends Options {
     @Option(
             value = "Default channel capacity to use when using the spin model checker.")
     public int spinChannelCapacity = 8;
+    
+    // TODO: Add option for number of parallel processes
 
     /**
      * The base timeout that is used to time out invocations of verification
