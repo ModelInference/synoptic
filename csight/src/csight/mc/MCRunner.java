@@ -2,10 +2,18 @@ package csight.mc;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import csight.invariants.BinaryInvariant;
+import csight.mc.mcscm.McScM;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
+import csight.util.Util;
 
 /**
  * A model-checker process runner class for running  and managing
@@ -24,9 +32,13 @@ public abstract class MCRunner {
     /** The result of the first returned invariant */
     private MCRunnerResult result;
     
+    /** The ExecutorService used to run processes in parallel */
+    private ExecutorService eService;
+    
     public MCRunner(String mcPath, int numParallel) {
         this.mcPath = mcPath;
         this.numParallel = numParallel;
+        this.eService = Executors.newFixedThreadPool(numParallel);
     }
     
     /**
@@ -45,11 +57,15 @@ public abstract class MCRunner {
      * @return 
      * @throws IOException
      * @throws InterruptedException
+     * @throws TimeoutException 
+     * @throws ExecutionException 
      */
     public void verify(GFSM pGraph, List<BinaryInvariant> invs, int timeOut,
-            boolean minimize) throws IOException, InterruptedException {
-        // TODO: use Java ExecutorService to run multiple mc process
-        // use invokeany
+            boolean minimize) throws IOException, ExecutionException,
+            TimeoutException, InterruptedException {
+        List<Callable<MCRunnerResult>> callables = getCallablesToRun(pGraph, invs, minimize);
+        // TODO: add logging at appropriate locations in right format
+        result = eService.invokeAny(callables, timeOut, TimeUnit.SECONDS);
     }
     
     /**
@@ -91,6 +107,47 @@ public abstract class MCRunner {
             BinaryInvariant curInv) throws Exception;
     
     /**
+     * Returns a list of Callables to run in parallel with ExecutorService
+     * given a list of invariants to check
+     * @param pGraph 
+     * @param invs
+     * @param minimize 
+     * @return
+     */
+    private List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
+            List<BinaryInvariant> invs, final boolean minimize) {
+        List<Callable<MCRunnerResult>> callablesToRun = Util.newList();
+        
+        for (int i=0; i < invs.size() && i < numParallel; i++) {
+            final BinaryInvariant inv = invs.get(i);
+            invsRan.add(inv);
+            
+            Callable<MCRunnerResult> callable = new Callable<MCRunnerResult>() {
+
+                @Override
+                public MCRunnerResult call() throws Exception {
+                    CFSM cfsm = pGraph.getCFSM(minimize);
+                    cfsm.augmentWithInvTracing(inv);
+                    
+                    String mcInputStr = cfsm.toScmString("checking_scm_"
+                            + inv.getConnectorString());
+                    
+                    McScM mcscm = new McScM(mcPath);
+                    mcscm.verify(mcInputStr, Integer.MAX_VALUE);
+                    // NOTE: we don't need timeout provided by mcscm verify
+                    // this should be removed in future (TODO)
+                    
+                    MCResult mcResult = mcscm.getVerifyResult(cfsm.getChannelIds());
+                    return new MCRunnerResult(inv, mcResult);
+                }
+                
+            };
+            callablesToRun.add(callable);
+        }
+        return callablesToRun;
+    }
+    
+    /**
      * A result class that stores the completed invariant
      * and its corresponding MCResult
      */
@@ -102,7 +159,7 @@ public abstract class MCRunner {
         /** The MCResult of the checked invariant */
         MCResult mcResult;
         
-        private MCRunnerResult(BinaryInvariant inv, MCResult res) {
+        public MCRunnerResult(BinaryInvariant inv, MCResult res) {
             this.inv = inv;
             this.mcResult = res;
         }
