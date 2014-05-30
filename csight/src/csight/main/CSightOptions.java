@@ -137,6 +137,11 @@ public class CSightOptions extends Options {
             aliases = { "-dateFormat" })
     public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
 
+    @Option(
+            value = "Set number of top queue elements to compare states for partition graph construction.",
+            aliases = { "-topK" })
+    public int topKElements = 1;
+
     // end option group "Input Options"
     // //////////////////////////////////////////////////
 

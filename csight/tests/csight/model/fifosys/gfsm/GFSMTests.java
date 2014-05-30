@@ -68,7 +68,7 @@ public class GFSMTests extends CSightTest {
         ObsFifoSys trace = new ObsFifoSys(cids, Si, St, states);
         traces.add(trace);
 
-        g = new GFSM(traces);
+        g = new GFSM(traces,1);
     }
 
     @Test
