@@ -20,6 +20,7 @@ public class McScMRunnerTests extends CSightTest {
     private McScM mcscm;
     private String verifyPath;
     private GFSM pGraph;
+    private List<BinaryInvariant> invariants;
     private int timeOut = 60;
     
     @Before
@@ -36,6 +37,7 @@ public class McScMRunnerTests extends CSightTest {
     @Test
     public void testRunOneWithOneInv() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
+        invs.add(invariants.get(0));
         
         mcRunner = new McScMRunner(verifyPath, 1);
         mcRunner.verify(pGraph, invs, timeOut, false);
