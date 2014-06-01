@@ -11,8 +11,9 @@
 
     <property environment="env"/>
     
-    <!-- Where to create the synoptic.jar file. -->
+    <!-- Where to create the synoptic.jar and perfume.jar files. -->
     <property name="synoptic.jarpath" value="${util.synoptic.libdir}/synoptic.jar"/>
+    <property name="perfume.jarpath" value="${util.synoptic.libdir}/perfume.jar"/>
 
     <!-- Where to output junit test results. -->
     <property name="junit.output.dir" value="junit"/>
@@ -75,7 +76,7 @@
     
     <!--=====================================================================-->
     <target name="jar" depends="build,util.hg-rev-extract">
-      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+      <echo message="synoptic.jar: embedding hg changeset number ${util.hg.revision}" />
 
       <!-- Build a jar composed of compiled .class files. -->
       <jar destfile="${synoptic.jarpath}"
@@ -86,6 +87,30 @@
 	  <attribute name="Implementation-Title" value="synoptic" />
 	  <attribute name="Implementation-Version" value="0.1" />
 	  <attribute name="Main-Class" value="synoptic.main.SynopticMain" />
+	  <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
+	</manifest>
+      </jar>
+    </target>
+
+    <!--=====================================================================-->
+    <!-- 
+         This target is identical to the synoptic "jar" target above, except that 
+         1. we create a perfume.jar instead of a synoptic.jar
+         2. the main-class for perfume is different (synoptic.main.PerfumeMain)
+    -->
+    <target name="jar-perfume" depends="build,util.hg-rev-extract">
+      <echo message="perfume.jar: Embedding hg changeset number ${util.hg.revision}" />
+
+      <!-- Build a jar composed of compiled .class files. -->
+      <jar destfile="${perfume.jarpath}"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="synoptic" />
+	  <attribute name="Implementation-Version" value="0.1" />
+	  <attribute name="Main-Class" value="synoptic.main.PerfumeMain" />
 	  <attribute name="Class-Path" value="${jar.liblist}" />
 	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>
