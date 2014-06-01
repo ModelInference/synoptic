@@ -35,7 +35,8 @@ public interface ITime extends Comparable<ITime> {
      * 
      * @param other
      *            the other ITime instance
-     * @return delta time between this ITime and other ITime instance
+     * @return Delta time between this ITime and other ITime instance. (same
+     *         type as the callee object)
      */
     ITime computeDelta(ITime other);
 
@@ -45,7 +46,7 @@ public interface ITime extends Comparable<ITime> {
      * 
      * @param other
      *            The ITime object with which to increment.
-     * @return The incremented ITime object.
+     * @return The incremented ITime object. (same type as the callee object)
      */
     ITime incrBy(ITime other);
 
@@ -58,7 +59,8 @@ public interface ITime extends Comparable<ITime> {
      * </pre>
      * 
      * @param divisor
-     * @return The ITime object after division has occurred.
+     * @return The ITime object after division has occurred. (same type as the
+     *         callee object)
      */
     ITime divBy(int divisor);
 
@@ -68,14 +70,15 @@ public interface ITime extends Comparable<ITime> {
      * @param relativeTime
      *            the time to use for the normalization, usually the time with
      *            the biggest value of the trace.
-     * @return A normalized ITime object.
+     * @return A normalized ITime object. (same type as the callee object)
      */
     ITime normalize(ITime relativeTime);
 
     /**
      * Creates a new zero-time object
      * 
-     * @return New ITime of the same subtype with a time value of zero
+     * @return New ITime with a time value of zero. (same type as the callee
+     *         object)
      */
     ITime getZeroTime();
 
