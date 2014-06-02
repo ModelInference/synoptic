@@ -33,6 +33,12 @@ public abstract class MC {
      */
     public abstract void verify(String input, int timeoutSecs)
             throws IOException, InterruptedException;
+    
+    /**
+     * Runs the model checker on the input string representation of the CFSM.
+     * Used when checking in parallel
+     */
+    public abstract void verifyParallel(String input) throws IOException;
 
     /**
      * 

@@ -65,7 +65,7 @@ public class MCProcess {
 
         // Wait until the verify process terminates.
         process.waitFor();
-
+        
         // Clean up the timer thread.
         if (!pkt.killed) {
             // The killed flag is false: verify process terminated naturally.
