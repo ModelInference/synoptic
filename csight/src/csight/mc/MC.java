@@ -38,7 +38,8 @@ public abstract class MC {
      * Runs the model checker on the input string representation of the CFSM.
      * Used when checking in parallel
      */
-    public abstract void verifyParallel(String input) throws IOException;
+    public abstract void verifyParallel(String input) throws IOException,
+            InterruptedException;
 
     /**
      * 

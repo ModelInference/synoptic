@@ -33,6 +33,16 @@ public class MCProcess {
         this.timeoutSecs = timeoutSecs;
     }
 
+    public MCProcess(String[] command, String stdinInput, File processDir) {
+        assert timeoutSecs > 0;
+        assert !processDir.equals("");
+        assert command.length > 0;
+
+        this.command = command;
+        this.stdinInput = stdinInput;
+        this.processDir = processDir;
+    }
+
     /**
      * Creates and executes a command in processDir, and passes along an
      * stdinInput to its stdin (if it's not the empty string). The process will
@@ -75,6 +85,31 @@ public class MCProcess {
             // Otherwise: the process had to be killed by the timer thread.
             throw new InterruptedException("MC process killed.");
         }
+    }
+
+    /**
+     * Creates and executes a command in processDir, and passes along an
+     * stdinInput to its stdin (if it's not the empty string).
+     * 
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void runProcessParallel() throws IOException, InterruptedException {
+        ProcessBuilder pBuilder = new ProcessBuilder(command);
+        pBuilder.directory(processDir);
+
+        // Start the process.
+        process = pBuilder.start();
+
+        // Write an input to the stdin of the process.
+        if (!stdinInput.equals("")) {
+            OutputStream oStream = process.getOutputStream();
+            oStream.write(stdinInput.getBytes());
+            oStream.close();
+        }
+
+        // Wait until the verify process terminates.
+        process.waitFor();
     }
 
     /**
