@@ -12,6 +12,7 @@ import java.util.concurrent.TimeoutException;
 import csight.invariants.BinaryInvariant;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
+import csight.util.Util;
 
 /**
  * A model-checker process runner class for running  and managing
@@ -25,7 +26,7 @@ public abstract class MCRunner {
     protected final int numParallel;
     
     /** The list of invariants that were ran in parallel */
-    protected List<BinaryInvariant> invsRan;
+    private List<BinaryInvariant> invsRan;
     
     /** The result of the first returned invariant */
     private MCRunnerResult result;
@@ -61,17 +62,21 @@ public abstract class MCRunner {
     public void verify(GFSM pGraph, List<BinaryInvariant> invs, int timeOut,
             boolean minimize) throws IOException, ExecutionException,
             TimeoutException, InterruptedException {
-        List<Callable<MCRunnerResult>> callables = getCallablesToRun(pGraph, invs, minimize);
+        invsRan = getInvsToRun(invs);
+        List<Callable<MCRunnerResult>> callables = getCallablesToRun(pGraph,
+                invsRan, minimize);
+        assert invsRan.size() == callables.size();
+        
         // TODO: add logging at appropriate locations in right format
         result = eService.invokeAny(callables, timeOut, TimeUnit.SECONDS);
     }
-    
+
     /**
      * Returns a MCResult of the successfully checked invariant
      * @return
      */
     public MCResult getMCResult() {
-        return result.mcResult;
+        return result.getMCResult();
     }
     
     /**
@@ -79,7 +84,7 @@ public abstract class MCRunner {
      * @return
      */
     public BinaryInvariant getResultInvariant() {
-        return result.inv;
+        return result.getInv();
     }
     
     /**
@@ -87,6 +92,18 @@ public abstract class MCRunner {
      */
     public List<BinaryInvariant> getInvariantsRan() {
         return invsRan;
+    }
+    
+    /**
+     * Returns the list of invariants that are to be ran in parallel
+     * @return
+     */
+    private List<BinaryInvariant> getInvsToRun(List<BinaryInvariant> invs) {
+        List<BinaryInvariant> invsToRun = Util.newList();
+        for (int i=0; i < invs.size() && i < numParallel; i++) {
+            invsToRun.add(invs.get(i));
+        }
+        return invsToRun;
     }
     
     /**
@@ -108,12 +125,12 @@ public abstract class MCRunner {
      * Returns a list of Callables to run in parallel with ExecutorService
      * given a list of invariants to check
      * @param pGraph
-     * @param invs
+     * @param invsToRun
      * @param minimize
      * @return
      */
     protected abstract List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
-            List<BinaryInvariant> invs, final boolean minimize);
+            final List<BinaryInvariant> invsToRun, final boolean minimize);
     
     /**
      * A result class that stores the completed invariant
@@ -122,15 +139,22 @@ public abstract class MCRunner {
     protected final class MCRunnerResult {
         
         /** The invariant that was model-checked */
-        BinaryInvariant inv;
+        private final BinaryInvariant inv;
         
         /** The MCResult of the checked invariant */
-        MCResult mcResult;
+        private final MCResult mcResult;
         
         public MCRunnerResult(BinaryInvariant inv, MCResult res) {
             this.inv = inv;
             this.mcResult = res;
         }
         
+        public BinaryInvariant getInv() {
+            return inv;
+        }
+        
+        public MCResult getMCResult() {
+            return mcResult;
+        }
     }
 }

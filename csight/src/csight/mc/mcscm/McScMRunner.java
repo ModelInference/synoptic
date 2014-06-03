@@ -35,20 +35,17 @@ public class McScMRunner extends MCRunner {
 
     /**
      * Returns a list of Callables to run in parallel with ExecutorService
-     * given a list of invariants to check
+     * given a list of invariants to run
      * @param pGraph 
      * @param invs
      * @param minimize 
      * @return
      */
     protected List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
-            List<BinaryInvariant> invs, final boolean minimize) {
+            final List<BinaryInvariant> invsToRun, final boolean minimize) {
         List<Callable<MCRunnerResult>> callablesToRun = Util.newList();
         
-        for (int i=0; i < invs.size() && i < numParallel; i++) {
-            final BinaryInvariant inv = invs.get(i);
-            invsRan.add(inv);
-            
+        for (final BinaryInvariant inv : invsToRun) {      
             Callable<MCRunnerResult> callable = new Callable<MCRunnerResult>() {
 
                 @Override
