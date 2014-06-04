@@ -752,30 +752,41 @@ public class CSightMain {
             }
             mcCounter++;
             
-            // Get the CFSM corresponding to the partition graph.
-            CFSM cfsm = pGraph.getCFSM(opts.minimize);
-            String mcInputStr = getMCInputString(cfsm, curInv);
-
-            // Notes: print all inv checked if num(inv)<=5
-            // print: checking... invsCounter (+ 5 being checked) / totalInvs
-            logger.info("*******************************************************");
-            logger.info("Checking ... " + curInv.toString() + ". Inv "
-                    + invsCounter + " / " + totalInvs
-                    + ", refinements so far: " + gfsmCounter + ". Timeout = "
-                    + curTimeout + ".");
-            logger.info("*******************************************************");
-
-            try {
-                mc.verify(mcInputStr, curTimeout);
+            CFSM cfsm = null;         
+            try {    
+                if (mcRunner == null) {
+                    // Get the CFSM corresponding to the partition graph.
+                    cfsm = pGraph.getCFSM(opts.minimize);
+                    String mcInputStr = getMCInputString(cfsm, curInv);
+        
+                    // Notes: print all inv checked if num(inv)<=5
+                    // print: checking... invsCounter (+ 5 being checked) / totalInvs
+                    logger.info("*******************************************************");
+                    logger.info("Checking ... " + curInv.toString() + ". Inv "
+                            + invsCounter + " / " + totalInvs
+                            + ", refinements so far: " + gfsmCounter + ". Timeout = "
+                            + curTimeout + ".");
+                    logger.info("*******************************************************");
+                    mc.verify(mcInputStr, curTimeout);
+                } else {
+                    mcRunner.verify(pGraph, invsToSatisfy, curTimeout, opts.minimize);
+                }
             } catch (InterruptedException e) {
                 // The model checker timed out. First, record the timed-out
                 // invariant so that we are not stuck re-checking it.
-                invsToSatisfy.remove(0);
-                timedOutInvs.add(curInv);
-
-                logger.info("Timed out in checking invariant: "
-                        + curInv.toString());
-
+                if (mcRunner == null) {
+                    invsToSatisfy.remove(0);
+                    timedOutInvs.add(curInv);
+    
+                    logger.info("Timed out in checking invariant: "
+                            + curInv.toString());
+                } else {
+                    invsToSatisfy.removeAll(mcRunner.getInvariantsRan());                    
+                    timedOutInvs.addAll(mcRunner.getInvariantsRan());
+                    
+                    // TODO: add appropriate logging for multiple invariants
+                }
+                
                 // No invariants are left to try -- increase the timeout value,
                 // unless we reached the timeout limit, in which case we throw
                 // an exception.
@@ -806,16 +817,30 @@ public class CSightMain {
             // curTimeout to base value.
             curTimeout = baseTimeout;
 
-            MCResult result = mc.getVerifyResult(cfsm.getChannelIds());
+            
+            MCResult result;
+            if (mcRunner == null) {
+                result = mc.getVerifyResult(cfsm.getChannelIds());
+            } else {
+                result = mcRunner.getMCResult();
+                curInv = mcRunner.getResultInvariant();
+                assert invsToSatisfy.contains(curInv);
+            }
             logger.info(result.toRawString());
             logger.info(result.toString());
 
             if (result.modelIsSafe()) {
                 // Remove the current invariant from the invsToSatisfy list.
-                BinaryInvariant curInvCheck = invsToSatisfy.remove(0);
-                assert curInvCheck == curInv;
-                satisfiedInvs.add(curInv);
-
+                if (mcRunner == null) {
+                    BinaryInvariant curInvCheck = invsToSatisfy.remove(0);
+                    assert curInvCheck == curInv;
+                    satisfiedInvs.add(curInv);
+                } else {
+                    boolean curInvCheck = invsToSatisfy.remove(curInv);
+                    assert curInvCheck;
+                    satisfiedInvs.add(curInv);
+                }
+                
                 if (invsToSatisfy.isEmpty()) {
                     // No more invariants to check. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
@@ -826,6 +851,7 @@ public class CSightMain {
                 // Grab and start checking the next invariant.
                 curInv = invsToSatisfy.get(0);
                 invsCounter += 1;
+                // TODO: fix appropriate logging for parallel model checking
                 logger.info("Model checking " + curInv.toString() + " : "
                         + invsCounter + " / " + totalInvs);
             } else {
