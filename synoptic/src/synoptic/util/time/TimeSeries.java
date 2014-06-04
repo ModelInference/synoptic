@@ -128,6 +128,7 @@ public class TimeSeries<TimeType extends ITime> implements
      * @return Median time delta for transition, or null if transition has no
      *         time deltas
      */
+    @SuppressWarnings("unchecked")
     public TimeType computeMed() {
         // Check for empty or size-one time series
         if (times.isEmpty()) {

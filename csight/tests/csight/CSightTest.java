@@ -176,8 +176,8 @@ public class CSightTest {
     }
 
     /**
-     * Create a GFSM with all singleton partitions, and a send and receive
-     * event "e"
+     * Create a GFSM with all singleton partitions, and a send and receive event
+     * "e"
      * 
      * @return
      */
@@ -229,6 +229,6 @@ public class CSightTest {
         ObsFifoSys trace = new ObsFifoSys(cids, Si, Si, states);
         traces.add(trace);
 
-        return new GFSM(traces);
+        return new GFSM(traces, 1);
     }
 }
