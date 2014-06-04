@@ -368,11 +368,12 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "\n\n";
 
         // Channels:
-        ret += "/* Channels: */\n";
+        ret += "/* Channels: */\n\n";
         for (int i = 0; i < channelIds.size(); i++) {
             String iStr = Integer.toString(i);
+            ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
             ret += "chan chan" + iStr + " = [" + Integer.toString(chanCapacity)
-                    + "] of { mtype };\n";
+                    + "] of { mtype };\n\n";
         }
         ret += "\n\n";
 
@@ -389,16 +390,16 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             FSM f = fsms.get(pid);
             ret += "active proctype p" + Integer.toString(pid) + "()\n";
             ret += "{\n";
-            f.toPromelaString(stateVar);
+            ret += f.toPromelaString(stateVar);
             ret += "}\n\n";
         }
         ret += "\n\n";
 
         // TODO Remove debugging promela output.
         Logger logger = Logger.getLogger("DynopticMain");
-        logger.finest("=====================Promela=============================");
-        logger.finest(ret);
-        logger.finest("=====================End Promela=========================");
+        logger.finest("\n\n=====================Promela=============================");
+        logger.finest("\n" + ret);
+        logger.finest("=====================End Promela=========================\n\n");
 
         return ret;
     }

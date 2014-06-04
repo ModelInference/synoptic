@@ -244,40 +244,54 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
      * Returns a Promela representation of this FSMState.
      */
     public String toPromelaString(String stateVar) {
-        String ret = ":: (" + stateVar + " == " + this.getStateId() + ") -> ";
-
-        if (transitions.keySet().size() == 1) {
-            DistEventType e = transitions.keySet().iterator().next();
-            // TODO:
-            String trans = "Y";
-            //
-            if (e.isCommEvent()) {
-                // TODO:
-                ret += "atomic{" + e.toPromelaString() + "; " + trans + "}";
-                //
-            } else {
-                // Local event:
-                ret += trans;
-            }
-            return ret;
+        String ret = "\t :: (" + stateVar + " == " + getStateId() + ") -> \n";
+        if (isAccept()) {
+            ret += "accept_" + stateVar + "_" + getStateId() + ":\n";
         }
+        // if (transitions.keySet().size() == 1) {
+        // DistEventType e = transitions.keySet().iterator().next();
+        // // TODO:
+        // String trans = "Y";
+        // //
+        // if (e.isCommEvent()) {
+        // // TODO:
+        // ret += "\t\tatomic{" + e.toPromelaString() + "; " + trans + "}";
+        // //
+        // } else {
+        // // Local event:
+        // ret += trans;
+        // }
+        // return ret;
+        // }
 
-        ret += "\t do";
+        ret += "\t\tif\n";
         // TODO:
-        /*
-         * String eStr; for (DistEventType e : transitions.keySet()) { // Build
-         * an scm representation of this event type. if (e.isCommEvent()) { eStr
-         * = e.toString( Integer.toString(e.getChannelId().getScmId()), ' '); }
-         * else { // Local event: use local queue for local events. String
-         * eTypeStr = e.getScmEventFullString();
-         * localEventsChId.addLocalEventString(e, eTypeStr); eStr =
-         * localEventsChId.getScmId() + " ! " + eTypeStr; }
-         * 
-         * for (FSMState next : transitions.get(e)) { ret += "to " +
-         * next.getScmId() + " : when true , " + eStr + " ;\n"; } }
-         */
+        String stateTrans = stateVar + " = ";
+        for (DistEventType e : transitions.keySet()) {
+            ret += "\t\t :: atomic { \n";
+            if (e.isCommEvent()) {
+                ret += "\t\t\t" + e.toPromelaString() + ";\n";
+            } else {
+                // TODO Express local events properly.
+                ret += "\t\t\t /* Local: " + e.toPromelaString() + " */\n";
+            }
 
-        ret += "\t od";
+            Set<FSMState> validTrans = transitions.get(e);
+            if (validTrans.size() == 1) {
+                ret += "\t\t\t" + stateVar + " = "
+                        + validTrans.iterator().next().getStateId() + ";\n";
+            } else {
+                // Promela if statements will non-deterministically choose
+                // one of the valid branches.
+                ret += "\t\t\t if \n";
+                for (FSMState s : validTrans) {
+                    ret += "\t\t\t  :: " + stateTrans + s.getStateId() + ";\n";
+                }
+                ret += "\t\t\t fi \n";
+            }
+            ret += "\t\t    }\n";
+        }
+        ret += "\t\t fi";
         return ret;
     }
 
