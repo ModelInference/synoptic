@@ -114,14 +114,28 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
     }
 
     /**
-     * Returns a hash of the list of event types at the top of all of the queues
-     * in this multi-channel state.
+     * Returns a hash of the list of top k event types of all of the queues in
+     * this multi-channel state.
      */
-    public int topOfQueuesHash() {
+    public int topKOfQueuesHash(int k) {
         int ret = 17;
         for (ChState<TxnEType> s : channelStates) {
             if (!s.isEmpty()) {
-                ret = 31 * ret + s.peek().hashCode();
+                if (k == 1) {
+                    // obtain top element of queue
+                    ret = 31 * ret + s.peek().hashCode();
+                } else {
+                    // Make sure that k is in list index bounds.
+                    if (k > s.getQueue().size()) {
+                        k = s.getQueue().size();
+                    }
+                    // obtain the top k elements of the queue
+                    List<TxnEType> topKelements = s.getQueue()
+                            .subList(0, k - 1);
+                    // hashing on the (ordered) list so that each combination
+                    // can be hashed differently
+                    ret = 31 * ret + topKelements.hashCode();
+                }
             } else {
                 // Empty queues have to be captured by the hash as well.
                 ret = 31 * ret;

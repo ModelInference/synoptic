@@ -31,7 +31,7 @@
       </not>
     </condition>
 
-    <fail unless="hg.revision.ok">Repository contains uncommitted changes (${util.hg.revision}). Cannot continue.</fail>
+    <fail unless="hg.revision.ok">Repository contains uncommitted changes (${util.hg.revision}). Cannot embed a definitive revision id. Please commit before running this ant target.</fail>
 
   </target>
 

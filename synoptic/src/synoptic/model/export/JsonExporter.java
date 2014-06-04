@@ -26,7 +26,6 @@ import synoptic.model.interfaces.INode;
  * Outputs a partition graph as a JSON object. Uses the JSON-simple library,
  * licensed under Apache 2.0 (the same license as Synoptic and its
  * sub-projects), available at https://code.google.com/p/json-simple/.
- * 
  */
 public class JsonExporter {
 
@@ -249,10 +248,18 @@ public class JsonExporter {
             // Store the invariant type
             singleInvariantMap.put("invariantType", inv.getLongName());
 
-            // Store the predicates
+            // Get invariant predicates
             List<String> predicateList = new LinkedList<String>();
             for (EventType evType : inv.getPredicates()) {
                 predicateList.add(evType.toString());
+            }
+
+            // Handle case where both predicates are identical [i.e., only one
+            // object in the predicate set returned by
+            // ITemporalInvariant.getPredicates()]. This WILL BREAK if any
+            // 3-predicate invariants are introduced.
+            if (predicateList.size() == 1) {
+                predicateList.add(predicateList.get(0));
             }
             singleInvariantMap.put("predicates", predicateList);
 

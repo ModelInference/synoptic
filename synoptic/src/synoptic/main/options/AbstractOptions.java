@@ -98,7 +98,7 @@ public class AbstractOptions {
     public boolean debugParse = false;
 
     static final String dateFormatStr = "Format of the dates contained in the log (required by DATETIME)";
-    public static String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
 
     // ////////////////////////////
     // Input options
