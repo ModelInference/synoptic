@@ -65,6 +65,7 @@ public abstract class MCRunner {
         invsRan = getInvsToRun(invs);
         List<Callable<MCRunnerResult>> callables = getCallablesToRun(pGraph,
                 invsRan, minimize);
+        assert callables.size() <= numParallel;
         assert invsRan.size() == callables.size();
         
         // TODO: add logging at appropriate locations in right format
