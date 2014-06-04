@@ -13,8 +13,10 @@ import csight.invariants.EventuallyHappens;
 import csight.invariants.NeverFollowedBy;
 import csight.mc.MC;
 import csight.mc.MCResult;
+import csight.mc.MCRunner;
 import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
+import csight.mc.mcscm.McScMRunner;
 import csight.mc.spin.Spin;
 import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
@@ -132,6 +134,9 @@ public class CSightMain {
     // The Java McScM model checker bridge instance that interfaces with the
     // McScM verify binary.
     private MC mc = null;
+    
+    // The MCRunner instance that runs multiple Java model checkers against invariants
+    private MCRunner mcRunner = null;
 
     // The channels associated with this CSight execution. These are parsed in
     // checkOptions().
@@ -213,7 +218,11 @@ public class CSightMain {
                 throw new OptionException(err);
             }
         } else if (optns.mcType.equals("mcscm")) {
-            mc = new McScM(opts.mcPath);
+            if (opts.runInParallel) {
+                mcRunner = new McScMRunner(opts.mcPath, opts.numInParallel);
+            } else {
+                mc = new McScM(opts.mcPath);
+            }
         } else {
             err = "Invalid model checker type '" + opts.mcType + "'";
             throw new OptionException(err);

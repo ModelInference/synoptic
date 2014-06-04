@@ -22,7 +22,7 @@ import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
 public class McScMRunnerTests extends CSightTest {
-    // TODO: implement tests for running in parallel
+
     private McScMRunner mcRunner;
     private McScM mcscm;
     private String verifyPath;
