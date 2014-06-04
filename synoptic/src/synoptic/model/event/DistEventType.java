@@ -402,6 +402,15 @@ public class DistEventType extends EventType implements IDistEventType {
 
     public String toPromelaString() {
         // TODO: need to pass a set of channels and an encoding for event types.
-        return "chanI!m";
+        String typeStr = "";
+        if (isLocalEvent()) {
+            return getETypeLabel();
+        } else if (isSendEvent()) {
+            typeStr = "!";
+        } else if (isRecvEvent()) {
+            typeStr = "?";
+        }
+        return "chan" + channelId.getScmId() + typeStr + getETypeLabel();
+
     }
 }

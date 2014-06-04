@@ -338,14 +338,13 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
                     + Integer.toString(initStates.size() - 1) + ")";
         }
 
-        ret += "do\n";
-        ret += " :: ";
+        ret += "\tdo\n";
         for (FSMState s : states) {
             ret += s.toPromelaString(stateVar);
             ret += "\n\n";
         }
 
-        ret += "od\n";
+        ret += "\tod\n";
         return ret;
     }
 }
