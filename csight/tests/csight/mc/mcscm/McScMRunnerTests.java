@@ -8,11 +8,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import csight.CSightTest;
+import csight.invariants.AlwaysFollowedBy;
+import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
 import csight.mc.MCResult;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
 import csight.util.Util;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class McScMRunnerTests extends CSightTest {
     // TODO: implement tests for running in parallel
@@ -31,7 +36,15 @@ public class McScMRunnerTests extends CSightTest {
         verifyPath = CSightTest.getMcPath();
         mcscm = new McScM(verifyPath);
         
-        // TODO: set up GFSM here for testing
+        pGraph = createNonSingletonGFSM();
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
+        BinaryInvariant inv0 = new AlwaysPrecedes(eSend, eRecv);
+        BinaryInvariant inv1 = new AlwaysFollowedBy(eSend, eRecv);
+        invariants.add(inv0);
+        invariants.add(inv1);
     }
     
     @Test
