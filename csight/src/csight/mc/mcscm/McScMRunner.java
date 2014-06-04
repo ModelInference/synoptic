@@ -43,6 +43,7 @@ public class McScMRunner extends MCRunner {
      */
     protected List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
             final List<BinaryInvariant> invsToRun, final boolean minimize) {
+        final String verifyPath = mcPath;
         List<Callable<MCRunnerResult>> callablesToRun = Util.newList();
         
         for (final BinaryInvariant inv : invsToRun) {      
@@ -56,7 +57,7 @@ public class McScMRunner extends MCRunner {
                     String mcInputStr = cfsm.toScmString("checking_scm_"
                             + inv.getConnectorString());
                     
-                    McScM mcscm = new McScM(mcPath);
+                    McScM mcscm = new McScM(verifyPath);
                     mcscm.verifyParallel(mcInputStr);
                     
                     MCResult mcResult = mcscm.getVerifyResult(cfsm.getChannelIds());

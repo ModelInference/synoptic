@@ -231,4 +231,72 @@ public class CSightTest {
 
         return new GFSM(traces, 1);
     }
+    
+    /**
+     * Create a GFSM that does not contain all singleton partitions,
+     * and a send and receive event "e" along Channel id 0
+     * 
+     * @return
+     */
+    protected GFSM createNonSingletonGFSM() {
+        List<ObsFSMState> Pi = Util.newList();
+        List<ObsFSMState> Pm = Util.newList();
+        List<ObsFSMState> Pf = Util.newList();
+
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "M", true, false);
+        ObsFSMState p1i = ObsFSMState.namedObsFSMState(1, "A", true, false);
+        Pi.add(p0i);
+        Pi.add(p1i);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
+
+        ObsFSMState p0m = ObsFSMState.namedObsFSMState(0, "M", false, false);
+        ObsFSMState p1m = ObsFSMState.namedObsFSMState(1, "A", false, false);
+        Pm.add(p0m);
+        Pm.add(p1m);
+        ObsMultFSMState obsPm = ObsMultFSMState.getMultiFSMState(Pm);
+
+        ObsFSMState p0f = ObsFSMState.namedObsFSMState(0, "M", false, true);
+        ObsFSMState p1f = ObsFSMState.namedObsFSMState(1, "A", false, true);
+        Pf.add(p0f);
+        Pf.add(p1f);
+        ObsMultFSMState obsPf = ObsMultFSMState.getMultiFSMState(Pf);
+
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        ChannelId cid1 = new ChannelId(1, 0, 1);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
+        List<ChannelId> cids = Util.newList();
+        cids.add(cid0);
+        cids.add(cid1);
+
+        ImmutableMultiChState PiChstate = ImmutableMultiChState
+                .fromChannelIds(cids);
+        ImmutableMultiChState PmChstate = PiChstate.getNextChState(eSend);
+        ImmutableMultiChState PfChstate = PmChstate.getNextChState(eRecv);
+
+        ObsFifoSysState Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+        ObsFifoSysState Sm = ObsFifoSysState.getFifoSysState(obsPm, PmChstate);
+        ObsFifoSysState Sf = ObsFifoSysState.getFifoSysState(obsPf, PfChstate);
+        ObsDistEventType obsESend = new ObsDistEventType(eSend, 0);
+        ObsDistEventType obsERecv = new ObsDistEventType(eRecv, 0);
+
+        // Si -> Sm -> Sf
+        Si.addTransition(obsESend, Sm);
+        Sm.addTransition(obsERecv, Sf);
+
+        List<ObsFifoSys> traces = Util.newList(1);
+
+        Set<ObsFifoSysState> states = Util.newSet();
+        states.add(Si);
+        states.add(Sm);
+        states.add(Sf);
+
+        ObsFifoSys trace = new ObsFifoSys(cids, Si, Sf, states);
+        traces.add(trace);
+
+        GFSM pGraph = new GFSM(traces, 1);
+        
+        return pGraph;
+    }
 }
