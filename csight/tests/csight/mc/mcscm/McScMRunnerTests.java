@@ -169,6 +169,15 @@ public class McScMRunnerTests extends CSightTest {
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
+    /**
+     * Assert two MCResult are the same
+     * 
+     * @param gfsm
+     * @param inv
+     * @param minimize
+     * @param runnerResult
+     * @throws Exception
+     */
     private void assertRunnerResult(GFSM gfsm, BinaryInvariant inv,
             boolean minimize, MCResult runnerResult) throws Exception {
         CFSM cfsm = gfsm.getCFSM(minimize);
