@@ -31,6 +31,15 @@ public class Spin extends MC {
     }
 
     @Override
+    public void verifyParallel(String input) throws IOException,
+            InterruptedException {
+        File currentPath = new java.io.File(".");
+
+        mcProcess = new MCProcess(new String[] { mcPath }, input, currentPath);
+        mcProcess.runProcessParallel();
+    }
+    
+    @Override
     public MCResult getVerifyResult(List<ChannelId> cids) throws IOException {
         List<String> lines = mcProcess.getInputStreamContent();
 
@@ -38,5 +47,4 @@ public class Spin extends MC {
         MCResult ret = new SpinResult(lines, cids);
         return ret;
     }
-
 }
