@@ -52,6 +52,11 @@ public class McScMRunnerTests extends CSightTest {
         invariants.add(inv1);
     }
     
+    /**
+     * Test running one invariant in parallel with only one invariant to check
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRunOneWithOneInv() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
@@ -69,6 +74,11 @@ public class McScMRunnerTests extends CSightTest {
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
+    /**
+     * Test running one invariant in parallel with many invariants to check
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRunOneWithManyInvs() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
@@ -88,6 +98,11 @@ public class McScMRunnerTests extends CSightTest {
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
+    /**
+     * Test running multiple invariants in parallel with only one invariant to check
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRunManyWithOneInvs() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
@@ -105,6 +120,12 @@ public class McScMRunnerTests extends CSightTest {
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
+    /**
+     * Test running multiple invariants in parallel with equal number of
+     * invariants to check
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRunManyWithEqualInvs() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
@@ -123,6 +144,12 @@ public class McScMRunnerTests extends CSightTest {
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
+    /**
+     * Test running multiple invariants with more invariants to check
+     * than number of invariants to run parallel
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRunManyWithManyInvs() throws Exception {
         List<BinaryInvariant> invs = Util.newList();
