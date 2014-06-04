@@ -12,6 +12,7 @@ import csight.CSightTest;
 import csight.invariants.AlwaysFollowedBy;
 import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
+import csight.invariants.EventuallyHappens;
 import csight.mc.MCResult;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
@@ -26,6 +27,8 @@ public class McScMRunnerTests extends CSightTest {
     private McScM mcscm;
     private String verifyPath;
     private GFSM pGraph;
+    private DistEventType eSend;
+    private DistEventType eRecv;
     private List<BinaryInvariant> invariants;
     private int timeOut = 60;
     
@@ -39,8 +42,8 @@ public class McScMRunnerTests extends CSightTest {
         
         pGraph = createNonSingletonGFSM();
         ChannelId cid0 = new ChannelId(0, 1, 0);
-        DistEventType eSend = DistEventType.SendEvent("e", cid0);
-        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+        eSend = DistEventType.SendEvent("e", cid0);
+        eRecv = DistEventType.RecvEvent("e", cid0);
 
         BinaryInvariant inv0 = new AlwaysPrecedes(eSend, eRecv);
         BinaryInvariant inv1 = new AlwaysFollowedBy(eSend, eRecv);
@@ -60,28 +63,83 @@ public class McScMRunnerTests extends CSightTest {
         MCResult runnerResult = mcRunner.getMCResult();
         BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
         
+        assertEquals(1, mcRunner.getInvariantsRan().size());
+        assertTrue(invs.containsAll(mcRunner.getInvariantsRan()));
         assertTrue(invs.contains(resultInvariant));
         assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     @Test
     public void testRunOneWithManyInvs() throws Exception {
-        // TODO
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(invariants.get(0));
+        invs.add(invariants.get(1));
+        invs.add(new EventuallyHappens(eSend));
+        
+        mcRunner = new McScMRunner(verifyPath, 1);
+        mcRunner.verify(pGraph, invs, timeOut, false);
+        
+        MCResult runnerResult = mcRunner.getMCResult();
+        BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
+        
+        assertEquals(1, mcRunner.getInvariantsRan().size());
+        assertTrue(invs.containsAll(mcRunner.getInvariantsRan()));
+        assertTrue(invs.contains(resultInvariant));
+        assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     @Test
     public void testRunManyWithOneInvs() throws Exception {
-        // TODO
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(invariants.get(0));
+        
+        mcRunner = new McScMRunner(verifyPath, 2);
+        mcRunner.verify(pGraph, invs, timeOut, false);
+        
+        MCResult runnerResult = mcRunner.getMCResult();
+        BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
+        
+        assertEquals(1, mcRunner.getInvariantsRan().size());
+        assertTrue(invs.containsAll(mcRunner.getInvariantsRan()));
+        assertTrue(invs.contains(resultInvariant));
+        assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     @Test
     public void testRunManyWithEqualInvs() throws Exception {
-        // TODO
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(invariants.get(0));
+        invs.add(invariants.get(1));
+        
+        mcRunner = new McScMRunner(verifyPath, 2);
+        mcRunner.verify(pGraph, invs, timeOut, false);
+        
+        MCResult runnerResult = mcRunner.getMCResult();
+        BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
+        
+        assertEquals(2, mcRunner.getInvariantsRan().size());
+        assertTrue(invs.containsAll(mcRunner.getInvariantsRan()));
+        assertTrue(invs.contains(resultInvariant));
+        assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     @Test
     public void testRunManyWithManyInvs() throws Exception {
-        // TODO
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(invariants.get(0));
+        invs.add(invariants.get(1));
+        invs.add(new EventuallyHappens(eSend));
+        
+        mcRunner = new McScMRunner(verifyPath, 2);
+        mcRunner.verify(pGraph, invs, timeOut, false);
+        
+        MCResult runnerResult = mcRunner.getMCResult();
+        BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
+        
+        assertEquals(2, mcRunner.getInvariantsRan().size());
+        assertTrue(invs.containsAll(mcRunner.getInvariantsRan()));
+        assertTrue(invs.contains(resultInvariant));
+        assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     private void assertRunnerResult(GFSM gfsm, BinaryInvariant inv,
@@ -95,6 +153,8 @@ public class McScMRunnerTests extends CSightTest {
         mcscm.verify(mcInputStr, timeOut);
         MCResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
         
+        assertEquals(result.modelIsSafe(), runnerResult.modelIsSafe());
+        assertEquals(result.getCExample(), runnerResult.getCExample());
         assertEquals(result.toRawString(), runnerResult.toRawString());
     }
 }
