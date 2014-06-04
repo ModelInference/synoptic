@@ -820,14 +820,14 @@ public class CSightMain {
             // curTimeout to base value.
             curTimeout = baseTimeout;
 
-            
             MCResult result;
+            BinaryInvariant completedInv = null;
             if (mcRunner == null) {
                 result = mc.getVerifyResult(cfsm.getChannelIds());
             } else {
                 result = mcRunner.getMCResult();
-                curInv = mcRunner.getResultInvariant();
-                assert invsToSatisfy.contains(curInv);
+                completedInv = mcRunner.getResultInvariant();
+                assert invsToSatisfy.contains(completedInv);
             }
             logger.info(result.toRawString());
             logger.info(result.toString());
@@ -839,9 +839,9 @@ public class CSightMain {
                     assert curInvCheck == curInv;
                     satisfiedInvs.add(curInv);
                 } else {
-                    boolean curInvCheck = invsToSatisfy.remove(curInv);
+                    boolean curInvCheck = invsToSatisfy.remove(completedInv);
                     assert curInvCheck;
-                    satisfiedInvs.add(curInv);
+                    satisfiedInvs.add(completedInv);
                 }
                 
                 if (invsToSatisfy.isEmpty()) {
@@ -865,9 +865,13 @@ public class CSightMain {
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
-                // Note: curInv to export is the inv with conter example
-                exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                        gfsmPrefixFilename);
+                if (mcRunner == null) {
+                    exportIntermediateModels(pGraph, curInv, gfsmCounter,
+                            gfsmPrefixFilename);
+                } else {
+                    exportIntermediateModels(pGraph, completedInv, gfsmCounter,
+                            gfsmPrefixFilename);
+                }
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
