@@ -34,7 +34,6 @@ public class MCProcess {
     }
 
     public MCProcess(String[] command, String stdinInput, File processDir) {
-        assert timeoutSecs > 0;
         assert !processDir.equals("");
         assert command.length > 0;
 
