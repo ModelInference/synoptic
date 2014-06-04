@@ -170,7 +170,8 @@ public class McScMRunnerTests extends CSightTest {
     }
     
     /**
-     * Assert two MCResult are the same
+     * Assert MCResult from runner is equivalent to MCResult from mcscm
+     * running the same invariant
      * 
      * @param gfsm
      * @param inv
