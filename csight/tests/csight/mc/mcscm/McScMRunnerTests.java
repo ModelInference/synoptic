@@ -1,6 +1,7 @@
 package csight.mc.mcscm;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class McScMRunnerTests extends CSightTest {
 
         BinaryInvariant inv0 = new AlwaysPrecedes(eSend, eRecv);
         BinaryInvariant inv1 = new AlwaysFollowedBy(eSend, eRecv);
+        invariants = Util.newList();
         invariants.add(inv0);
         invariants.add(inv1);
     }
@@ -55,8 +57,11 @@ public class McScMRunnerTests extends CSightTest {
         mcRunner = new McScMRunner(verifyPath, 1);
         mcRunner.verify(pGraph, invs, timeOut, false);
         
-        //TODO
-        // assertRunnerResult
+        MCResult runnerResult = mcRunner.getMCResult();
+        BinaryInvariant resultInvariant = mcRunner.getResultInvariant();
+        
+        assertTrue(invs.contains(resultInvariant));
+        assertRunnerResult(pGraph, resultInvariant, false, runnerResult);
     }
     
     @Test
