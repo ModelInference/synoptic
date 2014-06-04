@@ -209,6 +209,12 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
+        if (opts.numInParallel < 1) {
+            err = "Number of model checking processes to run in parallel cannot be less than 1:\n\t "
+                    + opts.numInParallel;
+            throw new OptionException(err);
+        }
+        
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
@@ -742,9 +748,6 @@ public class CSightMain {
             assert curInv == invsToSatisfy.get(0);
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
-
-            // TODO: implement a MCRunner to run multiple inv checking at once
-            // using mc
 
             if (pGraph.isSingleton()) {
                 // Skip model checking if all partitions are singletons
