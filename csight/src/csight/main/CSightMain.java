@@ -732,8 +732,8 @@ public class CSightMain {
                     + invsCounter + " / " + totalInvs);
         } else {
             logger.info("Model checking " + curInv.toString() + " and "
-                    + (opts.numInParallel - 1) + " others. : "
-                    + invsCounter + " / " + totalInvs);
+                    + (opts.numInParallel - 1) + " others : "
+                    + invsCounter + " (+ " + opts.numInParallel + " being checked) / " + totalInvs);
         }
 
         // This counts the number of times we've refined the gfsm.
@@ -783,7 +783,7 @@ public class CSightMain {
                     logger.info("*******************************************************");
                     logger.info("Checking ... " + curInv.toString() + " and "
                             + (opts.numInParallel - 1) + " others. Inv "
-                            + invsCounter + " + " + opts.numInParallel + " being checked) / " + totalInvs
+                            + invsCounter + " (+ " + opts.numInParallel + " being checked) / " + totalInvs
                             + ", refinements so far: " + gfsmCounter + ". Timeout = "
                             + curTimeout + ".");
                     logger.info("*******************************************************");
@@ -877,7 +877,7 @@ public class CSightMain {
                 } else {
                     logger.info("Model checking " + curInv.toString() + " and "
                             + (opts.numInParallel - 1) + " others. : "
-                            + invsCounter + " / " + totalInvs);
+                            + invsCounter + " (+ " + opts.numInParallel + " being checked) / " + totalInvs);
                 }
             } else {
                 // Refine the pGraph in an attempt to eliminate the counter
