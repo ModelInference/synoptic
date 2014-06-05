@@ -1,5 +1,6 @@
 package csight.model.fifosys.cfsm;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +15,7 @@ import csight.main.CSightMain;
 import csight.model.AbsFSM;
 import csight.model.AbsFSMState;
 import csight.model.alphabet.FSMAlphabet;
+import csight.model.export.GraphExporter;
 import csight.model.fifosys.FifoSys;
 import csight.model.fifosys.cfsm.fsm.FSM;
 import csight.model.fifosys.cfsm.fsm.FSMState;
@@ -401,6 +403,12 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         logger.finest("\n" + ret);
         logger.finest("=====================End Promela=========================\n\n");
 
+        try {
+            GraphExporter.exportCFSM("./test-output/test.dot", this);
+            GraphExporter.generatePngFileFromDotFile("./test-output/test.dot");
+        } catch (IOException e1) {
+            logger.severe("dot executable not found.");
+        }
         return ret;
     }
 

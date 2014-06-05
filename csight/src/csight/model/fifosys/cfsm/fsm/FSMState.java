@@ -246,7 +246,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     public String toPromelaString(String stateVar) {
         String ret = "\t :: (" + stateVar + " == " + getStateId() + ") -> \n";
         if (isAccept()) {
-            ret += "accept_" + stateVar + "_" + getStateId() + ":\n";
+            ret += "end_" + stateVar + "_" + getStateId() + ":\n";
         }
         // if (transitions.keySet().size() == 1) {
         // DistEventType e = transitions.keySet().iterator().next();
@@ -269,12 +269,8 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         String stateTrans = stateVar + " = ";
         for (DistEventType e : transitions.keySet()) {
             ret += "\t\t :: atomic { \n";
-            if (e.isCommEvent()) {
-                ret += "\t\t\t" + e.toPromelaString() + ";\n";
-            } else {
-                // TODO Express local events properly.
-                ret += "\t\t\t /* Local: " + e.toPromelaString() + " */\n";
-            }
+
+            ret += "\t\t\t" + e.toPromelaString() + ";\n";
 
             Set<FSMState> validTrans = transitions.get(e);
             if (validTrans.size() == 1) {

@@ -400,11 +400,14 @@ public class DistEventType extends EventType implements IDistEventType {
         // TODO: need to pass a set of channels and an encoding for event types.
         String typeStr = "";
         if (isLocalEvent()) {
-            return getETypeLabel();
+            // TODO: Handle local events properly.
+            return "/* Local Event: " + getETypeLabel() + " */";
         } else if (isSendEvent()) {
             typeStr = "!";
         } else if (isRecvEvent()) {
             typeStr = "?";
+        } else {
+            return "/* Unknown event. */";
         }
         return "chan" + channelId.getScmId() + typeStr + getETypeLabel();
 
