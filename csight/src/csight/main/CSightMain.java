@@ -727,8 +727,14 @@ public class CSightMain {
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking " + curInv.toString() + " : " + invsCounter
-                + " / " + totalInvs);
+        if (mcRunner == null) {
+            logger.info("Model checking " + curInv.toString() + " : "
+                    + invsCounter + " / " + totalInvs);
+        } else {
+            logger.info("Model checking " + curInv.toString() + " and "
+                    + (opts.numInParallel - 1) + " others. : "
+                    + invsCounter + " / " + totalInvs);
+        }
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
@@ -772,6 +778,15 @@ public class CSightMain {
                     logger.info("*******************************************************");
                     mc.verify(mcInputStr, curTimeout);
                 } else {
+                    // Notes: print all inv checked if num(inv)<=5
+                    // print: checking... invsCounter (+ 5 being checked) / totalInvs
+                    logger.info("*******************************************************");
+                    logger.info("Checking ... " + curInv.toString() + " and "
+                            + (opts.numInParallel - 1) + " others. Inv "
+                            + invsCounter + " + " + opts.numInParallel + " being checked) / " + totalInvs
+                            + ", refinements so far: " + gfsmCounter + ". Timeout = "
+                            + curTimeout + ".");
+                    logger.info("*******************************************************");
                     mcRunner.verify(pGraph, invsToSatisfy, curTimeout, opts.minimize);
                 }
             } catch (InterruptedException e) {
@@ -787,7 +802,8 @@ public class CSightMain {
                     invsToSatisfy.removeAll(mcRunner.getInvariantsRan());                    
                     timedOutInvs.addAll(mcRunner.getInvariantsRan());
                     
-                    // TODO: add appropriate logging for multiple invariants
+                    logger.info("Timed out in checking invariant: "
+                            + mcRunner.getInvariantsRan().toString());
                 }
                 
                 // No invariants are left to try -- increase the timeout value,
@@ -854,9 +870,15 @@ public class CSightMain {
                 // Grab and start checking the next invariant.
                 curInv = invsToSatisfy.get(0);
                 invsCounter += 1;
-                // TODO: fix appropriate logging for parallel model checking
-                logger.info("Model checking " + curInv.toString() + " : "
-                        + invsCounter + " / " + totalInvs);
+
+                if (mcRunner == null) {
+                    logger.info("Model checking " + curInv.toString() + " : "
+                            + invsCounter + " / " + totalInvs);
+                } else {
+                    logger.info("Model checking " + curInv.toString() + " and "
+                            + (opts.numInParallel - 1) + " others. : "
+                            + invsCounter + " / " + totalInvs);
+                }
             } else {
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
