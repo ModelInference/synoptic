@@ -75,8 +75,9 @@ public abstract class MCRunner {
     /**
      * Returns a MCResult of the successfully checked invariant
      * @return
+     * @throws IOException 
      */
-    public MCResult getMCResult() {
+    public MCResult getMCResult() throws IOException {
         return result.getMCResult();
     }
     
@@ -142,20 +143,24 @@ public abstract class MCRunner {
         /** The invariant that was model-checked */
         private final BinaryInvariant inv;
         
-        /** The MCResult of the checked invariant */
-        private final MCResult mcResult;
+        /** The Model Checker java bridge */
+        private final MC mc;
         
-        public MCRunnerResult(BinaryInvariant inv, MCResult res) {
+        /** The CFSM used to run model checking */
+        private final CFSM cfsm;
+        
+        public MCRunnerResult(BinaryInvariant inv, MC mc, CFSM cfsm) {
             this.inv = inv;
-            this.mcResult = res;
+            this.mc = mc;
+            this.cfsm = cfsm;
         }
         
         public BinaryInvariant getInv() {
             return inv;
         }
         
-        public MCResult getMCResult() {
-            return mcResult;
+        public MCResult getMCResult() throws IOException {
+            return mc.getVerifyResult(cfsm.getChannelIds());
         }
     }
 }
