@@ -102,12 +102,9 @@ public class MCProcess {
 
         // Write an input to the stdin of the process.
         if (!stdinInput.equals("")) {
-            System.out.println("We are in correct place"); //TODO: remove, only for debugging
             OutputStream oStream = process.getOutputStream();
             oStream.write(stdinInput.getBytes());
             oStream.close();
-        } else { //TODO: remove, only for debugging
-            System.out.println("Somehow we ended here");
         }
 
         // Wait until the verify process terminates.
