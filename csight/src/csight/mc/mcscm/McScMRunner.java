@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 
 import csight.invariants.BinaryInvariant;
 import csight.mc.MC;
-import csight.mc.MCResult;
 import csight.mc.MCRunner;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
@@ -59,9 +58,8 @@ public class McScMRunner extends MCRunner {
                     
                     McScM mcscm = new McScM(verifyPath);
                     mcscm.verifyParallel(mcInputStr);
-                    
-                    MCResult mcResult = mcscm.getVerifyResult(cfsm.getChannelIds());
-                    return new MCRunnerResult(inv, mcResult);
+
+                    return new MCRunnerResult(inv, mcscm, cfsm);
                 }
                 
             };
