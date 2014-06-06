@@ -20,6 +20,7 @@ public class MCProcess {
     String stdinInput;
     File processDir;
     int timeoutSecs;
+    List<String> stdOut;
 
     public MCProcess(String[] command, String stdinInput, File processDir,
             int timeoutSecs) {
@@ -109,7 +110,10 @@ public class MCProcess {
 
         // Wait until the verify process terminates.
         process.waitFor();
-        System.out.println(getInputStreamContent().toString());
+        
+        // Saves the output stream. The output stream disappears if not used
+        // immediately when running processes concurrently
+        stdOut = getInputStreamContent();
     }
 
     /**
@@ -120,8 +124,11 @@ public class MCProcess {
      * @throws IOException
      */
     public List<String> getInputStreamContent() throws IOException {
+        if (stdOut != null) {
+            return stdOut;
+        }
         assert process != null;
-
+        
         InputStream inputStream = process.getInputStream();
 
         BufferedReader bufferedReader = new BufferedReader(
