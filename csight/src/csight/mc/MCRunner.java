@@ -131,7 +131,7 @@ public abstract class MCRunner {
      * @param minimize
      * @return
      */
-    protected abstract List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
+    protected abstract List<Callable<MCRunnerResult>> getCallablesToRun(GFSM pGraph,
             final List<BinaryInvariant> invsToRun, final boolean minimize);
     
     /**

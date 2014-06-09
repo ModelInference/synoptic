@@ -40,17 +40,18 @@ public class McScMRunner extends MCRunner {
      * @param minimize 
      * @return
      */
-    protected List<Callable<MCRunnerResult>> getCallablesToRun(final GFSM pGraph,
+    protected List<Callable<MCRunnerResult>> getCallablesToRun(GFSM pGraph,
             final List<BinaryInvariant> invsToRun, final boolean minimize) {
         final String verifyPath = mcPath;
         List<Callable<MCRunnerResult>> callablesToRun = Util.newList();
         
-        for (final BinaryInvariant inv : invsToRun) {      
+        for (final BinaryInvariant inv : invsToRun) {
+            final CFSM cfsm = pGraph.getCFSM(minimize);
+            
             Callable<MCRunnerResult> callable = new Callable<MCRunnerResult>() {
 
                 @Override
                 public MCRunnerResult call() throws Exception {
-                    CFSM cfsm = pGraph.getCFSM(minimize);
                     cfsm.augmentWithInvTracing(inv);
                     
                     String mcInputStr = cfsm.toScmString("checking_scm_"
