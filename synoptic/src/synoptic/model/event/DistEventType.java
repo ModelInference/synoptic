@@ -402,15 +402,16 @@ public class DistEventType extends EventType implements IDistEventType {
         if (isLocalEvent()) {
             // TODO: Handle local events properly. This print is temporarily
             // here to allow SPIN to generate valid Promela.
-            return "printf(\"" + getETypeLabel() + "\")";
+            return String.format("localEvent(%d,%s)", pid, getEType());
         } else if (isSendEvent()) {
-            typeStr = "!";
+            typeStr = "send";
         } else if (isRecvEvent()) {
-            typeStr = "?";
+            typeStr = "recv";
         } else {
             return "/* Unknown event. */";
         }
-        return "chan" + channelId.getScmId() + typeStr + getETypeLabel();
+        return String.format("%s(%d,%d,%s)", typeStr, pid,
+                channelId.getScmId(), getEType());
 
     }
 }
