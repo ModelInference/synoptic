@@ -352,9 +352,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "mtype = { ";
         Set<String> eventTypes = Util.newSet();
         for (DistEventType e : alphabet) {
-            if (e.isSendEvent() || e.isRecvEvent()) {
-                eventTypes.add(e.getETypeLabel());
-            }
+            eventTypes.add(e.getETypeLabel());
         }
 
         boolean firstEvent = true;
@@ -371,12 +369,18 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         // Channels:
         ret += "/* Channels: */\n\n";
+
         for (int i = 0; i < channelIds.size(); i++) {
             String iStr = Integer.toString(i);
             ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
-            ret += "chan chan" + iStr + " = [" + Integer.toString(chanCapacity)
-                    + "] of { mtype };\n\n";
+
+            // ret += "chan chan" + iStr + " = [" +
+            // Integer.toString(chanCapacity) + "] of { mtype };\n\n";
         }
+
+        // Temporarily specifying channels as an array to work with inlines.
+        ret += String.format("chan channel[%d] = [%d] of { mtype };",
+                channelIds.size(), chanCapacity);
         ret += "\n\n";
 
         // FSM state vars declaration, one per FSM:
@@ -385,6 +389,33 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             ret += "byte state" + Integer.toString(pid) + " = 0;\n";
         }
         ret += "\n\n";
+
+        // Tracks last message. Arrays allow the inlines to work better.
+        ret += "hidden mtype __message[" + numProcesses + "];\n";
+
+        // Inline declarations to make changing things easier.
+        // Arrays work better with universally used inlines.
+
+        ret += "inline send(p_id, chan_id, message_type){\n";
+        ret += "    atomic{\n";
+        ret += "        channel[chan_id]!message_type;\n";
+        ret += "        __message[p_id] = message_type;\n";
+        ret += "    };\n";
+        ret += "}\n";
+        ret += "\n";
+        ret += "inline recv(p_id, chan_id, message_type) {\n";
+        ret += "    atomic{\n";
+        ret += "        channel[chan_id]?message_type;\n";
+        ret += "        __message[p_id] = message_type;\n";
+        ret += "    }\n";
+        ret += "}\n";
+        ret += "\n";
+        ret += "inline localEvent(p_id, message_type){\n";
+        ret += "    atomic{\n";
+        ret += "        printf(\"%e\", message_type);\n";
+        ret += "        __message[p_id] = message_type;\n";
+        ret += "    }\n";
+        ret += "}\n\n";
 
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
