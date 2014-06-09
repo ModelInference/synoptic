@@ -400,8 +400,9 @@ public class DistEventType extends EventType implements IDistEventType {
         // TODO: need to pass a set of channels and an encoding for event types.
         String typeStr = "";
         if (isLocalEvent()) {
-            // TODO: Handle local events properly.
-            return "/* Local Event: " + getETypeLabel() + " */";
+            // TODO: Handle local events properly. This print is temporarily
+            // here to allow SPIN to generate valid Promela.
+            return "printf(\"" + getETypeLabel() + "\")";
         } else if (isSendEvent()) {
             typeStr = "!";
         } else if (isRecvEvent()) {

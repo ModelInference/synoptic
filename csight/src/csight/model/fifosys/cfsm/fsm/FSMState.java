@@ -244,50 +244,29 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
      * Returns a Promela representation of this FSMState.
      */
     public String toPromelaString(String stateVar) {
-        String ret = "\t :: (" + stateVar + " == " + getStateId() + ") -> \n";
+        String ret = stateVar + "_" + getStateId() + ":\n";
         if (isAccept()) {
             ret += "end_" + stateVar + "_" + getStateId() + ":\n";
         }
-        // if (transitions.keySet().size() == 1) {
-        // DistEventType e = transitions.keySet().iterator().next();
-        // // TODO:
-        // String trans = "Y";
-        // //
-        // if (e.isCommEvent()) {
-        // // TODO:
-        // ret += "\t\tatomic{" + e.toPromelaString() + "; " + trans + "}";
-        // //
-        // } else {
-        // // Local event:
-        // ret += trans;
-        // }
-        // return ret;
-        // }
 
-        ret += "\t\tif\n";
-        // TODO:
-        String stateTrans = stateVar + " = ";
+        ret += "\tif\n";
+
         for (DistEventType e : transitions.keySet()) {
-            ret += "\t\t :: atomic { \n";
-
-            ret += "\t\t\t" + e.toPromelaString() + ";\n";
+            String stateTrans = "goto " + stateVar + "_";
 
             Set<FSMState> validTrans = transitions.get(e);
-            if (validTrans.size() == 1) {
-                ret += "\t\t\t" + stateVar + " = "
-                        + validTrans.iterator().next().getStateId() + ";\n";
-            } else {
-                // Promela if statements will non-deterministically choose
-                // one of the valid branches.
-                ret += "\t\t\t if \n";
-                for (FSMState s : validTrans) {
-                    ret += "\t\t\t  :: " + stateTrans + s.getStateId() + ";\n";
-                }
-                ret += "\t\t\t fi \n";
+
+            // This transition conditional may be used multiple times as a
+            // guard. Promela if statements will non-deterministically choose
+            // one of the valid branches.
+            String transCond = "\t :: " + e.toPromelaString() + " -> ";
+
+            for (FSMState s : validTrans) {
+                ret += transCond;
+                ret += stateTrans + s.getStateId() + ";\n";
             }
-            ret += "\t\t    }\n";
         }
-        ret += "\t\t fi";
+        ret += "\t fi";
         return ret;
     }
 
