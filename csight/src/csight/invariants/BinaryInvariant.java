@@ -51,6 +51,13 @@ abstract public class BinaryInvariant {
      */
     abstract public String scmBadStateQRe();
 
+    /**
+     * This method has to be overridden in all subclasses. It's purpose is to
+     * return a never claim that will be <b>accepted</b> if the invariant is
+     * violated.
+     */
+    abstract public String promelaNeverClaim();
+
     // //////////////////////////////////////////////////////////////////
 
     @Override

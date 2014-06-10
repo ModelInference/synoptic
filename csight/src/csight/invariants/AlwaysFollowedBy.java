@@ -27,6 +27,14 @@ public class AlwaysFollowedBy extends BinaryInvariant {
     }
 
     @Override
+    public String promelaNeverClaim() {
+        // TODO Create a never claim for Always Followed By.
+        assert (false);
+        return null;
+
+    }
+
+    @Override
     public boolean satisfies(List<DistEventType> eventsPath) {
         // T: 'first' appears after all 'second'
         // F: 'first' does not appear, or 'second' appears after last 'first'

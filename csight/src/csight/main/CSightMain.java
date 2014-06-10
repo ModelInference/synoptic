@@ -393,7 +393,7 @@ public class CSightMain {
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph;
-        pGraph = new GFSM(traces, opts.topKElements);   
+        pGraph = new GFSM(traces, opts.topKElements);
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).
@@ -755,6 +755,18 @@ public class CSightMain {
                 mcInputStr = cfsm.toPromelaString(
                         "checking_pml_" + curInv.getConnectorString(),
                         opts.spinChannelCapacity);
+
+                mcInputStr += curInv.promelaNeverClaim();
+
+                // TODO Remove debugging promela output.
+                logger.finest("\n\n=====================Promela=============================");
+                logger.finest("\n" + mcInputStr);
+                logger.finest("=====================End Promela=========================\n\n");
+
+                GraphExporter.exportCFSM("./test-output/test.dot", cfsm);
+                GraphExporter
+                        .generatePngFileFromDotFile("./test-output/test.dot");
+
             } else {
                 throw new RuntimeException(
                         "Model checker is not properly specified.");
