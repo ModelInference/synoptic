@@ -26,6 +26,13 @@ public class AlwaysPrecedes extends BinaryInvariant {
     }
 
     @Override
+    public String promelaNeverClaim() {
+        // TODO Create a never claim for Always Precedes
+        assert (false);
+        return null;
+    }
+
+    @Override
     public boolean satisfies(List<DistEventType> eventsPath) {
         // Whether or not we've seen 'first' so far.
         boolean seenFirst = false;
