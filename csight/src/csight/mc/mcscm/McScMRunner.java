@@ -56,7 +56,7 @@ public class McScMRunner extends MCRunner {
                     
                     String mcInputStr = cfsm.toScmString("checking_scm_"
                             + inv.getConnectorString());
-                    System.out.println(mcInputStr);
+
                     McScM mcscm = new McScM(verifyPath);
                     mcscm.verifyParallel(mcInputStr);
 
