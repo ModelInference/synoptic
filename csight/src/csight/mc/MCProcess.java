@@ -104,19 +104,12 @@ pBuilder.redirectErrorStream(true);
         // Write an input to the stdin of the process.
         if (!stdinInput.equals("")) {
             OutputStream oStream = process.getOutputStream();
-            System.out.println(oStream); //TODO: remove, debugging only
             oStream.write(stdinInput.getBytes());
             oStream.close();
-            System.out.println("Wrote to process"); //TODO: remove, debugging only
         }
 
         // Wait until the verify process terminates.
         process.waitFor();
-        
-        // Saves the output stream. The output stream disappears if not used
-        // immediately when running processes concurrently
-        stdOut = getInputStreamContent();
-        System.out.println(stdOut.toString());// TODO: remove, debugging only
     }
 
     /**
@@ -127,9 +120,6 @@ pBuilder.redirectErrorStream(true);
      * @throws IOException
      */
     public List<String> getInputStreamContent() throws IOException {
-        if (stdOut != null) { System.out.println("here");
-            return stdOut;
-        }
         assert process != null;
         
         InputStream inputStream = process.getInputStream();
