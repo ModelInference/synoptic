@@ -375,6 +375,51 @@ public class CSightMainTests extends CSightTest {
         dyn.run(log);
     }
 
+    /** Run with options specifying not in parallel */
+    @Test
+    public void runWithArgsNotParallel() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+        args.add("--runInParallel=false");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
+                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
+                + "3,4 M?m\n";
+
+        dyn.run(log);
+    }
+    
+    /** Run with options specifying how many in parallel */
+    @Test
+    public void runWithArgsNumParallel() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+        args.add("--numInParallel");
+        args.add("1");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
+                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
+                + "3,4 M?m\n";
+
+        dyn.run(log);
+    } 
+    
     /**
      * Test check and refine loop to skip model checking when all partitions of
      * the GFSM are singletons
