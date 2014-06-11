@@ -19,6 +19,7 @@ import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
 import csight.mc.mcscm.McScMRunner;
 import csight.mc.spin.Spin;
+import csight.mc.spin.SpinRunner;
 import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
@@ -218,7 +219,11 @@ public class CSightMain {
         
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
-            mc = new Spin(opts.mcPath);
+            if (opts.runInParallel) {
+                mcRunner = new SpinRunner(opts.mcPath, opts.numInParallel, opts.spinChannelCapacity);
+            } else {
+                mc = new Spin(opts.mcPath);
+            }
             if (opts.spinChannelCapacity <= 0) {
                 err = "Invalid channel capacity for use with spin: "
                         + opts.spinChannelCapacity;
