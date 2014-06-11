@@ -3,6 +3,7 @@ package csight.main;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -776,20 +777,20 @@ public class CSightMain {
                             + ", refinements so far: " + gfsmCounter + ". Timeout = "
                             + curTimeout + ".");
                     logger.info("*******************************************************");
-                    mc.verify(mcInputStr, curTimeout);
+                    try {
+                        mc.verify(mcInputStr, curTimeout);
+                    } catch (InterruptedException e) {
+                        throw new TimeoutException(e.getMessage());
+                    }
                 } else {
                     // Notes: print all inv checked if num(inv)<=5
                     // print: checking... invsCounter (+ 5 being checked) / totalInvs
-                    logger.info("*******************************************************");
-                    logger.info("Checking ... " + curInv.toString() + " and "
-                            + (opts.numInParallel - 1) + " others. Inv "
-                            + invsCounter + " (+ " + opts.numInParallel + " being checked) / " + totalInvs
-                            + ", refinements so far: " + gfsmCounter + ". Timeout = "
-                            + curTimeout + ".");
-                    logger.info("*******************************************************");
+                    mcRunner.logInfo("Inv " + invsCounter + " (+ " + (opts.numInParallel - 1)
+                            + " other(s) being checked) / " + totalInvs + ", refinements so far: "
+                            + gfsmCounter + ". Timeout = " + curTimeout + ".");
                     mcRunner.verify(pGraph, invsToSatisfy, curTimeout, opts.minimize);
                 }
-            } catch (InterruptedException e) {
+            } catch (TimeoutException e) {
                 // The model checker timed out. First, record the timed-out
                 // invariant so that we are not stuck re-checking it.
                 if (mcRunner == null) {

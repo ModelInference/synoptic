@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import csight.invariants.BinaryInvariant;
 import csight.model.fifosys.cfsm.CFSM;
@@ -19,6 +20,9 @@ import csight.util.Util;
  * multiple mc processes in parallel
  */
 public abstract class MCRunner {
+    
+    static Logger logger = Logger.getLogger("MCRunner");
+    
     /** Complete path to the model checker binary (e.g., McScM verify). */
     protected final String mcPath;
     
@@ -33,6 +37,8 @@ public abstract class MCRunner {
     
     /** The ExecutorService used to run processes in parallel */
     private ExecutorService eService;
+
+    private String logInfo;
     
     public MCRunner(String mcPath, int numParallel) {
         this.mcPath = mcPath;
@@ -68,7 +74,12 @@ public abstract class MCRunner {
         assert callables.size() <= numParallel;
         assert invsRan.size() == callables.size();
         
-        // TODO: add logging at appropriate locations in right format
+        // Log appropriate information as previously set
+        logger.info("*******************************************************");
+        logger.info(getInvsRanString() + logInfo);
+        logger.info("*******************************************************");
+        logInfo = null;
+        
         result = eService.invokeAny(callables, timeOut, TimeUnit.SECONDS);
     }
 
@@ -97,6 +108,14 @@ public abstract class MCRunner {
     }
     
     /**
+     * Sets info to log before running model checking
+     * @param logInfo
+     */
+    public void logInfo(String info) {
+        this.logInfo = info;
+    }
+    
+    /**
      * Returns the list of invariants that are to be ran in parallel
      * @return
      */
@@ -106,6 +125,22 @@ public abstract class MCRunner {
             invsToRun.add(invs.get(i));
         }
         return invsToRun;
+    }
+
+    /**
+     * Returns a string representing the invariants that are ran for logging
+     * @return
+     */
+    private String getInvsRanString() {
+        String ret = "Checking ... ";
+        if (invsRan.size() > 5) {
+            ret += invsRan.get(0).toString();
+            ret += " and " + (numParallel - 1) + " others. ";
+        } else {
+            ret += invsRan.toString();
+            ret += ". ";
+        }
+        return ret;
     }
     
     /**
