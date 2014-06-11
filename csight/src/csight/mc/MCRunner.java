@@ -150,15 +150,6 @@ public abstract class MCRunner {
     protected abstract MC initMC();
     
     /**
-     * Returns an input string for model checking from a CFSM model and
-     * an invariant to check
-     * @return
-     * @throws Exception 
-     */
-    protected abstract String prepareMCInputString(CFSM cfsm,
-            BinaryInvariant curInv) throws Exception;
-    
-    /**
      * Returns a list of Callables to run in parallel with ExecutorService
      * given a list of invariants to check
      * @param pGraph

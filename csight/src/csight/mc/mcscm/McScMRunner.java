@@ -21,17 +21,6 @@ public class McScMRunner extends MCRunner {
         return new McScM(mcPath);
     }
 
-    @Override
-    protected String prepareMCInputString(CFSM cfsm, BinaryInvariant curInv)
-            throws Exception {
-        // Augment the CFSM with synthetic states/events to check
-        // curInv (only fone for McScM).
-        cfsm.augmentWithInvTracing(curInv);
-
-        return cfsm.toScmString("checking_scm_"
-                + curInv.getConnectorString());
-    }
-
     /**
      * Returns a list of Callables to run in parallel with ExecutorService
      * given a list of invariants to run
