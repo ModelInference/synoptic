@@ -7,8 +7,8 @@ import csight.invariants.checkers.BinChecker;
 import synoptic.model.event.DistEventType;
 
 /**
- * A CSight representation a binary temporal invariant, inv(first,second),
- * where first/second are the related event types. An invariant also includes
+ * A CSight representation a binary temporal invariant, inv(first,second), where
+ * first/second are the related event types. An invariant also includes
  * synthetic event types that are solely used to track and specify when the
  * first/second events occur during model checking.
  */
@@ -175,6 +175,16 @@ abstract public class BinaryInvariant {
 
         return "(" + secondSynth1.getScmEventString() + " . "
                 + secondSynth2.getScmEventString() + ")";
+    }
+
+    public String firstNeverEvent() {
+        return String.format("(__message[%d] == %s)", first.getPid(),
+                first.getEType());
+    }
+
+    public String secondNeverEvent() {
+        return String.format("(__message[%d] == %s)", second.getPid(),
+                second.getEType());
     }
 
     /** Whether or not the passed eventsPath satisfied this invariant type. */
