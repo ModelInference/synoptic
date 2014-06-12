@@ -408,7 +408,7 @@ public class DistEventType extends EventType implements IDistEventType {
         } else if (isRecvEvent()) {
             typeStr = "recv";
         } else {
-            return "/* Unknown event. */";
+            return "printm(" + getEType() + ")";
         }
         return String.format("%s(%d,%d,%s)", typeStr, pid,
                 channelId.getScmId(), getEType());

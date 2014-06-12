@@ -756,6 +756,7 @@ public class CSightMain {
                         "checking_pml_" + curInv.getConnectorString(),
                         opts.spinChannelCapacity);
 
+                // Append never claim to end of cfsm.
                 mcInputStr += curInv.promelaNeverClaim();
 
                 // TODO Remove debugging promela output.
