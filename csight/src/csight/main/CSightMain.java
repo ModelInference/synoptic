@@ -635,6 +635,7 @@ public class CSightMain {
 
                 // Ignore x NFby y if x and y occur at different processes
                 // (Issue 271).
+                // TODO Issue271
                 if (first.getPid() == second.getPid()) {
                     dynInv = new NeverFollowedBy(first, second);
                 }
