@@ -43,11 +43,12 @@ public class EventuallyHappens extends BinaryInvariant {
         // The never claim will be accepted if the invariant is false.
 
         String ret = "";
-        ret += String.format("never { /* !(<>(%s)) */\n", secondNeverEvent());
+        ret += String.format("never { /* !(<>(%s)) */\n",
+                second.toPromelaString());
         ret += "accept_init:\n";
         ret += "T0_init:\n";
         ret += "    do\n";
-        ret += String.format("      :: (! (%s) ) -> goto T0_init\n",
+        ret += String.format("      :: (! %s ) -> goto T0_init\n",
                 secondNeverEvent());
         ret += "    od;\n";
         ret += "}\n";

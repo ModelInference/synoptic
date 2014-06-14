@@ -32,8 +32,9 @@ public class AlwaysPrecedes extends BinaryInvariant {
         // However, a has already happened, so it should be directed to a safe
         // state.
         String ret = "";
-        ret += String.format("never { /* !(<>%s) -> (!%s U %s))*/\n",
-                secondNeverEvent(), secondNeverEvent(), firstNeverEvent());
+        ret += String.format("never { /* !(<>(%s)) -> (!(%s) U (%s)))*/\n",
+                second.toPromelaString(), second.toPromelaString(),
+                first.toPromelaString());
         ret += "State_need_a:\n";
         ret += "    do\n";
         // Accept the claim if we see b without seeing a.

@@ -37,19 +37,19 @@ public class AlwaysFollowedBy extends BinaryInvariant {
         // is not followed by a "b".
         String ret = "";
         ret += String.format("never  {    /* !([]((%s) -> <>(%s))) */\n",
-                firstNeverEvent(), secondNeverEvent());
+                first.toPromelaString(), second.toPromelaString());
         ret += "wait_a:\n"; // "a"s so far have a "b".
         ret += "    do\n";
-        ret += String.format("      :: (%s) -> goto accept_lonely_a;\n",
+        ret += String.format("      :: %s -> goto accept_lonely_a;\n",
                 firstNeverEvent());
-        ret += String.format("      :: (!%s) -> goto wait_a;\n",
+        ret += String.format("      :: !%s -> goto wait_a;\n",
                 firstNeverEvent());
         ret += "    od;\n";
         ret += "accept_lonely_a:\n"; // Saw a, but haven't seen b.
         ret += "    do\n";
-        ret += String.format("      :: (%s) -> goto wait_a;\n",
+        ret += String.format("      :: %s -> goto wait_a;\n",
                 secondNeverEvent());
-        ret += String.format("      :: (!(%s)) -> goto accept_lonely_a;\n",
+        ret += String.format("      :: !%s -> goto accept_lonely_a;\n",
                 secondNeverEvent());
         ret += "    od;\n";
         ret += "}\n";

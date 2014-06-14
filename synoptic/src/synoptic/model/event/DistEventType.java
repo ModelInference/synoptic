@@ -396,22 +396,70 @@ public class DistEventType extends EventType implements IDistEventType {
         return result;
     }
 
+    /**
+     * A representation of the event in Promela.
+     * 
+     * @return
+     */
     public String toPromelaString() {
-        // TODO: need to pass a set of channels and an encoding for event types.
         String typeStr = "";
         if (isLocalEvent()) {
-            // TODO: Handle local events properly. This print is temporarily
-            // here to allow SPIN to generate valid Promela.
-            return String.format("localEvent(%d,%s)", pid, getEType());
+            return getEType();
         } else if (isSendEvent()) {
-            typeStr = "send";
+            typeStr = "!";
+        } else if (isRecvEvent()) {
+            typeStr = "?";
+        }
+        return channelId.getName() + typeStr + getEType();
+    }
+
+    /**
+     * @return A Promela string that calls a trace function.
+     */
+    public String toPromelaTraceString() {
+        String typeStr;
+        // Tracks the owner id. This happens to be the pid if it is a
+        // local event and is the channel id if it is a send or recv event.
+        int ownerId;
+        if (isLocalEvent()) {
+            typeStr = "localEvent";
+            ownerId = pid;
         } else if (isRecvEvent()) {
             typeStr = "recv";
+            ownerId = channelId.getScmId();
+        } else if (isSendEvent()) {
+            typeStr = "send";
+            ownerId = channelId.getScmId();
         } else {
+            // This shouldn't happen. We don't have SynthSend events with
+            // Promela.
             return "printm(" + getEType() + ")";
         }
-        return String.format("%s(%d,%d,%s)", typeStr, pid,
-                channelId.getScmId(), getEType());
+        return String.format("%s(%d,%s)", typeStr, ownerId, getEType());
+    }
 
+    /**
+     * This Promela string is a conditional for a matching event in a never
+     * claim. The string is enclosed with brackets so it is safe to use in
+     * boolean expressions.
+     * 
+     * @return
+     */
+    public String toPromelaTraceCheck() {
+        String typeStr = "";
+        int ownerId = -1;
+        if (isLocalEvent()) {
+            typeStr = "LOCAL";
+            ownerId = pid;
+        } else if (isRecvEvent()) {
+            typeStr = "RECV";
+            ownerId = channelId.getScmId();
+        } else if (isSendEvent()) {
+            typeStr = "SEND";
+            ownerId = channelId.getScmId();
+        }
+        return String
+                .format("((recentEvent.type == %s) && (recentEvent.id == %d) && (recentEvent.event == %s))",
+                        typeStr, ownerId, getEType());
     }
 }
