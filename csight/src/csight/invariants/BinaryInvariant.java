@@ -178,13 +178,11 @@ abstract public class BinaryInvariant {
     }
 
     public String firstNeverEvent() {
-        return String.format("(__message[%d] == %s)", first.getPid(),
-                first.getEType());
+        return first.toPromelaTraceCheck();
     }
 
     public String secondNeverEvent() {
-        return String.format("(__message[%d] == %s)", second.getPid(),
-                second.getEType());
+        return second.toPromelaTraceCheck();
     }
 
     /** Whether or not the passed eventsPath satisfied this invariant type. */

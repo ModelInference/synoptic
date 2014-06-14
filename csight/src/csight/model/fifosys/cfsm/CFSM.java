@@ -347,6 +347,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         ret += "/* Message types: */\n";
         ret += "mtype = { ";
+
         Set<String> eventTypes = Util.newSet();
         for (DistEventType e : alphabet) {
             eventTypes.add(e.getETypeLabel());
@@ -361,56 +362,66 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             firstEvent = false;
         }
 
-        ret += " };\n";
+        ret += " };\n"; // End mtype declaration.
         ret += "\n\n";
 
         // Channels:
         ret += "/* Channels: */\n\n";
 
         for (int i = 0; i < channelIds.size(); i++) {
-            String iStr = Integer.toString(i);
             ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
-
-            // ret += "chan chan" + iStr + " = [" +
-            // Integer.toString(chanCapacity) + "] of { mtype };\n\n";
         }
 
-        // Temporarily specifying channels as an array to work with inlines.
+        // Specifying channels as an array to work with inlines.
         ret += String.format("chan channel[%d] = [%d] of { mtype };",
                 channelIds.size(), chanCapacity);
         ret += "\n\n";
 
-        // FSM state vars declaration, one per FSM:
-        ret += "/* FSM state vars: */\n";
-        for (int pid = 0; pid < numProcesses; pid++) {
-            ret += "byte state" + Integer.toString(pid) + " = 0;\n";
-        }
-        ret += "\n\n";
+        // Event type definitions for type tracking
+        ret += "#define LOCAL (0)\n";
+        ret += "#define SEND (1)\n";
+        ret += "#define RECV (2)\n";
 
-        // Tracks last message. Arrays allow the inlines to work better.
-        ret += "hidden mtype __message[" + numProcesses + "];\n";
+        // Custom type to assist in tracking recent event.
+        ret += "typedef myEvent {\n";
+        ret += "    byte type;\n";
+        ret += "    byte id;\n";
+        ret += "    mtype event;\n";
+        ret += "};\n";
+
+        // Declaration of event tracker.
+        ret += "myEvent recentEvent;\n";
+
+        // Custom inline function to update most recent event.
+        ret += "inline setRecentEvent(event_type, owner_id, event_message) {\n";
+        ret += "  d_step{\n";
+        ret += "    recentEvent.type = event_type;\n";
+        ret += "    recentEvent.id = owner_id;\n";
+        ret += "    recentEvent.event = event_message;\n";
+        ret += "  };\n";
+        ret += "}\n";
 
         // Inline declarations to make changing things easier.
-        // Arrays work better with universally used inlines.
+        // These add traces to the send, recv and local events.
 
-        ret += "inline send(p_id, chan_id, message_type){\n";
+        ret += "inline send(chan_id, message_type){\n";
         ret += "    atomic{\n";
         ret += "        channel[chan_id]!message_type;\n";
-        ret += "        __message[p_id] = message_type;\n";
+        ret += "        setRecentEvent(SEND, chan_id, message_type);\n";
         ret += "    };\n";
         ret += "}\n";
         ret += "\n";
-        ret += "inline recv(p_id, chan_id, message_type) {\n";
+        ret += "inline recv(chan_id, message_type) {\n";
         ret += "    atomic{\n";
         ret += "        channel[chan_id]?message_type;\n";
-        ret += "        __message[p_id] = message_type;\n";
+        ret += "        setRecentEvent(RECV, chan_id, message_type);\n";
         ret += "    }\n";
         ret += "}\n";
         ret += "\n";
         ret += "inline localEvent(p_id, message_type){\n";
         ret += "    atomic{\n";
         ret += "        printf(\"%e\", message_type);\n";
-        ret += "        __message[p_id] = message_type;\n";
+        ret += "        setRecentEvent(LOCAL, p_id, message_type);\n";
         ret += "    }\n";
         ret += "}\n\n";
 

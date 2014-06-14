@@ -33,8 +33,8 @@ public class NeverFollowedBy extends BinaryInvariant {
 
         // The claim is true if we see a "b" after seeing an "a".
         String ret = "";
-        ret += String.format("never { /* !([](%s -> []!%s)) */ \n",
-                firstNeverEvent(), secondNeverEvent());
+        ret += String.format("never { /* !([]((%s) -> []!(%s))) */ \n",
+                first.toPromelaString(), second.toPromelaString());
         ret += "State_no_a:\n";
         ret += "    do\n";
         ret += String.format("      :: (!%s) -> goto State_no_a\n",
@@ -44,9 +44,9 @@ public class NeverFollowedBy extends BinaryInvariant {
         ret += "    od;\n";
         ret += "State_seen_a:\n";
         ret += "    do\n";
-        ret += String.format("      :: ((%s)) -> goto accept_all\n",
+        ret += String.format("      :: %s -> goto accept_all\n",
                 secondNeverEvent()); // We saw a b, so we accept the claim.
-        ret += String.format("      :: ((!(%s))) -> goto State_seen_a\n",
+        ret += String.format("      :: (!%s) -> goto State_seen_a\n",
                 secondNeverEvent()); // We haven't seen b.
         ret += "    od;\n";
         ret += "accept_all:\n";

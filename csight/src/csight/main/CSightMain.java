@@ -753,7 +753,7 @@ public class CSightMain {
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
                 mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.getConnectorString(),
+                        "checking_pml_" + curInv.toString(),
                         opts.spinChannelCapacity);
 
                 // Append never claim to end of cfsm.
