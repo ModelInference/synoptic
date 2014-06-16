@@ -638,6 +638,9 @@ public class CSightMain {
                 // TODO Issue271
                 if (first.getPid() == second.getPid()) {
                     dynInv = new NeverFollowedBy(first, second);
+                } else {
+                    // TODO: check if first and second never co-appear in any trace
+                    // TODO: check if first and second never follow each other in any serialization of trace
                 }
 
             } else if (inv instanceof AlwaysPrecedesInvariant) {
