@@ -420,7 +420,6 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "\n";
         ret += "inline localEvent(p_id, message_type){\n";
         ret += "    atomic{\n";
-        ret += "        printf(\"%e\", message_type);\n";
         ret += "        setRecentEvent(LOCAL, p_id, message_type);\n";
         ret += "    }\n";
         ret += "}\n\n";

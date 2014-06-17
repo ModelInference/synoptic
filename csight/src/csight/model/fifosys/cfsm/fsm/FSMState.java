@@ -256,10 +256,13 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
 
             Set<FSMState> validTrans = transitions.get(e);
 
+            String printTrace = String.format(
+                    "printf(\"CSightTrace[%s]\\n\");", e.toString());
             // This transition conditional may be used multiple times as a
             // guard. Promela if statements will non-deterministically choose
             // one of the valid branches.
-            String transCond = "\t :: " + e.toPromelaTraceString() + " -> ";
+            String transCond = String.format("\t :: atomic { %s; %s } -> ",
+                    e.toPromelaTraceString(), printTrace);
 
             for (FSMState s : validTrans) {
                 ret += transCond;
