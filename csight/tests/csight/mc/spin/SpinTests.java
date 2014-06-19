@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import csight.CSightTest;
 import csight.mc.MCSyntaxException;
-import csight.mc.spin.Spin;
 import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -32,7 +31,7 @@ public class SpinTests extends CSightTest {
         super.setUp();
 
         // NOTE: hard-coded assumption about where the tests are run
-        spinPath = CSightTest.getMcPath();
+        spinPath = CSightTest.getMcPath("spin");
         pmlFilePrefix = "./tests/csight/mc/spin/";
 
         spin = new Spin(spinPath);
