@@ -1,4 +1,4 @@
-package csight.mc.mcscm;
+package csight.mc;
 
 /** An exception in parsing McScM verify (model checker) command line output. */
 public class VerifyOutputParseException extends RuntimeException {
