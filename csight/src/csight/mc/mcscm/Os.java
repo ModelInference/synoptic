@@ -47,4 +47,8 @@ public final class Os {
         final String os = getOsName().toLowerCase();
         return os.startsWith("mac");
     }
+
+    public static boolean isWindows() {
+        return getOsName().toLowerCase().indexOf("windows") >= 0;
+    }
 }
