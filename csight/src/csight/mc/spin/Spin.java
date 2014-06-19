@@ -1,7 +1,11 @@
 package csight.mc.spin;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -30,10 +34,17 @@ public class Spin extends MC {
          * after it finishes running. The -I option tries to find a faster path
          * to the error.
          */
-        File currentPath = new java.io.File(".");
+        File currentPath = new java.io.File("./test-output/");
 
-        mcProcess = new MCProcess(new String[] { mcPath }, input, currentPath,
-                timeoutSecs);
+        File promelaFile = new java.io.File("./test-output/csight.pml");
+        Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(promelaFile)));
+        writer.write(input);
+        writer.close();
+
+        // Spin does not use stdin for Promela input.
+        String[] command = new String[] { mcPath, "-run", "-a", "csight.pml" };
+        mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
         mcProcess.runProcess();
     }
 
@@ -52,7 +63,9 @@ public class Spin extends MC {
          * CSightTrace[event_here]
          */
         logger.info("Spin returned: " + lines.toString());
-        MCResult ret = new SpinResult(lines, cids);
+
+        MCResult ret = new SpinResult(lines, cids, mcPath);
+        logger.info(ret.toRawString());
         return ret;
     }
 

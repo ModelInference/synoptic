@@ -333,16 +333,19 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
 
         // If we have more than one initial state, then we choose
         // non-deterministically between the available initial states.
-        if (initStates.size() > 1) {
-            ret += "select(" + stateVar + " : 0 .. "
-                    + Integer.toString(initStates.size() - 1) + ")";
+        // Either way, we need to choose a state. There is no guarantee that
+        // state with the lowest id is our initial state.
+        ret += "if\n";
+        for (FSMState s : initStates) {
+            ret += ":: goto " + stateVar + "_" + s.getStateId() + ";\n";
         }
+        ret += "fi;\n";
 
         for (FSMState s : states) {
             ret += s.toPromelaString(stateVar);
             ret += "\n\n";
         }
-
+        ret += "end_" + stateVar + ":\n";
         return ret;
     }
 }

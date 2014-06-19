@@ -248,29 +248,45 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         if (isAccept()) {
             ret += "end_" + stateVar + "_" + getStateId() + ":\n";
         }
+        if (transitions.keySet().size() > 0) {
+            ret += "\tdo\n";
 
-        ret += "\tif\n";
+            for (DistEventType e : transitions.keySet()) {
 
-        for (DistEventType e : transitions.keySet()) {
-            String stateTrans = "goto " + stateVar + "_";
+                Set<FSMState> validTrans = transitions.get(e);
 
-            Set<FSMState> validTrans = transitions.get(e);
+                String printTrace = String.format(
+                        "printf(\"CSightTrace[%s]\\n\");", e.toString());
+                // This transition conditional may be used multiple times as a
+                // guard. Promela if statements will non-deterministically
+                // choose
+                // one of the valid branches.
+                String transCond = String.format("\t :: atomic { %s; %s } -> ",
+                        e.toPromelaTraceString(), printTrace);
 
-            String printTrace = String.format(
-                    "printf(\"CSightTrace[%s]\\n\");", e.toString());
-            // This transition conditional may be used multiple times as a
-            // guard. Promela if statements will non-deterministically choose
-            // one of the valid branches.
-            String transCond = String.format("\t :: atomic { %s; %s } -> ",
-                    e.toPromelaTraceString(), printTrace);
-
-            for (FSMState s : validTrans) {
-                ret += transCond;
-                ret += stateTrans + s.getStateId() + ";\n";
+                for (FSMState s : validTrans) {
+                    ret += transCond;
+                    ret += "goto " + s.getPromelaName(stateVar) + ";\n";
+                }
             }
+            ret += "\t od;\n";
         }
-        ret += "\t fi";
         return ret;
+    }
+
+    private String getPromelaName(String stateVar) {
+        String ret = "";
+        if (isAccept()) {
+            ret += "end_";
+        }
+        ret += stateVar;
+        // If this state has no transitions, it's an end state.
+        if (transitions.keySet().size() != 0) {
+            ret += "_" + getStateId();
+        }
+
+        return ret;
+
     }
 
     // //////////////////////////////////////////////////////////////////
