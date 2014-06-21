@@ -49,6 +49,17 @@ public class CSightMainTests extends CSightTest {
         return args;
     }
 
+    public List<String> getSpinArgsStr() throws Exception {
+        List<String> args = Util.newList();
+        args.add("--mcType");
+        args.add("spin");
+        args.add("--mcPath");
+        args.add("../" + super.getMcPath("spin"));
+        args.add("-o");
+        args.add("test-output" + File.separator + "test");
+        return args;
+    }
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -240,9 +251,8 @@ public class CSightMainTests extends CSightTest {
         logger.info("CSight run took: " + msTime + "ms ~ " + sTime + "s");
     }
 
-    @Test
-    public void runABPSuccess() throws Exception {
-        List<String> args = getBasicArgsStr();
+    public List<String> getABPArgs() {
+        List<String> args = Util.newList();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -251,6 +261,13 @@ public class CSightMainTests extends CSightTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
+        return args;
+    }
+
+    @Test
+    public void runABPSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.addAll(getABPArgs());
         args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
         runDynFromFileArgs(args);
     }
@@ -258,14 +275,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runABPLongTraceSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
-        args.add("-r");
-        args.add("^(?<VTIME>)(?<TYPE>)$");
-        args.add("-s");
-        args.add("^--$");
-        args.add("-q");
-        args.add("M:0->1;A:1->0");
-        args.add("-i");
-        args.add("-d");
+        args.addAll(getABPArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
         // runDynFromFileArgs(args);
     }
@@ -343,6 +353,22 @@ public class CSightMainTests extends CSightTest {
         runDynFromFileArgs(args);
     }
 
+    /** A trivial example with 4 total events. */
+    @Test
+    public void runSpinSimpleConcurrencyFileSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
+        runDynFromFileArgs(args);
+    }
+
     /** Same as the above, but uses a String input instead of a file input. */
     @Test
     public void runSimpleConcurrencyStringSuccess() throws Exception {
@@ -365,6 +391,31 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleConcurrencyString2Success() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
+                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
+                + "3,4 M?m\n";
+
+        dyn.run(log);
+    }
+
+    /**
+     * The same example as above but with Spin. Unfortunately, this one goes on
+     * indefinitely, so there's a timeout on the test itself. This is so we can
+     * test all the tests at once.
+     */
+    @Test(timeout = 10 * 1000)
+    public void runSpinSimpleConcurrencyString2Success() throws Exception {
+        List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");

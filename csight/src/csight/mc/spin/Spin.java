@@ -34,9 +34,9 @@ public class Spin extends MC {
          * after it finishes running. The -I option tries to find a faster path
          * to the error.
          */
-        File currentPath = new java.io.File("./test-output/");
+        File currentPath = new java.io.File("test-output/");
 
-        File promelaFile = new java.io.File("./test-output/csight.pml");
+        File promelaFile = new java.io.File("test-output/csight.pml");
         Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(promelaFile)));
         writer.write(input);

@@ -767,6 +767,9 @@ public class CSightMain {
                 GraphExporter.exportCFSM("./test-output/test.dot", cfsm);
                 GraphExporter
                         .generatePngFileFromDotFile("./test-output/test.dot");
+                GraphExporter.exportGFSM("./test-output/test-gfsm.dot", pGraph);
+                GraphExporter
+                        .generatePngFileFromDotFile("./test-output/test-gfsm.dot");
 
             } else {
                 throw new RuntimeException(
