@@ -1,11 +1,9 @@
 package csight.model.fifosys.cfsm;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import csight.CSightTest;
-import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.cfsm.fsm.FSM;
 import csight.model.fifosys.cfsm.fsm.FSMState;
 import csight.util.Util;

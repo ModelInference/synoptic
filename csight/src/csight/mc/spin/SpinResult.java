@@ -21,7 +21,7 @@ public class SpinResult extends MCResult {
 
     static String traceRe = "^CSightTrace\\[(.*)\\]$";
     static String unsafeRe = "^pan: wrote (.*\\.trail)$";
-    static String safeRe = "^No errors found -- did you verify all claims\\?$";
+    static String safeRe = "^State-vector \\d* byte, depth reached \\d*, errors: 0$";
     static String syntaxErrRe = "Error: syntax error";
 
     // Three capture groups. Event, pid and something I'm not sure about.
@@ -56,11 +56,18 @@ public class SpinResult extends MCResult {
                 modelIsSafe = false;
                 detectedSafety = true;
             }
+            if (line.matches(safeRe)) {
+                modelIsSafe = true;
+                detectedSafety = true;
+            }
         }
 
         if (!modelIsSafe) {
             try {
-                File currentPath = new java.io.File("./test-output/");
+                File currentPath = new java.io.File("test-output");
+                // Run a new instance of Spin to read the trail file.
+                // The warnings can be ignored for now. They are a result of
+                // nesting atomics and d_steps as a result of inlines.
                 MCProcess trailProcess = new MCProcess(new String[] { mcPath,
                         "-t", "-T", "-v", "csight.pml" }, "", currentPath, 60);
                 trailProcess.runProcess();
@@ -69,9 +76,10 @@ public class SpinResult extends MCResult {
             } catch (Exception e) {
                 // TODO Properly handle this. For now, this is to test if this
                 // works here.
+                System.out.println("Exception.");
             }
-
         }
+
         if (!detectedSafety) {
             throw new VerifyOutputParseException(
                     "Unable to parse verify result: cannot determine model safety");
@@ -138,8 +146,12 @@ public class SpinResult extends MCResult {
         for (String line : verifyRawLines) {
             ret += line + "\n";
         }
-        for (String line : trailLines) {
-            ret += line + "\n";
+        if (trailLines != null) {
+            for (String line : trailLines) {
+                ret += line + "\n";
+            }
+        } else {
+            ret += ("Trail is empty.\n");
         }
         return ret;
     }

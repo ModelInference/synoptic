@@ -31,7 +31,7 @@ public class SpinTests extends CSightTest {
         super.setUp();
 
         // NOTE: hard-coded assumption about where the tests are run
-        spinPath = CSightTest.getMcPath("spin");
+        spinPath = "../" + CSightTest.getMcPath("spin");
         pmlFilePrefix = "./tests/csight/mc/spin/";
 
         spin = new Spin(spinPath);
