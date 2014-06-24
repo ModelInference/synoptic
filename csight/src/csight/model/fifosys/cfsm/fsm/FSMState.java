@@ -240,50 +240,52 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         return ret;
     }
 
+    // ///////////////////////////////////////////////////////////////
+
     /**
      * Returns a Promela representation of this FSMState.
      */
     public String toPromelaString(String stateVar) {
         String ret = stateVar + "_" + getStateId() + ":\n";
         if (isAccept()) {
+            ret += "atomic { recentEvent.type = NONEVENT; ";
+            ret += "terminal[" + getPid() + "] = ";
+            ret += isAccept() ? "1;" : "0;";
+            ret += "}\n";
             ret += "end_" + stateVar + "_" + getStateId() + ":\n";
         }
-        if (transitions.keySet().size() > 0) {
-            ret += "\tdo\n";
+        // Promela if statements will non-deterministically
+        // choose one of the valid branches.
+        ret += "\tdo\n";
 
-            for (DistEventType e : transitions.keySet()) {
-
-                Set<FSMState> validTrans = transitions.get(e);
+        for (DistEventType e : transitions.keySet()) {
+            for (FSMState s : transitions.get(e)) {
 
                 String printTrace = String.format(
-                        "printf(\"CSightTrace[%s]\\n\");", e.toString());
-                // This transition conditional may be used multiple times as a
-                // guard. Promela if statements will non-deterministically
-                // choose
-                // one of the valid branches.
-                String transCond = String.format("\t :: atomic { %s; %s } -> ",
-                        e.toPromelaTraceString(), printTrace);
+                        "printf(\"CSightTrace[%s]\\n\")", e.toString());
+                // We set terminal to 0 since we're still in the transition.
+                String transCond = String.format(
+                        "\t :: atomic { %s; %s; terminal[%d] = 0;} -> ",
+                        e.toPromelaTraceString(), printTrace, getPid());
 
-                for (FSMState s : validTrans) {
-                    ret += transCond;
-                    ret += "goto " + s.getPromelaName(stateVar) + ";\n";
-                }
+                ret += transCond;
+
+                ret += "goto " + s.getPromelaName(stateVar) + ";\n";
             }
-            ret += "\t od;\n";
         }
+        if (transitions.keySet().size() == 0 && isAccept()) {
+            ret += "\t :: atomic{ recentEvent.type = NONEVENT; terminal["
+                    + getPid() + "] = 0;}\n";
+            ret += "goto end_" + stateVar + ";\n";
+        }
+        ret += "\t od;\n";
         return ret;
     }
 
-    private String getPromelaName(String stateVar) {
+    public String getPromelaName(String stateVar) {
         String ret = "";
-        if (isAccept()) {
-            ret += "end_";
-        }
         ret += stateVar;
-        // If this state has no transitions, it's an end state.
-        if (transitions.keySet().size() != 0) {
-            ret += "_" + getStateId();
-        }
+        ret += "_" + getStateId();
 
         return ret;
 
