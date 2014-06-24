@@ -34,16 +34,17 @@ public class Spin extends MC {
          * after it finishes running. The -I option tries to find a faster path
          * to the error.
          */
-        File currentPath = new java.io.File("test-output/");
+        File currentPath = new java.io.File(".");
 
-        File promelaFile = new java.io.File("test-output/csight.pml");
+        File promelaFile = new java.io.File("csight.pml");
         Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(promelaFile)));
         writer.write(input);
         writer.close();
 
         // Spin does not use stdin for Promela input.
-        String[] command = new String[] { mcPath, "-run", "-a", "csight.pml" };
+        String[] command = new String[] { mcPath, "-run", "-I", "-q",
+                "csight.pml" };
         mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
         mcProcess.runProcess();
     }

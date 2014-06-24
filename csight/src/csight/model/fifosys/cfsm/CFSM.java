@@ -368,19 +368,35 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         // Channels:
         ret += "/* Channels: */\n\n";
 
+        // Specifying channels as an array to work with inlines.
+        ret += String.format("chan channel[%d] = [%d] of { mtype };\n",
+                channelIds.size(), chanCapacity);
+
+        String emptyChannelCheck = "";
         for (int i = 0; i < channelIds.size(); i++) {
             ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
+            if (i != 0) {
+                emptyChannelCheck += " && ";
+            }
+            emptyChannelCheck += "empty(channel[" + i + "])";
         }
-
-        // Specifying channels as an array to work with inlines.
-        ret += String.format("chan channel[%d] = [%d] of { mtype };",
-                channelIds.size(), chanCapacity);
+        ret += String.format("#define EMPTYCHANNELCHECK (%s)\n",
+                emptyChannelCheck);
         ret += "\n\n";
 
         // Event type definitions for type tracking
-        ret += "#define LOCAL (0)\n";
-        ret += "#define SEND (1)\n";
-        ret += "#define RECV (2)\n";
+
+        // NONEVENTs are used for other transitions so we do not accidentally
+        // trigger an "a NFby b". This can happen when both event a and event b
+        // are the same event e. This invariant can be accepted if a transition
+        // happens that does not call setRecentEvent. NONEVENT does not match
+        // any event so it is safe to use during these transitions.
+
+        ret += "#define NONEVENT (0)\n";
+        // Events we're actively tracking.
+        ret += "#define LOCAL (1)\n";
+        ret += "#define SEND (2)\n";
+        ret += "#define RECV (3)\n";
 
         // Custom type to assist in tracking recent event.
         ret += "typedef myEvent {\n";
@@ -411,6 +427,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "    };\n";
         ret += "}\n";
         ret += "\n";
+
         ret += "inline recv(chan_id, message_type) {\n";
         ret += "    atomic{\n";
         ret += "        channel[chan_id]?message_type;\n";
@@ -418,12 +435,17 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "    }\n";
         ret += "}\n";
         ret += "\n";
+
         ret += "inline localEvent(p_id, message_type){\n";
         ret += "    atomic{\n";
         ret += "        setRecentEvent(LOCAL, p_id, message_type);\n";
         ret += "    }\n";
         ret += "}\n\n";
 
+        // Tracks if states of the FSM are terminal or not.
+        ret += "bit terminal[" + numProcesses + "];\n";
+
+        String endStateCheck = "";
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
             String stateVar = "state" + Integer.toString(pid);
@@ -432,7 +454,13 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             ret += "{\n";
             ret += f.toPromelaString(stateVar);
             ret += "}\n\n";
+            // Set up the terminal check boolean.
+            if (pid != 0) {
+                endStateCheck += " && ";
+            }
+            endStateCheck += "terminal[" + pid + "]";
         }
+        ret += String.format("#define ENDSTATECHECK (%s)\n", endStateCheck);
         ret += "\n\n";
 
         return ret;

@@ -1,6 +1,7 @@
 package csight.mc.spin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,20 +65,25 @@ public class SpinResult extends MCResult {
 
         if (!modelIsSafe) {
             try {
-                File currentPath = new java.io.File("test-output");
+                File currentPath = new java.io.File(".");
                 // Run a new instance of Spin to read the trail file.
                 // The warnings can be ignored for now. They are a result of
                 // nesting atomics and d_steps as a result of inlines.
                 MCProcess trailProcess = new MCProcess(new String[] { mcPath,
-                        "-t", "-T", "-v", "csight.pml" }, "", currentPath, 60);
+                        "-t", "-T", "csight.pml" }, "", currentPath, 20);
                 trailProcess.runProcess();
                 trailLines = trailProcess.getInputStreamContent();
                 parseCounterExample(trailLines);
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 // TODO Properly handle this. For now, this is to test if this
                 // works here.
-                System.out.println("Exception.");
+                throw new VerifyOutputParseException(
+                        "Unable to parse verify result: Spin interrupted during parsing.");
+            } catch (IOException e) {
+                throw new VerifyOutputParseException(
+                        "Unable to parse verify result: cannot access trail file.");
             }
+
         }
 
         if (!detectedSafety) {

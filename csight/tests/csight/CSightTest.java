@@ -173,8 +173,9 @@ public class CSightTest {
         } else {
             fail("Running on an unsupported OS (not Linux, and not Mac).");
         }
+        File mcLoc = new File(mcStr + osStr);
 
-        return mcStr + osStr;
+        return mcLoc.toString();
     }
 
     /**

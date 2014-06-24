@@ -337,7 +337,13 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // state with the lowest id is our initial state.
         ret += "if\n";
         for (FSMState s : initStates) {
-            ret += ":: goto " + stateVar + "_" + s.getStateId() + ";\n";
+            ret += ":: ";
+            ret += "atomic{";
+            ret += "true; recentEvent.type = NONEVENT; ";
+            ret += "terminal[" + getPid() + "]=";
+            ret += s.isAccept() ? "1;" : "0;";
+            ret += "} ->";
+            ret += "goto " + s.getPromelaName(stateVar) + ";\n";
         }
         ret += "fi;\n";
 
@@ -346,6 +352,9 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             ret += "\n\n";
         }
         ret += "end_" + stateVar + ":\n";
+        ret += "atomic { recentEvent.type = NONEVENT; ";
+        ret += "terminal[" + getPid() + "]=1";
+        ret += "}";
         return ret;
     }
 }
