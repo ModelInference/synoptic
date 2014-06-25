@@ -52,6 +52,8 @@ public class EventuallyHappens extends BinaryInvariant {
         ret += String
                 .format("      :: ( ENDSTATECHECK && EMPTYCHANNELCHECK && !%s ) -> break;\n",
                         secondNeverEvent());
+        // We don't have a condition for matching b.
+        // Never claims will not accept anything when b has been seen.
         ret += "    od;\n";
 
         ret += "}\n";

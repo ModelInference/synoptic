@@ -43,8 +43,8 @@ public class Spin extends MC {
         writer.close();
 
         // Spin does not use stdin for Promela input.
-        String[] command = new String[] { mcPath, "-run", "-I", "-q",
-                "csight.pml" };
+        String[] command = new String[] { mcPath, "-run", "-DREACH", "-DBFS",
+                "-I", "-q", "csight.pml" };
         mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
         mcProcess.runProcess();
     }

@@ -248,10 +248,10 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     public String toPromelaString(String stateVar) {
         String ret = stateVar + "_" + getStateId() + ":\n";
         if (isAccept()) {
-            ret += "atomic { recentEvent.type = NONEVENT; ";
+            ret += "atomic { skip; d_step { recentEvent.type = NONEVENT; ";
             ret += "terminal[" + getPid() + "] = ";
             ret += isAccept() ? "1;" : "0;";
-            ret += "}\n";
+            ret += "}}\n";
             ret += "end_" + stateVar + "_" + getStateId() + ":\n";
         }
         // Promela if statements will non-deterministically
@@ -274,7 +274,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
             }
         }
         if (transitions.keySet().size() == 0 && isAccept()) {
-            ret += "\t :: atomic{ recentEvent.type = NONEVENT; terminal["
+            ret += "\t :: d_step{ recentEvent.type = NONEVENT; terminal["
                     + getPid() + "] = 0;}\n";
             ret += "goto end_" + stateVar + ";\n";
         }
