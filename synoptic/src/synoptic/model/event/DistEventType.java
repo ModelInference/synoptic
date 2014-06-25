@@ -397,6 +397,14 @@ public class DistEventType extends EventType implements IDistEventType {
     }
 
     /**
+     * Event name in Promela. This prevents the use of a Promela keyword as an
+     * event type.
+     */
+    public String getPromelaEType() {
+        return "csight_" + getEType();
+    }
+
+    /**
      * A representation of the event in Promela.
      * 
      * @return
@@ -404,13 +412,13 @@ public class DistEventType extends EventType implements IDistEventType {
     public String toPromelaString() {
         String typeStr = "";
         if (isLocalEvent()) {
-            return getEType();
+            return getPromelaEType();
         } else if (isSendEvent()) {
             typeStr = "!";
         } else if (isRecvEvent()) {
             typeStr = "?";
         }
-        return channelId.getName() + typeStr + getEType();
+        return channelId.getName() + typeStr + getPromelaEType();
     }
 
     /**
@@ -433,9 +441,9 @@ public class DistEventType extends EventType implements IDistEventType {
         } else {
             // This shouldn't happen. We don't have SynthSend events with
             // Promela.
-            return "printm(" + getEType() + ")";
+            return "printm(" + getPromelaEType() + ")";
         }
-        return String.format("%s(%d,%s)", typeStr, ownerId, getEType());
+        return String.format("%s(%d,%s)", typeStr, ownerId, getPromelaEType());
     }
 
     /**
@@ -460,6 +468,6 @@ public class DistEventType extends EventType implements IDistEventType {
         }
         return String
                 .format("((recentEvent.type == %s) && (recentEvent.id == %d) && (recentEvent.event == %s))",
-                        typeStr, ownerId, getEType());
+                        typeStr, ownerId, getPromelaEType());
     }
 }

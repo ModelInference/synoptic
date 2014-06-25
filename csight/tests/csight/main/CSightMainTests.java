@@ -56,7 +56,7 @@ public class CSightMainTests extends CSightTest {
         args.add("--mcPath");
         args.add(super.getMcPath("spin"));
         args.add("-o");
-        args.add("test-output" + File.separator + "test");
+        args.add("test-output" + File.separator + "test-spin");
         return args;
     }
 
@@ -268,7 +268,15 @@ public class CSightMainTests extends CSightTest {
     public void runABPSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
-        args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_simple.txt");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_simple.txt");
         runDynFromFileArgs(args);
     }
 
@@ -277,6 +285,22 @@ public class CSightMainTests extends CSightTest {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPLongTraceSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPLongerTraceSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_longer.txt");
         // runDynFromFileArgs(args);
     }
 
@@ -298,8 +322,42 @@ public class CSightMainTests extends CSightTest {
     }
 
     @Test
+    public void runSpinTCPTrace() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("sc:0->1;cs:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/Tcp/po_tcp_log.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
     public void runVoldemortTrace() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("cr1:0->1;r1c:1->0;cr2:0->2;r2c:2->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/Voldemort/trace_client_put_get.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinVoldemortTrace() throws Exception {
+        List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -322,6 +380,29 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleReqRes() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("A:0->1;B:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("-minimize");
+        args.add("../traces/abstract/request-response-po/trace.txt");
+        runDynFromFileArgs(args);
+    }
+
+    /**
+     * A simple PO example with p0 sending a message, and p1 receiving the
+     * message, performing a local action, and replying with an ack. This is
+     * recorded as 1, and 2 iterations.
+     */
+    @Test
+    public void runSpinSimpleReqRes() throws Exception {
+        List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");

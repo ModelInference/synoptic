@@ -42,14 +42,10 @@ public class AlwaysPrecedes extends BinaryInvariant {
                 secondNeverEvent());
         ret += String.format("      :: (!%s && !%s)-> goto State_need_a;\n",
                 firstNeverEvent(), secondNeverEvent()); // Haven't seen a or b.
-        // We've seen a, so b is now safe.
-        ret += String.format("      :: %s -> goto State_seen_a;\n",
-                firstNeverEvent());
-        ret += "    od;\n";
 
-        ret += "State_seen_a:\n";
-        ret += "    do\n";
-        ret += "      :: skip;\n"; // Once a has been seen, b is safe.
+        // We've seen a, so b is now safe.
+        // We don't match this. If a never claim can't match a step, it is
+        // considered safe.
         ret += "    od;\n";
 
         ret += "wait_end:\n";

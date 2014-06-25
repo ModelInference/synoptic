@@ -350,7 +350,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         Set<String> eventTypes = Util.newSet();
         for (DistEventType e : alphabet) {
-            eventTypes.add(e.getETypeLabel());
+            eventTypes.add(e.getPromelaEType());
         }
 
         boolean firstEvent = true;

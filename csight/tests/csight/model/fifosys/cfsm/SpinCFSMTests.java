@@ -50,8 +50,8 @@ public class SpinCFSMTests extends CFSMTesting {
         logger.info(cStr);
 
         MCResult result = spin.getVerifyResult(cfsm.getChannelIds());
-        GraphExporter.exportCFSM("file.tmp", cfsm);
-        GraphExporter.generatePngFileFromDotFile("file.tmp");
+        GraphExporter.exportCFSM("test-output/test.dot", cfsm);
+        GraphExporter.generatePngFileFromDotFile("test-output/test.dot");
         logger.info(result.toRawString());
         logger.info(result.toString());
         return result;
