@@ -48,12 +48,13 @@ public class EventuallyHappens extends BinaryInvariant {
         ret += String.format("      :: (! %s ) -> goto need_b;\n",
                 secondNeverEvent());
         // If we reach the end state of b's process and we don't see b for the
-        // last step, then the invariant is invalid.
+        // last step, then never claim is true and the invariant is invalid.
         ret += String
                 .format("      :: ( ENDSTATECHECK && EMPTYCHANNELCHECK && !%s ) -> break;\n",
                         secondNeverEvent());
         // We don't have a condition for matching b.
-        // Never claims will not accept anything when b has been seen.
+        // If we do see a 'b', then the model checker will explore a different
+        // path.
         ret += "    od;\n";
 
         ret += "}\n";

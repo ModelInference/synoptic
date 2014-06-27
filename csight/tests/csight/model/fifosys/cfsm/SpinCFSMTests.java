@@ -79,6 +79,7 @@ public class SpinCFSMTests extends CFSMTesting {
     public void verifyEventuallyUnsafe2() throws Exception {
         // Constructs a new CFSM with one FSM that has a self loop on the
         // init/accept state.
+        // The expected counterexample should have no events in the trace.
         FSMState p0InitAccept = new FSMState(true, true, 0, 0);
         states = Util.newSet();
         states.add(p0InitAccept);
@@ -115,8 +116,6 @@ public class SpinCFSMTests extends CFSMTesting {
     @Test
     public void verifyAFbyUnsafe() throws Exception {
         simplifyCFSM();
-        GraphExporter.exportCFSM("cfsm.dot", cfsm);
-        GraphExporter.generatePngFileFromDotFile("cfsm.dot");
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p1Rm, p0Sm);
         MCResult result = verifyAndPrint(inv);
         assertTrue(!result.modelIsSafe());

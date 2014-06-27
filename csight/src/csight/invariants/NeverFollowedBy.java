@@ -39,6 +39,7 @@ public class NeverFollowedBy extends BinaryInvariant {
         ret += String.format("      :: %s -> goto State_seen_a;\n",
                 firstNeverEvent()); // We saw an a.
         ret += "    od;\n";
+
         // In this state, we are watching for a b.
         ret += "State_seen_a:\n";
         ret += "    do\n";
@@ -49,6 +50,7 @@ public class NeverFollowedBy extends BinaryInvariant {
         ret += String.format("      :: (!%s) -> goto State_seen_a;\n",
                 secondNeverEvent()); // We haven't seen b.
         ret += "    od;\n";
+
         // We'll accept the claim once we reach the end states.
         ret += "wait_end:\n";
         ret += "    do\n";

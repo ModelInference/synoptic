@@ -171,7 +171,7 @@ public class CSightTest {
             }
             osStr = "exe";
         } else {
-            fail("Running on an unsupported OS (not Linux, and not Mac).");
+            fail("Running on an unsupported OS (not Linux, Mac or Windows).");
         }
         File mcLoc = new File(mcStr + osStr);
 

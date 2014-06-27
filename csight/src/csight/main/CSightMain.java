@@ -129,8 +129,8 @@ public class CSightMain {
 
     private CSightOptions opts = null;
 
-    // The Java McScM model checker bridge instance that interfaces with the
-    // McScM verify binary.
+    // The Java McScM/Spin model checker bridge instance that interfaces with
+    // the McScM verify binary or Spin.
     private MC mc = null;
 
     // The channels associated with this CSight execution. These are parsed in
@@ -759,7 +759,7 @@ public class CSightMain {
                 // Append never claim to end of cfsm.
                 mcInputStr += curInv.promelaNeverClaim();
 
-                // TODO Remove debugging promela output.
+                // TODO KS Remove debugging promela output.
                 logger.finest("\n\n=====================Promela=============================");
                 logger.finest("\n" + mcInputStr);
                 logger.finest("=====================End Promela=========================\n\n");

@@ -324,9 +324,14 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
     }
 
     /**
-     * Generate Promela representation of this FSM.
+     * Generate a Promela representation of this FSM.
+     * 
+     * @param labelPrefix
+     *            Prefix for the state labels. These labels are used as targets
+     *            to move between states.
+     * @return
      */
-    public String toPromelaString(String stateVar) {
+    public String toPromelaString(String labelPrefix) {
         assert !initStates.isEmpty();
 
         String ret = "";
@@ -340,20 +345,19 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             ret += ":: ";
             ret += "atomic{";
             ret += "true; recentEvent.type = NONEVENT; ";
-            ret += "terminal[" + getPid() + "]=";
-            ret += s.isAccept() ? "1;" : "0;";
             ret += "} ->";
-            ret += "goto " + s.getPromelaName(stateVar) + ";\n";
+            ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
         ret += "fi;\n";
 
         for (FSMState s : states) {
-            ret += s.toPromelaString(stateVar);
+            ret += s.toPromelaString(labelPrefix);
             ret += "\n\n";
         }
-        ret += "end_" + stateVar + ":\n";
+
+        ret += "end_" + labelPrefix + ":\n";
         ret += "atomic { recentEvent.type = NONEVENT; ";
-        ret += "terminal[" + getPid() + "]=1";
+        ret += "terminal[" + getPid() + "]=1;";
         ret += "}";
         return ret;
     }
