@@ -332,8 +332,8 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     /**
      * Generates a Promela representation of this CFSM, to be used with SPIN.
-     * This representation includes an appropriate LTL formula corresponding to
-     * any invariants that augment this CFSM.
+     * The never claim is not specified here and it is appended to the CFSM
+     * elsewhere.
      */
     public String toPromelaString(String cfsmName, int chanCapacity) {
         assert unSpecifiedPids == 0;
@@ -345,6 +345,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         // mtype is global and can only be declared once.
         // There is also limit of 255 for the size of mtype.
 
+        // This outputs a set of event types for the CFSM.
         ret += "/* Message types: */\n";
         ret += "mtype = { ";
 
@@ -365,13 +366,16 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += " };\n"; // End mtype declaration.
         ret += "\n\n";
 
-        // Channels:
+        // Define the channels:
         ret += "/* Channels: */\n\n";
 
         // Specifying channels as an array to work with inlines.
         ret += String.format("chan channel[%d] = [%d] of { mtype };\n",
                 channelIds.size(), chanCapacity);
 
+        // The following block defines EMPTYCHANNELCHECK as a conditional that
+        // checks if all the channels are empty. This is used in the never claim
+        // to make sure our channels are empty before terminating.
         String emptyChannelCheck = "";
         for (int i = 0; i < channelIds.size(); i++) {
             ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
@@ -387,21 +391,25 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         // Event type definitions for type tracking
 
         // NONEVENTs are used for other transitions so we do not accidentally
-        // trigger an "a NFby b". This can happen when both event a and event b
-        // are the same event e. This invariant can be accepted if a transition
-        // happens that does not call setRecentEvent. NONEVENT does not match
-        // any event so it is safe to use during these transitions.
+        // trigger an "a NFby b". This can happen when a == b. This invariant
+        // can be accepted if a transition happens that does not call
+        // setRecentEvent. NONEVENT does not match any event so it is safe to
+        // use during these transitions.
 
         ret += "#define NONEVENT (0)\n";
-        // Events we're actively tracking.
+        // Event types we're actively tracking.
         ret += "#define LOCAL (1)\n";
         ret += "#define SEND (2)\n";
         ret += "#define RECV (3)\n";
 
-        // Custom type to assist in tracking recent event.
+        // Custom datatype to assist in tracking recent event.
         ret += "typedef myEvent {\n";
+        // The type of event: LOCAL, SEND or RECV
         ret += "    byte type;\n";
+        // id is the process id if the type is LOCAL and the channel id if the
+        // type is SEND or RECV.
         ret += "    byte id;\n";
+        // The event itself. These are the previously defined mtypes.
         ret += "    mtype event;\n";
         ret += "};\n";
 
@@ -442,9 +450,13 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "    }\n";
         ret += "}\n\n";
 
-        // Tracks if states of the FSM are terminal or not.
+        // Tracks if the current states of each of the FSM are terminal.
         ret += "bit terminal[" + numProcesses + "];\n";
 
+        // ENDSTATECHECK is the conditional used by the never claim to
+        // check the terminal states in all CFSMs. The never claim has this to
+        // ensure that the processes are in a proper terminal state when the
+        // never claim is done.
         String endStateCheck = "";
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
@@ -454,11 +466,13 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             ret += "{\n";
             ret += f.toPromelaString(stateVar);
             ret += "}\n\n";
-            // Set up the terminal check boolean.
+
+            // Set up the terminal check conditional.
             if (pid != 0) {
                 endStateCheck += " && ";
             }
             endStateCheck += "terminal[" + pid + "]";
+
         }
         ret += String.format("#define ENDSTATECHECK (%s)\n", endStateCheck);
         ret += "\n\n";

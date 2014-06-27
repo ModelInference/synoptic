@@ -245,46 +245,71 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     /**
      * Returns a Promela representation of this FSMState.
      */
-    public String toPromelaString(String stateVar) {
-        String ret = stateVar + "_" + getStateId() + ":\n";
+    public String toPromelaString(String labelPrefix) {
+        // Every state starts with a label.
+        String ret = labelPrefix + "_" + getStateId() + ":\n";
+
+        // Set state to terminal if it is an accepting state.
         if (isAccept()) {
             ret += "atomic { skip; d_step { recentEvent.type = NONEVENT; ";
-            ret += "terminal[" + getPid() + "] = ";
-            ret += isAccept() ? "1;" : "0;";
+            ret += "terminal[" + getPid() + "] = 1;";
             ret += "}}\n";
-            ret += "end_" + stateVar + "_" + getStateId() + ":\n";
+            // Tell Spin that this is a valid endstate for the process.
+            ret += "end_" + labelPrefix + "_" + getStateId() + ":\n";
         }
-        // Promela if statements will non-deterministically
+
+        // Promela do statements will non-deterministically
         // choose one of the valid branches.
         ret += "\tdo\n";
 
         for (DistEventType e : transitions.keySet()) {
             for (FSMState s : transitions.get(e)) {
 
+                // Do not delete printTrace. This is not a debugging statement.
+                // The print statements are executed in the Spin trail and
+                // provide an easy target from which to parse the
+                // counterexample.
                 String printTrace = String.format(
                         "printf(\"CSightTrace[%s]\\n\")", e.toString());
+
                 // We set terminal to 0 since we're still in the transition.
-                String transCond = String.format(
+                ret += String.format(
                         "\t :: atomic { %s; %s; terminal[%d] = 0;} -> ",
                         e.toPromelaTraceString(), printTrace, getPid());
 
-                ret += transCond;
-
-                ret += "goto " + s.getPromelaName(stateVar) + ";\n";
+                ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
             }
         }
+
+        /*
+         * Jump to end of process. This is safe to do only under these
+         * circumstances: The state has no outgoing transitions and is a
+         * terminal state. This indicates that this is a final state that cannot
+         * leave the state.
+         * 
+         * We don't want to keep the process in this state loop indefinitely as
+         * it will extend our traces with no benefit. We instead choose to
+         * explicitly end the process by going to the terminal end label at the
+         * end of the process.
+         */
         if (transitions.keySet().size() == 0 && isAccept()) {
             ret += "\t :: d_step{ recentEvent.type = NONEVENT; terminal["
                     + getPid() + "] = 0;}\n";
-            ret += "goto end_" + stateVar + ";\n";
+            ret += "goto end_" + labelPrefix + ";\n";
         }
         ret += "\t od;\n";
         return ret;
     }
 
-    public String getPromelaName(String stateVar) {
+    /**
+     * Label name for the state in Promela.
+     * 
+     * @param labelPrefix
+     * @return
+     */
+    public String getPromelaName(String labelPrefix) {
         String ret = "";
-        ret += stateVar;
+        ret += labelPrefix;
         ret += "_" + getStateId();
 
         return ret;

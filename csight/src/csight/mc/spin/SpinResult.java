@@ -16,7 +16,10 @@ import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
 /**
- * Holds the result of a Spin model checker run.
+ * Holds the result of a Spin model checker run. From the returned verify lines
+ * from Spin, we parse for the regular expression that indicates that we have a
+ * trail file. After finding this line, we run Spin in guided simulation mode to
+ * retrieve the counterexample.
  */
 public class SpinResult extends MCResult {
 
@@ -25,7 +28,7 @@ public class SpinResult extends MCResult {
     static String safeRe = "^State-vector \\d* byte, depth reached \\d*, errors: 0$";
     static String syntaxErrRe = "Error: syntax error";
 
-    // Three capture groups. Event, pid and something I'm not sure about.
+    // Three capture groups. Event, pid and the name of the process.
     static Pattern eventTypeLocalPat = Pattern
             .compile("^(.*)p([\\d]+)L_([\\d]+)$");
 
@@ -46,6 +49,12 @@ public class SpinResult extends MCResult {
         parseVerifyOutput(verifyRawLines);
     }
 
+    /**
+     * Parses the verification output for the safety of the model and calls
+     * parseCounterExample if the model is unsafe.
+     * 
+     * @param lines
+     */
     private void parseVerifyOutput(List<String> lines) {
 
         boolean detectedSafety = false;
@@ -56,10 +65,12 @@ public class SpinResult extends MCResult {
             if (line.matches(unsafeRe)) {
                 modelIsSafe = false;
                 detectedSafety = true;
+                continue;
             }
             if (line.matches(safeRe)) {
                 modelIsSafe = true;
                 detectedSafety = true;
+                continue;
             }
         }
 
@@ -69,14 +80,18 @@ public class SpinResult extends MCResult {
                 // Run a new instance of Spin to read the trail file.
                 // The warnings can be ignored for now. They are a result of
                 // nesting atomics and d_steps as a result of inlines.
+
+                // -t triggers a guided simulation using the trail file.
+                // -T suppresses indentation from print statements.
                 MCProcess trailProcess = new MCProcess(new String[] { mcPath,
                         "-t", "-T", "csight.pml" }, "", currentPath, 20);
                 trailProcess.runProcess();
                 trailLines = trailProcess.getInputStreamContent();
                 parseCounterExample(trailLines);
+
             } catch (InterruptedException e) {
-                // TODO Properly handle this. For now, this is to test if this
-                // works here.
+                // TODO KS Properly handle this. For now, this is to test if
+                // this works here.
                 throw new VerifyOutputParseException(
                         "Unable to parse verify result: Spin interrupted during parsing.");
             } catch (IOException e) {
@@ -93,6 +108,13 @@ public class SpinResult extends MCResult {
 
     }
 
+    /**
+     * Parses a counterexample from the error trail.
+     * 
+     * @param lines
+     *            An error trail from Spin.
+     * @throws VerifyOutputParseException
+     */
     private void parseCounterExample(List<String> lines)
             throws VerifyOutputParseException {
         cExample = new MCcExample();
@@ -102,6 +124,8 @@ public class SpinResult extends MCResult {
             Matcher m = p.matcher(line);
             if (m.find()) {
                 assert m.groupCount() == 1;
+                // We retrieve an event string from the counterexample line and
+                // parse an event from it.
                 String event = m.group(1);
                 DistEventType e = parseEventStr(event);
                 if (e != null) {
@@ -112,10 +136,17 @@ public class SpinResult extends MCResult {
 
     }
 
+    /**
+     * Parses an event from an event string in the counterexample.
+     * 
+     * @param event
+     * @return
+     */
     private DistEventType parseEventStr(String event) {
         int cIndex;
         ChannelId chId;
 
+        // Matching local events.
         Matcher m = eventTypeLocalPat.matcher(event);
 
         if (m.find()) {
@@ -124,6 +155,7 @@ public class SpinResult extends MCResult {
             return DistEventType.LocalEvent(m.group(1), pid);
         }
 
+        // Matching receive events.
         m = eventTypeRecvPat.matcher(event);
         if (m.find()) {
             assert m.groupCount() == 2;
@@ -134,7 +166,9 @@ public class SpinResult extends MCResult {
             return DistEventType.RecvEvent(m.group(2), chId);
         }
 
+        // Matching send events.
         m = eventTypeSendPat.matcher(event);
+        // If nothing matches, we have a problem.
         if (!m.find()) {
             throw new VerifyOutputParseException(
                     "Could not parse event in Spin trail: " + event);
@@ -152,12 +186,16 @@ public class SpinResult extends MCResult {
         for (String line : verifyRawLines) {
             ret += line + "\n";
         }
-        if (trailLines != null) {
-            for (String line : trailLines) {
-                ret += line + "\n";
-            }
+        if (modelIsSafe()) {
+            ret += "Model is safe.\n";
         } else {
-            ret += ("Trail is empty.\n");
+            if (trailLines != null) {
+                for (String line : trailLines) {
+                    ret += line + "\n";
+                }
+            } else {
+                ret += ("Trail is empty.\n");
+            }
         }
         return ret;
     }

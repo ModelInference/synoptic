@@ -422,32 +422,34 @@ public class DistEventType extends EventType implements IDistEventType {
     }
 
     /**
-     * @return A Promela string that calls a trace function.
+     * @return A Promela string that calls a trace function. This is used to
+     *         track the most recent event for use in never claims.
      */
     public String toPromelaTraceString() {
-        String typeStr;
+        String inlineFn;
         // Tracks the owner id. This happens to be the pid if it is a
         // local event and is the channel id if it is a send or recv event.
         int ownerId;
         if (isLocalEvent()) {
-            typeStr = "localEvent";
+            inlineFn = "localEvent";
             ownerId = pid;
         } else if (isRecvEvent()) {
-            typeStr = "recv";
+            inlineFn = "recv";
             ownerId = channelId.getScmId();
         } else if (isSendEvent()) {
-            typeStr = "send";
+            inlineFn = "send";
             ownerId = channelId.getScmId();
         } else {
             // This shouldn't happen. We don't have SynthSend events with
             // Promela.
             return "printm(" + getPromelaEType() + ")";
         }
-        return String.format("%s(%d,%s)", typeStr, ownerId, getPromelaEType());
+        // Calling the inline function defined in CFSM.toPromelaString()
+        return String.format("%s(%d,%s)", inlineFn, ownerId, getPromelaEType());
     }
 
     /**
-     * This Promela string is a conditional for a matching event in a never
+     * This returns a Promela string is a conditional for this event in a never
      * claim. The string is enclosed with brackets so it is safe to use in
      * boolean expressions.
      * 

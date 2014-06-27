@@ -280,6 +280,30 @@ public class CSightMainTests extends CSightTest {
         runDynFromFileArgs(args);
     }
 
+    /**
+     * This Alternating Bit Protocol has two terminal states. After the A ? a0
+     * and after the A ? a1. This is almost full ABP without the timeouts.
+     */
+    @Test
+    public void runABPTwoTerminalSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
+        runDynFromFileArgs(args);
+    }
+
+    /**
+     * This Alternating Bit Protocol has two terminal states. After the A ? a0
+     * and after the A ? a1. This is almost full ABP without the timeouts.
+     */
+    @Test
+    public void runSpinABPTwoTerminalSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
+        runDynFromFileArgs(args);
+    }
+
     @Test
     public void runABPLongTraceSuccess() throws Exception {
         List<String> args = getBasicArgsStr();

@@ -53,8 +53,8 @@ abstract public class BinaryInvariant {
 
     /**
      * This method has to be overridden in all subclasses. It's purpose is to
-     * return a never claim that will be <b>accepted</b> if the invariant is
-     * violated.
+     * return a Promela never claim that will be <b>accepted</b> if the
+     * invariant is violated.
      */
     abstract public String promelaNeverClaim();
 
