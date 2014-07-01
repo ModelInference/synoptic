@@ -293,8 +293,11 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
          * end of the process.
          */
         if (transitions.keySet().size() == 0 && isAccept()) {
-            ret += "\t :: d_step{ recentEvent.type = NONEVENT; terminal["
-                    + getPid() + "] = 0;}\n";
+            ret += "\t :: d_step{ ";
+            // Set event type to NONEVENT to avoid triggering (e NFBy e) claims.
+            ret += "recentEvent.type = NONEVENT; ";
+            ret += "terminal[" + getPid() + "] = 0;";
+            ret += "}\n";
             ret += "goto end_" + labelPrefix + ";\n";
         }
         ret += "\t od;\n";

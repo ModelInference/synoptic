@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import csight.mc.MCProcess;
 import csight.mc.MCResult;
-import csight.mc.MCSyntaxException;
 import csight.mc.MCcExample;
 import csight.mc.VerifyOutputParseException;
 
@@ -26,7 +25,6 @@ public class SpinResult extends MCResult {
     static String traceRe = "^CSightTrace\\[(.*)\\]$";
     static String unsafeRe = "^pan: wrote (.*\\.trail)$";
     static String safeRe = "^State-vector \\d* byte, depth reached \\d*, errors: 0$";
-    static String syntaxErrRe = "Error: syntax error";
 
     // Three capture groups. Event, pid and the name of the process.
     static Pattern eventTypeLocalPat = Pattern
@@ -59,9 +57,6 @@ public class SpinResult extends MCResult {
 
         boolean detectedSafety = false;
         for (String line : lines) {
-            if (line.contains(syntaxErrRe)) {
-                throw new MCSyntaxException(line);
-            }
             if (line.matches(unsafeRe)) {
                 modelIsSafe = false;
                 detectedSafety = true;

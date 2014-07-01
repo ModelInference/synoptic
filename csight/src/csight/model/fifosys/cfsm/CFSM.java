@@ -388,6 +388,25 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
                 emptyChannelCheck);
         ret += "\n\n";
 
+        // Tracks if the current states of each of the FSM are terminal.
+        ret += "bit terminal[" + numProcesses + "];\n";
+
+        // ENDSTATECHECK is the conditional used by the never claim to
+        // check the terminal states in all CFSMs. The never claim has this to
+        // ensure that the processes are in a proper terminal state when the
+        // never claim is done.
+
+        String endStateCheck = "";
+        for (int pid = 0; pid < numProcesses; pid++) {
+            // Set up the terminal check conditional.
+            if (pid != 0) {
+                endStateCheck += " && ";
+            }
+            endStateCheck += "terminal[" + pid + "]";
+        }
+
+        ret += String.format("#define ENDSTATECHECK (%s)\n", endStateCheck);
+
         // Event type definitions for type tracking
 
         // NONEVENTs are used for other transitions so we do not accidentally
@@ -450,14 +469,6 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "    }\n";
         ret += "}\n\n";
 
-        // Tracks if the current states of each of the FSM are terminal.
-        ret += "bit terminal[" + numProcesses + "];\n";
-
-        // ENDSTATECHECK is the conditional used by the never claim to
-        // check the terminal states in all CFSMs. The never claim has this to
-        // ensure that the processes are in a proper terminal state when the
-        // never claim is done.
-        String endStateCheck = "";
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
             String stateVar = "state" + Integer.toString(pid);
@@ -466,15 +477,8 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             ret += "{\n";
             ret += f.toPromelaString(stateVar);
             ret += "}\n\n";
-
-            // Set up the terminal check conditional.
-            if (pid != 0) {
-                endStateCheck += " && ";
-            }
-            endStateCheck += "terminal[" + pid + "]";
-
         }
-        ret += String.format("#define ENDSTATECHECK (%s)\n", endStateCheck);
+
         ret += "\n\n";
 
         return ret;
