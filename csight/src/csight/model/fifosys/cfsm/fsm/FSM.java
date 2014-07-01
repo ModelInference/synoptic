@@ -355,6 +355,8 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             ret += "\n\n";
         }
 
+        // This marks the end state of the process itself. The label allows us
+        // to transition here.
         ret += "end_" + labelPrefix + ":\n";
         ret += "atomic { recentEvent.type = NONEVENT; ";
         ret += "terminal[" + getPid() + "]=1;";
