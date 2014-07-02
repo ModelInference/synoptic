@@ -75,7 +75,9 @@ public class SpinCFSMTests extends CFSMTesting {
     }
 
     @Test
-    // This one starts in the accept state.
+    /**
+     * This test case contains a CFSM that starts in the accept state. The expected counterexample is an empty execution.
+     */
     public void verifyEventuallyUnsafe2() throws Exception {
         // Constructs a new CFSM with one FSM that has a self loop on the
         // init/accept state.
@@ -131,9 +133,45 @@ public class SpinCFSMTests extends CFSMTesting {
         assertTrue(result.getCExample() == null);
     }
 
+    /**
+     * This test checks if we don't accidentally catch a (e NFby e) where both
+     * events are the same. The CFSM is a simple one with no loop to accommodate
+     * that.
+     */
+    @Test
+    public void verifyNFbySafe2() throws Exception {
+        simplifyCFSM();
+        NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p0Sm);
+        MCResult result = verifyAndPrint(inv);
+        assertTrue(result.modelIsSafe());
+        assertTrue(result.getCExample() == null);
+    }
+
     @Test
     public void verifyNFbyUnsafe() throws Exception {
         NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p1Rm);
+        MCResult result = verifyAndPrint(inv);
+        assertTrue(!result.modelIsSafe());
+        assertTrue(result.getCExample() != null);
+    }
+
+    @Test
+    public void verifyNFbyUnsafe2() throws Exception {
+        NeverFollowedBy inv = new NeverFollowedBy(p1Rm, p0Sm);
+        MCResult result = verifyAndPrint(inv);
+        assertTrue(!result.modelIsSafe());
+        assertTrue(result.getCExample() != null);
+    }
+
+    /**
+     * This test checks if we do catch a (e NFby e) where both events are the
+     * same. The CFSM has a cycle. This ensures that although the CFSM does
+     * reach an end state for both processes without cycling, it will consider
+     * the case where it does repeat.
+     */
+    @Test
+    public void verifyNFbyUnsafe3() throws Exception {
+        NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p0Sm);
         MCResult result = verifyAndPrint(inv);
         assertTrue(!result.modelIsSafe());
         assertTrue(result.getCExample() != null);
@@ -149,7 +187,6 @@ public class SpinCFSMTests extends CFSMTesting {
 
     @Test
     public void verifyAPUnsafe() throws Exception {
-        simplifyCFSM();
         AlwaysPrecedes inv = new AlwaysPrecedes(p1Rm, p0Sm);
         MCResult result = verifyAndPrint(inv);
         assertTrue(!result.modelIsSafe());
