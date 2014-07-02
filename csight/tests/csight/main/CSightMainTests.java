@@ -359,7 +359,7 @@ public class CSightMainTests extends CSightTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/Tcp/po_tcp_log.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     @Test
