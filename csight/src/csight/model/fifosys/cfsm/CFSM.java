@@ -471,11 +471,10 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
-            String stateVar = "state" + Integer.toString(pid);
+            String labelPrefix = "state" + Integer.toString(pid);
             FSM f = fsms.get(pid);
-            ret += "active proctype p" + Integer.toString(pid) + "()\n";
-            ret += "{\n";
-            ret += f.toPromelaString(stateVar);
+            ret += "active proctype p" + Integer.toString(pid) + "(){\n";
+            ret += f.toPromelaString(labelPrefix);
             ret += "}\n\n";
         }
 

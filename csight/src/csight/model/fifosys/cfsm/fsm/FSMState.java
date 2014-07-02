@@ -251,16 +251,17 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
 
         // Set state to terminal if it is an accepting state.
         if (isAccept()) {
-            ret += "atomic { skip; d_step { recentEvent.type = NONEVENT; ";
-            ret += "terminal[" + getPid() + "] = 1;";
-            ret += "}}\n";
+            ret += "  atomic { \n";
+            ret += "    recentEvent.type = NONEVENT;\n ";
+            ret += "    terminal[" + getPid() + "] = 1;\n";
+            ret += "  };\n";
             // Tell Spin that this is a valid endstate for the process.
             ret += "end_" + labelPrefix + "_" + getStateId() + ":\n";
         }
 
         // Promela do statements will non-deterministically
         // choose one of the valid branches.
-        ret += "\tdo\n";
+        ret += "    do\n";
 
         for (DistEventType e : transitions.keySet()) {
             for (FSMState s : transitions.get(e)) {
@@ -274,7 +275,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
 
                 // We set terminal to 0 since we're still in the transition.
                 ret += String.format(
-                        "\t :: atomic { %s; %s; terminal[%d] = 0;} -> ",
+                        "      :: atomic { %s; %s; terminal[%d] = 0;} -> ",
                         e.toPromelaTraceString(), printTrace, getPid());
 
                 ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
@@ -293,14 +294,14 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
          * end of the process.
          */
         if (transitions.keySet().size() == 0 && isAccept()) {
-            ret += "\t :: d_step{ ";
+            ret += "     :: d_step{ ";
             // Set event type to NONEVENT to avoid triggering (e NFBy e) claims.
             ret += "recentEvent.type = NONEVENT; ";
-            ret += "terminal[" + getPid() + "] = 0;";
-            ret += "}\n";
+            ret += "terminal[" + getPid() + "] = 0; ";
+            ret += "};\n";
             ret += "goto end_" + labelPrefix + ";\n";
         }
-        ret += "\t od;\n";
+        ret += "    od;\n";
         return ret;
     }
 

@@ -151,7 +151,8 @@ public class CSightTest {
             fail("Unsupported model checker (not McScM or SPIN).");
         }
 
-        // Determine whether to use the Linux or the OSX McScM binary.
+        // Determine whether to use the Linux, OSX or Windows binary for Spin or
+        // McScm.
         if (Os.isLinux()) {
             // Determine if Linux is 64-bit
             if (Os.getOsArch().contains("64")) {
@@ -173,6 +174,9 @@ public class CSightTest {
         } else {
             fail("Running on an unsupported OS (not Linux, Mac or Windows).");
         }
+
+        // This ensures that the binary location is encoded correctly on the
+        // current operating systems.
         File mcLoc = new File(mcStr + osStr);
 
         return mcLoc.toString();

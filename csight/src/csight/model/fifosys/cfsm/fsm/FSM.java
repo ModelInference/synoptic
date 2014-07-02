@@ -336,19 +336,18 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
 
         String ret = "";
 
-        // If we have more than one initial state, then we choose
+        // If we have more than one initial state, then Spin chooses
         // non-deterministically between the available initial states.
         // Either way, we need to choose a state. There is no guarantee that
         // state with the lowest id is our initial state.
-        ret += "if\n";
+        ret += "  if\n";
         for (FSMState s : initStates) {
-            ret += ":: ";
-            ret += "atomic{";
-            ret += "true; recentEvent.type = NONEVENT; ";
-            ret += "} ->";
+            // Mark the recent event as a NONEVENT to prevent accidentally
+            // accepting a (e NFBy e).
+            ret += "   :: recentEvent.type = NONEVENT ->";
             ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
-        ret += "fi;\n";
+        ret += "  fi;\n";
 
         for (FSMState s : states) {
             ret += s.toPromelaString(labelPrefix);
@@ -358,9 +357,10 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // This marks the end state of the process itself. The label allows us
         // to transition here.
         ret += "end_" + labelPrefix + ":\n";
-        ret += "atomic { recentEvent.type = NONEVENT; ";
-        ret += "terminal[" + getPid() + "]=1;";
-        ret += "}";
+        ret += "  atomic { \n";
+        ret += "    recentEvent.type = NONEVENT;\n";
+        ret += "    terminal[" + getPid() + "] = 1;\n";
+        ret += "  }";
         return ret;
     }
 }
