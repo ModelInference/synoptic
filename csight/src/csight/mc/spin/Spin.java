@@ -76,8 +76,8 @@ public class Spin extends MC {
         /* -DBFS_DISK enables disk caching during BFS. */
         /* -DREACH checks for errors up to the default depth. */
         // The others are common gcc parameters.
-        command = new String[] { "gcc", "-O", "-DBFS", "-DBFS_DISK", "-DREACH",
-                "-o", "pan", "pan.c" };
+        command = new String[] { "gcc", "-O", "-DBFS", "-DREACH", "-o", "pan",
+                "pan.c" };
         mcProcess = new MCProcess(command, "", currentPath, timeoutSecsLeft);
         // We compile the source from the previous step.
         timeoutSecsLeft = timeoutSecsLeft - compileMC(mcProcess);

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import csight.invariants.BinaryInvariant;
 import csight.main.CSightMain;
 import csight.model.AbsFSM;
 import csight.model.automaton.EncodedAutomaton;
@@ -331,7 +332,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      *            to move between states.
      * @return
      */
-    public String toPromelaString(String labelPrefix) {
+    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
         assert !initStates.isEmpty();
 
         String ret = "";
@@ -342,15 +343,15 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // state with the lowest id is our initial state.
         ret += "  if\n";
         for (FSMState s : initStates) {
-            // Mark the recent event as a NONEVENT to prevent accidentally
+            // Mark the recent event as a OTHEREVENT to prevent accidentally
             // accepting a (e NFBy e).
-            ret += "   :: recentEvent.type = NONEVENT ->";
+            ret += "   :: recentEvent.type = OTHEREVENT ->";
             ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
         ret += "  fi;\n";
 
         for (FSMState s : states) {
-            ret += s.toPromelaString(labelPrefix);
+            ret += s.toPromelaString(invariant, labelPrefix);
             ret += "\n\n";
         }
 
@@ -358,7 +359,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // to transition here.
         ret += "end_" + labelPrefix + ":\n";
         ret += "  atomic { \n";
-        ret += "    recentEvent.type = NONEVENT;\n";
+        ret += "    recentEvent.type = OTHEREVENT;\n";
         ret += "    terminal[" + getPid() + "] = 1;\n";
         ret += "  }";
         return ret;

@@ -752,24 +752,8 @@ public class CSightMain {
                 mcInputStr = cfsm.toScmString("checking_scm_"
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.toString(),
+                mcInputStr = cfsm.toPromelaString(curInv,
                         opts.spinChannelCapacity);
-
-                // Append never claim to end of cfsm.
-                mcInputStr += curInv.promelaNeverClaim();
-
-                // TODO KS Remove debugging promela output.
-                logger.finest("\n\n=====================Promela=============================");
-                logger.finest("\n" + mcInputStr);
-                logger.finest("=====================End Promela=========================\n\n");
-
-                GraphExporter.exportCFSM("./test-output/test.dot", cfsm);
-                GraphExporter
-                        .generatePngFileFromDotFile("./test-output/test.dot");
-                GraphExporter.exportGFSM("./test-output/test-gfsm.dot", pGraph);
-                GraphExporter
-                        .generatePngFileFromDotFile("./test-output/test-gfsm.dot");
 
             } else {
                 throw new RuntimeException(
