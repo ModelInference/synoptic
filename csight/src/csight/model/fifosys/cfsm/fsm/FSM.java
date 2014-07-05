@@ -345,7 +345,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         for (FSMState s : initStates) {
             // Mark the recent event as a OTHEREVENT to prevent accidentally
             // accepting a (e NFBy e).
-            ret += "   :: recentEvent.type = OTHEREVENT ->";
+            ret += "   :: recentEvent.type = OTHEREVENT -> ";
             ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
         ret += "  fi;\n";
@@ -361,7 +361,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         ret += "  atomic { \n";
         ret += "    recentEvent.type = OTHEREVENT;\n";
         ret += "    terminal[" + getPid() + "] = 1;\n";
-        ret += "  }";
+        ret += "  }\n";
         return ret;
     }
 }

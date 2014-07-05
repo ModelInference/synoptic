@@ -418,7 +418,8 @@ public class DistEventType extends EventType implements IDistEventType {
         } else if (isRecvEvent()) {
             typeStr = "?";
         }
-        return channelId.getName() + typeStr + getPromelaEType();
+        return "channel[" + channelId.getScmId() + "]" + typeStr
+                + getPromelaEType();
     }
 
     /**
@@ -426,18 +427,18 @@ public class DistEventType extends EventType implements IDistEventType {
      *         track the most recent event for use in never claims.
      */
     public String toPromelaTraceString() {
-        String inlineFn;
+        String type;
         // Tracks the owner id. This happens to be the pid if it is a
         // local event and is the channel id if it is a send or recv event.
         int ownerId;
         if (isLocalEvent()) {
-            inlineFn = "localEvent";
+            type = "LOCAL";
             ownerId = pid;
         } else if (isRecvEvent()) {
-            inlineFn = "recv";
+            type = "RECV";
             ownerId = channelId.getScmId();
         } else if (isSendEvent()) {
-            inlineFn = "send";
+            type = "SEND";
             ownerId = channelId.getScmId();
         } else {
             // This shouldn't happen. We don't have SynthSend events with
@@ -445,7 +446,8 @@ public class DistEventType extends EventType implements IDistEventType {
             return "printm(" + getPromelaEType() + ")";
         }
         // Calling the inline function defined in CFSM.toPromelaString()
-        return String.format("%s(%d,%s)", inlineFn, ownerId, getPromelaEType());
+        return String.format("setRecentEvent(%s, %d, %s)", type, ownerId,
+                getPromelaEType());
     }
 
     /**

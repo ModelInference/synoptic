@@ -270,14 +270,25 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
                 // Do not delete printTrace. This is not a debugging statement.
                 // The print statements are executed in the Spin trail and
                 // provide an easy target from which to parse the
-                // counterexample.
+                // counterexample. They also have no overhead in verification
+                // runs and we only use them in the trail.
                 String printTrace = String.format(
                         "printf(\"CSightTrace[%s]\\n\")", e.toString());
 
+                // traceString is the in-Promela version of the trace string.
+                // This is used by our never claim to track the event.
+                String traceString;
+
+                if (e.equals(invariant.getFirst())
+                        || e.equals(invariant.getSecond())) {
+                    traceString = e.toPromelaTraceString();
+                } else {
+                    traceString = "recentEvent.type = OTHEREVENT";
+                }
                 // We set terminal to 0 since we're still in the transition.
                 ret += String.format(
-                        "      :: atomic { %s; %s; terminal[%d] = 0;} -> ",
-                        e.toPromelaTraceString(), printTrace, getPid());
+                        "      :: atomic { %s; %s; %s; terminal[%d] = 0;} -> ",
+                        e.toPromelaString(), traceString, printTrace, getPid());
 
                 ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
             }
