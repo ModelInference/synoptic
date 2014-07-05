@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import csight.invariants.AlwaysFollowedBy;
 import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
@@ -335,10 +337,10 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
      * The never claim is not specified here and it is appended to the CFSM
      * elsewhere.
      */
-    public String toPromelaString(String cfsmName, int chanCapacity) {
+    public String toPromelaString(BinaryInvariant invariant, int chanCapacity) {
         assert unSpecifiedPids == 0;
 
-        String ret = "/* Spin-promela " + cfsmName + " */\n\n";
+        String ret = "/* Spin-promela " + invariant.toString() + " */\n\n";
 
         // Message types:
         //
@@ -354,14 +356,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             eventTypes.add(e.getPromelaEType());
         }
 
-        boolean firstEvent = true;
-        for (String type : eventTypes) {
-            if (!firstEvent) {
-                ret += ", ";
-            }
-            ret += type;
-            firstEvent = false;
-        }
+        ret += StringUtils.join(eventTypes, ", ");
 
         ret += " };\n"; // End mtype declaration.
         ret += "\n\n";
@@ -409,13 +404,13 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         // Event type definitions for type tracking
 
-        // NONEVENTs are used for other transitions so we do not accidentally
+        // OTHEREVENTs are used for other transitions so we do not accidentally
         // trigger an "a NFby b". This can happen when a == b. This invariant
         // can be accepted if a transition happens that does not call
-        // setRecentEvent. NONEVENT does not match any event so it is safe to
-        // use during these transitions.
+        // setRecentEvent. OTHEREVENT does not match any event we are interested
+        // in tracking so it is safe to use during these transitions.
 
-        ret += "#define NONEVENT (0)\n";
+        ret += "#define OTHEREVENT (0)\n";
         // Event types we're actively tracking.
         ret += "#define LOCAL (1)\n";
         ret += "#define SEND (2)\n";
@@ -474,12 +469,13 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             String labelPrefix = "state" + Integer.toString(pid);
             FSM f = fsms.get(pid);
             ret += "active proctype p" + Integer.toString(pid) + "(){\n";
-            ret += f.toPromelaString(labelPrefix);
+            ret += f.toPromelaString(invariant, labelPrefix);
             ret += "}\n\n";
         }
 
         ret += "\n\n";
 
+        ret += invariant.promelaNeverClaim();
         return ret;
     }
 

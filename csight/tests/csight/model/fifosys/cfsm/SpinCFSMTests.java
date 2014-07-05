@@ -44,8 +44,7 @@ public class SpinCFSMTests extends CFSMTesting {
 
     public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
             InterruptedException {
-        String cStr = cfsm.toPromelaString("test", 5);
-        cStr += inv.promelaNeverClaim();
+        String cStr = cfsm.toPromelaString(inv, 5);
         spin.verify(cStr, 60);
         logger.info(cStr);
 

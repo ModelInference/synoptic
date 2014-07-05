@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm.fsm;
 import java.util.Map;
 import java.util.Set;
 
+import csight.invariants.BinaryInvariant;
 import csight.model.AbsFSMState;
 import csight.model.fifosys.channel.channelid.LocalEventsChannelId;
 import csight.util.Util;
@@ -245,14 +246,14 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     /**
      * Returns a Promela representation of this FSMState.
      */
-    public String toPromelaString(String labelPrefix) {
+    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
         // Every state starts with a label.
         String ret = labelPrefix + "_" + getStateId() + ":\n";
 
         // Set state to terminal if it is an accepting state.
         if (isAccept()) {
             ret += "  atomic { \n";
-            ret += "    recentEvent.type = NONEVENT;\n ";
+            ret += "    recentEvent.type = OTHEREVENT;\n ";
             ret += "    terminal[" + getPid() + "] = 1;\n";
             ret += "  };\n";
             // Tell Spin that this is a valid endstate for the process.
@@ -295,8 +296,9 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
          */
         if (transitions.keySet().size() == 0 && isAccept()) {
             ret += "     :: d_step{ ";
-            // Set event type to NONEVENT to avoid triggering (e NFBy e) claims.
-            ret += "recentEvent.type = NONEVENT; ";
+            // Set event type to OTHEREVENT to avoid triggering (e NFBy e)
+            // claims.
+            ret += "recentEvent.type = OTHEREVENT; ";
             ret += "terminal[" + getPid() + "] = 0; ";
             ret += "};\n";
             ret += "goto end_" + labelPrefix + ";\n";

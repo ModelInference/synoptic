@@ -508,9 +508,8 @@ public class CSightMainTests extends CSightTest {
         opts = new CSightOptions(args.toArray(new String[0]));
         dyn = new CSightMain(opts);
 
-        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
-                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
-                + "3,4 M?m\n";
+        String log = "1,0 M!m\n" + "2,0 M!m\n" + "3,2 A?a\n" + "1,1 M?m\n"
+                + "1,2 A!a\n" + "2,3 M?m\n" + "2,4 A!a\n" + "4,4 A?a\n";
 
         dyn.run(log);
     }
@@ -531,9 +530,8 @@ public class CSightMainTests extends CSightTest {
         opts = new CSightOptions(args.toArray(new String[0]));
         dyn = new CSightMain(opts);
 
-        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
-                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
-                + "3,4 M?m\n";
+        String log = "1,0 M!m\n" + "2,0 M!m\n" + "3,2 A?a\n" + "1,1 M?m\n"
+                + "1,2 A!a\n" + "2,3 M?m\n" + "2,4 A!a\n" + "4,4 A?a\n";
 
         dyn.run(log);
     }
