@@ -439,31 +439,6 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         ret += "  };\n";
         ret += "}\n";
 
-        // Inline declarations to make changing things easier.
-        // These add traces to the send, recv and local events.
-
-        ret += "inline send(chan_id, message_type){\n";
-        ret += "    atomic{\n";
-        ret += "        channel[chan_id]!message_type;\n";
-        ret += "        setRecentEvent(SEND, chan_id, message_type);\n";
-        ret += "    };\n";
-        ret += "}\n";
-        ret += "\n";
-
-        ret += "inline recv(chan_id, message_type) {\n";
-        ret += "    atomic{\n";
-        ret += "        channel[chan_id]?message_type;\n";
-        ret += "        setRecentEvent(RECV, chan_id, message_type);\n";
-        ret += "    }\n";
-        ret += "}\n";
-        ret += "\n";
-
-        ret += "inline localEvent(p_id, message_type){\n";
-        ret += "    atomic{\n";
-        ret += "        setRecentEvent(LOCAL, p_id, message_type);\n";
-        ret += "    }\n";
-        ret += "}\n\n";
-
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
             String labelPrefix = "state" + Integer.toString(pid);
