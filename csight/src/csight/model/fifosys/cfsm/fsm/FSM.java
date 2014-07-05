@@ -343,9 +343,17 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // state with the lowest id is our initial state.
         ret += "  if\n";
         for (FSMState s : initStates) {
+            // terminalTrack sets the terminal state to 1 if the initial state
+            // is also an acceptance state. Otherwise, it does nothing.
+            String terminalTrack = "";
+            if (s.isAccept()) {
+                terminalTrack = String.format("terminal[%d] = 1;", getPid());
+            }
             // Mark the recent event as a OTHEREVENT to prevent accidentally
             // accepting a (e NFBy e).
-            ret += "   :: recentEvent.type = OTHEREVENT -> ";
+            ret += String.format(
+                    "   :: atomic{ recentEvent.type = OTHEREVENT; %s} -> ",
+                    terminalTrack);
             ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
         ret += "  fi;\n";

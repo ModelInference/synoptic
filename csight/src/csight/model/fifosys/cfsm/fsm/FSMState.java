@@ -250,12 +250,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         // Every state starts with a label.
         String ret = labelPrefix + "_" + getStateId() + ":\n";
 
-        // Set state to terminal if it is an accepting state.
         if (isAccept()) {
-            ret += "  atomic { \n";
-            ret += "    recentEvent.type = OTHEREVENT;\n ";
-            ret += "    terminal[" + getPid() + "] = 1;\n";
-            ret += "  };\n";
             // Tell Spin that this is a valid endstate for the process.
             ret += "end_" + labelPrefix + "_" + getStateId() + ":\n";
         }
@@ -283,12 +278,21 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
                         || e.equals(invariant.getSecond())) {
                     traceString = e.toPromelaTraceString();
                 } else {
+                    // Other events don't get tracked.
                     traceString = "recentEvent.type = OTHEREVENT";
                 }
-                // We set terminal to 0 since we're still in the transition.
-                ret += String.format(
-                        "      :: atomic { %s; %s; %s; terminal[%d] = 0;} -> ",
-                        e.toPromelaString(), traceString, printTrace, getPid());
+
+                // We only change the terminal state status if there is a change
+                // in the acceptance of the state.
+                String terminalState = "";
+                if (isAccept != s.isAccept) {
+                    terminalState = String.format("terminal[%d] = %d;",
+                            getPid(), (s.isAccept ? 1 : 0));
+                }
+
+                ret += String.format("      :: atomic { %s; %s; %s; %s} -> ",
+                        e.toPromelaString(), traceString, printTrace,
+                        terminalState);
 
                 ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
             }
@@ -306,12 +310,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
          * end of the process.
          */
         if (transitions.keySet().size() == 0 && isAccept()) {
-            ret += "     :: d_step{ ";
-            // Set event type to OTHEREVENT to avoid triggering (e NFBy e)
-            // claims.
-            ret += "recentEvent.type = OTHEREVENT; ";
-            ret += "terminal[" + getPid() + "] = 0; ";
-            ret += "};\n";
+            ret += "     :: recentEvent.type = OTHEREVENT -> ";
             ret += "goto end_" + labelPrefix + ";\n";
         }
         ret += "    od;\n";
