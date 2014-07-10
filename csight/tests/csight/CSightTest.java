@@ -162,9 +162,13 @@ public class CSightTest {
                 osStr = "linux-x86";
             }
         } else if (Os.isMac()) {
-            String version = Os.getMajorOSXVersion();
-            String arch = Os.getOsArch();
-            osStr = "osx-" + version + "-" + arch + ".dynamic";
+            if (mcType.equals("mcscm")) {
+                String version = Os.getMajorOSXVersion();
+                String arch = Os.getOsArch();
+                osStr = "osx-" + version + "-" + arch + ".dynamic";
+            } else if (mcType.equals("spin")) {
+                osStr = "osx";
+            }
         } else if (Os.isWindows()) {
             // Windows can't run McScM.
             if (mcType.equals("mcscm")) {
