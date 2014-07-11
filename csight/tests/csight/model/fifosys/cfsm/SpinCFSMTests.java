@@ -78,23 +78,32 @@ public class SpinCFSMTests extends CFSMTesting {
      * This test case contains a CFSM that starts in the accept state. The expected counterexample is an empty execution.
      */
     public void verifyEventuallyUnsafe2() throws Exception {
-        // Constructs a new CFSM with one FSM that has a self loop on the
-        // init/accept state.
+        // Constructs a new CFSM with two FSMs. The first FSM has a self loop on
+        // the init/accept state.
         // The expected counterexample should have no events in the trace.
+
         FSMState p0InitAccept = new FSMState(true, true, 0, 0);
         states = Util.newSet();
         states.add(p0InitAccept);
         p0InitAccept.addTransition(p0Le, p0InitAccept);
         f0 = new FSM(0, p0InitAccept, p0InitAccept, states, 1);
+
+        FSMState p1InitAccept = new FSMState(true, true, 1, 0);
+        states = Util.newSet();
+        states.add(p1InitAccept);
+        f1 = new FSM(1, p1InitAccept, p1InitAccept, states, 2);
+
         channels = Util.newList();
         channels.add(cid);
-        cfsm = new CFSM(1, channels);
+        cfsm = new CFSM(2, channels);
         cfsm.addFSM(f0);
+        cfsm.addFSM(f1);
 
         EventuallyHappens inv = new EventuallyHappens(p0Le);
         MCResult result = verifyAndPrint(inv);
         assertTrue(!result.modelIsSafe());
         assertTrue(result.getCExample() != null);
+        assertTrue(result.getCExample().getEvents().size() == 0);
     }
 
     @Test
