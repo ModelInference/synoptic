@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import csight.CSightTest;
 import csight.mc.MCSyntaxException;
-import csight.mc.spin.Spin;
 import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -32,7 +31,7 @@ public class SpinTests extends CSightTest {
         super.setUp();
 
         // NOTE: hard-coded assumption about where the tests are run
-        spinPath = CSightTest.getMcPath();
+        spinPath = CSightTest.getMcPath("spin");
         pmlFilePrefix = "./tests/csight/mc/spin/";
 
         spin = new Spin(spinPath);
@@ -47,21 +46,18 @@ public class SpinTests extends CSightTest {
     }
 
     /**
-     * Bad scm input should result in a syntax error.
+     * Bad Promela input should result in a syntax error. This happens during
+     * verify as the Promela has to be checked before it gets converted to C.
      * 
      * @throws IOException
      */
     @Test(expected = MCSyntaxException.class)
-    public void testBadScmInput() throws IOException {
+    public void testBadPromelaInput() throws IOException {
         try {
             spin.verify("hello world", 60);
-        } catch (Exception e) {
-            logger.info("Verify threw an exception: " + e.toString());
-            fail("Verify should not fail.");
+            fail("Verify should have thrown an exception.");
+        } catch (InterruptedException e) {
+            fail("Verify should not have been interrupted.");
         }
-
-        spin.getVerifyResult(cids);
-        fail("getVerifyResult should have thrown an exception.");
     }
-
 }

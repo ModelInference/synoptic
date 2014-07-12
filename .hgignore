@@ -73,6 +73,11 @@ csight/test-output/*
 # Ignore the compiled jar
 lib/csight.jar
 
+#Spin/Promela related.
+csight/pan.*
+csight/csight.pml
+csight/csight.pml.trail
+
 
 #####################
 # Daikonizer

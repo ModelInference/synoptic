@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import csight.invariants.AlwaysFollowedBy;
 import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
@@ -332,53 +334,123 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     /**
      * Generates a Promela representation of this CFSM, to be used with SPIN.
-     * This representation includes an appropriate LTL formula corresponding to
-     * any invariants that augment this CFSM.
+     * The never claim is not specified here and it is appended to the CFSM
+     * elsewhere.
      */
-    public String toPromelaString(String cfsmName, int chanCapacity) {
+    public String toPromelaString(BinaryInvariant invariant, int chanCapacity) {
         assert unSpecifiedPids == 0;
 
-        String ret = "/* Spin-promela " + cfsmName + " */\n\n";
+        String ret = "/* Spin-promela " + invariant.toString() + " */\n\n";
 
         // Message types:
+        //
+        // mtype is global and can only be declared once.
+        // There is also limit of 255 for the size of mtype.
+
+        // This outputs a set of event types for the CFSM.
         ret += "/* Message types: */\n";
-        for (int i = 0; i < channelIds.size(); i++) {
-            String iStr = Integer.toString(i);
-            ret += "mtypesChan" + iStr + " = {";
-            //
-            // TODO: output channel event types here.
-            //
-            ret += "};";
+        ret += "mtype = { ";
+
+        Set<String> eventTypes = Util.newSet();
+        for (DistEventType e : alphabet) {
+            eventTypes.add(e.getPromelaEType());
         }
+
+        ret += StringUtils.join(eventTypes, ", ");
+
+        ret += " };\n"; // End mtype declaration.
         ret += "\n\n";
 
-        // Channels:
-        ret += "/* Channels: */\n";
+        // Define the channels:
+        ret += "/* Channels: */\n\n";
+
+        // Specifying channels as an array to work with inlines.
+        ret += String.format("chan channel[%d] = [%d] of { mtype };\n",
+                channelIds.size(), chanCapacity);
+
+        // The following block defines EMPTYCHANNELCHECK as a conditional that
+        // checks if all the channels are empty. This is used in the never claim
+        // to make sure our channels are empty before terminating.
+        String emptyChannelCheck = "";
         for (int i = 0; i < channelIds.size(); i++) {
-            String iStr = Integer.toString(i);
-            ret += "chan chan" + iStr + " = [" + Integer.toString(chanCapacity)
-                    + "] of { mtypesChan" + iStr + "}\n";
+            ret += "/* Channel " + channelIds.get(i).toString() + " */\n";
+            if (i != 0) {
+                emptyChannelCheck += " && ";
+            }
+            emptyChannelCheck += "empty(channel[" + i + "])";
         }
+        ret += String.format("#define EMPTYCHANNELCHECK (%s)\n",
+                emptyChannelCheck);
         ret += "\n\n";
 
-        // FSM state vars declaration, one per FSM:
-        ret += "/* FSM state vars: */\n";
+        // Tracks if the current states of each of the FSM are terminal.
+        ret += "bit terminal[" + numProcesses + "];\n";
+
+        // ENDSTATECHECK is the conditional used by the never claim to
+        // check the terminal states in all CFSMs. The never claim has this to
+        // ensure that the processes are in a proper terminal state when the
+        // never claim is done.
+
+        String endStateCheck = "";
         for (int pid = 0; pid < numProcesses; pid++) {
-            ret += "byte state" + Integer.toString(pid) + " = 0;\n";
+            // Set up the terminal check conditional.
+            if (pid != 0) {
+                endStateCheck += " && ";
+            }
+            endStateCheck += "terminal[" + pid + "]";
         }
-        ret += "\n\n";
+
+        ret += String.format("#define ENDSTATECHECK (%s)\n", endStateCheck);
+
+        // Event type definitions for type tracking
+
+        // OTHEREVENTs are used for other transitions so we do not accidentally
+        // trigger an "a NFby b". This can happen when a == b. This invariant
+        // can be accepted if a transition happens that does not call
+        // setRecentEvent. OTHEREVENT does not match any event we are interested
+        // in tracking so it is safe to use during these transitions.
+
+        ret += "#define OTHEREVENT (0)\n";
+        // Event types we're actively tracking.
+        ret += "#define LOCAL (1)\n";
+        ret += "#define SEND (2)\n";
+        ret += "#define RECV (3)\n";
+
+        // Custom datatype to assist in tracking recent event.
+        ret += "typedef myEvent {\n";
+        // The type of event: LOCAL, SEND or RECV
+        ret += "    byte type;\n";
+        // id is the process id if the type is LOCAL and the channel id if the
+        // type is SEND or RECV.
+        ret += "    byte id;\n";
+        // The event itself. These are the previously defined mtypes.
+        ret += "    mtype event;\n";
+        ret += "};\n";
+
+        // Declaration of event tracker.
+        ret += "myEvent recentEvent;\n";
+
+        // Custom inline function to update most recent event.
+        ret += "inline setRecentEvent(event_type, owner_id, event_message) {\n";
+        ret += "  d_step{\n";
+        ret += "    recentEvent.type = event_type;\n";
+        ret += "    recentEvent.id = owner_id;\n";
+        ret += "    recentEvent.event = event_message;\n";
+        ret += "  };\n";
+        ret += "}\n";
 
         // Each of the FSMs in the CFSM:
         for (int pid = 0; pid < numProcesses; pid++) {
-            String stateVar = "state" + Integer.toString(pid);
+            String labelPrefix = "state" + Integer.toString(pid);
             FSM f = fsms.get(pid);
-            ret += "active proctype p" + Integer.toString(pid) + "()\n";
-            ret += "{\n";
-            f.toPromelaString(stateVar);
+            ret += "active proctype p" + Integer.toString(pid) + "(){\n";
+            ret += f.toPromelaString(invariant, labelPrefix);
             ret += "}\n\n";
         }
+
         ret += "\n\n";
 
+        ret += invariant.promelaNeverClaim();
         return ret;
     }
 

@@ -7,8 +7,8 @@ import csight.invariants.checkers.BinChecker;
 import synoptic.model.event.DistEventType;
 
 /**
- * A CSight representation a binary temporal invariant, inv(first,second),
- * where first/second are the related event types. An invariant also includes
+ * A CSight representation a binary temporal invariant, inv(first,second), where
+ * first/second are the related event types. An invariant also includes
  * synthetic event types that are solely used to track and specify when the
  * first/second events occur during model checking.
  */
@@ -50,6 +50,13 @@ abstract public class BinaryInvariant {
      * an RE that encodes the queue bad states corresponding to the invariant.
      */
     abstract public String scmBadStateQRe();
+
+    /**
+     * This method has to be overridden in all subclasses. It's purpose is to
+     * return a Promela never claim that will be <b>accepted</b> if the
+     * invariant is violated.
+     */
+    abstract public String promelaNeverClaim();
 
     // //////////////////////////////////////////////////////////////////
 
@@ -168,6 +175,14 @@ abstract public class BinaryInvariant {
 
         return "(" + secondSynth1.getScmEventString() + " . "
                 + secondSynth2.getScmEventString() + ")";
+    }
+
+    public String firstNeverEvent() {
+        return first.toPromelaTraceCheck();
+    }
+
+    public String secondNeverEvent() {
+        return second.toPromelaTraceCheck();
     }
 
     /** Whether or not the passed eventsPath satisfied this invariant type. */
