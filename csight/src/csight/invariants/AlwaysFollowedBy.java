@@ -27,6 +27,44 @@ public class AlwaysFollowedBy extends BinaryInvariant {
     }
 
     @Override
+    public String promelaNeverClaim() {
+        // The invariant does not hold if the never claim is accepted.
+
+        // The never claim is accepted there is an "a" that
+        // is not followed by a "b".
+        String ret = "";
+        ret += String.format("never  {    /* !([]((%s) -> <>(%s))) */\n",
+                first.toPromelaString(), second.toPromelaString());
+
+        ret += "wait_a:\n"; // "a"s so far have a "b".
+        ret += "    do\n";
+        ret += String
+                .format("      :: %s -> goto need_b;\n", firstNeverEvent());
+        ret += String.format("      :: !%s -> goto wait_a;\n",
+                firstNeverEvent());
+        ret += "    od;\n";
+
+        // We want event b in this state. If we reach the end without it, we
+        // accept the never claim.
+        ret += "need_b:\n"; // Saw a, but haven't seen b.
+        ret += "    do\n";
+        ret += String.format("      :: %s -> goto wait_a;\n",
+                secondNeverEvent());
+        ret += String.format("      :: !%s -> goto need_b;\n",
+                secondNeverEvent());
+        // If b's process has ended, we can't get a b.
+        ret += String
+                .format("      :: ( !%s && ENDSTATECHECK && EMPTYCHANNELCHECK) -> break;\n",
+                        secondNeverEvent());
+        ret += "    od;\n";
+
+        ret += "}\n";
+
+        return ret;
+
+    }
+
+    @Override
     public boolean satisfies(List<DistEventType> eventsPath) {
         // T: 'first' appears after all 'second'
         // F: 'first' does not appear, or 'second' appears after last 'first'

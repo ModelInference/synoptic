@@ -129,8 +129,8 @@ public class CSightMain {
 
     private CSightOptions opts = null;
 
-    // The Java McScM model checker bridge instance that interfaces with the
-    // McScM verify binary.
+    // The Java McScM/Spin model checker bridge instance that interfaces with
+    // the McScM verify binary or Spin.
     private MC mc = null;
 
     // The channels associated with this CSight execution. These are parsed in
@@ -393,7 +393,7 @@ public class CSightMain {
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph;
-        pGraph = new GFSM(traces, opts.topKElements);   
+        pGraph = new GFSM(traces, opts.topKElements);
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).
@@ -752,9 +752,9 @@ public class CSightMain {
                 mcInputStr = cfsm.toScmString("checking_scm_"
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.getConnectorString(),
+                mcInputStr = cfsm.toPromelaString(curInv,
                         opts.spinChannelCapacity);
+
             } else {
                 throw new RuntimeException(
                         "Model checker is not properly specified.");

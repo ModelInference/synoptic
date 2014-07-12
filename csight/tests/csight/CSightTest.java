@@ -133,9 +133,26 @@ public class CSightTest {
 
     // //////////////////////////////////////////////////
 
+    // Backwards compatibility with old tests.
     public static String getMcPath() {
-        // Determine whether to use the Linux or the OSX McScM binary.
+        return getMcPath("mcscm");
+    }
+
+    public static String getMcPath(String mcType) {
+        String mcStr = null;
         String osStr = null;
+        mcType = mcType.toLowerCase();
+        // NOTE: We assume the tests are run from synoptic/csight/
+        if (mcType.equals("mcscm")) {
+            mcStr = "../bin/mcscm/verify.native.";
+        } else if (mcType.equals("spin")) {
+            mcStr = "../bin/spin/spin.";
+        } else {
+            fail("Unsupported model checker (not McScM or SPIN).");
+        }
+
+        // Determine whether to use the Linux, OSX or Windows binary for Spin or
+        // McScm.
         if (Os.isLinux()) {
             // Determine if Linux is 64-bit
             if (Os.getOsArch().contains("64")) {
@@ -145,15 +162,28 @@ public class CSightTest {
                 osStr = "linux-x86";
             }
         } else if (Os.isMac()) {
-            String version = Os.getMajorOSXVersion();
-            String arch = Os.getOsArch();
-            osStr = "osx-" + version + "-" + arch + ".dynamic";
+            if (mcType.equals("mcscm")) {
+                String version = Os.getMajorOSXVersion();
+                String arch = Os.getOsArch();
+                osStr = "osx-" + version + "-" + arch + ".dynamic";
+            } else if (mcType.equals("spin")) {
+                osStr = "osx";
+            }
+        } else if (Os.isWindows()) {
+            // Windows can't run McScM.
+            if (mcType.equals("mcscm")) {
+                fail("McScM is not supported on Windows.");
+            }
+            osStr = "exe";
         } else {
-            fail("Running on an unsupported OS (not Linux, and not Mac).");
+            fail("Running on an unsupported OS (not Linux, Mac or Windows).");
         }
 
-        // NOTE: We assume the tests are run from synoptic/csight/
-        return "../bin/mcscm/verify.native." + osStr;
+        // This ensures that the binary location is encoded correctly on the
+        // current operating systems.
+        File mcLoc = new File(mcStr + osStr);
+
+        return mcLoc.toString();
     }
 
     /**

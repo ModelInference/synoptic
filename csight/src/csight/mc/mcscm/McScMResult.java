@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import csight.mc.MCResult;
 import csight.mc.MCSyntaxException;
 import csight.mc.MCcExample;
+import csight.mc.VerifyOutputParseException;
 import csight.model.fifosys.channel.channelid.InvChannelId;
 import csight.model.fifosys.channel.channelid.LocalEventsChannelId;
 

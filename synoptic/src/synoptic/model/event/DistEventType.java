@@ -396,8 +396,82 @@ public class DistEventType extends EventType implements IDistEventType {
         return result;
     }
 
+    /**
+     * Event name in Promela. This prevents the use of a Promela keyword as an
+     * event type.
+     */
+    public String getPromelaEType() {
+        return "csight_" + getEType();
+    }
+
+    /**
+     * A representation of the event in Promela.
+     * 
+     * @return
+     */
     public String toPromelaString() {
-        // TODO: need to pass a set of channels and an encoding for event types.
-        return "chanI!m";
+        String typeStr = "";
+        if (isLocalEvent()) {
+            return getPromelaEType();
+        } else if (isSendEvent()) {
+            typeStr = "!";
+        } else if (isRecvEvent()) {
+            typeStr = "?";
+        }
+        return "channel[" + channelId.getScmId() + "]" + typeStr
+                + getPromelaEType();
+    }
+
+    /**
+     * @return A Promela string that calls a trace function. This is used to
+     *         track the most recent event for use in never claims.
+     */
+    public String toPromelaTraceString() {
+        String type;
+        // Tracks the owner id. This happens to be the pid if it is a
+        // local event and is the channel id if it is a send or recv event.
+        int ownerId;
+        if (isLocalEvent()) {
+            type = "LOCAL";
+            ownerId = pid;
+        } else if (isRecvEvent()) {
+            type = "RECV";
+            ownerId = channelId.getScmId();
+        } else if (isSendEvent()) {
+            type = "SEND";
+            ownerId = channelId.getScmId();
+        } else {
+            // This shouldn't happen. We don't have SynthSend events with
+            // Promela.
+            return "printm(" + getPromelaEType() + ")";
+        }
+        // Calling the inline function defined in CFSM.toPromelaString()
+        return String.format("setRecentEvent(%s, %d, %s)", type, ownerId,
+                getPromelaEType());
+    }
+
+    /**
+     * This returns a Promela string is a conditional for this event in a never
+     * claim. The string is enclosed with brackets so it is safe to use in
+     * boolean expressions.
+     * 
+     * @return
+     */
+    public String toPromelaTraceCheck() {
+        String typeStr = "";
+        int ownerId = -1;
+        if (isLocalEvent()) {
+            typeStr = "LOCAL";
+            ownerId = pid;
+        } else if (isRecvEvent()) {
+            typeStr = "RECV";
+            ownerId = channelId.getScmId();
+        } else if (isSendEvent()) {
+            typeStr = "SEND";
+            ownerId = channelId.getScmId();
+        }
+        return String
+                .format("((recentEvent.type == %s) && (recentEvent.id == %d) && (recentEvent.event == %s))",
+                        typeStr, ownerId, getPromelaEType());
     }
 }

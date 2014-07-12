@@ -35,6 +35,33 @@ public class EventuallyHappens extends BinaryInvariant {
     }
 
     @Override
+    public String promelaNeverClaim() {
+
+        // The never claim will be accepted if we reach the end without event b.
+
+        String ret = "";
+        ret += String.format("never { /* !(<>(%s)) */\n",
+                second.toPromelaString());
+
+        ret += "need_b:\n";
+        ret += "    do\n";
+        ret += String.format("      :: (! %s ) -> goto need_b;\n",
+                secondNeverEvent());
+        // If we reach the end state of b's process and we don't see b for the
+        // last step, then never claim is true and the invariant is invalid.
+        ret += String
+                .format("      :: ( ENDSTATECHECK && EMPTYCHANNELCHECK && !%s ) -> break;\n",
+                        secondNeverEvent());
+        // We don't have a condition for matching b.
+        // If we do see a 'b', then the model checker will explore a different
+        // path.
+        ret += "    od;\n";
+
+        ret += "}\n";
+        return ret;
+    }
+
+    @Override
     public boolean satisfies(List<DistEventType> eventsPath) {
         for (DistEventType e : eventsPath) {
             if (e.equals(second)) {

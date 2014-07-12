@@ -49,6 +49,17 @@ public class CSightMainTests extends CSightTest {
         return args;
     }
 
+    public List<String> getSpinArgsStr() throws Exception {
+        List<String> args = Util.newList();
+        args.add("--mcType");
+        args.add("spin");
+        args.add("--mcPath");
+        args.add(super.getMcPath("spin"));
+        args.add("-o");
+        args.add("test-output" + File.separator + "test-spin");
+        return args;
+    }
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -240,9 +251,8 @@ public class CSightMainTests extends CSightTest {
         logger.info("CSight run took: " + msTime + "ms ~ " + sTime + "s");
     }
 
-    @Test
-    public void runABPSuccess() throws Exception {
-        List<String> args = getBasicArgsStr();
+    public List<String> getABPArgs() {
+        List<String> args = Util.newList();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -251,28 +261,93 @@ public class CSightMainTests extends CSightTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
-        args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
+        return args;
+    }
+
+    @Test
+    public void runABPSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_simple.txt");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_simple.txt");
+        runDynFromFileArgs(args);
+    }
+
+    /**
+     * This Alternating Bit Protocol has two terminal states. After the A ? a0
+     * and after the A ? a1. This is almost full ABP without the timeouts.
+     */
+    @Test
+    public void runABPTwoTerminalSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
+        runDynFromFileArgs(args);
+    }
+
+    /**
+     * This Alternating Bit Protocol has two terminal states. After the A ? a0
+     * and after the A ? a1. This is almost full ABP without the timeouts.
+     */
+    @Test
+    public void runSpinABPTwoTerminalSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
         runDynFromFileArgs(args);
     }
 
     @Test
     public void runABPLongTraceSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
-        args.add("-r");
-        args.add("^(?<VTIME>)(?<TYPE>)$");
-        args.add("-s");
-        args.add("^--$");
-        args.add("-q");
-        args.add("M:0->1;A:1->0");
-        args.add("-i");
-        args.add("-d");
+        args.addAll(getABPArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPLongTraceSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinABPLongerTraceSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.addAll(getABPArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_longer.txt");
         // runDynFromFileArgs(args);
     }
 
     @Test
     public void runTCPTrace() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("sc:0->1;cs:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/Tcp/po_tcp_log.txt");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSpinTCPTrace() throws Exception {
+        List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -304,6 +379,23 @@ public class CSightMainTests extends CSightTest {
         // runDynFromFileArgs(args);
     }
 
+    @Test
+    public void runSpinVoldemortTrace() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("cr1:0->1;r1c:1->0;cr2:0->2;r2c:2->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/Voldemort/trace_client_put_get.txt");
+        // runDynFromFileArgs(args);
+    }
+
     /**
      * A simple PO example with p0 sending a message, and p1 receiving the
      * message, performing a local action, and replying with an ack. This is
@@ -312,6 +404,29 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleReqRes() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("A:0->1;B:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("-minimize");
+        args.add("../traces/abstract/request-response-po/trace.txt");
+        runDynFromFileArgs(args);
+    }
+
+    /**
+     * A simple PO example with p0 sending a message, and p1 receiving the
+     * message, performing a local action, and replying with an ack. This is
+     * recorded as 1, and 2 iterations.
+     */
+    @Test
+    public void runSpinSimpleReqRes() throws Exception {
+        List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -361,6 +476,24 @@ public class CSightMainTests extends CSightTest {
         dyn.run(log);
     }
 
+    /** Same as the above, but uses Spin instead of McScm. */
+    @Test
+    public void runSpinSimpleConcurrencyStringSuccess() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
+        dyn.run(log);
+    }
+
     /** A slightly more complex example than the above. */
     @Test
     public void runSimpleConcurrencyString2Success() throws Exception {
@@ -375,9 +508,30 @@ public class CSightMainTests extends CSightTest {
         opts = new CSightOptions(args.toArray(new String[0]));
         dyn = new CSightMain(opts);
 
-        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
-                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
-                + "3,4 M?m\n";
+        String log = "1,0 M!m\n" + "2,0 M!m\n" + "3,2 A?a\n" + "1,1 M?m\n"
+                + "1,2 A!a\n" + "2,3 M?m\n" + "2,4 A!a\n" + "4,4 A?a\n";
+
+        dyn.run(log);
+    }
+
+    /**
+     * The same example as above but with Spin.
+     */
+    @Test
+    public void runSpinSimpleConcurrencyString2Success() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        String log = "1,0 M!m\n" + "2,0 M!m\n" + "3,2 A?a\n" + "1,1 M?m\n"
+                + "1,2 A!a\n" + "2,3 M?m\n" + "2,4 A!a\n" + "4,4 A?a\n";
 
         dyn.run(log);
     }
