@@ -60,6 +60,8 @@ public class InvariMintSynoptic extends PGraphInvariMint {
         // Mine invariants using the specialized invMiner.
         minedInvs = this.mineInvariants(synMiner);
 
+        logger.info("Mined invariants:\n" + minedInvs);
+
         logger.info("Intersecting current model with mined invs with minimize intersections="
                 + opts.minimizeIntersections);
 
