@@ -20,11 +20,8 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
-<<<<<<< mine
-import synoptic.util.NotImplementedException;
-=======
 import synoptic.util.InvariantStatistics;
->>>>>>> theirs
+import synoptic.util.NotImplementedException;
 
 /**
  * Contains useful methods that can be used by invariant miners that collect
@@ -61,13 +58,9 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
             Map<EventType, Set<EventType>> gPossibleInterrupts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
-<<<<<<< mine
-            Set<EventType> AlwaysFollowsINITIALSet, boolean multipleRelations) {
-=======
             Set<EventType> AlwaysFollowsINITIALSet, boolean multipleRelations,
             boolean supportCount) {
 
->>>>>>> theirs
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
         for (EventType e1 : gEventCnts.keySet()) {
@@ -79,10 +72,6 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                             || !alwaysConcurrentWith(gFollowedByCnts,
                                     gEventCoOccurrences, e1, e2)) {
                         if (multipleRelations) {
-<<<<<<< mine
-                            invariants.add(new NFBiRelationInvariant(e1, e2,
-                                    relation, Event.defTimeRelationStr));
-=======
                             NFBiRelationInvariant invariant = new NFBiRelationInvariant(
                                     e1, e2, relation, Event.defTimeRelationStr);
                             if (supportCount) {
@@ -91,12 +80,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                                 gEventCnts.get(e1)));
                             }
                             invariants.add(invariant);
->>>>>>> theirs
                         } else {
-<<<<<<< mine
-                            invariants.add(new NeverFollowedInvariant(e1, e2,
-                                    relation));
-=======
+
                             NeverFollowedInvariant invariant = new NeverFollowedInvariant(
                                     e1, e2, relation);
                             if (supportCount) {
@@ -105,17 +90,13 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                                 gEventCnts.get(e1)));
                             }
                             invariants.add(invariant);
->>>>>>> theirs
                         }
                     }
                 }
 
                 if (alwaysFollowedBy(gEventCnts, gFollowedByCnts, e1, e2)) {
                     if (multipleRelations) {
-<<<<<<< mine
-                        invariants.add(new AFBiRelationInvariant(e1, e2,
-                                relation, Event.defTimeRelationStr));
-=======
+
                         AFBiRelationInvariant invariant = new AFBiRelationInvariant(
                                 e1, e2, relation, Event.defTimeRelationStr);
                         if (supportCount) {
@@ -123,12 +104,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                     gEventCnts.get(e1)));
                         }
                         invariants.add(invariant);
->>>>>>> theirs
+
                     } else {
-<<<<<<< mine
-                        invariants.add(new AlwaysFollowedInvariant(e1, e2,
-                                relation));
-=======
                         AlwaysFollowedInvariant invariant = new AlwaysFollowedInvariant(
                                 e1, e2, relation);
                         if (supportCount) {
@@ -136,16 +113,11 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                     gEventCnts.get(e1)));
                         }
                         invariants.add(invariant);
->>>>>>> theirs
                     }
                 }
 
                 if (alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)) {
                     if (multipleRelations) {
-<<<<<<< mine
-                        invariants.add(new APBiRelationInvariant(e1, e2,
-                                relation, Event.defTimeRelationStr));
-=======
                         APBiRelationInvariant invariant = new APBiRelationInvariant(
                                 e1, e2, relation, Event.defTimeRelationStr);
                         if (supportCount) {
@@ -153,12 +125,7 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                     gEventCnts.get(e2)));
                         }
                         invariants.add(invariant);
->>>>>>> theirs
                     } else {
-<<<<<<< mine
-                        invariants.add(new AlwaysPrecedesInvariant(e1, e2,
-                                relation));
-=======
                         AlwaysPrecedesInvariant invariant = new AlwaysPrecedesInvariant(
                                 e1, e2, relation);
                         if (supportCount) {
@@ -166,7 +133,6 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                                     gEventCnts.get(e2)));
                         }
                         invariants.add(invariant);
->>>>>>> theirs
                     }
                 }
 
