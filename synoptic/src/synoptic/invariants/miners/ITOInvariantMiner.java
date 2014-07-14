@@ -17,4 +17,14 @@ public interface ITOInvariantMiner {
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations);
+
+    /**
+     * Computes and returns the temporal invariants that hold for the graph g.
+     * 
+     * @param g
+     *            input graph over which to mine invariants
+     * @return
+     */
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations, boolean supportCount);
 }

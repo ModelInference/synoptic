@@ -100,6 +100,12 @@ public class SynopticOptions extends Options {
             aliases = { "-test-generation" })
     public boolean testGeneration = false;
 
+    /**
+     * Filter all invariants that have support values greater than the threshold
+     */
+    @Option(value = AbstractOptions.supportCountThresholdStr)
+    public int supportCountThreshold = 0;
+
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match
@@ -202,6 +208,12 @@ public class SynopticOptions extends Options {
     @Option(value = AbstractOptions.outputPathPrefixStr,
             aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
+
+    /**
+     * Whether or not to output support counts along with mined invariants
+     */
+    @Option(AbstractOptions.outputSupportCountsStr)
+    public boolean outputSupportCount = false;
 
     /**
      * Whether or not to output the list of invariants to a file, with one
