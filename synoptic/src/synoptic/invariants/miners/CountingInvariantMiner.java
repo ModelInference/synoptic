@@ -18,6 +18,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.InvariantStatistics;
 
 /**
  * Contains useful methods that can be used by invariant miners that collect
@@ -53,8 +54,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
-            Set<EventType> AlwaysFollowsINITIALSet,
-            boolean multipleRelations) {
+            Set<EventType> AlwaysFollowsINITIALSet, boolean multipleRelations,
+            boolean supportCount) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -67,32 +68,64 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                             || !alwaysConcurrentWith(gFollowedByCnts,
                                     gEventCoOccurrences, e1, e2)) {
                         if (multipleRelations) {
-                            invariants.add(new NFBiRelationInvariant(e1, e2, 
-                                    relation, Event.defTimeRelationStr));
+                            NFBiRelationInvariant invariant = new NFBiRelationInvariant(
+                                    e1, e2, relation, Event.defTimeRelationStr);
+                            if (supportCount) {
+                                invariant
+                                        .setStatistics(new InvariantStatistics(
+                                                gEventCnts.get(e1)));
+                            }
+                            invariants.add(invariant);
                         } else {
-                            invariants.add(new NeverFollowedInvariant(e1, e2, 
-                                    relation));
+                            NeverFollowedInvariant invariant = new NeverFollowedInvariant(
+                                    e1, e2, relation);
+                            if (supportCount) {
+                                invariant
+                                        .setStatistics(new InvariantStatistics(
+                                                gEventCnts.get(e1)));
+                            }
+                            invariants.add(invariant);
                         }
                     }
                 }
 
                 if (alwaysFollowedBy(gEventCnts, gFollowedByCnts, e1, e2)) {
                     if (multipleRelations) {
-                        invariants.add(new AFBiRelationInvariant(e1, e2, 
-                                relation, Event.defTimeRelationStr));
+                        AFBiRelationInvariant invariant = new AFBiRelationInvariant(
+                                e1, e2, relation, Event.defTimeRelationStr);
+                        if (supportCount) {
+                            invariant.setStatistics(new InvariantStatistics(
+                                    gEventCnts.get(e1)));
+                        }
+                        invariants.add(invariant);
                     } else {
-                        invariants.add(new AlwaysFollowedInvariant(e1, e2, 
-                                relation));
+                        AlwaysFollowedInvariant invariant = new AlwaysFollowedInvariant(
+                                e1, e2, relation);
+                        if (supportCount) {
+                            invariant.setStatistics(new InvariantStatistics(
+                                    gEventCnts.get(e1)));
+                        }
+                        invariants.add(invariant);
                     }
                 }
 
                 if (alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)) {
                     if (multipleRelations) {
-                        invariants.add(new APBiRelationInvariant(e1, e2, 
-                                relation, Event.defTimeRelationStr));
+                        APBiRelationInvariant invariant = new APBiRelationInvariant(
+                                e1, e2, relation, Event.defTimeRelationStr);
+                        if (supportCount) {
+                            invariant.setStatistics(new InvariantStatistics(
+                                    gEventCnts.get(e2)));
+                        }
+                        invariants.add(invariant);
                     } else {
-                        invariants.add(new AlwaysPrecedesInvariant(e1, e2, 
-                                relation));
+                        AlwaysPrecedesInvariant invariant = new AlwaysPrecedesInvariant(
+                                e1, e2, relation);
+                        if (supportCount) {
+                            invariant.setStatistics(new InvariantStatistics(
+                                    gEventCnts.get(e2)));
+                        }
+                        invariants.add(invariant);
                     }
                 }
             }
@@ -102,14 +135,25 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
         // "eventually x"
         for (EventType label : AlwaysFollowsINITIALSet) {
             if (multipleRelations) {
-                invariants.add(new AFBiRelationInvariant(StringEventType
-                        .newInitialStringEventType(), label, relation));
+                AFBiRelationInvariant invariant = new AFBiRelationInvariant(
+                        StringEventType.newInitialStringEventType(), label,
+                        relation);
+                if (supportCount) {
+                    invariant.setStatistics(new InvariantStatistics(gEventCnts
+                            .get(label)));
+                }
+                invariants.add(invariant);
             } else {
-                invariants.add(new AlwaysFollowedInvariant(StringEventType
-                        .newInitialStringEventType(), label, relation));
+                AlwaysFollowedInvariant invariant = new AlwaysFollowedInvariant(
+                        StringEventType.newInitialStringEventType(), label,
+                        relation);
+                if (supportCount) {
+                    invariant.setStatistics(new InvariantStatistics(gEventCnts
+                            .get(label)));
+                }
+                invariants.add(invariant);
             }
         }
-
         return invariants;
     }
 

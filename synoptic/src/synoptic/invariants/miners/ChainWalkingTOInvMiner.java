@@ -27,10 +27,15 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
+        return computeInvariants(g, multipleRelations, false);
+    }
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations, boolean supportCount) {
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
             TemporalInvariantSet tmp = computeInvariants(g, r,
-                    multipleRelations);
+                    multipleRelations, supportCount);
             result.add(tmp);
         }
         return result;
@@ -79,7 +84,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * @return the set of temporal invariants that g satisfies
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            String relation, boolean multipleRelations) {
+            String relation, boolean multipleRelations, boolean supportCount) {
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
@@ -195,7 +200,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
-                AlwaysFollowsINITIALSet, multipleRelations));
+                AlwaysFollowsINITIALSet, multipleRelations, supportCount));
     }
 
     /**

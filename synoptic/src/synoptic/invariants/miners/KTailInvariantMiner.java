@@ -19,7 +19,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Mines KTailInvariants from a totally ordered ChainsTraceGraph for values of k
  * from 1 to k.
- * 
  */
 public class KTailInvariantMiner implements ITOInvariantMiner {
 
@@ -37,6 +36,12 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
     @Override
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
+        assert multipleRelations == false;
+        return computeInvariants(g);
+    }
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations, boolean supportCounts) {
         assert multipleRelations == false;
         return computeInvariants(g);
     }
