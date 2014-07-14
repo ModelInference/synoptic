@@ -14,6 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.CExamplePath;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -155,6 +156,12 @@ public class InvariantStatisticsTests extends SynopticTest {
         invariant3.setStatistics(new InvariantStatistics(3));
         trueInvs.add(invariant3);
 
+        InterruptedByInvariant invariant4 = new InterruptedByInvariant("b",
+                "a", Event.defTimeRelationStr);
+        // TODO:
+        // invariant4.setStatistics(new InvariantStatistics(XX));
+        trueInvs.add(invariant4);
+
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
@@ -202,6 +209,12 @@ public class InvariantStatisticsTests extends SynopticTest {
         invariant2.setStatistics(new InvariantStatistics(3));
         trueInvs.add(invariant2);
 
+        InterruptedByInvariant invariant3 = new InterruptedByInvariant("b",
+                "a", Event.defTimeRelationStr);
+        // TODO:
+        // invariant3.setStatistics(new InvariantStatistics(XX));
+        trueInvs.add(invariant3);
+
         logger.info("minedInvs: " + minedInvs.toString());
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
@@ -230,7 +243,7 @@ public class InvariantStatisticsTests extends SynopticTest {
 
         ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
-                false);
+                false, false);
 
         // Test with FSM checker.
         AbstractMain main = AbstractMain.getInstance();

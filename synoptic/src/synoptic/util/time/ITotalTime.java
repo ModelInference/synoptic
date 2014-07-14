@@ -11,13 +11,8 @@ public class ITotalTime implements ITime {
      * Builds a Time object from an int
      * 
      * @param i
-     * @throws IllegalArgumentException
-     *             when i is negative
      */
     public ITotalTime(int i) {
-        if (i < 0) {
-            throw new IllegalArgumentException();
-        }
         time = i;
     }
 

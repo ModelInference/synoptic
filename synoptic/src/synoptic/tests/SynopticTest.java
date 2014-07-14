@@ -9,6 +9,9 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -233,7 +236,7 @@ public abstract class SynopticTest extends SynopticLibTest {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
         return new PartitionGraph(inputGraph, true, miner.computeInvariants(
-                inputGraph, multipleRelations));
+                inputGraph, multipleRelations, false));
     }
 
     /**
@@ -259,4 +262,24 @@ public abstract class SynopticTest extends SynopticLibTest {
         return ret;
     }
 
+    /**
+     * Given a set of invariants, return a copy of the set but without IntrBy
+     * invariants
+     * 
+     * @param invariants
+     *            The original set of invariants
+     * @return A copy of the original set but without IntrBy invariants
+     */
+    public static TemporalInvariantSet filterIntrByInvariants(
+            TemporalInvariantSet invariants) {
+
+        TemporalInvariantSet filtered = new TemporalInvariantSet();
+
+        for (ITemporalInvariant inv : invariants) {
+            if (!(inv instanceof InterruptedByInvariant)) {
+                filtered.add(inv);
+            }
+        }
+        return filtered;
+    }
 }
