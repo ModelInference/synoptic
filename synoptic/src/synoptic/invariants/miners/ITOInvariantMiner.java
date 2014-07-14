@@ -1,5 +1,8 @@
 package synoptic.invariants.miners;
 
+import java.util.Set;
+
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 
@@ -17,6 +20,26 @@ public interface ITOInvariantMiner {
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations);
+<<<<<<< mine
+
+    /**
+     * Returns a set of classes of the invariants which will be mined by this
+     * miner.
+     * 
+     * @return array of classes of the invariants which will be mined by this
+     *         miner
+     */
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants();
+
+    /**
+     * Returns a set of classes of the invariants which will NOT be mined by
+     * this miner.
+     * 
+     * @return set of classes of the invariants which will NOT be mined by this
+     *         miner
+     */
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants();
+=======
 
     /**
      * Computes and returns the temporal invariants that hold for the graph g.
@@ -27,4 +50,5 @@ public interface ITOInvariantMiner {
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, boolean supportCount);
+>>>>>>> theirs
 }

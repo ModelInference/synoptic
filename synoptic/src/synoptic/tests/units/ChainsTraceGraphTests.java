@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -15,12 +17,15 @@ import java.util.Set;
 import org.junit.Test;
 
 import synoptic.algorithms.TransitiveClosure;
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.Relation;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
+import synoptic.util.time.ITotalTime;
 
 /**
  * Tests for the ChainsTraceGraph class.
@@ -195,5 +200,87 @@ public class ChainsTraceGraphTests extends SynopticTest {
         tcTrue.get(b).add(c);
         tcGenerated = g.getTransitiveClosure("after");
         assertTrue(tcTrue.equals(tcGenerated.getTC()));
+    }
+
+    private void generateTestEvents(List<EventNode> events,
+            Map<EventNode, Set<Relation>> allEventRelations) {
+        // Set up the events with time information.
+        EventNode eventA = new EventNode(new Event("a"));
+        EventNode eventB = new EventNode(new Event("b"));
+        EventNode eventC = new EventNode(new Event("c"));
+        EventNode eventD = new EventNode(new Event("d"));
+        events.add(eventA);
+        events.add(eventB);
+        events.add(eventC);
+        events.add(eventD);
+        eventA.getEvent().setTime(new ITotalTime(0));
+        eventB.getEvent().setTime(new ITotalTime(5));
+        eventC.getEvent().setTime(new ITotalTime(3));
+        eventD.getEvent().setTime(new ITotalTime(9));
+
+        Set<Relation> relations = new HashSet<Relation>();
+        relations.add(new Relation("time-relation", "t", false));
+
+        allEventRelations.put(eventA, relations);
+        allEventRelations.put(eventB, relations);
+        allEventRelations.put(eventC, relations);
+        allEventRelations.put(eventD, relations);
+    }
+
+    /**
+     * Tests that the graph keeps the order if the keepOrder-flag is set.
+     */
+    @Test
+    public void keepLogOrderTest() {
+        AbstractMain am = AbstractMain.getInstance();
+
+        List<EventNode> events = new ArrayList<EventNode>();
+        Map<EventNode, Set<Relation>> allEventRelations = new HashMap<EventNode, Set<Relation>>();
+        generateTestEvents(events, allEventRelations);
+
+        // Tests that the graph keeps the order if the flag is set
+        am.options.keepOrder = true;
+
+        g = new ChainsTraceGraph();
+        try {
+            g.addTrace(new ArrayList<EventNode>(events),
+                    new HashMap<EventNode, Set<Relation>>(allEventRelations));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        for (EventNode en : g.getTraceIdToInitNodes().get(0)) {
+            assertTrue(en.getAllTransitions().get(0).getTarget()
+                    .equals(events.get(1)));
+        }
+    }
+
+    /**
+     * Tests that the graph reorders the events based on their associated values
+     * if the keepOrder-flag is not set.
+     */
+    @Test
+    public void reorderLogTest() {
+        AbstractMain am = AbstractMain.getInstance();
+
+        List<EventNode> events = new ArrayList<EventNode>();
+        Map<EventNode, Set<Relation>> allEventRelations = new HashMap<EventNode, Set<Relation>>();
+        generateTestEvents(events, allEventRelations);
+
+        // Tests that the graph reorders the events if the flag is not set
+        am.options.keepOrder = false;
+
+        g = new ChainsTraceGraph();
+        try {
+            g.addTrace(new ArrayList<EventNode>(events),
+                    new HashMap<EventNode, Set<Relation>>(allEventRelations));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        for (EventNode en : g.getTraceIdToInitNodes().get(0)) {
+            assertTrue(en.getAllTransitions().get(0).getTarget()
+                    .equals(events.get(2)));
+        }
     }
 }

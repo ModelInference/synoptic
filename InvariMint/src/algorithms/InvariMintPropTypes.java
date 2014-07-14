@@ -122,7 +122,7 @@ public class InvariMintPropTypes {
             logger.info("Mining invariants [" + synMiner.getClass().getName()
                     + "]..");
             TemporalInvariantSet invs = synMiner.computeInvariants(traceGraph,
-                    false);
+                    false, false);
             long endTime = System.currentTimeMillis();
             logger.info("Mining took " + (endTime - startTime) + "ms");
             logger.fine("Mined " + invs.numInvariants()
