@@ -31,11 +31,6 @@ import synoptic.model.interfaces.IRelationPath;
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {
-<<<<<<< mine
-
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations) {
-=======
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
@@ -44,16 +39,10 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, boolean supportCount) {
->>>>>>> theirs
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
-<<<<<<< mine
-            TemporalInvariantSet tmp = computeInvariants(g, r,
-                    multipleRelations);
-=======
             TemporalInvariantSet tmp = computeInvariants(g, r,
                     multipleRelations, supportCount);
->>>>>>> theirs
             result.add(tmp);
         }
         return result;
@@ -235,10 +224,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         }
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
-<<<<<<< mine
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
                 gPossibleInterrupts, null, AlwaysFollowsINITIALSet,
-                multipleRelations));
+                multipleRelations, supportCount));
     }
 
     /**
@@ -258,10 +246,6 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
                         relationPathPossibleInterrupts.get(et));
             }
         }
-=======
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
-                AlwaysFollowsINITIALSet, multipleRelations, supportCount));
->>>>>>> theirs
     }
 
     /**

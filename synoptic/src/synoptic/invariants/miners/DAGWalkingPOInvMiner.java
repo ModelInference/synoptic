@@ -203,17 +203,6 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return computeInvariants(g, Event.defTimeRelationStr);
     }
 
-<<<<<<< mine
-    @Override
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-=======
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
->>>>>>> theirs
-            boolean multipleRelations) {
-        mineConcurrencyInvariants = false;
-        return computeInvariants(g, Event.defTimeRelationStr);
-    }
-
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, boolean supportCounts) {
         // Is this the correct thing to set it to?
@@ -473,13 +462,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
-<<<<<<< mine
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
-                gEventCoOccurrences, gAlwaysFollowsINITIALSet, false);
-=======
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
                 gEventCoOccurrences, gAlwaysFollowsINITIALSet, false, false);
->>>>>>> theirs
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
