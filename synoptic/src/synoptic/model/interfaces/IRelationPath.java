@@ -27,19 +27,22 @@ public interface IRelationPath {
      * count.
      */
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts();
-    
+
+    /**
+     * Map<a, Set<b>> iff a gets interrupted by b.
+     */
     public Map<EventType, Set<EventType>> getPossibleInterrupts();
-    
+
     /**
      * @return first non-INITIAL node in this relation path
      */
     public EventNode getFirstNode();
-    
+
     /**
      * @return final non-TERMINAL node in this relation path
      */
     public EventNode getLastNode();
-    
+
     /**
      * @return relation that path is over
      */

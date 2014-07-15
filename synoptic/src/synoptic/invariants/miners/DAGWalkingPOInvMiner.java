@@ -40,7 +40,7 @@ import synoptic.model.interfaces.ITransition;
  * TemporalInvariantSet.extractInvariantsFromWalkCounts() to turn these counts
  * into valid temporal invariants. <br/>
  * <br/>
- * Note that this miner DOES NOT mine the IntrBy invariant so far.
+ * Note that this miner DOES NOT mine the IntrBy invariant.
  */
 public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         IPOInvariantMiner, ITOInvariantMiner {

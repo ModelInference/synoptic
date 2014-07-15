@@ -300,19 +300,12 @@ public class Bisimulation {
         // constrained invariants
         assert counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>;
 
-        int traversalStart;
-        int traversalEnd;
-
-        // For AFby and AP, traverse the violation subpath from its second
-        // last partition to its second partition. First and last are not
-        // considered for splitting because they cannot possibly contain a
-        // stitch: transitions into the start partition have no bearing on
-        // the violation, and neither do transitions out of the end
-        // partition. This should also work for the IntrBy
-        traversalStart = counterexampleTrace.violationEnd - 1;
-        traversalEnd = counterexampleTrace.violationStart + 1;
-
-        for (int i = traversalStart; i >= traversalEnd; --i) {
+        // Traverse the violation subpath from its second last partition to its
+        // second partition. First and last are not considered for splitting
+        // because they cannot possibly contain a stitch: transitions into the
+        // start partition have no bearing on the violation, and neither do
+        // transitions out of the end partition.
+        for (int i = counterexampleTrace.violationEnd - 1; i > counterexampleTrace.violationStart; --i) {
 
             // Check if partition at i is null
             if (counterexampleTrace.path.get(i) == null) {
