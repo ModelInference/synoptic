@@ -13,7 +13,8 @@ public class LTLSyntaxChecker {
                 .trim().equals("");
     }
 
-    private static String checkExp(String str) {
+    private static String checkExp(String strIn) {
+        String str = strIn;
         str = str.trim();
         String temp = checkPre(str).trim();
 
@@ -32,7 +33,9 @@ public class LTLSyntaxChecker {
         return temp;
     }
 
-    private static String checkPre(String str) {
+    private static String checkPre(String strIn) {
+        String str = strIn;
+
         str = str.trim();
 
         if (str.startsWith("[]")) {
@@ -51,7 +54,9 @@ public class LTLSyntaxChecker {
         return checkAtomic(str);
     }
 
-    private static String checkAtomic(String str) {
+    private static String checkAtomic(String strIn) {
+        String str = strIn;
+
         str = str.trim();
 
         if (str.startsWith("can(") || str.startsWith("did(")) {
@@ -86,8 +91,7 @@ public class LTLSyntaxChecker {
 
         if (j > len) {
             return "failed";
-        } else {
-            return str.substring(j);
         }
+        return str.substring(j);
     }
 }

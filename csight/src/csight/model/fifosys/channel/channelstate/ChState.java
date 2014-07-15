@@ -113,4 +113,8 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
     public ChannelId getChannelId() {
         return chId;
     }
+    
+    public List<TxnEType> getQueue(){
+    	return queue;
+    }
 }

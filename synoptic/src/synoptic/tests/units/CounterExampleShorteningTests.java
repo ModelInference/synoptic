@@ -36,8 +36,7 @@ public class CounterExampleShorteningTests extends SynopticTest {
         assertTrue(shortPath.equals(fullPath.subList(0, 3)));
 
         // ///////////////////////
-        inv = new NeverFollowedInvariant("x", "x",
-                Event.defTimeRelationStr);
+        inv = new NeverFollowedInvariant("x", "x", Event.defTimeRelationStr);
 
         // x,a -> null (because x,a is not a counter-example path)
         fullPath = SynopticTest.getLogEventPath(new String[] { "x", "a" });
@@ -55,7 +54,6 @@ public class CounterExampleShorteningTests extends SynopticTest {
     /**
      * Check shortening of AP counter-examples.
      */
-    @SuppressWarnings("null")
     @Test
     public void shortenAPCExamplesTest() {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant("x", "y",

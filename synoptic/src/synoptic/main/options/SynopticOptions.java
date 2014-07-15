@@ -10,12 +10,18 @@ import plume.OptionGroup;
 import synoptic.main.AbstractMain;
 
 /**
+ * <p>
  * This class defines and maintains command line arguments to the Synoptic
  * process. It uses plume-lib for defining command line options, their types,
  * and the corresponding help messages. This library also provides support for
  * parsing and populating instances of these options. All options can be
  * exported to AbstractOptions (the common options for all Synoptic projects)
  * using toAbstractOptions().
+ * </p>
+ * <p>
+ * Options common between this class and PerfumeOptions cannot be pushed up into
+ * a superclass because plume-lib doesn't support inheritance.
+ * </p>
  */
 public class SynopticOptions extends Options {
     // //////////////////////////////////////////////////
@@ -94,6 +100,12 @@ public class SynopticOptions extends Options {
             aliases = { "-test-generation" })
     public boolean testGeneration = false;
 
+    /**
+     * Filter all invariants that have support values greater than the threshold
+     */
+    @Option(value = AbstractOptions.supportCountThresholdStr)
+    public int supportCountThreshold = 0;
+
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match
@@ -168,6 +180,12 @@ public class SynopticOptions extends Options {
      */
     @Option(value = AbstractOptions.debugParseStr, aliases = { "-debugParse" })
     public boolean debugParse = false;
+
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    @Option(value = AbstractOptions.dateFormatStr, aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
     // end option group "Parser Options"
 
     // //////////////////////////////////////////////////
@@ -190,6 +208,12 @@ public class SynopticOptions extends Options {
     @Option(value = AbstractOptions.outputPathPrefixStr,
             aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
+
+    /**
+     * Whether or not to output support counts along with mined invariants
+     */
+    @Option(AbstractOptions.outputSupportCountsStr)
+    public boolean outputSupportCount = false;
 
     /**
      * Whether or not to output the list of invariants to a file, with one
@@ -469,6 +493,7 @@ public class SynopticOptions extends Options {
         absOpts.traceNormalization = traceNormalization;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
+        absOpts.dateFormat = dateFormat;
 
         // Input options
 

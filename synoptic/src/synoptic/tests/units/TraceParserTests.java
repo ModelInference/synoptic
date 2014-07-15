@@ -6,10 +6,12 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -35,6 +37,7 @@ import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.LTotalTime;
 import synoptic.util.time.VectorTime;
 
 /**
@@ -132,32 +135,38 @@ public class TraceParserTests extends SynopticTest {
     }
 
     @Test(expected = ParseException.class)
+    public void addRegexCustomDateTimeRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<DATETIME=>\\d\\d\\d)\\s(?<TYPE>)$");
+    }
+
+    @Test(expected = ParseException.class)
     public void addRegexNullRegExpExceptionTest() throws ParseException {
         parser.addRegex(null);
     }
 
     /**
-     * The LTIME group is built-in and should not be used in any regular
-     * expressions. These tests attempt to use LTIME in various ways -- expect a
-     * ParseException.
+     * The LOGTIME group is built-in and should not be used in any regular
+     * expressions. These tests attempt to use LOGTIME in various ways -- expect
+     * a ParseException.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeCustomRegExpExceptionTest()
             throws ParseException {
-        parser.addRegex("^(?<LTIME=>\\d\\d)\\s(?<TYPE>)$");
+        parser.addRegex("^(?<LOGTIME=>\\d\\d)\\s(?<TYPE>)$");
     }
 
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeHiddenRegExpExceptionTest()
             throws ParseException {
-        parser.addRegex("^(?<HIDE=>true)(?<LTIME>)\\s(?<TYPE=>hihi)$");
+        parser.addRegex("^(?<HIDE=>true)(?<LOGTIME>)\\s(?<TYPE=>hihi)$");
     }
 
     @Test(expected = ParseException.class)
     public void addRegexWithLTimeRegExpExceptionTest() throws ParseException {
-        parser.addRegex("^(?<LTIME>)\\s(?<TYPE=>hihi)$");
+        parser.addRegex("^(?<LOGTIME>)\\s(?<TYPE=>hihi)$");
     }
 
     /**
@@ -297,9 +306,11 @@ public class TraceParserTests extends SynopticTest {
      *            Array of corresponding occurrence times
      * @param types
      *            Array of corresponding occurrence types
+     * @throws java.text.ParseException
      */
     public void checkLogEventTypesAndTimes(List<EventNode> events,
-            String[] timeStrs, List<EventType> types, String timeType) {
+            String[] timeStrs, List<EventType> types, String timeType)
+            throws ParseException {
         assertSame(events.size(), timeStrs.length);
         assertSame(timeStrs.length, types.size());
         for (int i = 0; i < events.size(); i++) {
@@ -318,6 +329,17 @@ public class TraceParserTests extends SynopticTest {
                         .equals(eventTime));
             } else if (timeType.equals("DTIME")) {
                 assertTrue(new DTotalTime(Double.parseDouble(timeStrs[i]))
+                        .equals(eventTime));
+            } else if (timeType.equals("DATETIME")) {
+                SimpleDateFormat dateFormatter = new SimpleDateFormat(
+                        "dd/MMM/yyyy:HH:mm:ss");
+                Date eventDate;
+                try {
+                    eventDate = dateFormatter.parse(timeStrs[i]);
+                } catch (java.text.ParseException e1) {
+                    throw new ParseException(e1.getMessage(), e1.getCause());
+                }
+                assertTrue(new LTotalTime(eventDate.getTime())
                         .equals(eventTime));
             }
 
@@ -396,6 +418,23 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
+     * Parse a log with explicit double time values.
+     */
+    @Test
+    public void parseExplicitDateTimeTest() throws ParseException {
+        String traceStr = "01/Aug/2014:01:37:13 a\n01/Aug/2014:01:37:14 b\n01/Aug/2014:01:37:15 c\n";
+        parser.addRegex("^(?<DATETIME>)(?<TYPE>)$");
+        parser.addDateFormat("dd/MMM/yyyy:HH:mm:ss");
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1), new String[] {
+                        "01/Aug/2014:01:37:13", "01/Aug/2014:01:37:14",
+                        "01/Aug/2014:01:37:15" },
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }),
+                "DATETIME");
+        assertTrue(parser.logTimeTypeIsTotallyOrdered());
+    }
+
+    /**
      * Parse a log with explicit vector time values and a PID group.
      */
     @Test
@@ -442,63 +481,6 @@ public class TraceParserTests extends SynopticTest {
                 stringsToDistEventTypes(new String[] { "a", "b", "c" },
                         new String[] { "0", "1", "0" }), "VTIME");
         assertFalse(parser.logTimeTypeIsTotallyOrdered());
-    }
-
-    /**
-     * Parse a log with two records with the same INTEGER time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1 a\n2 b\n2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
-    }
-
-    /**
-     * Parse a log with two records with the same FLOAT time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameFTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
-    }
-
-    /**
-     * Parse a log with two records with the same DOUBLE time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameDTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
     }
 
     /**
@@ -1489,6 +1471,7 @@ public class TraceParserTests extends SynopticTest {
     public void stateConstructorInvalidStateStrExpExceptionTest()
             throws ParseException {
         String stateStr = "q == 1";
+        @SuppressWarnings("unused")
         State state = new State(stateStr);
     }
 

@@ -10,23 +10,13 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.LTotalTime;
 import synoptic.util.time.VectorTime;
 
 /**
  * Tests that exercise classes that implement the ITime interface.
  */
 public class ITimeTests extends SynopticTest {
-
-    /**
-     * ITime values cannot be negative. Test that we cannot generate a negative
-     * delta time value.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void testNegativeDelta() {
-        DTotalTime d1 = new DTotalTime(1.0);
-        DTotalTime d2 = new DTotalTime(2.0);
-        d1.computeDelta(d2);
-    }
 
     /**
      * Tests correctness of delta computation.
@@ -83,6 +73,17 @@ public class ITimeTests extends SynopticTest {
     }
 
     /**
+     * Test that we can divide an LTotalTime instance.
+     */
+    @Test
+    public void testDivisionLTotalTIme() {
+        ITime t1 = new LTotalTime(10);
+        ITime t2 = t1.divBy(2);
+        ITime oracle = new LTotalTime(5);
+        assertEquals(oracle, t2);
+    }
+
+    /**
      * Test that we can divide a DTotalTime instance.
      */
     @Test
@@ -102,6 +103,18 @@ public class ITimeTests extends SynopticTest {
         ITime t2 = new ITotalTime(5);
         ITime result = t1.incrBy(t2);
         ITime oracle = new ITotalTime(6);
+        assertEquals(oracle, result);
+    }
+
+    /**
+     * Test that we can increment an LTotalTime instance.
+     */
+    @Test
+    public void testLTotalTimeIncr() {
+        ITime t1 = new LTotalTime(1);
+        ITime t2 = new LTotalTime(5);
+        ITime result = t1.incrBy(t2);
+        ITime oracle = new LTotalTime(6);
         assertEquals(oracle, result);
     }
 

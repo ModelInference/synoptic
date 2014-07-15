@@ -156,7 +156,8 @@ public abstract class PGraphInvariMint {
         long startTime = System.currentTimeMillis();
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
 
-        TemporalInvariantSet invs = miner.computeInvariants(traceGraph, false);
+        TemporalInvariantSet invs = miner.computeInvariants(traceGraph, false,
+                false);
 
         long endTime = System.currentTimeMillis();
         logger.info("Mining took " + (endTime - startTime) + "ms");
@@ -200,13 +201,14 @@ public abstract class PGraphInvariMint {
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
         if (AbstractMain.instance == null) {
+            @SuppressWarnings("unused")
             SynopticMain synMain = new SynopticMain(options,
                     new DotExportFormatter());
         }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = AbstractMain.parseEvents(parser,
                 opts.logFilenames);

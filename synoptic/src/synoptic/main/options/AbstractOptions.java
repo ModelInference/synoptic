@@ -3,9 +3,16 @@ package synoptic.main.options;
 import java.util.List;
 
 /**
+ * <p>
  * The common options for all Synoptic projects. Generally, this should not be
  * created manually. Instead, parse command line options using PerfumeOptions or
  * SynopticOptions, and then call toAbstractOptions() on that object.
+ * </p>
+ * <p>
+ * This class cannot be a superclass of PerfumeOptions and SynopticOptions
+ * containing options common to both of them because plume-lib doesn't support
+ * inheritance.
+ * </p>
  */
 public class AbstractOptions {
 
@@ -56,6 +63,9 @@ public class AbstractOptions {
     static final String testGenerationStr = "-t Enable abstract test generation";
     public boolean testGeneration = false;
 
+    static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
+    public int supportCountThreshold = 0;
+
     // ////////////////////////////
     // Parser Options
     // ////////////////////////////
@@ -90,6 +100,9 @@ public class AbstractOptions {
     static final String debugParseStr = "Debug the parser by printing field values extracted from the log and then terminate.";
     public boolean debugParse = false;
 
+    static final String dateFormatStr = "Format of the dates contained in the log (required by DATETIME)";
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
+
     // ////////////////////////////
     // Input options
     // ////////////////////////////
@@ -100,9 +113,14 @@ public class AbstractOptions {
     static final String inputDeltaStr = "-l Interpret the supplied time values as delta values instead of absolute values";
     public static boolean inputDelta = false;
 
+    static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";
+    public static boolean keepOrder = false;
+
     // ////////////////////////////
     // Output options
     // ////////////////////////////
+    static final String outputSupportCountsStr = "Output support counts along with mined invariants";
+    public boolean outputSupportCount = false;
 
     static final String outputPathPrefixStr = "-o Output path prefix for generating Graphviz dot files graphics";
     public static String outputPathPrefix = null;
@@ -116,8 +134,11 @@ public class AbstractOptions {
     static final String dotExecutablePathStr = "-d Path to the Graphviz dot command executable to use";
     public static String dotExecutablePath = null;
 
-    static final String outputEdgeLabelsStr = "Output edge labels on graphs to indicate transition probabilities";
+    static final String outputEdgeLabelsStr = "Output transition probabilities on the graph's edge labels";
     public boolean outputEdgeLabels = true;
+
+    static final String showMedianStr = "Show median metric value on edges in addition to min and max";
+    public boolean showMedian = false;
 
     static final String showTerminalNodeStr = "Show TERMINAL node in generated graphs.";
     public boolean showTerminalNode = true;

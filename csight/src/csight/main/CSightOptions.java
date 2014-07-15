@@ -127,6 +127,21 @@ public class CSightOptions extends Options {
             aliases = { "-debugParse" })
     public boolean debugParse = false;
 
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    // FIXME: this can become inconsistent with synoptic's
+    // AbstractOptions.dateFormatStr
+    @Option(
+            value = "Format of the dates contained in the log (required by DATETIME)",
+            aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
+
+    @Option(
+            value = "Set number of top queue elements to compare states for partition graph construction.",
+            aliases = { "-topK" })
+    public int topKElements = 1;
+
     // end option group "Input Options"
     // //////////////////////////////////////////////////
 

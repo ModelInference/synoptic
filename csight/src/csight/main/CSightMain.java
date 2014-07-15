@@ -129,8 +129,8 @@ public class CSightMain {
 
     private CSightOptions opts = null;
 
-    // The Java McScM model checker bridge instance that interfaces with the
-    // McScM verify binary.
+    // The Java McScM/Spin model checker bridge instance that interfaces with
+    // the McScM verify binary or Spin.
     private MC mc = null;
 
     // The channels associated with this CSight execution. These are parsed in
@@ -198,6 +198,12 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
+        if (opts.topKElements < 1) {
+            err = "Cannot compare queues with less than 1 top element, "
+                    + "set -topK >=1 or use default.";
+            throw new OptionException(err);
+        }
+
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
@@ -245,7 +251,7 @@ public class CSightMain {
         // //////////////////
         // Parse the input log files into _Synoptic_ structures.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = parseEventsFromFiles(parser,
                 opts.logFilenames);
@@ -279,7 +285,7 @@ public class CSightMain {
         // //////////////////
         // Parse the input string into _Synoptic_ structures.
         TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp);
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = parseEventsFromString(parser, log);
 
@@ -386,7 +392,8 @@ public class CSightMain {
         // we've created above. Use the default initial partitioning strategy,
         // based on head of all of the queues of each ObsFifoSysState.
         logger.info("Generating the initial partition graph (GFSM)...");
-        GFSM pGraph = new GFSM(traces);
+        GFSM pGraph;
+        pGraph = new GFSM(traces, opts.topKElements);
 
         // Order dynInvs so that the eventually invariants are at the front (the
         // assumption is that they are faster to model check).
@@ -659,8 +666,9 @@ public class CSightMain {
      * @throws Exception
      * @throws IOException
      * @throws InterruptedException
+     * @return The number of iteration of the model checking loop
      */
-    public void checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
+    public int checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
             throws Exception, IOException, InterruptedException {
         assert pGraph != null;
         assert invs != null;
@@ -709,6 +717,9 @@ public class CSightMain {
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
+        // This counts the number of times we've performed model checking on the
+        // gfsm
+        int mcCounter = 0;
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
@@ -720,6 +731,12 @@ public class CSightMain {
             assert curInv == invsToSatisfy.get(0);
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
+
+            if (pGraph.isSingleton()) {
+                // Skip model checking if all partitions are singletons
+                return mcCounter;
+            }
+            mcCounter++;
 
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -735,9 +752,9 @@ public class CSightMain {
                 mcInputStr = cfsm.toScmString("checking_scm_"
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(
-                        "checking_pml_" + curInv.getConnectorString(),
+                mcInputStr = cfsm.toPromelaString(curInv,
                         opts.spinChannelCapacity);
+
             } else {
                 throw new RuntimeException(
                         "Model checker is not properly specified.");
@@ -805,7 +822,7 @@ public class CSightMain {
                     // No more invariants to check. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
                             + totalInvs + " invariants.");
-                    return;
+                    return mcCounter;
                 }
 
                 // Grab and start checking the next invariant.

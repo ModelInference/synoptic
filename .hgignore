@@ -62,16 +62,21 @@ lib/invarimint.jar
 
 
 #####################
-# Dynoptic
+# CSight
 #####################
 
 # Ignore directories with auto-generated files
-dynoptic/bin/*
-dynoptic/junit/*
-dynoptic/test-output/*
+csight/bin/*
+csight/junit/*
+csight/test-output/*
 
 # Ignore the compiled jar
-lib/dynoptic.jar
+lib/csight.jar
+
+#Spin/Promela related.
+csight/pan.*
+csight/csight.pml
+csight/csight.pml.trail
 
 
 #####################

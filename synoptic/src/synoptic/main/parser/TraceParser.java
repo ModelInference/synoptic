@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -43,6 +45,7 @@ import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.LTotalTime;
 import synoptic.util.time.NotComparableVectorsException;
 import synoptic.util.time.VectorTime;
 
@@ -82,6 +85,9 @@ public class TraceParser {
     private static final Pattern matchDefault = Pattern
             .compile("\\(\\?<((\\w|\\*|\\-)*)>\\)");
 
+    // Pattern used to parse dates
+    private SimpleDateFormat dateFormatter = null;
+
     // All line-matching regexps will be checked to include either of the
     // following
     // groups, but not both.
@@ -91,12 +97,15 @@ public class TraceParser {
     private static final String stateGroup = "STATE";
 
     // Regexp groups that represent valid time in a log line:
-    // TIME: integer time (e.g. 123)
+    // TIME: integer time (e.g. 123) -- 32 bits
+    // LTIME: long time (e.g. 123) -- 64 bits
     // VTIME: vector clock time (e.g. [12,23,34], and [12,234])
     // FTIME: float time (e.g. 123.456) -- 32 bits
     // DTIME: double time (e.g. 1234.56) -- 64 bits
+    // DATETIME: date time parsed according to the dateFormatter option and
+    // converted to LTIME -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
-            "VTIME", "FTIME", "DTIME");
+            "LTIME", "VTIME", "FTIME", "DTIME", "DATETIME");
 
     // Regexp group representing multiple relations
     private static final String relationGroup = "RELATION";
@@ -115,13 +124,13 @@ public class TraceParser {
     // specified (true), or if process IDs will be implicitly mined (false)
     private boolean parsePIDs = false;
 
-    // The time we use implicitly. LTIME is log-line-number time. Which exists
+    // The time we use implicitly. LOGTIME is log-line-number time. Which exists
     // implicitly for every log-line.
-    private static final String implicitTimeGroup = "LTIME";
+    private static final String implicitTimeGroup = "LOGTIME";
 
     // Regexp groups that represent totally ordered time.
     private static final List<String> totallyOrderedTimeGroups = Arrays.asList(
-            "LTIME", "TIME", "FTIME", "DTIME");
+            "LOGTIME", "LTIME", "TIME", "FTIME", "DTIME", "DATETIME");
 
     // The time group regexp selected (implicitly) for use by this parser via
     // passed reg exps to match lines. The parser allows only one type of time
@@ -162,7 +171,7 @@ public class TraceParser {
      * @throws ParseException
      */
     public TraceParser(List<String> rExps, String partitioningRegExp,
-            String sepRegExp) throws ParseException {
+            String sepRegExp, String dateFormat) throws ParseException {
         this();
 
         assert (rExps != null);
@@ -202,6 +211,17 @@ public class TraceParser {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
+
+        if (dateFormat != null) {
+            try {
+                dateFormatter = new SimpleDateFormat(dateFormat);
+            } catch (Exception e) {
+                String error = "Date parsing format (" + dateFormat
+                        + ") is not well defined";
+                logger.severe(error);
+                throw new ParseException(error);
+            }
+        }
     }
 
     /**
@@ -212,6 +232,25 @@ public class TraceParser {
      */
     public boolean logTimeTypeIsTotallyOrdered() {
         return totallyOrderedTimeGroups.contains(selectedTimeGroup);
+    }
+
+    /**
+     * Specifies a specific date format for parsing DATETIME capture groups.
+     * 
+     * @param dateFormat
+     * @throws ParseException
+     */
+    public void addDateFormat(String dateFormat) throws ParseException {
+        if (dateFormat != null) {
+            try {
+                dateFormatter = new SimpleDateFormat(dateFormat);
+            } catch (Exception e) {
+                String error = "Date parsing format (" + dateFormat
+                        + ") is not well defined";
+                logger.severe(error);
+                throw new ParseException(error);
+            }
+        }
     }
 
     /**
@@ -362,7 +401,7 @@ public class TraceParser {
         List<String> groups = parser.groupNames();
 
         // Check that special/internal field names do not appear.
-        // Currently this is just LTIME.
+        // Currently this is just LOGTIME.
         for (String group : groups) {
             if (implicitTimeGroup.equals(group)) {
                 String error = "The group " + implicitTimeGroup
@@ -996,7 +1035,7 @@ public class TraceParser {
             // field (set in addRegex). If no such match is found then we throw
             // an exception.
             if (selectedTimeGroup == implicitTimeGroup) {
-                // Implicit case: LTIME
+                // Implicit case: LOGTIME
                 nextTime = new ITotalTime(lineNum);
             } else {
                 // Explicit case.
@@ -1018,6 +1057,9 @@ public class TraceParser {
                     if (selectedTimeGroup.equals("TIME")) {
                         int t = Integer.parseInt(timeField.trim());
                         nextTime = new ITotalTime(t);
+                    } else if (selectedTimeGroup.equals("LTIME")) {
+                        long t = Long.parseLong(timeField.trim());
+                        nextTime = new LTotalTime(t);
                     } else if (selectedTimeGroup.equals("FTIME")) {
                         float t = Float.parseFloat(timeField.trim());
                         nextTime = new FTotalTime(t);
@@ -1026,6 +1068,14 @@ public class TraceParser {
                         nextTime = new DTotalTime(t);
                     } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
+                    } else if (selectedTimeGroup.equals("DATETIME")) {
+                        if (dateFormatter == null) {
+                            String error = "Date formatter is not initialized with a format, cannot continue";
+                            logger.severe(error);
+                            throw new ParseException(error);
+                        }
+                        Date date = dateFormatter.parse(timeField.trim());
+                        nextTime = new LTotalTime(date.getTime());
                     } else {
                         String error = buildLineErrorLocString(line, fileName,
                                 lineNum)

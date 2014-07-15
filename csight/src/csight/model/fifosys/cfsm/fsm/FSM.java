@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import csight.invariants.BinaryInvariant;
 import csight.main.CSightMain;
 import csight.model.AbsFSM;
 import csight.model.automaton.EncodedAutomaton;
@@ -324,28 +325,51 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
     }
 
     /**
-     * Generate Promela representation of this FSM.
+     * Generate a Promela representation of this FSM.
+     * 
+     * @param labelPrefix
+     *            Prefix for the state labels. These labels are used as targets
+     *            to move between states.
+     * @return
      */
-    public String toPromelaString(String stateVar) {
+    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
         assert !initStates.isEmpty();
 
         String ret = "";
 
-        // If we have more than one initial state, then we choose
+        // If we have more than one initial state, then Spin chooses
         // non-deterministically between the available initial states.
-        if (initStates.size() > 1) {
-            ret += "select(" + stateVar + " : 0 .. "
-                    + Integer.toString(initStates.size() - 1) + ")";
+        // Either way, we need to choose a state. There is no guarantee that
+        // state with the lowest id is our initial state.
+        ret += "  if\n";
+        for (FSMState s : initStates) {
+            // terminalTrack sets the terminal state to 1 if the initial state
+            // is also an acceptance state. Otherwise, it does nothing.
+            String terminalTrack = "";
+            if (s.isAccept()) {
+                terminalTrack = String.format("terminal[%d] = 1;", getPid());
+            }
+            // Mark the recent event as a OTHEREVENT to prevent accidentally
+            // accepting a (e NFBy e).
+            ret += String.format(
+                    "   :: atomic{ recentEvent.type = OTHEREVENT; %s} -> ",
+                    terminalTrack);
+            ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
         }
+        ret += "  fi;\n";
 
-        ret += "do\n";
-        ret += " :: ";
         for (FSMState s : states) {
-            ret += s.toPromelaString(stateVar);
+            ret += s.toPromelaString(invariant, labelPrefix);
             ret += "\n\n";
         }
 
-        ret += "od\n";
+        // This marks the end state of the process itself. The label allows us
+        // to transition here.
+        ret += "end_" + labelPrefix + ":\n";
+        ret += "  atomic { \n";
+        ret += "    recentEvent.type = OTHEREVENT;\n";
+        ret += "    terminal[" + getPid() + "] = 1;\n";
+        ret += "  }\n";
         return ret;
     }
 }

@@ -31,7 +31,6 @@ import synoptic.model.event.StringEventType;
  * Generates an EncodedAutomaton by intersecting all invariants in a given text
  * file. Invariants are expected to be in the following form, each on a separate
  * line:
- * 
  */
 /*
  * IT // Constructs Initial-Terminal invariant
@@ -117,6 +116,7 @@ public class InvariMintFromTextFile {
                     }
                 }
             }
+            input.close();
             EventTypeEncodings encodings = new EventTypeEncodings(events);
             EncodedAutomaton dfa = new InvsModel(encodings);
             for (ITemporalInvariant invariant : invariants) {

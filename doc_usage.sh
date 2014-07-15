@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Documents usage screens (generated with the -H option) for all of
-# the projects hosted by the repo --- Synoptic, CSight,
-# InvariMint. These are written to wiki pages (e.g.,
+# the projects hosted by the repo --- Synoptic, CSight, InvariMint,
+# Perfume. These are written to wiki pages (e.g.,
 # 'DocsSynopticCmdLineHelpScreen') and can be found online, e.g.,:
 # http://code.google.com/p/synoptic/wiki/DocsSynopticCmdLineHelpScreen
 #
@@ -10,8 +10,8 @@
 # from within the default synoptic code branch. This script assume
 # that the working copy is at the tip.
 #
-# Preferably this script will be run whenever synoptic command
-# line options change.
+# Preferably this script will be run whenever command line options
+# change.
 #
 
 if [ -z "$1" ]
@@ -36,6 +36,7 @@ function gen_wiki_page() {
     local usagef=$1
     local cmd=$2
     local prj=$3
+    local escapeName=$4
 
     # 2. Wipe out the old usage wiki page.
     cd ${wiki_repo} && rm $usagef
@@ -43,7 +44,11 @@ function gen_wiki_page() {
     # 3. Generate the new wiki page
     echo "#summary Lists the $prj command line usage screen" >> $usagef
     echo "" >> $usagef
-    echo "= !$prj Command Line Options =" >> $usagef
+    if [ "$escapeName" = true ]; then
+	echo "= !$prj Command Line Options =" >> $usagef
+    else
+	echo "= $prj Command Line Options =" >> $usagef
+    fi
     echo "{{{" >> $usagef
     cd ${code_repo} && $cmd >> $usagef
     echo "}}}" >> $usagef
@@ -51,7 +56,7 @@ function gen_wiki_page() {
 
     # 4. Determine the current revision for the synoptic repository
     # (assumed to be the current dir)
-    echo "As of revision \c" >> $usagef
+    echo "As of revision: " >> $usagef
     cd ${code_repo} && hg tip --template "{node|short}" >> $usagef
     echo >> $usagef
     echo >> $usagef
@@ -64,18 +69,23 @@ function gen_wiki_page() {
 syn_usagef=${wiki_repo}/DocsSynopticCmdLineHelpScreen.wiki
 dyn_usagef=${wiki_repo}/DocsCSightCmdLineHelpScreen.wiki
 invmint_usagef=${wiki_repo}/DocsInvariMintCmdLineHelpScreen.wiki
+perfume_usagef=${wiki_repo}/DocsPerfumeCmdLineHelpScreen.wiki
 
 ############################## Synoptic usage
 # Generate the synoptic usage:
-gen_wiki_page $syn_usagef "./synoptic.sh -H" "Synoptic";
+gen_wiki_page $syn_usagef "./synoptic.sh -H" "Synoptic" false;
 
 ############################## CSight usage
 # Generate the csight usage:
-gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight";
+gen_wiki_page $dyn_usagef "./csight.sh -H" "CSight" false;
 
 ############################## InvariMint usage
 # Generate the invarimint usage:
-gen_wiki_page $invmint_usagef "./invarimint.sh -H" "InvariMint";
+gen_wiki_page $invmint_usagef "./invarimint.sh -H" "InvariMint" true;
+
+############################## InvariMint usage
+# Generate the perfume usage:
+gen_wiki_page $perfume_usagef "./perfume.sh -H" "Perfume" false;
 
 
 # 5. (An extra step for synoptic) Determine the synoptic version by
@@ -85,6 +95,6 @@ gen_wiki_page $invmint_usagef "./invarimint.sh -H" "InvariMint";
 
 
 # 6. Commit and push the edited wiki pages
-cd ${wiki_repo} && hg commit -m 'Updated usage screen docs for all projects' $syn_usagef $dyn_usagef $invmint_usagef && hg push
+cd ${wiki_repo} && hg commit -m 'Updated usage screen docs for all projects' $syn_usagef $dyn_usagef $invmint_usagef $perfume_usagef && hg push
 
 

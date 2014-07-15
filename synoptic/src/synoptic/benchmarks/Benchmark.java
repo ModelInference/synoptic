@@ -43,7 +43,7 @@ public class Benchmark<ArgumentType> {
          * @param performanceMetrics
          *            the results
          */
-        private synchronized void record(ArgumentType arg,
+        synchronized void record(ArgumentType arg,
                 PerformanceMetrics performanceMetrics) {
             results.put(arg, performanceMetrics);
         }

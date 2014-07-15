@@ -11,13 +11,8 @@ public class FTotalTime implements ITime {
      * Builds a Time object from a float
      * 
      * @param f
-     * @throws IllegalArgumentException
-     *             when f is negative
      */
     public FTotalTime(float f) {
-        if (f < 0) {
-            throw new IllegalArgumentException();
-        }
         time = f;
     }
 

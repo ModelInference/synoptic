@@ -24,7 +24,6 @@ import synoptic.util.time.WrongTimeTypeException;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.
- * 
  */
 public class VectorTimeTests extends SynopticTest {
 
@@ -46,26 +45,6 @@ public class VectorTimeTests extends SynopticTest {
         @SuppressWarnings("unused")
         VectorTime v = new VectorTime("1,2,3");
         v = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
-    }
-
-    /**
-     * Make sure that vector time construction fails if a time value at some
-     * index is a negative integer.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorWithException1Test() {
-        @SuppressWarnings("unused")
-        VectorTime v = new VectorTime("-1,2,3");
-    }
-
-    /**
-     * Make sure that the negative integer error also stops us when we construct
-     * a vector time from a list.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorWithException2Test() {
-        @SuppressWarnings("unused")
-        VectorTime v = new VectorTime(Arrays.asList(new Integer[] { 1, -2, 3 }));
     }
 
     /**

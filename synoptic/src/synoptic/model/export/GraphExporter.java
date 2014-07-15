@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import daikonizer.DaikonInvariants;
 
 import synoptic.main.AbstractMain;
+import synoptic.main.options.AbstractOptions;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -64,12 +65,11 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        AbstractMain main = AbstractMain.getInstance();
-        if (main.options.dotExecutablePath == null) {
+        if (AbstractOptions.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + main.options.plumeOpts.getOptDesc("dotExecutablePath"));
+                    + AbstractOptions.plumeOpts.getOptDesc("dotExecutablePath"));
         }
-        return main.options.dotExecutablePath;
+        return AbstractOptions.dotExecutablePath;
     }
 
     /**
@@ -150,6 +150,7 @@ public class GraphExporter {
      * @throws IOException
      *             In case there is a problem using the writer
      */
+    @SuppressWarnings("unchecked")
     public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
@@ -209,10 +210,9 @@ public class GraphExporter {
                     transitions = (List<? extends ITransition<T>>) partition
                             .getTransitionsWithDaikonInvariants();
                 }
-                // If perf debugging and state processing aren't enabled,
-                // then output weights, else add the edge labels later.
-                else if (outputEdgeLabels && !main.options.usePerformanceInfo
-                        && !main.options.stateProcessing) {
+                // If state processing isn't enabled, then output weights, else
+                // add the edge labels later.
+                else if (outputEdgeLabels && !main.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -247,7 +247,41 @@ public class GraphExporter {
                                 ((EventNode) ((INode<?>) trans.getSource()))
                                         .getTraceID(), trans.getRelation());
                     } else {
-                        if (outputEdgeLabels) {
+                        // Set edge and edge label for Perfume
+                        if (main.options.usePerformanceInfo) {
+                            // Calculate the min, max, and median time deltas
+                            ITime timeMin = null;
+                            ITime timeMax = null;
+                            ITime timeMedian = null;
+                            if (trans.getDeltaSeries() != null) {
+                                timeMin = trans.getDeltaSeries().computeMin();
+                                timeMax = trans.getDeltaSeries().computeMax();
+
+                                // Compute median only if requested
+                                if (main.options.showMedian) {
+                                    timeMedian = trans.getDeltaSeries()
+                                            .computeMed();
+                                }
+                            }
+
+                            if (outputEdgeLabels) {
+                                // Show both metrics and probabilities on edges
+                                double prob = trans.getProbability();
+                                s = main.graphExportFormatter
+                                        .edgeToStringWithITimesAndProb(nodeSrc,
+                                                nodeDst, timeMin, timeMax,
+                                                timeMedian, prob,
+                                                trans.getRelation());
+                            }
+
+                            else {
+                                // Show only metrics on edges
+                                s = main.graphExportFormatter
+                                        .edgeToStringWithITimes(nodeSrc,
+                                                nodeDst, timeMin, timeMax,
+                                                timeMedian, trans.getRelation());
+                            }
+                        } else if (outputEdgeLabels) {
 
                             if (main.options.stateProcessing) {
                                 // Label Daikon invariants on this transition.
@@ -257,21 +291,6 @@ public class GraphExporter {
                                 s = main.graphExportFormatter
                                         .edgeToStringWithDaikonInvs(nodeSrc,
                                                 nodeDst, daikonInvs,
-                                                trans.getRelation());
-
-                            } else if (main.options.usePerformanceInfo) {
-                                // Calculate the min and max time deltas
-                                ITime timeMin = null;
-                                ITime timeMax = null;
-                                if (trans.getDeltaSeries() != null) {
-                                    timeMin = trans.getDeltaSeries()
-                                            .computeMin();
-                                    timeMax = trans.getDeltaSeries()
-                                            .computeMax();
-                                }
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithITimes(nodeSrc,
-                                                nodeDst, timeMin, timeMax,
                                                 trans.getRelation());
 
                             } else {

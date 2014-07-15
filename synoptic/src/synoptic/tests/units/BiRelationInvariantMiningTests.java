@@ -73,8 +73,7 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public BiRelationInvariantMiningTests(
-            ITOInvariantMiner minerToUse) {
+    public BiRelationInvariantMiningTests(ITOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
 
@@ -98,7 +97,8 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
      * @return an invariant set for the input log
      * @throws Exception
      */
-    public TemporalInvariantSet genSingleRelationInvariants(String[] trace) throws Exception {
+    public TemporalInvariantSet genSingleRelationInvariants(String[] trace)
+            throws Exception {
 
         if (trace.length == 0) {
             throw new IllegalStateException("Trace array is empty");
@@ -111,7 +111,7 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
 
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        return miner.computeInvariants(graph, true);
+        return miner.computeInvariants(graph, true, false);
     }
 
     @Test
@@ -122,13 +122,12 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
                 .newInitialStringEventType(), "w", r));
-        
-        trueInvs.add(new NFBiRelationInvariant("w", "w", 
+
+        trueInvs.add(new NFBiRelationInvariant("w", "w",
                 Event.defTimeRelationStr));
         trueInvs.add(new NFBiRelationInvariant("w", "w", r));
 
@@ -142,11 +141,9 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new APBiRelationInvariant("w", "x",
@@ -178,11 +175,9 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new APBiRelationInvariant("w", "x",
@@ -208,14 +203,11 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant("w", "y",
@@ -261,20 +253,15 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -396,14 +383,11 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("w", "x",
                 Event.defTimeRelationStr));
@@ -454,23 +438,17 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "u",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "u", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("u", "v",
                 Event.defTimeRelationStr));
@@ -623,8 +601,7 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
                 .newInitialStringEventType(), "w", r));
 
@@ -642,11 +619,9 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -677,17 +652,13 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -760,17 +731,13 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -853,17 +820,13 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -946,20 +909,15 @@ public class BiRelationInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AFBiRelationInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AFBiRelationInvariant("v", "w",
                 Event.defTimeRelationStr));

@@ -44,6 +44,13 @@
     </target>
 
     <!--=====================================================================-->
+    <target name="perfume" depends="daikonizer">
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="clean"/>
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="build"/>
+      <ant inheritAll="false" antfile="./synoptic/build.xml" target="jar-perfume"/>
+    </target>
+
+    <!--=====================================================================-->
     <target name="csight" depends="synoptic">
       <ant inheritAll="false" antfile="./csight/build.xml" target="clean"/>
       <ant inheritAll="false" antfile="./csight/build.xml" target="build"/>

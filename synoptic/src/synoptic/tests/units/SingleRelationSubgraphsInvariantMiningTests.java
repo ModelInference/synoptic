@@ -98,7 +98,8 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
      * @return an invariant set for the input log
      * @throws Exception
      */
-    public TemporalInvariantSet genSingleRelationInvariants(String[] trace) throws Exception {
+    public TemporalInvariantSet genSingleRelationInvariants(String[] trace)
+            throws Exception {
 
         if (trace.length == 0) {
             throw new IllegalStateException("Trace array is empty");
@@ -111,7 +112,7 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
 
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        return miner.computeInvariants(graph, false);
+        return miner.computeInvariants(graph, false, false);
     }
 
     @Test
@@ -122,8 +123,7 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new NeverFollowedInvariant("w", "w",
                 Event.defTimeRelationStr));
 
@@ -141,11 +141,9 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("w", "x",
@@ -177,11 +175,9 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("w", "x",
@@ -207,14 +203,11 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("w", "x",
                 Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("w", "y",
@@ -260,20 +253,15 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -382,14 +370,11 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("w", "x",
                 Event.defTimeRelationStr));
@@ -440,23 +425,17 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "u",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "u", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("u", "v",
                 Event.defTimeRelationStr));
@@ -564,7 +543,6 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("z", "y",
                 Event.defTimeRelationStr));
 
-
         trueInvs.add(new AlwaysFollowedInvariant("v", "w", r));
         trueInvs.add(new AlwaysFollowedInvariant("y", "z", r));
 
@@ -597,8 +575,7 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .newInitialStringEventType(), "w", r));
 
@@ -616,11 +593,9 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -651,17 +626,13 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -734,17 +705,13 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -827,17 +794,13 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));
@@ -911,20 +874,15 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "v", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "w", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "x", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "y", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "z",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "z", Event.defTimeRelationStr));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w",
                 Event.defTimeRelationStr));

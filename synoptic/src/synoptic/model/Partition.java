@@ -616,6 +616,7 @@ public class Partition implements INode<Partition> {
      * @return transitions with Daikon invariants
      * @throws Exception
      */
+    @SuppressWarnings("null")
     public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
         assert (AbstractMain.getInstance().options.stateProcessing);
 

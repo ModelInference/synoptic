@@ -13,7 +13,7 @@ import synoptic.util.time.TimeSeries;
  * 
  * @param <NodeType>
  */
-public class Transition<NodeType> implements ITransition<NodeType> {
+public class Transition<NodeType extends INode<NodeType>> implements ITransition<NodeType> {
 
     protected NodeType source;
     protected NodeType target;
@@ -247,8 +247,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     @Override
     public int compareTo(ITransition<NodeType> other) {
         // First compare the sources of the two transitions.
-        int cmp = ((INode<NodeType>) this.source).getEType().compareTo(
-                ((INode<NodeType>) other.getSource()).getEType());
+        int cmp = (this.source).getEType().compareTo(
+                (other.getSource()).getEType());
         if (cmp != 0) {
             return cmp;
         }
