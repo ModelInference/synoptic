@@ -8,7 +8,11 @@ import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
- * IntrBy Invariant
+ * The interrupter invariant 'x Intr y' holds if for every pair of two instances
+ * of 'x' there is at least one instance of 'y' in between those two instances
+ * of 'x'. This invariant could be useful because it captures more use cases
+ * than the existing ones, e.g. after a 'Login' event occurred, there must be at
+ * least one 'Logout' event before the next 'Login' event can occur.
  * 
  * @author sfiss
  */
@@ -88,11 +92,9 @@ public class InterruptedByInvariant extends BinaryInvariant {
     }
 
     /**
-     * TODO: check if this is implemented correctly, and most of all if it is
-     * logically correct Shortens the IntrBy trace. Also, why (and this is for
-     * the NFBy as well) do we need to keep the trace before the first occurence
-     * of "a". Returns the path "... a ... a", where there is no "b" between the
-     * two "a". If there are no such "a", there is no counter example
+     * Shortens the IntrBy trace. Returns the path "... a ... a", where there is
+     * no "b" between the two "a". If there are no such "a", there is no counter
+     * example
      * 
      * @param trace
      * @param firstEvent
