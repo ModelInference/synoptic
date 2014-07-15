@@ -1,7 +1,9 @@
 package algorithms;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import main.InvariMintOptions;
@@ -10,6 +12,7 @@ import model.InvModel;
 import model.InvsModel;
 
 import synoptic.algorithms.Bisimulation;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -19,6 +22,11 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 
+/**
+ * Implements a Synoptic-style InvariMint algorithm. Note that this algorithm is
+ * not identical to Synoptic, though the produced models will sometimes be
+ * identical to those generated with Synoptic.
+ */
 public class InvariMintSynoptic extends PGraphInvariMint {
 
     public InvariMintSynoptic(InvariMintOptions opts) throws Exception {
@@ -26,7 +34,8 @@ public class InvariMintSynoptic extends PGraphInvariMint {
     }
 
     /**
-     * Runs InvariMint-Synoptic and returns the DFA model.
+     * Runs InvariMint-Synoptic (NFby, AFby, AP invariant types) and returns the
+     * DFA model.
      * 
      * @param opts
      * @param traceGraph
@@ -65,9 +74,21 @@ public class InvariMintSynoptic extends PGraphInvariMint {
         logger.info("Intersecting current model with mined invs with minimize intersections="
                 + opts.minimizeIntersections);
 
-        // Intersect current model with mined invariants.
-        invMintModel = InvComposition.intersectModelWithInvs(minedInvs,
-                opts.minimizeIntersections, invMintModel);
+        // Filter invariants to just include AFby, AP, and NFby types.
+        List<String> okTypes = new ArrayList<String>();
+        okTypes.add("AFby");
+        okTypes.add("NFby");
+        okTypes.add("AP");
+        TemporalInvariantSet filteredInvs = new TemporalInvariantSet();
+        for (ITemporalInvariant inv : minedInvs) {
+            if (okTypes.contains(inv.getShortName())) {
+                filteredInvs.add(inv);
+            }
+        }
+
+        // Intersect current model with filtered set of invariants.
+        invMintModel = InvComposition.intersectModelWithInvs(// minedInvs,
+                filteredInvs, opts.minimizeIntersections, invMintModel);
 
         return invMintModel;
     }
