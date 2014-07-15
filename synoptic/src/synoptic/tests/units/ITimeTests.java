@@ -19,17 +19,6 @@ import synoptic.util.time.VectorTime;
 public class ITimeTests extends SynopticTest {
 
     /**
-     * ITime values cannot be negative. Test that we cannot generate a negative
-     * delta time value.
-     */
-    @Test(expected = IllegalArgumentException.class)
-    public void testNegativeDelta() {
-        DTotalTime d1 = new DTotalTime(1.0);
-        DTotalTime d2 = new DTotalTime(2.0);
-        d1.computeDelta(d2);
-    }
-
-    /**
      * Tests correctness of delta computation.
      */
     @Test

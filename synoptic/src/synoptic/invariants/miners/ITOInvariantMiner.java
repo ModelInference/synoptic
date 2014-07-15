@@ -1,5 +1,8 @@
 package synoptic.invariants.miners;
 
+import java.util.Set;
+
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 
@@ -8,15 +11,24 @@ import synoptic.model.ChainsTraceGraph;
  * logs should support. Such logs are represented as ChainsTraceGraph instances.
  */
 public interface ITOInvariantMiner {
+
     /**
-     * Computes and returns the temporal invariants that hold for the graph g.
+     * Returns a set of classes of the invariants which will be mined by this
+     * miner.
      * 
-     * @param g
-     *            input graph over which to mine invariants
-     * @return
+     * @return array of classes of the invariants which will be mined by this
+     *         miner
      */
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations);
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants();
+
+    /**
+     * Returns a set of classes of the invariants which will NOT be mined by
+     * this miner.
+     * 
+     * @return set of classes of the invariants which will NOT be mined by this
+     *         miner
+     */
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants();
 
     /**
      * Computes and returns the temporal invariants that hold for the graph g.

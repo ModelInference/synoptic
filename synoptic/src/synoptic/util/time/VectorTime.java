@@ -97,16 +97,11 @@ public class VectorTime implements ITime {
      * 
      * @param timeStr
      *            string input representing a vtime
-     * @throws IllegalArgumentException
-     *             when timeStr contains negative integers
      */
     public VectorTime(String timeStr) throws IllegalArgumentException {
         String[] times = timeStr.split(",");
         for (String t : times) {
             Integer i = Integer.parseInt(t);
-            if (i < 0) {
-                throw new IllegalArgumentException();
-            }
             vector.add(i);
         }
     }
@@ -116,15 +111,8 @@ public class VectorTime implements ITime {
      * 
      * @param vector
      *            input vector
-     * @throws IllegalArgumentException
-     *             when vector contains negative integers
      */
     public VectorTime(List<Integer> vector) throws IllegalArgumentException {
-        for (Integer i : vector) {
-            if (i < 0) {
-                throw new IllegalArgumentException();
-            }
-        }
         this.vector.addAll(vector);
     }
 
@@ -132,13 +120,8 @@ public class VectorTime implements ITime {
      * Builds a VectorTime from a single Integer.
      * 
      * @param i
-     * @throws IllegalArgumentException
-     *             when i is negative
      */
     public VectorTime(Integer i) {
-        if (i < 0) {
-            throw new IllegalArgumentException();
-        }
         vector.add(i);
     }
 

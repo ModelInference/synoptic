@@ -483,63 +483,6 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse a log with two records with the same INTEGER time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1 a\n2 b\n2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
-    }
-
-    /**
-     * Parse a log with two records with the same FLOAT time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameFTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
-    }
-
-    /**
-     * Parse a log with two records with the same DOUBLE time in the same
-     * partition -- expect a ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseSameDTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTORelation(events);
-    }
-
-    /**
      * Parse a log with two records with the same VECTOR TIME in the same
      * partition -- expect a ParseException.
      */
