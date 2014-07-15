@@ -32,6 +32,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.ConcurrencyInvariant;
+import synoptic.main.AbstractMain;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
@@ -377,23 +378,22 @@ public class SynopticService extends RemoteServiceServlet implements
      * 
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(GWTSynOpts synOpts)
             throws Exception {
 
         retrieveSessionState();
 
-        if (SynopticMain.instance == null) {
+        if (AbstractMain.instance == null) {
             // Set up some static variables in Main that are necessary to use
             // the Synoptic library.
             SynopticOptions options = new SynopticOptions();
             // Output as much internal Synoptic information as possible.
             options.logLvlExtraVerbose = true;
             options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
-            options.enablePerfDebugging = true;
-            options.enablePerfDebugging = false;
-            SynopticMain synopticMain = new SynopticMain(options,
-                    new DotExportFormatter());
+            SynopticMain synopticMain = new SynopticMain(
+                    options.toAbstractOptions(), new DotExportFormatter());
         }
 
         // Instantiate the parser and parse the log lines.
@@ -401,8 +401,10 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
+            // TODO: make the dateFormat string (last arg to TraceParser) a
+            // parameter.
             parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
-                    synOpts.separatorRegExp);
+                    synOpts.separatorRegExp, "dd/MMM/yyyy:HH:mm:ss");
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
 
         } catch (ParseException pe) {

@@ -118,6 +118,15 @@ public class InvariMintOptions extends Options {
             aliases = { "-debugParse" })
     public boolean debugParse = false;
 
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    // FIXME: this can become inconsistent with synoptic's
+    // AbstractOptions.dateFormatStr
+    @Option(
+            value = "Format of the dates contained in the log (required by DATETIME)",
+            aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
@@ -149,6 +158,37 @@ public class InvariMintOptions extends Options {
     public boolean invMintSynoptic = false;
 
     // end option group "Synoptic Options"
+
+    // //////////////////////////////////////////////////
+
+    /**
+     * Run with property type always followed by.
+     */
+    @OptionGroup("Property Type Options")
+    @Option(value = "Run with Always Followed by property type.",
+            aliases = { "--AFby" })
+    public boolean alwaysFollowedBy = false;
+
+    /**
+     * Run with property type always precedes.
+     */
+    @Option(value = "Run with Always Precedes property type.",
+            aliases = { "--AP" })
+    public boolean alwaysPrecedes = false;
+
+    /**
+     * Run with property type never followed by.
+     */
+    @Option(value = "Run with Never Followed by property type.",
+            aliases = { "--NFby" })
+    public boolean neverFollowedBy = false;
+
+    /**
+     * Run with property type never immediately followed by.
+     */
+    @Option(value = "Run with Never Immediately Followed by property type",
+            aliases = { "--NIFby" })
+    public boolean neverImmediatelyFollowedBy = false;
 
     // //////////////////////////////////////////////////
 
@@ -238,9 +278,10 @@ public class InvariMintOptions extends Options {
      */
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "kTails Options", "Synoptic Options",
-                "InvariMint Options", "Output Options"));
+        System.out.println(plumeOptions
+                .usage("General Options", "Input Options", "kTails Options",
+                        "Synoptic Options", "InvariMint Options",
+                        "Property Type Options", "Output Options"));
     }
 
     @Override

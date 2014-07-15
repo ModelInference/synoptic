@@ -60,15 +60,20 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     /** Used when converting GFSM to a CFSM representation. */
     private int nextFsmStateId = 0;
 
+    /** Creates an empty GFSM. */
+    public GFSM(int numProcesses, List<ChannelId> channelIds) {
+        super(numProcesses, channelIds);
+    }
+
     /**
-     * Creates a new GFSM from observed ObsFifoSys traces, using default initial
-     * partitioning strategy (by the list of elements at the head of all of the
-     * queues in the system), from a list of traces.
+     * Creates a new GFSM from observed ObsFifoSys traces from a list of traces,
+     * using partitioning strategy comparing the list of topK top elements of
+     * all of the queues in the system.
      * 
      * @param traces
      * @return
      */
-    public GFSM(List<ObsFifoSys> traces) {
+    public GFSM(List<ObsFifoSys> traces, int topK) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
         // Compute the initial partitioning of the observed states by using the
@@ -81,8 +86,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
             // DFS traversal to perform initial partitioning.
             ObsFifoSysState init = t.getInitState();
-            addToQueueContentsHashMap(qTopHashToPartition, init);
-            traverseAndPartition(init, qTopHashToPartition, visited);
+            addToQueueContentsHashMap(qTopHashToPartition, init, topK);
+            traverseAndPartition(init, qTopHashToPartition, visited, topK);
             visited.clear();
         }
 
@@ -126,12 +131,12 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     /**
      * Constructor helper -- adds an observation to the map, by hashing on its
-     * top of queue event types.
+     * top k of queue event types.
      */
     private void addToQueueContentsHashMap(
             Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
-            ObsFifoSysState obs) {
-        int hash = obs.getChannelStates().topOfQueuesHash();
+            ObsFifoSysState obs, int k) {
+        int hash = obs.getChannelStates().topKOfQueuesHash(k);
         if (!qTopHashToPartition.containsKey(hash)) {
             logger.info("Creating a new partition for ch-states like: "
                     + obs.getChannelStates().toString());
@@ -143,25 +148,20 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     /**
      * Constructor helper -- DFS traversal of the observed traces, building up
-     * an initial partitioning.
+     * an initial partitioning with topK specification.
      */
     private void traverseAndPartition(ObsFifoSysState curr,
             Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
-            Set<ObsFifoSysState> visited) {
+            Set<ObsFifoSysState> visited, int k) {
         visited.add(curr);
         for (ObsFifoSysState next : curr.getNextStates()) {
             // Ignore branches we've already visited.
             if (visited.contains(next)) {
                 continue;
             }
-            addToQueueContentsHashMap(qTopHashToPartition, next);
-            traverseAndPartition(next, qTopHashToPartition, visited);
+            addToQueueContentsHashMap(qTopHashToPartition, next, k);
+            traverseAndPartition(next, qTopHashToPartition, visited, k);
         }
-    }
-
-    /** Creates an empty GFSM. */
-    public GFSM(int numProcesses, List<ChannelId> channelIds) {
-        super(numProcesses, channelIds);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -803,6 +803,19 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         return false;
     }
 
+    /**
+     * Returns true if all partitions of the GFSM contain only one observed fifo
+     * state
+     */
+    public boolean isSingleton() {
+        for (GFSMState gstate : states) {
+            if (!gstate.isSingleton()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /**
@@ -900,7 +913,5 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         if (CSightMain.assertsOn) {
             checkPartitioningConsistency(obsToCheck);
         }
-
     }
-
 }

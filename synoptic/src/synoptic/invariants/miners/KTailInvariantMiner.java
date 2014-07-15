@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
@@ -19,7 +20,6 @@ import synoptic.util.InternalSynopticException;
 /**
  * Mines KTailInvariants from a totally ordered ChainsTraceGraph for values of k
  * from 1 to k.
- * 
  */
 public class KTailInvariantMiner implements ITOInvariantMiner {
 
@@ -36,7 +36,7 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
      */
     @Override
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations) {
+            boolean multipleRelations, boolean supportCounts) {
         assert multipleRelations == false;
         return computeInvariants(g);
     }
@@ -138,5 +138,20 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
                 curNode = curNode.getAllTransitions().get(0).getTarget();
             }
         }
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+        set.add(KTailInvariant.class);
+
+        return set;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+
+        return set;
     }
 }

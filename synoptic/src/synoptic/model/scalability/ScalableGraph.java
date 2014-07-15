@@ -32,7 +32,8 @@ public class ScalableGraph {
             boolean preserveInvariants) {
         // 1. run gk-tail over each graph
         // TODO: implement this with our partition-based kTail instead
-        for (PartitionGraph g : graphs) {
+        for (@SuppressWarnings("unused")
+        PartitionGraph g : graphs) {
             // KTail.kReduce(g, k, subsumption, preserveInvariants);
         }
 

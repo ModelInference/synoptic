@@ -26,6 +26,38 @@ public class AlwaysPrecedes extends BinaryInvariant {
     }
 
     @Override
+    public String promelaNeverClaim() {
+        // The never claim is only accepted if b was never preceded by a.
+        // If we see a before b, the never claim will never be accepted.
+        // We redirect to a safe loop when that happens.
+        String ret = "";
+        ret += String.format("never { /* !(<>(%s)) -> (!(%s) U (%s)))*/\n",
+                second.toPromelaString(), second.toPromelaString(),
+                first.toPromelaString());
+
+        ret += "State_need_a:\n";
+        ret += "    do\n";
+        // Accept the claim if we see b without seeing a.
+        ret += String.format("      :: %s -> goto wait_end;\n",
+                secondNeverEvent());
+        ret += String.format("      :: (!%s && !%s)-> goto State_need_a;\n",
+                firstNeverEvent(), secondNeverEvent()); // Haven't seen a or b.
+
+        // We've seen a, so b is now safe.
+        // We don't match this. If a never claim can't match a step, it is
+        // considered safe.
+        ret += "    od;\n";
+
+        ret += "wait_end:\n";
+        ret += "    do\n";
+        ret += "       :: (ENDSTATECHECK && EMPTYCHANNELCHECK) -> break;\n";
+        ret += "       :: skip;\n";
+        ret += "    od;\n";
+        ret += "}\n";
+        return ret;
+    }
+
+    @Override
     public boolean satisfies(List<DistEventType> eventsPath) {
         // Whether or not we've seen 'first' so far.
         boolean seenFirst = false;

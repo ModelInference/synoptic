@@ -15,12 +15,12 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String beginGraphString() {
-        return "digraph {\n";
+        return "digraph G {\n";
     }
 
     @Override
     public String endGraphString() {
-        return "} // digraph {\n";
+        return "}\n";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class DotExportFormatter extends GraphExportFormatter {
 
         String s = nodeSrc + "->" + nodeDst + " [";
         if (!attributes.equals("")) {
-            s += attributes + ",";
+            s += attributes;
         }
         // s += "color=" + getRelationColor(relations);
         return s + "];" + "\n";
@@ -61,21 +61,34 @@ public class DotExportFormatter extends GraphExportFormatter {
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             Set<String> relations) {
         String probStr = quote(probToString(prob));
-        String attributes = "label=\"" + probStr + "\", weight=\"" + probStr
-                + "\"";
+        String attributes = "label=\"" + probStr + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 
     @Override
     public String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            ITime timeMin, ITime timeMax, Set<String> relations) {
+            ITime timeMin, ITime timeMax, ITime timeMedian,
+            Set<String> relations) {
 
         // Make time string
         int sigDigits = 3;
-        String timeStr = getITimeString(timeMin, timeMax, sigDigits);
+        String timeStr = getITimeString(timeMin, timeMax, timeMedian, sigDigits);
 
-        String attributes = "label=\"" + timeStr + "\", weight=\"" + timeStr
-                + "\"";
+        String attributes = "label=\"" + timeStr + "\"";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+    }
+
+    @Override
+    public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst,
+            ITime timeMin, ITime timeMax, ITime timeMedian, double prob,
+            Set<String> relations) {
+
+        // Make time and probability strings
+        int sigDigits = 3;
+        String timeStr = getITimeString(timeMin, timeMax, timeMedian, sigDigits);
+        String probStr = quote(probToString(prob));
+
+        String attributes = "label=\"" + timeStr + " " + probStr + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 

@@ -132,17 +132,15 @@ public class Formula implements Comparable<Formula> {
     public Formula getSub1() {
         if (content == 'V') {
             return right;
-        } else {
-            return left;
         }
+        return left;
     }
 
     public Formula getSub2() {
         if (content == 'V') {
             return left;
-        } else {
-            return right;
         }
+        return right;
     }
 
     public void addLeft(Formula l) {
@@ -206,9 +204,8 @@ public class Formula implements Comparable<Formula> {
 
         if (check_against.contains(form)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public boolean is_synt_implied(TreeSet<Formula> old, TreeSet<Formula> next) {
@@ -266,12 +263,10 @@ public class Formula implements Comparable<Formula> {
                 if (form1 != null) {
                     if (next != null) {
                         return (next.contains(form1));
-                    } else {
-                        return false;
                     }
-                } else {
-                    return true;
+                    return false;
                 }
+                return true;
 
             case 'A':
                 return (condition2 && condition1);
@@ -282,9 +277,8 @@ public class Formula implements Comparable<Formula> {
 
                 return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
     public Formula negate() {

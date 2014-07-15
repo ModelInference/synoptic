@@ -67,6 +67,7 @@ public class TimeSeries<TimeType extends ITime> implements
      * @return median delta time for transition, null if transition has zero
      *         delta times.
      */
+    @SuppressWarnings("unchecked")
     public TimeType computeMedian() {
         if (this.times.isEmpty()) {
             return null;
@@ -81,6 +82,8 @@ public class TimeSeries<TimeType extends ITime> implements
             return times.get(middle);
         }
         // Event length.
+        // TODO: make this a safe cast by having incrBy return a more concrete
+        // time than ITime.
         return (TimeType) times.get(middle - 1).incrBy(times.get(middle))
                 .divBy(2);
     }
@@ -119,6 +122,35 @@ public class TimeSeries<TimeType extends ITime> implements
      */
     public TimeType computeMax() {
         return computeMinMax(true);
+    }
+
+    /**
+     * @return Median time delta for transition, or null if transition has no
+     *         time deltas
+     */
+    @SuppressWarnings("unchecked")
+    public TimeType computeMed() {
+        // Check for empty or size-one time series
+        if (times.isEmpty()) {
+            return null;
+        } else if (times.size() == 1) {
+            return times.get(0);
+        }
+
+        // Median position if odd, or lower median position if even
+        int medianPos = (times.size() - 1) / 2;
+
+        // Times size is even, so calculate and return median
+        if (times.size() % 2 == 0) {
+            TimeType lowMedian = times.get(medianPos);
+            TimeType highMedian = times.get(medianPos + 1);
+            return (TimeType) lowMedian.incrBy(highMedian).divBy(2);
+        }
+
+        // Times size is odd, so just return median
+        {
+            return times.get(medianPos);
+        }
     }
 
     /**

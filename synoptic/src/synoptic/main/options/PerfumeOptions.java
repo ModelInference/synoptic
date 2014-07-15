@@ -10,11 +10,17 @@ import plume.OptionGroup;
 import synoptic.main.AbstractMain;
 
 /**
+ * <p>
  * Defines and maintains command line arguments to Perfume. It uses plume-lib
  * for defining command line options, their types, and the corresponding help
  * messages. This library also provides support for parsing and populating
  * instances of these options. All options can be exported to AbstractOptions
  * (the common options for all Synoptic projects) using toAbstractOptions().
+ * </p>
+ * <p>
+ * Options common between this class and SynopticOptions cannot be pushed up
+ * into a superclass because plume-lib doesn't support inheritance.
+ * </p>
  */
 public class PerfumeOptions extends Options {
     // //////////////////////////////////////////////////
@@ -160,6 +166,12 @@ public class PerfumeOptions extends Options {
      */
     @Option(value = AbstractOptions.debugParseStr, aliases = { "-debugParse" })
     public boolean debugParse = false;
+
+    /**
+     * Pattern defining the format of dates within a log (required by DATETIME)
+     */
+    @Option(value = AbstractOptions.dateFormatStr, aliases = { "-dateFormat" })
+    public String dateFormat = "dd/MMM/yyyy:HH:mm:ss";
     // end option group "Parser Options"
 
     // //////////////////////////////////////////////////
@@ -207,9 +219,18 @@ public class PerfumeOptions extends Options {
     public String dotExecutablePath = null;
 
     /**
-     * Perfume always outputs performance labels on exported graph edges
+     * Whether or not probabilities are displayed on edge labels in addition to
+     * metric ranges, which are always displayed
      */
-    public final boolean outputEdgeLabels = true;
+    @Option(value = AbstractOptions.outputEdgeLabelsStr)
+    public boolean outputEdgeLabels = false;
+
+    /**
+     * Whether or not to show the median metric value on edges between the min
+     * and max, e.g., [1,5,9] instead of [1,9] for min 1, median 5, max 9
+     */
+    @Option(AbstractOptions.showMedianStr)
+    public boolean showMedian = false;
 
     /**
      * Whether or not the output graphs include the common TERMINAL state, to
@@ -456,6 +477,7 @@ public class PerfumeOptions extends Options {
         absOpts.traceNormalization = traceNormalization;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
+        absOpts.dateFormat = dateFormat;
 
         // Input options
 
@@ -468,6 +490,7 @@ public class PerfumeOptions extends Options {
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputEdgeLabels = outputEdgeLabels;
+        absOpts.showMedian = showMedian;
         absOpts.showTerminalNode = showTerminalNode;
         absOpts.showInitialNode = showInitialNode;
         absOpts.outputJSON = outputJSON;

@@ -44,7 +44,7 @@ public class PartitionGraphTests extends SynopticTest {
 
         ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
-                false);
+                false, false);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
         // The set of nodes should be: INITIAL, a, TERMINAL

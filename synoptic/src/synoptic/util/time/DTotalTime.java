@@ -11,13 +11,8 @@ public class DTotalTime implements ITime {
      * Builds a Time object from a double
      * 
      * @param d
-     * @throws IllegalArgumentException
-     *             when d is negative
      */
     public DTotalTime(double d) {
-        if (d < 0) {
-            throw new IllegalArgumentException();
-        }
         time = d;
     }
 

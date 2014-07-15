@@ -38,7 +38,7 @@ public class Pair<L, R> {
             return false;
         }
 
-        Pair<L, R> otherP = (Pair<L, R>) other;
+        Pair<?, ?> otherP = (Pair<?, ?>) other;
         if (!otherP.getLeft().equals(l)) {
             return false;
         }

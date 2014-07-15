@@ -1,5 +1,6 @@
 package synoptic.invariants.miners;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -14,6 +15,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.InterruptedByInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
@@ -35,7 +37,9 @@ import synoptic.model.event.StringEventType;
  * the edges in the transitive closure to mine invariants. For example, if every
  * instance of EventNode of type "a" has an edge in the transitive closure to an
  * EventNode of type "b", then a AlwaysFollowedBy b is an invariant of the
- * TraceGraph.
+ * TraceGraph. <br />
+ * This miner mines AFby, AP and NFby invariants, but - in contrast to
+ * {@link ChainWalkingTOInvMiner} - no IntrBy invariants.
  */
 public class TransitiveClosureInvMiner extends InvariantMiner implements
         IPOInvariantMiner, ITOInvariantMiner {
@@ -55,14 +59,14 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations) {
-        return computeTransClosureInvariants(g, false);
+    public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
+        return computeTransClosureInvariants(g, true);
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
-        return computeTransClosureInvariants(g, true);
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations, boolean supportCounts) {
+        return computeTransClosureInvariants(g, false);
     }
 
     /**
@@ -416,5 +420,24 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
         pathInvs.addAll(neverConcurInvs);
         pathInvs.addAll(alwaysConcurInvs);
         return pathInvs;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getMinedInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+        set.add(AlwaysFollowedInvariant.class);
+        set.add(AlwaysPrecedesInvariant.class);
+        set.add(NeverFollowedInvariant.class);
+
+        return set;
+    }
+
+    @Override
+    public Set<Class<? extends ITemporalInvariant>> getIgnoredInvariants() {
+        Set<Class<? extends ITemporalInvariant>> set = new HashSet<Class<? extends ITemporalInvariant>>();
+
+        set.add(InterruptedByInvariant.class);
+
+        return set;
     }
 }

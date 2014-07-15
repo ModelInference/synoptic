@@ -4,21 +4,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.ITransition;
 import synoptic.model.interfaces.IRelationPath;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
  * Represents a connected subgraph over a relation through a trace. Supports
  * operations to count event Occurrences, Follows, and Precedes over the
  * specified relation within the trace.
- * 
  */
 public class TransitiveRelationPath implements IRelationPath {
 
@@ -36,16 +36,16 @@ public class TransitiveRelationPath implements IRelationPath {
      */
 
     /** First non-INITIAL node in this relation path */
-    private EventNode eNode;
+    private final EventNode eNode;
     /** Final non-TERMINAL node in this relation path */
-    private EventNode eFinal;
+    private final EventNode eFinal;
     /** Relation this path is over */
-    private String relation;
+    private final String relation;
     /**
      * The relation this path uses for ordered traversal, defaults to
      * Event.defaultTimeRelationString, or "t"
      */
-    private String orderingRelation = Event.defTimeRelationStr;
+    private final String orderingRelation = Event.defTimeRelationStr;
     /**
      * Caching indicator -- whether or not the various counts have already been
      * computed.
@@ -56,23 +56,29 @@ public class TransitiveRelationPath implements IRelationPath {
      * Whether or not INITIAL is directly or transitively connected to the
      * relation subgraph
      */
-    private boolean initialTransitivelyConnected;
+    private final boolean initialTransitivelyConnected;
 
-    /** The set of nodes seen prior to some point in the trace. */
-    private Set<EventType> seen;
+    /** The list of nodes seen prior to some point in the trace. */
+    private final LinkedList<EventType> seen;
     /** Maintains the current event count in the path. */
-    private Map<EventType, Integer> eventCounts;
+    private final Map<EventType, Integer> eventCounts;
     /**
      * Maintains the current FollowedBy count for the path.
      * followedByCounts[a][b] = count iff the number of a's that appeared before
      * this b is count.
      */
-    private Map<EventType, Map<EventType, Integer>> followedByCounts;
+    private final Map<EventType, Map<EventType, Integer>> followedByCounts;
     /**
      * Maintains the current precedes count for the path. precedesCounts[a][b] =
      * count iff the number of b's that appeared after this a is count.
      */
-    private Map<EventType, Map<EventType, Integer>> precedesCounts;
+    private final Map<EventType, Map<EventType, Integer>> precedesCounts;
+
+    /**
+     * Maintains for every event type the types that interrupts it across every
+     * relation path.
+     */
+    private final LinkedHashMap<EventType, Set<EventType>> possibleInterrupts;
 
     /**
      * @param eNode
@@ -83,17 +89,18 @@ public class TransitiveRelationPath implements IRelationPath {
      *            Whether INITIAL is directly or transitively connected to the
      *            relation subgraph
      */
-    public TransitiveRelationPath(EventNode eNode, EventNode eFinal, 
+    public TransitiveRelationPath(EventNode eNode, EventNode eFinal,
             String relation, String transitiveRelation,
             boolean initialTransitivelyConnected) {
         this.eNode = eNode;
         this.eFinal = eFinal;
         this.relation = relation;
         this.counted = false;
-        this.seen = new LinkedHashSet<EventType>();
+        this.seen = new LinkedList<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        this.possibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
         this.initialTransitivelyConnected = initialTransitivelyConnected;
     }
 
@@ -107,7 +114,7 @@ public class TransitiveRelationPath implements IRelationPath {
         if (counted) {
             return;
         }
-        
+
         Set<String> orderingRelationSet = new HashSet<String>();
         orderingRelationSet.add(orderingRelation);
         Set<String> relationSet = new HashSet<String>();
@@ -143,12 +150,13 @@ public class TransitiveRelationPath implements IRelationPath {
             // a relation.
             if (curNode.getTransitionsWithExactRelations(relationSet).size() > 1) {
                 throw new InternalSynopticException(
-                        "There should be not be more than one transition with the " +
-                        relation + " relation.");
+                        "There should be not be more than one transition with the "
+                                + relation + " relation.");
             }
 
             boolean hasImmediateOutgoingRelation = curNode
-                    .getTransitionsWithIntersectingRelations(relationSet).size() == 1;
+                    .getTransitionsWithIntersectingRelations(relationSet)
+                    .size() == 1;
 
             if (!hasImmediateOutgoingRelation && !hasImmediateIncomingRelation) {
                 // Move on to the next node in the trace.
@@ -213,7 +221,28 @@ public class TransitiveRelationPath implements IRelationPath {
 
                 bValues.put(b, eventCounts.get(a));
             }
-            seen.add(b);
+
+            // For IntrBy, event type b must have occurred at least once
+            // beforehand
+            if (eventCounts.get(b) != null) {
+                Set<EventType> typesInBetween = new HashSet<EventType>();
+                for (EventType a : seen) {
+                    if (a.equals(b)) {
+                        break;
+                    }
+
+                    typesInBetween.add(a);
+                }
+
+                if (!possibleInterrupts.containsKey(b)) {
+                    possibleInterrupts.put(b, new HashSet<EventType>(
+                            typesInBetween));
+                } else {
+                    possibleInterrupts.get(b).retainAll(typesInBetween);
+                }
+            }
+
+            seen.addFirst(b);
 
             // Update the trace event counts.
             if (!eventCounts.containsKey(b)) {
@@ -248,11 +277,13 @@ public class TransitiveRelationPath implements IRelationPath {
         counted = true;
     }
 
+    @Override
     public Set<EventType> getSeen() {
         count();
-        return Collections.unmodifiableSet(seen);
+        return Collections.unmodifiableSet(new LinkedHashSet<EventType>(seen));
     }
 
+    @Override
     public Map<EventType, Integer> getEventCounts() {
         count();
         return Collections.unmodifiableMap(eventCounts);
@@ -262,6 +293,7 @@ public class TransitiveRelationPath implements IRelationPath {
      * Map<a, Map<b, count>> iff the number of a's that appeared before this b
      * is count.
      */
+    @Override
     public Map<EventType, Map<EventType, Integer>> getFollowedByCounts() {
         count();
         // TODO: Make the return type deeply unmodifiable
@@ -272,21 +304,32 @@ public class TransitiveRelationPath implements IRelationPath {
      * Map<a, Map<b, count>> iff the number of b's that appeared after this a is
      * count.
      */
+    @Override
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts() {
         count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
     }
-    
+
+    @Override
+    public Map<EventType, Set<EventType>> getPossibleInterrupts() {
+        count();
+        // TODO: Make the return type deeply unmodifiable
+        return Collections.unmodifiableMap(possibleInterrupts);
+    }
+
+    @Override
     public EventNode getFirstNode() {
-    	return this.eNode;
+        return this.eNode;
     }
-    
+
+    @Override
     public EventNode getLastNode() {
-    	return this.eFinal;
+        return this.eFinal;
     }
-    
+
+    @Override
     public String getRelation() {
-    	return this.relation;
+        return this.relation;
     }
 }

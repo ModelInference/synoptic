@@ -7,7 +7,9 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import synoptic.model.EventNode;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
 
@@ -19,13 +21,14 @@ import synoptic.util.time.ITotalTime;
  */
 public class TransitionDeltaTests {
 
-    private Transition<String> sTrans;
+    private Transition<EventNode> sTrans;
     private ITime t;
 
     @Before
     public void createTransitions() {
         t = new ITotalTime(1);
-        sTrans = new Transition<String>("node1", "node2", "");
+        sTrans = new Transition<EventNode>(new EventNode(new Event("event1")), 
+                new EventNode(new Event("event2")), "");
     }
 
     // TODO: Is a delta series created on call?

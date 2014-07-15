@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm.fsm;
 import java.util.Map;
 import java.util.Set;
 
+import csight.invariants.BinaryInvariant;
 import csight.model.AbsFSMState;
 import csight.model.fifosys.channel.channelid.LocalEventsChannelId;
 import csight.util.Util;
@@ -240,45 +241,95 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         return ret;
     }
 
+    // ///////////////////////////////////////////////////////////////
+
     /**
      * Returns a Promela representation of this FSMState.
      */
-    public String toPromelaString(String stateVar) {
-        String ret = ":: (" + stateVar + " == " + this.getStateId() + ") -> ";
+    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
+        // Every state starts with a label.
+        String ret = labelPrefix + "_" + getStateId() + ":\n";
 
-        if (transitions.keySet().size() == 1) {
-            DistEventType e = transitions.keySet().iterator().next();
-            // TODO:
-            String trans = "Y";
-            //
-            if (e.isCommEvent()) {
-                // TODO:
-                ret += "atomic{" + e.toPromelaString() + "; " + trans + "}";
-                //
-            } else {
-                // Local event:
-                ret += trans;
-            }
-            return ret;
+        if (isAccept()) {
+            // Tell Spin that this is a valid endstate for the process.
+            ret += "end_" + labelPrefix + "_" + getStateId() + ":\n";
         }
 
-        ret += "\t do";
-        // TODO:
-        /*
-         * String eStr; for (DistEventType e : transitions.keySet()) { // Build
-         * an scm representation of this event type. if (e.isCommEvent()) { eStr
-         * = e.toString( Integer.toString(e.getChannelId().getScmId()), ' '); }
-         * else { // Local event: use local queue for local events. String
-         * eTypeStr = e.getScmEventFullString();
-         * localEventsChId.addLocalEventString(e, eTypeStr); eStr =
-         * localEventsChId.getScmId() + " ! " + eTypeStr; }
-         * 
-         * for (FSMState next : transitions.get(e)) { ret += "to " +
-         * next.getScmId() + " : when true , " + eStr + " ;\n"; } }
-         */
+        // Promela do statements will non-deterministically
+        // choose one of the valid branches.
+        ret += "    do\n";
 
-        ret += "\t od";
+        for (DistEventType e : transitions.keySet()) {
+            for (FSMState s : transitions.get(e)) {
+
+                // Do not delete printTrace. This is not a debugging statement.
+                // The print statements are executed in the Spin trail and
+                // provide an easy target from which to parse the
+                // counterexample. They also have no overhead in verification
+                // runs and we only use them in the trail.
+                String printTrace = String.format(
+                        "printf(\"CSightTrace[%s]\\n\")", e.toString());
+
+                // traceString is the in-Promela version of the trace string.
+                // This is used by our never claim to track the event.
+                String traceString;
+
+                if (e.equals(invariant.getFirst())
+                        || e.equals(invariant.getSecond())) {
+                    traceString = e.toPromelaTraceString();
+                } else {
+                    // Other events don't get tracked.
+                    traceString = "recentEvent.type = OTHEREVENT";
+                }
+
+                // We only change the terminal state status if there is a change
+                // in the acceptance of the state.
+                String terminalState = "";
+                if (isAccept != s.isAccept) {
+                    terminalState = String.format("terminal[%d] = %d;",
+                            getPid(), (s.isAccept ? 1 : 0));
+                }
+
+                ret += String.format("      :: atomic { %s; %s; %s; %s} -> ",
+                        e.toPromelaString(), traceString, printTrace,
+                        terminalState);
+
+                ret += "goto " + s.getPromelaName(labelPrefix) + ";\n";
+            }
+        }
+
+        /*
+         * Jump to end of process. This is safe to do only under these
+         * circumstances: The state has no outgoing transitions and is a
+         * terminal state. This indicates that this is a final state that cannot
+         * leave the state.
+         * 
+         * We don't want to keep the process in this state loop indefinitely as
+         * it will extend our traces with no benefit. We instead choose to
+         * explicitly end the process by going to the terminal end label at the
+         * end of the process.
+         */
+        if (transitions.keySet().size() == 0 && isAccept()) {
+            ret += "     :: recentEvent.type = OTHEREVENT -> ";
+            ret += "goto end_" + labelPrefix + ";\n";
+        }
+        ret += "    od;\n";
         return ret;
+    }
+
+    /**
+     * Label name for the state in Promela.
+     * 
+     * @param labelPrefix
+     * @return
+     */
+    public String getPromelaName(String labelPrefix) {
+        String ret = "";
+        ret += labelPrefix;
+        ret += "_" + getStateId();
+
+        return ret;
+
     }
 
     // //////////////////////////////////////////////////////////////////
