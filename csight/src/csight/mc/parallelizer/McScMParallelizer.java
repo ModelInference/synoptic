@@ -13,13 +13,13 @@ import csight.model.fifosys.cfsm.CFSM;
 
 /**
  * <p>
- * A McScM parallelizer that operates concurrently with CsightMain in its own
+ * A McScMParallelizer that operates concurrently with CSightMain in its own
  * thread to manage concurrent model checking. N model checking processes are
  * run concurrently as commanded by CSightMain, and results are given to
  * CSightMain on model checking completion. McScMParallelizer will always wait
  * for tasks from CSightMain before starting new McScM model checking processes.
- * CSightMain is allowed to send commands in any order, provided the commands do
- * not cause numRunning to exceed numParallel. McScMParallelizer will always run
+ * CSightMain is allowed to send tasks in any order, provided the tasks do not
+ * cause numRunning to exceed numParallel. McScMParallelizer will always run
  * startOne() and stopAll() non-concurrently.
  * </p>
  * <p>
@@ -45,8 +45,8 @@ import csight.model.fifosys.cfsm.CFSM;
  * <p>
  * -resultsChannel: An unbounded BlockingQueue that provides completed model
  * checking results back to CSightMain from McScMParallelizer. Each
- * ParallelizerResult contains the invariant for the model checking run,
- * safe/unsafe, and the refinement counter to prevent CSightMain from using
+ * ParallelizerResult contains the invariant for the model checking run, the
+ * MCResult class, and the refinement counter to prevent CSightMain from using
  * out-dated results. ParallelizerResult can also pass exceptions to CSightMain
  * using this queue.
  */
@@ -286,9 +286,9 @@ public class McScMParallelizer implements Runnable {
     }
 
     /**
-     * Returns true if a STOP_ALL command has been sent by Main. This is an
-     * optimization to stop results and starting processes as soon as STOP_ALL
-     * command is sent.
+     * Returns true if a STOP_ALL command has been sent by CSightMain. This is
+     * an optimization to stop results and starting processes as soon as
+     * STOP_ALL command is sent.
      * 
      * @return
      */
@@ -313,6 +313,8 @@ public class McScMParallelizer implements Runnable {
      */
     protected boolean writeResult(ParallelizerResult result) {
         try {
+            // Gets a write lock to block startOne() and stopAll(). @see
+            // resultsLock
             resultsLock.readLock().lockInterruptibly();
             /**
              * Java's ExecutorService.shutDownNow() does not guarantee
