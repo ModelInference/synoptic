@@ -24,7 +24,7 @@ public class ParallelizerResult {
      */
     protected static ParallelizerResult timeOutResult(BinaryInvariant inv,
             int refinementCounter) {
-        return new ParallelizerResult(inv, false, true, false, null,
+        return new ParallelizerResult(inv, null, true, false, null,
                 refinementCounter);
     }
 
@@ -51,7 +51,7 @@ public class ParallelizerResult {
      */
     protected static ParallelizerResult exceptionResult(Exception e,
             int refinementCounter) {
-        return new ParallelizerResult(null, false, false, true, e,
+        return new ParallelizerResult(null, null, false, true, e,
                 refinementCounter);
     }
 
@@ -62,7 +62,7 @@ public class ParallelizerResult {
      * @return
      */
     protected static ParallelizerResult exceptionResult(Exception e) {
-        return new ParallelizerResult(null, false, false, true, e, -1);
+        return new ParallelizerResult(null, null, false, true, e, -1);
     }
 
     /**
@@ -90,8 +90,8 @@ public class ParallelizerResult {
         return inv;
     }
 
-    public boolean isSafe() {
-        return safe;
+    public MCResult getMCResult() {
+        return mcResult;
     }
 
     public boolean isTimeout() {
