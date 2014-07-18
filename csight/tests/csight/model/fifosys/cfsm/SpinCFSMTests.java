@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -42,9 +43,9 @@ public class SpinCFSMTests extends CFSMTesting {
         p1Accept.rmTransition(p1Lf, p1Init);
     }
 
-    public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
-            InterruptedException {
-        String cStr = cfsm.toPromelaString(inv, 5);
+    public MCResult verifyAndPrint(List<BinaryInvariant> invs)
+            throws IOException, InterruptedException {
+        String cStr = cfsm.toPromelaString(invs, 5);
         spin.verify(cStr, 60);
         logger.info(cStr);
 
@@ -54,6 +55,21 @@ public class SpinCFSMTests extends CFSMTesting {
         logger.info(result.toRawString());
         logger.info(result.toString());
         return result;
+    }
+
+    /**
+     * Backwards compatibility with old tests.
+     * 
+     * @param inv
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
+            InterruptedException {
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(inv);
+        return verifyAndPrint(invs);
     }
 
     @Test

@@ -752,7 +752,9 @@ public class CSightMain {
                 mcInputStr = cfsm.toScmString("checking_scm_"
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(curInv,
+                List<BinaryInvariant> curInvs = Util.newList();
+                curInvs.add(curInv);
+                mcInputStr = cfsm.toPromelaString(curInvs,
                         opts.spinChannelCapacity);
 
             } else {
