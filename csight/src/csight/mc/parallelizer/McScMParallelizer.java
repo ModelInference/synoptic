@@ -28,8 +28,9 @@ import csight.model.fifosys.cfsm.CFSM;
  * <p>
  * -taskChannel: A BlockingQueue with capacity one that CSightMain uses to send
  * tasks to the McScMParallelizer. ParallelizerTask contains
- * ParallelizerCommands, the corresponding inputs, and the refinement counter.
- * ParallelizerCommands is an enumeration of the following: <br />
+ * ParallelizerCommands, the corresponding inputs (@see ParallelizerInput), and
+ * the refinement counter. ParallelizerCommands is an enumeration of the
+ * following: <br />
  * 1) START_K: Starts K model checking processes, where K = min{numParallel,
  * invsToCheck.size()}. Corresponding inputs sent in the task is expected to be
  * of same size as K.<br/>
