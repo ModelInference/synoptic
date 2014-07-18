@@ -3,6 +3,8 @@ package csight.main;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,9 @@ import csight.mc.MC;
 import csight.mc.MCResult;
 import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
+import csight.mc.parallelizer.McScMParallelizer;
+import csight.mc.parallelizer.ParallelizerResult;
+import csight.mc.parallelizer.ParallelizerTask;
 import csight.mc.spin.Spin;
 import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
@@ -934,8 +939,8 @@ public class CSightMain {
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking " + curInv.toString() + " : " + invsCounter
-                + " / " + totalInvs);
+        logger.info("Model checking " + invsToSatisfy.get(0).toString() + " : "
+                + invsCounter + " / " + totalInvs);
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
@@ -945,14 +950,25 @@ public class CSightMain {
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
-        exportIntermediateModels(pGraph, curInv, gfsmCounter,
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0), gfsmCounter,
                 gfsmPrefixFilename);
+
+        // @see McScMParallelizer for taskChannel
+        final BlockingQueue<ParallelizerTask> taskChannel = new LinkedBlockingQueue<ParallelizerTask>(
+                1);
+        // @see McScMParallelizer for resultsChannel
+        final BlockingQueue<ParallelizerResult> resultsChannel = new LinkedBlockingQueue<ParallelizerResult>();
+
+        Thread runner = new Thread(new McScMParallelizer(opts.numParallel,
+                opts.mcPath, opts.minimize, taskChannel, resultsChannel));
+
+        runner.start();
 
         while (true) {
             assert invsCounter <= totalInvs;
-            assert curInv == invsToSatisfy.get(0);
+            assert curInvs.size() <= opts.numParallel;
             assert timedOutInvs.size() + satisfiedInvs.size()
-                    + invsToSatisfy.size() == totalInvs;
+                    + invsToSatisfy.size() + curInvs.size() == totalInvs;
 
             if (pGraph.isSingleton()) {
                 // Skip model checking if all partitions are singletons
