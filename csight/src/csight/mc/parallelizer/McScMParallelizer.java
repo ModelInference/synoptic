@@ -2,10 +2,8 @@ package csight.mc.parallelizer;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -88,15 +86,15 @@ public class McScMParallelizer implements Runnable {
     /** The maximum number of processes to run at once */
     private final int numParallel;
 
-    /** The path to McScM */
-    private final String mcPath;
-
     /** The CSight option minimize */
     private final boolean minimize;
 
     private final BlockingQueue<ParallelizerTask> taskChannel;
     private final BlockingQueue<ParallelizerResult> resultsChannel;
-    private final Logger logger;
+
+    /** The path to McScM */
+    protected final String mcPath;
+    protected final Logger logger;
 
     private ExecutorService eService;
 
@@ -167,40 +165,42 @@ public class McScMParallelizer implements Runnable {
             return true;
         }
 
-        logger.info("Model checking " + input.inv.toString() + " : " + input.invsCounter
-                + " / " + input.totalInvs);
+        logger.info("Model checking " + input.inv.toString() + " : "
+                + input.invsCounter + " / " + input.totalInvs);
 
         // Get the CFSM corresponding to the partition graph.
         final CFSM cfsm = input.gfsm.getCFSM(minimize);
-        
+
         Runnable runnable = new Runnable() {
 
             @Override
             public void run() {
-                cfsm.augmentWithInvTracing(input.inv);
-
-                String mcInputStr = cfsm.toScmString("checking_scm_"
-                            + input.inv.getConnectorString());
-                
-                logger.info("*******************************************************");
-                logger.info("Checking ... " + input.inv.toString() + ". Inv "
-                        + input.invsCounter + " / " + input.totalInvs
-                        + ", refinements so far: " + refinementCounter + ". Timeout = "
-                        + input.timeout + ".");
-                logger.info("*******************************************************");
-                
-                McScM mcscm = new McScM(mcPath);
                 ParallelizerResult result;
 
                 try {
+                    cfsm.augmentWithInvTracing(input.inv);
+
+                    String mcInputStr = cfsm.toScmString("checking_scm_"
+                            + input.inv.getConnectorString());
+
+                    logger.info("*******************************************************");
+                    logger.info("Checking ... " + input.inv.toString()
+                            + ". Inv " + input.invsCounter + " / "
+                            + input.totalInvs + ", refinements so far: "
+                            + refinementCounter + ". Timeout = "
+                            + input.timeout + ".");
+                    logger.info("*******************************************************");
+
+                    McScM mcscm = new McScM(mcPath);
+
                     mcscm.verify(mcInputStr, input.timeout);
-                    result = ParallelizerResult.verificationResult(
-                            input.inv, mcscm.getVerifyResult(cfsm.getChannelIds()),
+                    result = ParallelizerResult.verificationResult(input.inv,
+                            mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
-                } catch (TimeoutException e) {
-                    result = ParallelizerResult.timeOutResult(input.number,
+                } catch (InterruptedException e) {
+                    result = ParallelizerResult.timeOutResult(input.inv,
                             refinementCounter);
-                } catch (InterruptedException | ExecutionException e) {
+                } catch (Exception e) {
                     result = ParallelizerResult.exceptionResult(e,
                             refinementCounter);
                 }
@@ -209,7 +209,7 @@ public class McScMParallelizer implements Runnable {
                 do {
                     // Result may occasionally fail to enqueue into the results
                     // channel, so another attempt is made
-                    success = CheckerParallelizer.this.writeResult(result);
+                    success = McScMParallelizer.this.writeResult(result);
                 } while (!success);
             }
 
@@ -316,8 +316,8 @@ public class McScMParallelizer implements Runnable {
                 return true;
             }
 
-            logger.info("Runner returned a result: " + result.getNumber()
-                    + " Refinement: " + result.getRefinementCounter());
+            logger.info("Parallelizer returned a result. Refinement: "
+                    + result.getRefinementCounter());
             resultsChannel.put(result);
             numRunning--;
 
