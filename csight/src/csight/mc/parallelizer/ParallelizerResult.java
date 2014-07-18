@@ -1,6 +1,7 @@
 package csight.mc.parallelizer;
 
 import csight.invariants.BinaryInvariant;
+import csight.mc.MCResult;
 
 /**
  * Parallelizer results sent by Parallelizer to CSightMain.
@@ -8,7 +9,7 @@ import csight.invariants.BinaryInvariant;
 public class ParallelizerResult {
 
     private final BinaryInvariant inv;
-    private final boolean safe;
+    private final MCResult mcResult;
     private final boolean isTimeout;
     private final boolean isException;
     private final Exception e;
@@ -31,13 +32,13 @@ public class ParallelizerResult {
      * Builds a verification result representing safe/unsafe invariant
      * 
      * @param inv
-     * @param safe
+     * @param mcResult
      * @param refinementCounter
      * @return
      */
     protected static ParallelizerResult verificationResult(BinaryInvariant inv,
-            boolean safe, int refinementCounter) {
-        return new ParallelizerResult(inv, safe, false, false, null,
+            MCResult mcResult, int refinementCounter) {
+        return new ParallelizerResult(inv, mcResult, false, false, null,
                 refinementCounter);
     }
 
@@ -68,17 +69,17 @@ public class ParallelizerResult {
      * Constructs a ParallelizerResult
      * 
      * @param inv
-     * @param safe
+     * @param mcResult
      * @param isTimeout
      * @param isException
      * @param e
      * @param refinementCounter
      */
-    private ParallelizerResult(BinaryInvariant inv, boolean safe,
+    private ParallelizerResult(BinaryInvariant inv, MCResult mcResult,
             boolean isTimeout, boolean isException, Exception e,
             int refinementCounter) {
         this.inv = inv;
-        this.safe = safe;
+        this.mcResult = mcResult;
         this.isTimeout = isTimeout;
         this.isException = isException;
         this.e = e;
