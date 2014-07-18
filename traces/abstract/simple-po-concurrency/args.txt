@@ -1,0 +1,6 @@
+-r ^#(?<HIDE=>true).+$
+-r ^(?<VTIME>)(?<TYPE>)$
+-s ^--$
+-o output/simple_concurrency
+-q M:0->1
+--mcPath=./bin/mcscm/verify.native.osx-10.8-x86_64.dynamic
