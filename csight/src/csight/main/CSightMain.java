@@ -906,8 +906,10 @@ public class CSightMain {
         // model satisfies.
         Set<BinaryInvariant> satisfiedInvs = Util.newSet();
 
-        // curInv will _always_ refer to the 0th element of invsToSatisfy.
-        BinaryInvariant curInv = invsToSatisfy.get(0);
+        // The set of invariants we are currently running with
+        // McScMParallelizer. This set should always have size less than or
+        // equal to opts.numParallel.
+        Set<BinaryInvariant> curInvs = Util.newSet();
 
         int totalInvs = invsToSatisfy.size();
         int invsCounter = 1;

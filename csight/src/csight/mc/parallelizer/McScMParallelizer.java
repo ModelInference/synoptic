@@ -175,9 +175,6 @@ public class McScMParallelizer implements Runnable {
             return true;
         }
 
-        logger.info("Model checking " + input.inv.toString() + " : "
-                + input.invsCounter + " / " + input.totalInvs);
-
         // Get the CFSM corresponding to the partition graph.
         // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
         // GFSM
