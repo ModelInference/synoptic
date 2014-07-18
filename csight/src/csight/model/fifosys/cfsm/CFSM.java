@@ -337,10 +337,11 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
      * The never claim is not specified here and it is appended to the CFSM
      * elsewhere.
      */
-    public String toPromelaString(BinaryInvariant invariant, int chanCapacity) {
+    public String toPromelaString(List<BinaryInvariant> invariants,
+            int chanCapacity) {
         assert unSpecifiedPids == 0;
 
-        String ret = "/* Spin-promela " + invariant.toString() + " */\n\n";
+        String ret = "/* Spin-promela Multiple invariants */\n\n";
 
         // Message types:
         //
@@ -444,13 +445,17 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
             String labelPrefix = "state" + Integer.toString(pid);
             FSM f = fsms.get(pid);
             ret += "active proctype p" + Integer.toString(pid) + "(){\n";
-            ret += f.toPromelaString(invariant, labelPrefix);
+            ret += f.toPromelaString(invariants, labelPrefix);
             ret += "}\n\n";
         }
 
         ret += "\n\n";
 
-        ret += invariant.promelaNeverClaim();
+        for (BinaryInvariant inv : invariants) {
+            ret += "/* " + inv.toString() + "*/\n";
+            ret += inv.promelaNeverClaim();
+            ret += "\n\n";
+        }
         return ret;
     }
 
