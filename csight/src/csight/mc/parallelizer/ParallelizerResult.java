@@ -4,7 +4,8 @@ import csight.invariants.BinaryInvariant;
 import csight.mc.MCResult;
 
 /**
- * Parallelizer results sent by Parallelizer to CSightMain.
+ * Parallelizer results sent by Parallelizer to CSightMain through the results
+ * channel.
  */
 public class ParallelizerResult {
 
