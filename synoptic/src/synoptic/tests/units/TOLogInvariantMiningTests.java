@@ -234,7 +234,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests for Issue352. Mines both "a IntrBy b" and "b IntrBy a".
+     * Tests that both "a IntrBy b" and "b IntrBy a" are mined.
      * 
      * @throws Exception
      */
@@ -260,7 +260,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Mines one IntrBy from a simple log.
+     * Tests that one IntrBy is mined from a simple log.
      * 
      * @throws Exception
      */
@@ -282,7 +282,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests a complex IntrBy.
+     * Tests a complex IntrBy invariant.
      * 
      * @throws Exception
      */
@@ -305,7 +305,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * CHecks that the IntrBy is not mined, according to the definition
+     * Checks that the IntrBy is not mined, according to the definition
      * 
      * @throws Exception
      */
