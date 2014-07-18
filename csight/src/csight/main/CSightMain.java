@@ -417,7 +417,14 @@ public class CSightMain {
         // ///////////////////
         // Model check, refine loop. Check each invariant in the model, and
         // refine the model as needed until all invariants hold.
-        checkInvsRefineGFSM(dynInvs, pGraph);
+        // Check if model checking is to be done in parallel and use the
+        // corresponding methods.
+        if (opts.runParallel) {
+            checkInvsRefineGFSMParallel(dynInvs, pGraph);
+        } else {
+
+            checkInvsRefineGFSM(dynInvs, pGraph);
+        }
 
         // ///////////////////
         // Output the final CFSM model (corresponding to pGraph) using GraphViz
