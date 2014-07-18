@@ -99,6 +99,15 @@ public class McScMParallelizer implements Runnable {
 
     private ExecutorService eService;
 
+    /**
+     * Creates a new Parallelizer to run in a thread.
+     * 
+     * @param numParallel
+     * @param mcPath
+     * @param minimize
+     * @param taskChannel
+     * @param resultsChannel
+     */
     public McScMParallelizer(int numParallel, String mcPath, boolean minimize,
             BlockingQueue<ParallelizerTask> taskChannel,
             BlockingQueue<ParallelizerResult> resultsChannel) {
@@ -170,6 +179,8 @@ public class McScMParallelizer implements Runnable {
                 + input.invsCounter + " / " + input.totalInvs);
 
         // Get the CFSM corresponding to the partition graph.
+        // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
+        // GFSM
         final CFSM cfsm = input.gfsm.getCFSM(minimize);
 
         Runnable runnable = new Runnable() {
@@ -199,9 +210,12 @@ public class McScMParallelizer implements Runnable {
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
                 } catch (InterruptedException e) {
+                    // Model checking timed out
                     result = ParallelizerResult.timeOutResult(input.inv,
                             refinementCounter);
+
                 } catch (Exception e) {
+                    // Exception during model checking. Send it to CSightMain.
                     result = ParallelizerResult.exceptionResult(e,
                             refinementCounter);
                 }
