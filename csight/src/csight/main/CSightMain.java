@@ -204,12 +204,21 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
+        if (optns.numParallel < 1) {
+            err = "Cannot run less than one model checking processes concurrently";
+            throw new OptionException(err);
+        }
+
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
-            if (opts.spinChannelCapacity <= 0) {
+            if (optns.spinChannelCapacity <= 0) {
                 err = "Invalid channel capacity for use with spin: "
                         + opts.spinChannelCapacity;
+                throw new OptionException(err);
+            }
+            if (opts.runParallel) {
+                err = "Parallel model checking not supported for spin";
                 throw new OptionException(err);
             }
         } else if (optns.mcType.equals("mcscm")) {
