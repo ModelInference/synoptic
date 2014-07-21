@@ -95,6 +95,10 @@ public class ParallelizerResult {
         return mcResult;
     }
 
+    public boolean isVerifyResult() {
+        return !isTimeout && !isException;
+    }
+
     public boolean isTimeout() {
         return isTimeout;
     }
