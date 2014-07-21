@@ -1014,6 +1014,8 @@ public class CSightMain {
                 continue;
             }
 
+            assert (result.isVerifyResult());
+
             // We did not time-out on checking curInv. Therefore, reset
             // curTimeout to base value.
             curTimeout = baseTimeout;
@@ -1024,9 +1026,9 @@ public class CSightMain {
 
             if (mcResult.modelIsSafe()) {
                 // Remove the current invariant from the invsToSatisfy list.
-                BinaryInvariant curInvCheck = invsToSatisfy.remove(0);
-                assert curInvCheck == curInv;
-                satisfiedInvs.add(curInv);
+                boolean curInvCheck = invsToSatisfy.remove(resultInv);
+                assert curInvCheck;
+                satisfiedInvs.add(resultInv);
 
                 if (invsToSatisfy.isEmpty()) {
                     // No more invariants to check. We are done.
@@ -1036,20 +1038,25 @@ public class CSightMain {
                 }
 
                 // Grab and start checking the next invariant.
-                curInv = invsToSatisfy.get(0);
+                BinaryInvariant nextInv = invsToSatisfy.get(0);
+                curInvs.add(nextInv);
+                // TODO: send START_ONE
+
                 invsCounter += 1;
-                logger.info("Model checking " + curInv.toString() + " : "
+                logger.info("Model checking " + nextInv.toString() + " : "
                         + invsCounter + " / " + totalInvs);
             } else {
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
-                refineCExample(pGraph, result.getCExample());
+                refineCExample(pGraph, mcResult.getCExample());
 
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
-                exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                        gfsmPrefixFilename);
+                // TODO: send STOP_ALL
+
+                exportIntermediateModels(pGraph, invsToSatisfy.get(0),
+                        gfsmCounter, gfsmPrefixFilename);
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
