@@ -1011,6 +1011,27 @@ public class CSightMain {
                         + resultInv.toString());
 
                 // TODO: finish timeout
+                // No invariants are left to try -- increase the timeout value,
+                // unless we reached the timeout limit, in which case we throw
+                // an exception.
+                if (invsToSatisfy.isEmpty()) {
+                    logger.info("Timed out in checking these invariants with timeout value "
+                            + curTimeout + " :" + timedOutInvs.toString());
+
+                    curTimeout += timeoutDelta;
+
+                    if (curTimeout > maxTimeout) {
+                        throw new Exception(
+                                "McScM timed-out on all invariants. Cannot continue.");
+                    }
+
+                    // Append all of the previously timed out invariants back to
+                    // invsToSatisfy.
+                    invsToSatisfy.addAll(timedOutInvs);
+                    timedOutInvs.clear();
+                }
+
+                // TODO: start one
                 continue;
             }
 
