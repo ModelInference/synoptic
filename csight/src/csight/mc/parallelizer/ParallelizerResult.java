@@ -22,8 +22,8 @@ public class ParallelizerResult {
      * @param refinementCounter
      * @return
      */
-    protected static ParallelizerResult timeOutResult(InvariantTimeoutPair invTimeoutPair,
-            int timeout, int refinementCounter) {
+    protected static ParallelizerResult timeOutResult(
+            InvariantTimeoutPair invTimeoutPair, int refinementCounter) {
         return new ParallelizerResult(invTimeoutPair, null, true, false, null,
                 refinementCounter);
     }
