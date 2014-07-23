@@ -209,7 +209,7 @@ public class McScMParallelizer implements Runnable {
                 } catch (InterruptedException e) {
                     // Model checking timed out
                     result = ParallelizerResult.timeOutResult(input.inv,
-                            refinementCounter);
+                            input.timeout, refinementCounter);
 
                 } catch (Exception e) {
                     // Exception during model checking. Send it to CSightMain.

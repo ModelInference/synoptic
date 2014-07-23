@@ -1007,31 +1007,23 @@ public class CSightMain {
                 // The model checker timed out. Increase the timeout value for
                 // that invariant, unless we reached the timeout limit, in which
                 // case we throw an exception.
-                invsToSatisfy.remove(resultInv);
-                timedOutInvs.add(resultInv);
+                int curTimeout = result.getTimeout();
 
                 logger.info("Timed out in checking invariant: "
-                        + resultInv.toString());
+                        + resultInv.toString() + " with timeout value "
+                        + curTimeout);
 
-                // TODO: finish timeout
-                // No invariants are left to try -- increase the timeout value,
-                // unless we reached the timeout limit, in which case we throw
-                // an exception.
-                if (invsToSatisfy.isEmpty()) {
-                    logger.info("Timed out in checking these invariants with timeout value "
-                            + curTimeout + " :" + timedOutInvs.toString());
+                curTimeout += timeoutDelta;
 
-                    curTimeout += timeoutDelta;
-
-                    if (curTimeout > maxTimeout) {
-                        throw new Exception(
-                                "McScM timed-out on all invariants. Cannot continue.");
-                    }
-
-                    // Append all of the previously timed out invariants back to
-                    // invsToSatisfy.
-                    invsToSatisfy.addAll(timedOutInvs);
-                    timedOutInvs.clear();
+                if (curTimeout > maxTimeout) {
+                    // TODO: handle so they are left until no more to check
+                    throw new Exception(
+                            "McScM timed-out on all invariants. Cannot continue.");
+                } else {
+                    // Append timed out invariant with new timeout value to
+                    // invsToSatisfy
+                    invsToSatisfy.add(new InvariantTimeoutPair(resultInv,
+                            curTimeout));
                 }
 
                 // TODO: start one
@@ -1040,18 +1032,11 @@ public class CSightMain {
 
             assert (result.isVerifyResult());
 
-            // We did not time-out on checking curInv. Therefore, reset
-            // curTimeout to base value.
-            curTimeout = baseTimeout;
-
             MCResult mcResult = result.getMCResult();
             logger.info(mcResult.toRawString());
             logger.info(mcResult.toString());
 
             if (mcResult.modelIsSafe()) {
-                // Remove the current invariant from the invsToSatisfy list.
-                boolean curInvCheck = invsToSatisfy.remove(resultInv);
-                assert curInvCheck;
                 satisfiedInvs.add(resultInv);
 
                 if (invsToSatisfy.isEmpty()) {
@@ -1061,9 +1046,6 @@ public class CSightMain {
                     return mcCounter;
                 }
 
-                // Grab and start checking the next invariant.
-                BinaryInvariant nextInv = invsToSatisfy.get(0);
-                curInvs.add(nextInv);
                 // TODO: send START_ONE
 
                 invsCounter += 1;
@@ -1079,7 +1061,7 @@ public class CSightMain {
 
                 // TODO: send STOP_ALL
 
-                exportIntermediateModels(pGraph, invsToSatisfy.get(0),
+                exportIntermediateModels(pGraph, invsToSatisfy.get(0).inv,
                         gfsmCounter, gfsmPrefixFilename);
 
                 // Model changed through refinement. Therefore, forget any
