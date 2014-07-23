@@ -179,6 +179,7 @@ public class McScMParallelizer implements Runnable {
         // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
         // GFSM.
         final CFSM cfsm = input.gfsm.getCFSM(minimize);
+        final InvariantTimeoutPair invTimeoutPair = input.invTimeoutPair;
 
         Runnable runnable = new Runnable() {
 
@@ -187,28 +188,30 @@ public class McScMParallelizer implements Runnable {
                 ParallelizerResult result;
 
                 try {
-                    cfsm.augmentWithInvTracing(input.inv);
+                    cfsm.augmentWithInvTracing(invTimeoutPair.getInv());
 
                     String mcInputStr = cfsm.toScmString("checking_scm_"
-                            + input.inv.getConnectorString());
+                            + invTimeoutPair.getInv().getConnectorString());
 
                     logger.info("*******************************************************");
-                    logger.info("Checking ... " + input.inv.toString()
-                            + ". Inv " + input.invsCounter + " / "
-                            + input.totalInvs + ", refinements so far: "
-                            + refinementCounter + ". Timeout = "
-                            + input.timeout + ".");
+                    logger.info("Checking ... "
+                            + invTimeoutPair.getInv().toString() + ". Inv "
+                            + input.invsCounter + " / " + input.totalInvs
+                            + ", refinements so far: " + refinementCounter
+                            + ". Timeout = " + input.timeout + ".");
                     logger.info("*******************************************************");
 
                     McScM mcscm = new McScM(mcPath);
 
                     mcscm.verify(mcInputStr, input.timeout);
-                    result = ParallelizerResult.verificationResult(input.inv,
+                    result = ParallelizerResult.verificationResult(
+                            invTimeoutPair,
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
+
                 } catch (InterruptedException e) {
                     // Model checking timed out.
-                    result = ParallelizerResult.timeOutResult(input.inv,
+                    result = ParallelizerResult.timeOutResult(invTimeoutPair,
                             input.timeout, refinementCounter);
 
                 } catch (Exception e) {

@@ -1012,6 +1012,9 @@ public class CSightMain {
                 curTimeout += timeoutDelta;
 
                 if (curTimeout > maxTimeout) {
+                    // Invariant exceeded maxTimeout. We wait and see if any
+                    // model refinement takes place that may lower the execution
+                    // time of the invariant.
                     maxTimedOutInvs.add(resultInv);
                 } else {
                     // Append timed out invariant with new timeout value to
@@ -1054,7 +1057,7 @@ public class CSightMain {
                         // to check.
                         if (!maxTimedOutInvs.isEmpty()) {
                             // There are timed out invariants that we never
-                            // checked, and the model has not been refined. The
+                            // checked, but the model has not been refined. The
                             // invariants will still exceed the maxTimeout.
                             throw new Exception(
                                     "McScM timed-out on all invariants. Cannot continue.");
@@ -1064,10 +1067,9 @@ public class CSightMain {
                                     + " / " + totalInvs + " invariants.");
                             return mcCounter;
                         }
-                    } else {
-                        // We wait for current invariants to finish checking.
-                        continue;
                     }
+                    // We wait for current invariants to finish checking.
+                    continue;
                 }
 
                 invsCounter += 1;
@@ -1077,14 +1079,18 @@ public class CSightMain {
                 parallelizerStartOne(invsToSatisfy, curInvs, pGraph,
                         gfsmCounter, invsCounter, totalInvs, taskChannel);
             } else {
-                // Refine the pGraph in an attempt to eliminate the counter
-                // example.
-                refineCExample(pGraph, mcResult.getCExample());
-
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
-                // TODO: send STOP_ALL
+                taskChannel.clear();
+                taskChannel.put(new ParallelizerTask(
+                        ParallelizerCommands.STOP_ALL, null, gfsmCounter));
+
+                invsToSatisfy.addAll(curInvs, 0);
+
+                // Refine the pGraph in an attempt to eliminate the counter
+                // example.
+                refineCExample(pGraph, mcResult.getCExample());
 
                 exportIntermediateModels(pGraph, invsToSatisfy.get(0).inv,
                         gfsmCounter, gfsmPrefixFilename);
@@ -1315,18 +1321,4 @@ public class CSightMain {
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
-    /**
-     * A InvariantTimeoutPair used to store an invariant with its corresponding
-     * timeout value. Used in checkInvsRefineGFSMParallel to manage timeout
-     * value per invariant.
-     */
-    private class InvariantTimeoutPair {
-        protected final BinaryInvariant inv;
-        protected final int timeout;
-
-        private InvariantTimeoutPair(BinaryInvariant inv, int timeout) {
-            this.inv = inv;
-            this.timeout = timeout;
-        }
-    }
 }
