@@ -87,7 +87,7 @@ public class ParallelizerResult {
         this.refinementCounter = refinementCounter;
     }
 
-    public InvariantTimeoutPair getInvariant() {
+    public InvariantTimeoutPair getInvTimeoutPair() {
         return invTimeoutPair;
     }
 
