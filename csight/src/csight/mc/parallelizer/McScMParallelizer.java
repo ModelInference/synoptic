@@ -178,7 +178,10 @@ public class McScMParallelizer implements Runnable {
         // Get the CFSM corresponding to the partition graph.
         // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
         // GFSM.
-        final CFSM cfsm = input.gfsm.getCFSM(minimize);
+        final CFSM cfsm;
+        synchronized (input.gfsm) {
+            cfsm = input.gfsm.getCFSM(minimize);
+        }
         final InvariantTimeoutPair invTimeoutPair = input.invTimeoutPair;
 
         Runnable runnable = new Runnable() {

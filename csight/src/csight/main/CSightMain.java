@@ -1097,11 +1097,11 @@ public class CSightMain {
                 // Add the unsatisfied invariant back to invariants to satisfy.
                 invsToSatisfy.add(0, resultPair);
 
-                // TODO: fix race condition between refinement and parallelizer
-                // startone
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
-                refineCExample(pGraph, mcResult.getCExample());
+                synchronized (pGraph) {
+                    refineCExample(pGraph, mcResult.getCExample());
+                }
 
                 exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
                         gfsmCounter, gfsmPrefixFilename);
