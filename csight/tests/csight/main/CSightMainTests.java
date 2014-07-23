@@ -305,7 +305,7 @@ public class CSightMainTests extends CSightTest {
     public void runABPTwoTerminalSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
-
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
         runDynFromFileArgs(args);
     }
 
@@ -335,7 +335,7 @@ public class CSightMainTests extends CSightTest {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     @Test
