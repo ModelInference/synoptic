@@ -1117,6 +1117,9 @@ public class CSightMain {
                     invsToSatisfy.addAll(maxTimedOutInvs);
                     maxTimedOutInvs.clear();
                 }
+
+                parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
+                        invsCounter, totalInvs, taskChannel);
             }
         }
     }
