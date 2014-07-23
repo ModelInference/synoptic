@@ -804,10 +804,6 @@ public class CSightMain {
                 continue;
             }
 
-            // We did not time-out on checking curInv. Therefore, reset
-            // curTimeout to base value.
-            curTimeout = baseTimeout;
-
             MCResult result = mc.getVerifyResult(cfsm.getChannelIds());
             logger.info(result.toRawString());
             logger.info(result.toString());
