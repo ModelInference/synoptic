@@ -198,12 +198,13 @@ public class McScMParallelizer implements Runnable {
                             + invTimeoutPair.getInv().toString() + ". Inv "
                             + input.invsCounter + " / " + input.totalInvs
                             + ", refinements so far: " + refinementCounter
-                            + ". Timeout = " + input.timeout + ".");
+                            + ". Timeout = " + invTimeoutPair.getTimeout()
+                            + ".");
                     logger.info("*******************************************************");
 
                     McScM mcscm = new McScM(mcPath);
 
-                    mcscm.verify(mcInputStr, input.timeout);
+                    mcscm.verify(mcInputStr, invTimeoutPair.getTimeout());
                     result = ParallelizerResult.verificationResult(
                             invTimeoutPair,
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
@@ -212,7 +213,7 @@ public class McScMParallelizer implements Runnable {
                 } catch (InterruptedException e) {
                     // Model checking timed out.
                     result = ParallelizerResult.timeOutResult(invTimeoutPair,
-                            input.timeout, refinementCounter);
+                            refinementCounter);
 
                 } catch (Exception e) {
                     // Exception during model checking. Send it to CSightMain.
