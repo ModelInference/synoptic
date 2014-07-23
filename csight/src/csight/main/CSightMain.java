@@ -903,8 +903,13 @@ public class CSightMain {
         assert !invs.isEmpty();
 
         // Make a copy of invs, as we'll be modifying the list (removing
-        // invariants once they are satisfied by the model).
-        List<BinaryInvariant> invsToSatisfy = Util.newList(invs);
+        // invariants once they are satisfied by the model). Each invariant will
+        // be associated with its own timeout value, which is currently the base
+        // timeout value as no invariant have timed out yet.
+        List<InvariantTimeoutPair> invsToSatisfy = Util.newList();
+        for (BinaryInvariant inv : invs) {
+            invsToSatisfy.add(new InvariantTimeoutPair(inv, opts.baseTimeout));
+        }
 
         // The set of invariants that have timed-out so far. This set is reset
         // whenever we successfully check/refine an invariant.
@@ -934,16 +939,13 @@ public class CSightMain {
         // with a failure.
         int maxTimeout = opts.maxTimeout;
 
-        // Current timeout value to use.
-        int curTimeout = baseTimeout;
-
         if (maxTimeout < baseTimeout) {
             throw new Exception(
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking " + invsToSatisfy.get(0).toString() + " : "
-                + invsCounter + " / " + totalInvs);
+        logger.info("Model checking " + invsToSatisfy.get(0).inv.toString()
+                + " : " + invsCounter + " / " + totalInvs);
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
@@ -953,7 +955,7 @@ public class CSightMain {
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
-        exportIntermediateModels(pGraph, invsToSatisfy.get(0), gfsmCounter,
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0).inv, gfsmCounter,
                 gfsmPrefixFilename);
 
         if (pGraph.isSingleton()) {
@@ -974,7 +976,7 @@ public class CSightMain {
 
         parallelizer.start();
         parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                invsCounter, totalInvs, curTimeout, taskChannel);
+                invsCounter, totalInvs, taskChannel);
 
         while (true) {
             assert invsCounter <= totalInvs;
@@ -1002,8 +1004,9 @@ public class CSightMain {
             assert returnedInvCheck;
 
             if (result.isTimeout()) {
-                // The model checker timed out. First, record the timed-out
-                // invariant so that we are not stuck re-checking it.
+                // The model checker timed out. Increase the timeout value for
+                // that invariant, unless we reached the timeout limit, in which
+                // case we throw an exception.
                 invsToSatisfy.remove(resultInv);
                 timedOutInvs.add(resultInv);
 
@@ -1130,14 +1133,13 @@ public class CSightMain {
      * @param refinementCounter
      * @param invsCounter
      * @param totalInvs
-     * @param timeout
      * @param taskChannel
      * @param inputsChannel
      * @throws InterruptedException
      */
-    private void parallelizerStartK(List<BinaryInvariant> invsToSatisfy,
+    private void parallelizerStartK(List<InvariantTimeoutPair> invsToSatisfy,
             Set<BinaryInvariant> curInvs, GFSM pGraph, int refinementCounter,
-            int invsCounter, int totalInvs, int timeout,
+            int invsCounter, int totalInvs,
             BlockingQueue<ParallelizerTask> taskChannel)
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
@@ -1148,7 +1150,9 @@ public class CSightMain {
         // parallelization factor
         int numLeftToCheck = Math.min(opts.numParallel, invsToSatisfy.size());
         for (int i = 0; i < numLeftToCheck; i++) {
-            BinaryInvariant inv = invsToSatisfy.remove(0);
+            InvariantTimeoutPair invToCheck = invsToSatisfy.remove(0);
+            BinaryInvariant inv = invToCheck.inv;
+            int timeout = invToCheck.timeout;
 
             ParallelizerInput input = new ParallelizerInput(inv, pGraph,
                     timeout, invsCounter, totalInvs);
@@ -1267,4 +1271,18 @@ public class CSightMain {
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
+    /**
+     * A InvariantTimeoutPair used to store an invariant with its corresponding
+     * timeout value. Used in checkInvsRefineGFSMParallel to manage timeout
+     * value per invariant.
+     */
+    private class InvariantTimeoutPair {
+        protected final BinaryInvariant inv;
+        protected final int timeout;
+
+        private InvariantTimeoutPair(BinaryInvariant inv, int timeout) {
+            this.inv = inv;
+            this.timeout = timeout;
+        }
+    }
 }
