@@ -177,7 +177,8 @@ public class CSightOptions extends Options {
             value = "Run model checking processes in parallel. (Currently only for McScM)")
     public boolean runParallel = false;
 
-    @Option(value = "Number of parallel model checking processes to run")
+    @Option(value = "Number of model checking processes to run in parallel.",
+            aliases = { "-p" })
     public int numParallel = 4;
 
     /**
