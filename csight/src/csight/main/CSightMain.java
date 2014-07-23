@@ -1104,6 +1104,10 @@ public class CSightMain {
                 exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
                         gfsmCounter, gfsmPrefixFilename);
 
+                if (pGraph.isSingleton()) {
+                    // Skip model checking if all partitions are singletons.
+                    return mcCounter;
+                }
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
                 // and add all of them back to invsToSatisfy.
