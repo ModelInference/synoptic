@@ -1,8 +1,11 @@
 package csight.main;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +18,11 @@ import csight.mc.MC;
 import csight.mc.MCResult;
 import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
+import csight.mc.parallelizer.McScMParallelizer;
+import csight.mc.parallelizer.ParallelizerInput;
+import csight.mc.parallelizer.ParallelizerResult;
+import csight.mc.parallelizer.ParallelizerTask;
+import csight.mc.parallelizer.ParallelizerTask.ParallelizerCommands;
 import csight.mc.spin.Spin;
 import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
@@ -204,12 +212,21 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
+        if (optns.numParallel < 1) {
+            err = "Cannot run less than one model checking processes concurrently";
+            throw new OptionException(err);
+        }
+
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
-            if (opts.spinChannelCapacity <= 0) {
+            if (optns.spinChannelCapacity <= 0) {
                 err = "Invalid channel capacity for use with spin: "
                         + opts.spinChannelCapacity;
+                throw new OptionException(err);
+            }
+            if (opts.runParallel) {
+                err = "Parallel model checking not supported for spin";
                 throw new OptionException(err);
             }
         } else if (optns.mcType.equals("mcscm")) {
@@ -408,7 +425,15 @@ public class CSightMain {
         // ///////////////////
         // Model check, refine loop. Check each invariant in the model, and
         // refine the model as needed until all invariants hold.
-        checkInvsRefineGFSM(dynInvs, pGraph);
+        // Check if model checking is to be done in parallel and use the
+        // corresponding methods.
+        if (opts.runParallel) {
+            // Parallelization is currently only supported for McScM
+            assert (opts.mcType == "mcscm");
+            checkInvsRefineGFSMParallel(dynInvs, pGraph);
+        } else {
+            checkInvsRefineGFSM(dynInvs, pGraph);
+        }
 
         // ///////////////////
         // Output the final CFSM model (corresponding to pGraph) using GraphViz
@@ -851,6 +876,274 @@ public class CSightMain {
     }
 
     /**
+     * Implements the (model check - refine loop). Check each invariant in
+     * dynInvs in the pGraph model, and refine pGraph as needed until all
+     * invariants are satisfied. Model checking is performed concurrently with
+     * McScMParallelizer.
+     * 
+     * @param invsToSatisfy
+     *            CSight invariants to check and satisfy in pGraph
+     * @param pGraph
+     *            The GFSM model that will be checked and refined to satisfy all
+     *            of the invariants in invsTocheck
+     * @throws Exception
+     * @throws IOException
+     * @throws InterruptedException
+     * @return The number of iteration of the model checking loop
+     */
+    public int checkInvsRefineGFSMParallel(List<BinaryInvariant> invs,
+            GFSM pGraph) throws Exception, IOException, InterruptedException {
+        // TODO implement for parallel
+        assert pGraph != null;
+        assert invs != null;
+        assert !invs.isEmpty();
+
+        // Make a copy of invs, as we'll be modifying the list (removing
+        // invariants once they are satisfied by the model). Each invariant will
+        // be associated with its own timeout value, which is currently the base
+        // timeout value as no invariant have timed out yet.
+        List<InvariantTimeoutPair> invsToSatisfy = Util.newList();
+        for (BinaryInvariant inv : invs) {
+            invsToSatisfy.add(new InvariantTimeoutPair(inv, opts.baseTimeout));
+        }
+
+        // The set of invariants that have timed-out so far. This set is reset
+        // whenever we successfully check/refine an invariant.
+        Set<BinaryInvariant> timedOutInvs = Util.newSet();
+
+        // The set of invariants (subset of original invsToSatisfy) that the
+        // model satisfies.
+        Set<BinaryInvariant> satisfiedInvs = Util.newSet();
+
+        // The set of invariants we are currently running with
+        // McScMParallelizer. This set should always have size less than or
+        // equal to opts.numParallel.
+        Set<BinaryInvariant> curInvs = Util.newSet();
+
+        int totalInvs = invsToSatisfy.size();
+        int invsCounter = 1;
+
+        // ////// Additive and memory-less timeout value adaptation.
+        // Initial McScM invocation timeout in seconds.
+        int baseTimeout = opts.baseTimeout;
+
+        // How much we increment curTimeout by, when we timeout on checking all
+        // invariants.
+        int timeoutDelta = opts.timeoutDelta;
+
+        // At what point to we stop the incrementing the timeout and terminate
+        // with a failure.
+        int maxTimeout = opts.maxTimeout;
+
+        if (maxTimeout < baseTimeout) {
+            throw new Exception(
+                    "maxTimeout value must be greater than baseTimeout value");
+        }
+
+        logger.info("Model checking " + invsToSatisfy.get(0).inv.toString()
+                + " : " + invsCounter + " / " + totalInvs);
+
+        // This counts the number of times we've refined the gfsm.
+        int gfsmCounter = 0;
+        // This counts the number of times we've performed model checking on the
+        // gfsm
+        int mcCounter = 0;
+
+        String gfsmPrefixFilename = opts.outputPathPrefix;
+
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0).inv, gfsmCounter,
+                gfsmPrefixFilename);
+
+        if (pGraph.isSingleton()) {
+            // Skip model checking if all partitions are singletons
+            return mcCounter;
+        }
+
+        // Initialize the Parallelizer
+        // @see McScMParallelizer for taskChannel
+        final BlockingQueue<ParallelizerTask> taskChannel = new LinkedBlockingQueue<ParallelizerTask>(
+                1);
+        // @see McScMParallelizer for resultsChannel
+        final BlockingQueue<ParallelizerResult> resultsChannel = new LinkedBlockingQueue<ParallelizerResult>();
+
+        Thread parallelizer = new Thread(new McScMParallelizer(
+                opts.numParallel, opts.mcPath, opts.minimize, taskChannel,
+                resultsChannel));
+
+        parallelizer.start();
+        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
+                invsCounter, totalInvs, taskChannel);
+
+        while (true) {
+            assert invsCounter <= totalInvs;
+            assert curInvs.size() <= opts.numParallel;
+            assert timedOutInvs.size() + satisfiedInvs.size()
+                    + invsToSatisfy.size() + curInvs.size() == totalInvs;
+
+            ParallelizerResult result = waitForResult(gfsmCounter,
+                    resultsChannel);
+            mcCounter++;
+
+            logger.info("Obtained result (refinement: " + gfsmCounter + ")");
+
+            if (result.isException()) {
+                logger.severe("Parallelizer encountered exception: "
+                        + result.getException().getClass() + " (refinement: "
+                        + result.getRefinementCounter() + ")");
+                parallelizer.interrupt();
+                throw result.getException();
+            }
+
+            BinaryInvariant resultInv = result.getInvariant();
+            // Remove the returned invariant from the current invariant set
+            boolean returnedInvCheck = curInvs.remove(resultInv);
+            assert returnedInvCheck;
+
+            if (result.isTimeout()) {
+                // The model checker timed out. Increase the timeout value for
+                // that invariant, unless we reached the timeout limit, in which
+                // case we throw an exception.
+                int curTimeout = result.getTimeout();
+
+                logger.info("Timed out in checking invariant: "
+                        + resultInv.toString() + " with timeout value "
+                        + curTimeout);
+
+                curTimeout += timeoutDelta;
+
+                if (curTimeout > maxTimeout) {
+                    // TODO: handle so they are left until no more to check
+                    throw new Exception(
+                            "McScM timed-out on all invariants. Cannot continue.");
+                } else {
+                    // Append timed out invariant with new timeout value to
+                    // invsToSatisfy
+                    invsToSatisfy.add(new InvariantTimeoutPair(resultInv,
+                            curTimeout));
+                }
+
+                // TODO: start one
+                continue;
+            }
+
+            assert (result.isVerifyResult());
+
+            MCResult mcResult = result.getMCResult();
+            logger.info(mcResult.toRawString());
+            logger.info(mcResult.toString());
+
+            if (mcResult.modelIsSafe()) {
+                satisfiedInvs.add(resultInv);
+
+                if (invsToSatisfy.isEmpty()) {
+                    // No more invariants to check. We are done.
+                    logger.info("Finished checking " + invsCounter + " / "
+                            + totalInvs + " invariants.");
+                    return mcCounter;
+                }
+
+                // TODO: send START_ONE
+
+                invsCounter += 1;
+                logger.info("Model checking " + nextInv.toString() + " : "
+                        + invsCounter + " / " + totalInvs);
+            } else {
+                // Refine the pGraph in an attempt to eliminate the counter
+                // example.
+                refineCExample(pGraph, mcResult.getCExample());
+
+                // Increment the number of refinements:
+                gfsmCounter += 1;
+
+                // TODO: send STOP_ALL
+
+                exportIntermediateModels(pGraph, invsToSatisfy.get(0).inv,
+                        gfsmCounter, gfsmPrefixFilename);
+
+                // Model changed through refinement. Therefore, forget any
+                // invariants that might have timed out previously,
+                // and add all of them back to invsToSatisfy.
+                if (!timedOutInvs.isEmpty()) {
+                    // Append all of the previously timed out invariants back to
+                    // invsToSatisfy.
+                    invsToSatisfy.addAll(timedOutInvs);
+                    timedOutInvs.clear();
+                }
+            }
+        }
+    }
+
+    /**
+     * Waits and returns the first valid ParallelizerResult. Valid results are
+     * either of the current refinement counter, or an exception. There will
+     * always be at least one process running of the current refinement counter.
+     * 
+     * @param refinementCounter
+     *            The current refinement counter
+     * @param resultsChannel
+     *            The results channel
+     * @return
+     * @throws InterruptedException
+     */
+    private ParallelizerResult waitForResult(int refinementCounter,
+            BlockingQueue<ParallelizerResult> resultsChannel)
+            throws InterruptedException {
+        ParallelizerResult result = resultsChannel.take();
+
+        if (result.getRefinementCounter() != refinementCounter
+                && !result.isException()) {
+            return waitForResult(refinementCounter, resultsChannel);
+        }
+
+        assert (result.getRefinementCounter() == refinementCounter || result
+                .isException());
+
+        return result;
+    }
+
+    /**
+     * Sends START_K command to CheckerParallelizer with its corresponding
+     * inputs, and moves invariants from invsToSatisfy to curInvs.
+     * 
+     * @param invsToSatisfy
+     * @param curInvs
+     * @param pGraph
+     * @param refinementCounter
+     * @param invsCounter
+     * @param totalInvs
+     * @param taskChannel
+     * @param inputsChannel
+     * @throws InterruptedException
+     */
+    private void parallelizerStartK(List<InvariantTimeoutPair> invsToSatisfy,
+            Set<BinaryInvariant> curInvs, GFSM pGraph, int refinementCounter,
+            int invsCounter, int totalInvs,
+            BlockingQueue<ParallelizerTask> taskChannel)
+            throws InterruptedException {
+        assert (!invsToSatisfy.isEmpty());
+
+        List<ParallelizerInput> inputs = new ArrayList<ParallelizerInput>();
+
+        // Run K processes as number of invariants to check may be less than
+        // parallelization factor
+        int numLeftToCheck = Math.min(opts.numParallel, invsToSatisfy.size());
+        for (int i = 0; i < numLeftToCheck; i++) {
+            InvariantTimeoutPair invToCheck = invsToSatisfy.remove(0);
+            BinaryInvariant inv = invToCheck.inv;
+            int timeout = invToCheck.timeout;
+
+            ParallelizerInput input = new ParallelizerInput(inv, pGraph,
+                    timeout, invsCounter, totalInvs);
+            inputs.add(input);
+            curInvs.add(inv);
+        }
+
+        logger.info("Sending START_K task to Parallelizer");
+        taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_K,
+                inputs, refinementCounter));
+    }
+
+    /**
      * Matches the sequence of events in the counter-example to paths of
      * corresponding GFSM states for each process. Then, refines each process'
      * paths until all paths for some process are successfully refined.
@@ -956,4 +1249,18 @@ public class CSightMain {
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
+    /**
+     * A InvariantTimeoutPair used to store an invariant with its corresponding
+     * timeout value. Used in checkInvsRefineGFSMParallel to manage timeout
+     * value per invariant.
+     */
+    private class InvariantTimeoutPair {
+        protected final BinaryInvariant inv;
+        protected final int timeout;
+
+        private InvariantTimeoutPair(BinaryInvariant inv, int timeout) {
+            this.inv = inv;
+            this.timeout = timeout;
+        }
+    }
 }
