@@ -894,7 +894,6 @@ public class CSightMain {
      */
     public int checkInvsRefineGFSMParallel(List<BinaryInvariant> invs,
             GFSM pGraph) throws Exception, IOException, InterruptedException {
-        // TODO implement for parallel
         assert pGraph != null;
         assert invs != null;
         assert !invs.isEmpty();
