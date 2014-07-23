@@ -364,6 +364,15 @@ public class CSightMainTests extends CSightTest {
     }
 
     @Test
+    public void runABPLongerTraceSuccessParallel() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.addAll(getABPArgs());
+        args.addAll(getParallelArgs());
+        args.add("../traces/AlternatingBitProtocol/trace_po_sr_longer.txt");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
     public void runTCPTrace() throws Exception {
         List<String> args = getBasicArgsStr();
         args.add("-r");

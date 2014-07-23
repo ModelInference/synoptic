@@ -696,6 +696,7 @@ public class CSightMain {
      */
     public int checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
             throws Exception, IOException, InterruptedException {
+        // TODO: change inv Counter logging
         assert pGraph != null;
         assert invs != null;
         assert !invs.isEmpty();
