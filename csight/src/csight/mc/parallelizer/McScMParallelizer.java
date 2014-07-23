@@ -152,7 +152,7 @@ public class McScMParallelizer implements Runnable {
             boolean success;
             do {
                 // Result may occasionally fail to enqueue into the results
-                // channel, so another attempt is made
+                // channel, so another attempt is made.
                 success = writeResult(ParallelizerResult.exceptionResult(e));
             } while (!success);
         }
@@ -177,7 +177,7 @@ public class McScMParallelizer implements Runnable {
 
         // Get the CFSM corresponding to the partition graph.
         // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
-        // GFSM
+        // GFSM.
         final CFSM cfsm = input.gfsm.getCFSM(minimize);
 
         Runnable runnable = new Runnable() {
@@ -207,7 +207,7 @@ public class McScMParallelizer implements Runnable {
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
                 } catch (InterruptedException e) {
-                    // Model checking timed out
+                    // Model checking timed out.
                     result = ParallelizerResult.timeOutResult(input.inv,
                             input.timeout, refinementCounter);
 
@@ -220,7 +220,7 @@ public class McScMParallelizer implements Runnable {
                 boolean success;
                 do {
                     // Result may occasionally fail to enqueue into the results
-                    // channel, so another attempt is made
+                    // channel, so another attempt is made.
                     success = McScMParallelizer.this.writeResult(result);
                 } while (!success);
             }
@@ -326,7 +326,7 @@ public class McScMParallelizer implements Runnable {
             if (checkIfStopAll()
                     || refinementCount != result.getRefinementCounter()) {
                 // Model checking for this refinement already stopped. Don't
-                // return any more results and don't decrement numRunning
+                // return any more results and don't decrement numRunning.
                 return true;
             }
 
@@ -339,7 +339,7 @@ public class McScMParallelizer implements Runnable {
 
             return true;
         } catch (InterruptedException e) {
-            // BlockingQueue.put() may throw InterruptedException occasionally,
+            // BlockingQueue.put() may throw InterruptedException occasionally.
             logger.info("Failed to enqueue result");
 
             return false;
