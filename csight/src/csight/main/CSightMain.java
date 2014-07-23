@@ -1097,6 +1097,8 @@ public class CSightMain {
                 // Add the unsatisfied invariant back to invariants to satisfy.
                 invsToSatisfy.add(0, resultPair);
 
+                // TODO: fix race condition between refinement and parallelizer
+                // startone
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
                 refineCExample(pGraph, mcResult.getCExample());
@@ -1108,6 +1110,7 @@ public class CSightMain {
                     // Skip model checking if all partitions are singletons.
                     return mcCounter;
                 }
+
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
                 // and add all of them back to invsToSatisfy.
