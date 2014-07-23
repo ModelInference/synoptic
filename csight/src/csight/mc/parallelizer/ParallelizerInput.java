@@ -1,6 +1,5 @@
 package csight.mc.parallelizer;
 
-import csight.invariants.BinaryInvariant;
 import csight.model.fifosys.gfsm.GFSM;
 
 /**
@@ -10,15 +9,15 @@ import csight.model.fifosys.gfsm.GFSM;
  * invariant counter and total invariant count for logging.
  */
 public class ParallelizerInput {
-    protected final BinaryInvariant inv;
+    protected final InvariantTimeoutPair invTimeoutPair;
     protected final GFSM gfsm;
     protected final int timeout;
     protected final int invsCounter;
     protected final int totalInvs;
 
-    public ParallelizerInput(BinaryInvariant inv, GFSM gfsm, int timeout,
-            int invsCounter, int totalInvs) {
-        this.inv = inv;
+    public ParallelizerInput(InvariantTimeoutPair invTimeoutPair, GFSM gfsm,
+            int timeout, int invsCounter, int totalInvs) {
+        this.invTimeoutPair = invTimeoutPair;
         this.gfsm = gfsm;
         this.timeout = timeout;
         this.invsCounter = invsCounter;

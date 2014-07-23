@@ -1,6 +1,5 @@
 package csight.mc.parallelizer;
 
-import csight.invariants.BinaryInvariant;
 import csight.mc.MCResult;
 
 /**
@@ -9,10 +8,9 @@ import csight.mc.MCResult;
  */
 public class ParallelizerResult {
 
-    private final BinaryInvariant inv;
+    private final InvariantTimeoutPair invTimeoutPair;
     private final MCResult mcResult;
     private final boolean isTimeout;
-    private final Integer timeout;
     private final boolean isException;
     private final Exception e;
     private final int refinementCounter;
@@ -20,28 +18,29 @@ public class ParallelizerResult {
     /**
      * Builds a timeout ParallelizerResult for invariant
      * 
-     * @param inv
+     * @param invTimeoutPair
      * @param refinementCounter
      * @return
      */
-    protected static ParallelizerResult timeOutResult(BinaryInvariant inv,
+    protected static ParallelizerResult timeOutResult(InvariantTimeoutPair invTimeoutPair,
             int timeout, int refinementCounter) {
-        return new ParallelizerResult(inv, null, true, timeout, false, null,
+        return new ParallelizerResult(invTimeoutPair, null, true, false, null,
                 refinementCounter);
     }
 
     /**
      * Builds a verification result representing safe/unsafe invariant
      * 
-     * @param inv
+     * @param invTimeoutPair
      * @param mcResult
      * @param refinementCounter
      * @return
      */
-    protected static ParallelizerResult verificationResult(BinaryInvariant inv,
-            MCResult mcResult, int refinementCounter) {
-        return new ParallelizerResult(inv, mcResult, false, null, false, null,
-                refinementCounter);
+    protected static ParallelizerResult verificationResult(
+            InvariantTimeoutPair invTimeoutPair, MCResult mcResult,
+            int refinementCounter) {
+        return new ParallelizerResult(invTimeoutPair, mcResult, false, false,
+                null, refinementCounter);
     }
 
     /**
@@ -53,7 +52,7 @@ public class ParallelizerResult {
      */
     protected static ParallelizerResult exceptionResult(Exception e,
             int refinementCounter) {
-        return new ParallelizerResult(null, null, false, null, true, e,
+        return new ParallelizerResult(null, null, false, true, e,
                 refinementCounter);
     }
 
@@ -64,33 +63,32 @@ public class ParallelizerResult {
      * @return
      */
     protected static ParallelizerResult exceptionResult(Exception e) {
-        return new ParallelizerResult(null, null, false, null, true, e, -1);
+        return new ParallelizerResult(null, null, false, true, e, -1);
     }
 
     /**
      * Constructs a ParallelizerResult
      * 
-     * @param inv
+     * @param invTimeoutPair
      * @param mcResult
      * @param isTimeout
      * @param isException
      * @param e
      * @param refinementCounter
      */
-    private ParallelizerResult(BinaryInvariant inv, MCResult mcResult,
-            boolean isTimeout, Integer timeout, boolean isException,
+    private ParallelizerResult(InvariantTimeoutPair invTimeoutPair,
+            MCResult mcResult, boolean isTimeout, boolean isException,
             Exception e, int refinementCounter) {
-        this.inv = inv;
+        this.invTimeoutPair = invTimeoutPair;
         this.mcResult = mcResult;
         this.isTimeout = isTimeout;
-        this.timeout = timeout;
         this.isException = isException;
         this.e = e;
         this.refinementCounter = refinementCounter;
     }
 
-    public BinaryInvariant getInvariant() {
-        return inv;
+    public InvariantTimeoutPair getInvariant() {
+        return invTimeoutPair;
     }
 
     public MCResult getMCResult() {
@@ -103,10 +101,6 @@ public class ParallelizerResult {
 
     public boolean isTimeout() {
         return isTimeout;
-    }
-
-    public Integer getTimeout() {
-        return timeout;
     }
 
     public boolean isException() {
