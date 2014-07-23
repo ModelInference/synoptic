@@ -179,7 +179,7 @@ public class CSightOptions extends Options {
 
     @Option(value = "Number of model checking processes to run in parallel.",
             aliases = { "-p" })
-    public int numParallel = 4;
+    public int numParallel = 8;
 
     /**
      * The base timeout that is used to time out invocations of verification
