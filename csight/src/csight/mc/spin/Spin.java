@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -17,6 +18,7 @@ import csight.mc.MCProcess;
 import csight.mc.MCResult;
 import csight.mc.MCSyntaxException;
 import csight.mc.mcscm.Os;
+import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -30,8 +32,14 @@ public class Spin extends MC {
 
     static Logger logger = Logger.getLogger("Spin");
 
+    Map<Integer, List<String>> returnedLines;
+
+    Map<Integer, MCResult> returnedResults;
+
     public Spin(String mcPath) {
         super(mcPath);
+        returnedLines = Util.newMap();
+        returnedResults = Util.newMap();
     }
 
     /**
@@ -44,9 +52,27 @@ public class Spin extends MC {
     @Override
     public void verify(String input, int timeoutSecs) throws IOException,
             InterruptedException {
+        prepare(input, timeoutSecs);
+        verify(input, timeoutSecs, 0);
+    }
 
-        // Tracking how much of our timeout is left. This is coarse-grained.
-        int timeoutSecsLeft = timeoutSecs;
+    /**
+     * Prepares the Spin model checker. This writes the Promela input to a file,
+     * generates and compiles the model checker source. Spin does not use stdin
+     * for this. At the moment, we require that the user has gcc on their
+     * system.
+     * 
+     * @param input
+     *            The input Promela string
+     * @param timeoutSecs
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public void prepare(String input, int timeoutSecs) throws IOException,
+            InterruptedException {
+        // Empty the maps since a new mc instance is not instantiated each time.
+        returnedLines.clear();
+        returnedResults.clear();
 
         File currentPath = new java.io.File(".");
 
@@ -60,9 +86,9 @@ public class Spin extends MC {
         // Run spin to create C source.
         String[] command = new String[] { mcPath, "-a", "csight.pml" };
         // Spin does not use stdin for Promela input.
-        mcProcess = new MCProcess(command, "", currentPath, timeoutSecsLeft);
+        mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
         // We run Spin to generate the source for the model checker.
-        timeoutSecsLeft = timeoutSecsLeft - generateMCSource(mcProcess);
+        generateMCSource(mcProcess);
 
         // Currently assuming gcc is on the system. For Windows, we're assuming
         // it's on the system PATH.
@@ -78,11 +104,31 @@ public class Spin extends MC {
         // The others are common gcc parameters.
         command = new String[] { "gcc", "-O", "-DBFS", "-DREACH", "-o", "pan",
                 "pan.c" };
-        mcProcess = new MCProcess(command, "", currentPath, timeoutSecsLeft);
+        mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
         // We compile the source from the previous step.
-        timeoutSecsLeft = timeoutSecsLeft - compileMC(mcProcess);
+        compileMC(mcProcess);
+    }
 
-        // Run Pan verifier.
+    /**
+     * The model checker will return a result after it finishes running. This
+     * result is saved. To retrieve the all of the results, call
+     * getVerifyResults.
+     * 
+     * @param input
+     *            The input Promela string
+     * @param timeoutSecs
+     *            Seconds before timing out.
+     * @param invNum
+     *            The number for the invariant we are checking.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+
+    public void verify(String input, int timeoutSecs, int invNum)
+            throws IOException, InterruptedException {
+
+        File currentPath = new java.io.File(".");
+        // Run Pan verifier for each invariant.
         String panExec;
         if (Os.isWindows()) {
             panExec = "pan.exe";
@@ -98,10 +144,18 @@ public class Spin extends MC {
          * unreached due to a never claim being accepted. This information is
          * not useful to us and clutters up the console when debugging.
          */
-        command = new String[] { panExec, "-q", "-m1000", "-n" };
 
-        mcProcess = new MCProcess(command, "", currentPath, timeoutSecsLeft);
+        // -N is used to specify which claim to use.
+
+        // -t is used to specify the suffix for the trail file.
+        String[] command = new String[] { panExec, "-q", "-m500", "-n",
+                "-N" + invNum, "-t" + invNum + ".trail" };
+
+        mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
+        logger.info("Running Spin for invariant " + invNum);
         mcProcess.runProcess();
+        // Save results from running Spin.
+        returnedLines.put(invNum, mcProcess.getInputStreamContent());
 
     }
 
@@ -157,14 +211,52 @@ public class Spin extends MC {
      */
     @Override
     public MCResult getVerifyResult(List<ChannelId> cids) throws IOException {
-        List<String> lines = mcProcess.getInputStreamContent();
+        // Retrieve the only Spin response.
+        assert returnedLines.size() == 1;
+        List<String> lines = returnedLines.get(0);
 
+        logger.info(lines.toString());
+        MCResult ret = getVerifyResult(cids, lines);
+        cleanUpFiles();
+        return ret;
+    }
+
+    /**
+     * Parses a MCResult from the supplied lines. We need to run Spin once more
+     * to get the counterexample. This is handled by SpinResult.
+     * 
+     * @param cids
+     * @param lines
+     *            Lines returned from running the Spin process.
+     * @return
+     */
+    private MCResult getVerifyResult(List<ChannelId> cids, List<String> lines) {
         logger.info("Spin returned: " + lines.toString());
 
         MCResult ret = new SpinResult(lines, cids, mcPath);
-        logger.info(ret.toRawString());
-        cleanUpFiles();
         return ret;
+    }
+
+    /**
+     * Retrieves MCResults from parsing the Spin counterexamples.
+     * 
+     * @param cids
+     * @return
+     * @throws IOException
+     */
+    public Map<Integer, MCResult> getVerifyResults(List<ChannelId> cids)
+            throws IOException {
+        // We check based on the size of the results because we may have been
+        // interrupted while we were checking. We don't want to try to verify
+        // runs that did not complete.
+        for (int i = 0; i < returnedLines.size(); i++) {
+            List<String> lines = returnedLines.get(i);
+            MCResult ret = getVerifyResult(cids, lines);
+            returnedResults.put(i, ret);
+        }
+        // Clean files once we're done with them.
+        cleanUpFiles();
+        return returnedResults;
     }
 
     /**

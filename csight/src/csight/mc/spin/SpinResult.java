@@ -56,10 +56,16 @@ public class SpinResult extends MCResult {
     private void parseVerifyOutput(List<String> lines) {
 
         boolean detectedSafety = false;
+        String trailName = "";
         for (String line : lines) {
             if (line.matches(unsafeRe)) {
                 modelIsSafe = false;
                 detectedSafety = true;
+                // Obtain the file name of the trail. We are guaranteed to find
+                // a match if we are in this if statement.
+                Matcher m = Pattern.compile(unsafeRe).matcher(line);
+                m.find();
+                trailName = m.group(1);
                 continue;
             }
             if (line.matches(safeRe)) {
@@ -78,8 +84,10 @@ public class SpinResult extends MCResult {
 
                 // -t triggers a guided simulation using the trail file.
                 // -T suppresses indentation from print statements.
+                // -k selects the trail to parse for the counterexample.
                 MCProcess trailProcess = new MCProcess(new String[] { mcPath,
-                        "-t", "-T", "csight.pml" }, "", currentPath, 20);
+                        "-t", "-T", "-k", trailName, "csight.pml" }, "",
+                        currentPath, 20);
                 trailProcess.runProcess();
                 trailLines = trailProcess.getInputStreamContent();
                 parseCounterExample(trailLines);
