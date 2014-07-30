@@ -1,8 +1,10 @@
 package csight.main;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +23,9 @@ import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
 import csight.model.fifosys.gfsm.GFSMPath;
+import csight.model.fifosys.gfsm.GFSMState;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import csight.util.CounterPair;
 import csight.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -903,14 +907,14 @@ public class CSightMain {
 
         // TODO Find a better heuristic for curInvs.
         // curInv will refer to all the invs we need to satisfy.
-        List<BinaryInvariant> curInvs = chooseInvariants(invsToSatisfy);
+        List<BinaryInvariant> curInvs = chooseInvariants(invsToSatisfy, 3);
 
         int totalInvs = invsToSatisfy.size();
         int invsCounter = 1;
 
         // ////// Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
-        int baseTimeout = opts.baseTimeout;
+        int baseTimeout = 5; // opts.baseTimeout;
 
         // How much we increment curTimeout by, when we timeout on checking all
         // invariants.
@@ -997,21 +1001,21 @@ public class CSightMain {
             // curTimeout to base value.
             curTimeout = baseTimeout;
 
-            Map<Integer, MCResult> results = spinMC.getVerifyResults(cfsm
-                    .getChannelIds());
+            Map<Integer, MCResult> results = spinMC.getVerifyResults(
+                    cfsm.getChannelIds(), curInvs.size());
             logger.info(results.size() + " / " + curInvs.size()
                     + " results returned.");
-            boolean refined = false;
             for (int i = 0; i < curInvs.size(); i++) {
                 // Retrieve the current invariant and the matching result.
                 // If it is null, then we were interrupted and it should be
                 // ignored.
                 MCResult result = results.get(i);
                 if (result == null) {
+                    logger.info("No results for invariant " + i);
                     continue;
                 }
                 BinaryInvariant curInv = curInvs.get(i);
-                logger.info(result.toRawString());
+                logger.finest(result.toRawString());
                 logger.info(result.toString());
 
                 if (result.modelIsSafe()) {
@@ -1023,8 +1027,6 @@ public class CSightMain {
 
                     invsCounter += 1;
                 } else {
-                    // TODO KS Handle multiple invariants at once. Currently, we
-                    // are stopping after the first unsatisfied invariant.
 
                     // TODO KS Check for staleness of the counterexample.
 
@@ -1034,19 +1036,12 @@ public class CSightMain {
 
                         // Increment the number of refinements:
                         gfsmCounter += 1;
-                        refined = true;
                         exportIntermediateModels(pGraph, curInv, gfsmCounter,
                                 gfsmPrefixFilename);
                     }
 
                 }
 
-            }
-            if (refined) {
-                // Append all of the previously timed out invariants
-                // back to invsToSatisfy.
-                invsToSatisfy.addAll(timedOutInvs);
-                timedOutInvs.clear();
             }
             if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
                 // No more invariants to check. We are done.
@@ -1073,24 +1068,84 @@ public class CSightMain {
                 timedOutInvs.clear();
             }
             // Select the next invariants to check.
-            curInvs = chooseInvariants(invsToSatisfy);
+            curInvs = chooseInvariants(invsToSatisfy, gfsmCounter);
         }
     }
 
     /**
-     * Heuristic for choosing invariants that we want to satisfy.
+     * Heuristic for choosing some of the invariants that we want to satisfy.
      * 
      * @param invsToSatisfy
+     * @param threshold
+     *            A value for determining how many events are
      * @return
      */
     private List<BinaryInvariant> chooseInvariants(
-            List<BinaryInvariant> invsToSatisfy) {
-        // TODO KS Have a proper heuristic. For now, add a max of 10 invariants
-        // at a time.
+            List<BinaryInvariant> invsToSatisfy, int threshold) {
         List<BinaryInvariant> invsToCheck = Util.newList();
-        int invCount = Math.min(invsToSatisfy.size(), 5);
-        for (int i = 0; i < invCount; i++) {
-            invsToCheck.add(invsToSatisfy.get(i));
+
+        // Count events by number of related invariants.
+        List<CounterPair<DistEventType>> sortedEventList = Util.newList();
+        Map<DistEventType, Integer> eventMap = Util.newMap();
+        for (BinaryInvariant inv : invsToSatisfy) {
+            // Add first event, but not if it's a case of initial.
+            DistEventType curEvent = inv.getFirst();
+            if (!inv.equals(DistEventType.INITIALEventType)) {
+                if (eventMap.containsKey(curEvent)) {
+                    eventMap.put(curEvent, eventMap.remove(curEvent) + 1);
+                } else {
+                    eventMap.put(curEvent, 1);
+                }
+            }
+            // Add second event, but do not double count.
+            if (!curEvent.equals(inv.getSecond())) {
+                curEvent = inv.getSecond();
+                if (eventMap.containsKey(curEvent)) {
+                    eventMap.put(curEvent, eventMap.remove(curEvent) + 1);
+                } else {
+                    eventMap.put(curEvent, 1);
+                }
+            }
+        }
+
+        // Sort events by number of related invariants.
+        for (Entry<DistEventType, Integer> entry : eventMap.entrySet()) {
+            sortedEventList.add(new CounterPair<DistEventType>(entry.getKey(),
+                    entry.getValue()));
+        }
+        Collections.sort(sortedEventList);
+
+        // Lower minEventCount if we don't have enough events for it.
+        int minEventCount = Math.min(sortedEventList.size(),
+                (int) Math.sqrt(threshold));
+
+        Set<DistEventType> addedEvents = Util.newSet();
+        for (int i = 0; i < minEventCount; i++) {
+            addedEvents.add(sortedEventList.get(i).getKey());
+        }
+
+        int minInvCount = threshold;
+        while (invsToCheck.size() < Math.min(minInvCount, invsToSatisfy.size())) {
+            assert sortedEventList.size() >= addedEvents.size();
+            invsToCheck.clear();
+            for (BinaryInvariant inv : invsToSatisfy) {
+                // Add special case for eventually happens, as the first event
+                // doesn't matter here.
+                if (inv instanceof EventuallyHappens
+                        && addedEvents.contains(inv.getSecond())) {
+                    invsToCheck.add(inv);
+                } else if (addedEvents.contains(inv.getFirst())
+                        && addedEvents.contains(inv.getSecond())) {
+                    // Add invariant only if both events are in the set of
+                    // events we're using
+                    invsToCheck.add(inv);
+                }
+            }
+            // In preparation for the next loop, add the next event in line.
+            if (sortedEventList.size() > addedEvents.size()) {
+                addedEvents.add(sortedEventList.get(addedEvents.size())
+                        .getKey());
+            }
         }
         return invsToCheck;
     }
@@ -1145,6 +1200,20 @@ public class CSightMain {
                     continue;
                 }
 
+                // Checks to see if the empty execution is still valid.
+                // An event-less trace has a single state by default.
+                // This state is automatically the last state and should be both
+                // an accept and an initial state. If it is not both, the path
+                // is no longer complete.
+
+                // We need to pull the check out so we don't impact
+                // checkPathCompleteness.
+                if (path.numEvents() == 0) {
+                    GFSMState s = path.lastState();
+                    if (!s.isAccept() || !s.isInitial()) {
+                        continue;
+                    }
+                }
                 // Otherwise, the path still needs to be refined.
                 if (!path.refine(pGraph)) {
                     refinedAll = false;
@@ -1159,16 +1228,11 @@ public class CSightMain {
             }
 
         }
-        // TODO KS Check if this is valid for McScM. Also, have an option to
-        // disable these if we're doing the fancier Spin check.
-        if (!opts.spinExperimental) {
-            if (CSightMain.assertsOn) {
-                assert false;
-            }
-            throw new Exception(
-                    "Unable to eliminate CFSM counter-example from GFSM.");
+        if (CSightMain.assertsOn) {
+            assert false;
         }
-        return false;
+        throw new Exception(
+                "Unable to eliminate CFSM counter-example from GFSM.");
     }
 
     /**
