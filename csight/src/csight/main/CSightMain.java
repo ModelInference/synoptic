@@ -814,10 +814,6 @@ public class CSightMain {
                 continue;
             }
 
-            // We did not time-out on checking curInv. Therefore, reset
-            // curTimeout to base value.
-            curTimeout = baseTimeout;
-
             MCResult result = mc.getVerifyResult(cfsm.getChannelIds());
             logger.info(result.toRawString());
             logger.info(result.toString());
@@ -994,10 +990,6 @@ public class CSightMain {
 
                 // Fall through and verify the results that didn't time out.
             }
-
-            // We did not time-out on checking curInv. Therefore, reset
-            // curTimeout to base value.
-            curTimeout = baseTimeout;
 
             Map<Integer, MCResult> results = spinMC.getVerifyResults(
                     cfsm.getChannelIds(), curInvs.size());
