@@ -241,23 +241,28 @@ public class Spin extends MC {
      * Retrieves MCResults from parsing the Spin counterexamples.
      * 
      * @param cids
+     * @param runCount
+     *            Number of runs for this set of results.
      * @return
      * @throws IOException
      */
-    public Map<Integer, MCResult> getVerifyResults(List<ChannelId> cids)
-            throws IOException {
+    public Map<Integer, MCResult> getVerifyResults(List<ChannelId> cids,
+            int runCount) throws IOException {
         // We check based on the size of the results because we may have been
         // interrupted while we were checking. We don't want to try to verify
         // runs that did not complete.
-        for (int i = 0; i < returnedLines.size(); i++) {
+        for (int i = 0; i < runCount; i++) {
             List<String> lines = returnedLines.get(i);
-            // If the run was interrupted, it would have a null return. Ignore
-            // it in that case.
+            // If the run was interrupted, it would have a null return.
+            // We need to record this.
             if (lines != null) {
                 MCResult ret = getVerifyResult(cids, lines);
                 returnedResults.put(i, ret);
+            } else {
+                returnedResults.put(i, null);
             }
         }
+        assert runCount == returnedResults.size();
         // Clean files once we're done with them.
         cleanUpFiles();
         return returnedResults;
