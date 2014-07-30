@@ -1041,20 +1041,29 @@ public class CSightMain {
                 } else {
                     // TODO KS Handle multiple invariants at once. Currently, we
                     // are stopping after the first unsatisfied invariant.
-                    if (refined) {
-                        continue;
+                    // if (refined) {
+                    // continue;
+                    // }
+                    // refined = true;
+
+                    // TODO KS Check for staleness of the counterexample.
+
+                    if (checkCExample(pGraph, result.getCExample())) {
+                        logger.info("Counterexample is valid. Attempting to refine.");
+                        // Refine the pGraph in an attempt to eliminate the
+                        // counter
+                        // example.
+                        refineCExample(pGraph, result.getCExample());
+
+                        // Increment the number of refinements:
+                        gfsmCounter += 1;
+
+                        exportIntermediateModels(pGraph, curInv, gfsmCounter,
+                                gfsmPrefixFilename);
+                    } else {
+                        logger.info("Counterexample for " + curInv
+                                + " no longer exists. Discarding... ");
                     }
-                    refined = true;
-
-                    // Refine the pGraph in an attempt to eliminate the counter
-                    // example.
-                    refineCExample(pGraph, result.getCExample());
-
-                    // Increment the number of refinements:
-                    gfsmCounter += 1;
-
-                    exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                            gfsmPrefixFilename);
 
                 }
                 if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
@@ -1072,6 +1081,35 @@ public class CSightMain {
             // Select the next invariants to check.
             curInvs = chooseInvariants(invsToSatisfy);
         }
+    }
+
+    /**
+     * Checks if the given counterexample is in the GFSM.
+     * 
+     * @param pGraph
+     * @param cExample
+     * @return
+     */
+    private boolean checkCExample(GFSM pGraph, MCcExample cExample) {
+        boolean valid = true;
+        for (int i = 0; i < this.getNumProcesses(); i++) {
+            Set<GFSMPath> processPath = pGraph.getCExamplePaths(cExample, i);
+            if (processPath != null) {
+                logger.info(processPath.size() + " paths found for process "
+                        + i);
+                for (GFSMPath path : processPath) {
+                    if (!GFSMPath.checkPathCompleteness(path)) {
+                        logger.info("Path not complete.");
+                    } else {
+                        logger.info("Path is complete.");
+                    }
+                }
+            } else {
+                logger.info("Path not found for process " + i);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1181,7 +1219,7 @@ public class CSightMain {
         String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
                 + ".dot";
         GraphExporter.exportGFSM(dotFilename, pGraph);
-        // GraphExporter.generatePngFileFromDotFile(dotFilename);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM:
         CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -1189,13 +1227,13 @@ public class CSightMain {
         dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
                 + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        // GraphExporter.generatePngFileFromDotFile(dotFilename);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM, augmented with curInv:
         cfsm.augmentWithInvTracing(curInv);
         dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        // GraphExporter.generatePngFileFromDotFile(dotFilename);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
 }
