@@ -152,7 +152,7 @@ public class Spin extends MC {
                 "-N" + invNum, "-t" + invNum + ".trail" };
 
         mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
-        logger.info("Running Spin for invariant " + invNum);
+
         mcProcess.runProcess();
         // Save results from running Spin.
         returnedLines.put(invNum, mcProcess.getInputStreamContent());
@@ -251,8 +251,12 @@ public class Spin extends MC {
         // runs that did not complete.
         for (int i = 0; i < returnedLines.size(); i++) {
             List<String> lines = returnedLines.get(i);
-            MCResult ret = getVerifyResult(cids, lines);
-            returnedResults.put(i, ret);
+            // If the run was interrupted, it would have a null return. Ignore
+            // it in that case.
+            if (lines != null) {
+                MCResult ret = getVerifyResult(cids, lines);
+                returnedResults.put(i, ret);
+            }
         }
         // Clean files once we're done with them.
         cleanUpFiles();

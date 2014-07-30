@@ -173,6 +173,9 @@ public class CSightOptions extends Options {
             value = "Default channel capacity to use when using the spin model checker.")
     public int spinChannelCapacity = 8;
 
+    // TODO KS Decide on a proper name and description for this option.
+    @Option(value = "Experimental Spin optimization.")
+    public boolean spinExperimental = true;
     /**
      * The base timeout that is used to time out invocations of verification
      * (which may run indefinitely).

@@ -409,7 +409,7 @@ public class CSightMain {
         // ///////////////////
         // Model check, refine loop. Check each invariant in the model, and
         // refine the model as needed until all invariants hold.
-        if (mc instanceof Spin) {
+        if (opts.spinExperimental && mc instanceof Spin) {
             checkMultipleInvsRefineGFSM(dynInvs, pGraph);
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);
@@ -921,7 +921,7 @@ public class CSightMain {
         int maxTimeout = opts.maxTimeout;
 
         // Current timeout value to use.
-        int curTimeout = baseTimeout;
+        int curTimeout = 5;
 
         if (maxTimeout < baseTimeout) {
             throw new Exception(
@@ -959,7 +959,7 @@ public class CSightMain {
             if (mc instanceof Spin) {
                 mcInputStr = cfsm.toPromelaString(curInvs,
                         opts.spinChannelCapacity);
-                spinMC.prepare(mcInputStr, curTimeout);
+                spinMC.prepare(mcInputStr, 20);
 
             } else {
                 throw new RuntimeException(
@@ -974,40 +974,19 @@ public class CSightMain {
                     + " invariants are timed out.");
             logger.info("*******************************************************");
 
-            int curInvNum = 0;
-            try {
-
-                for (int i = 0; i < curInvs.size(); i++) {
-                    curInvNum = i;
-                    spinMC.verify(mcInputStr, curTimeout, i);
-                }
-            } catch (InterruptedException e) {
-                // The model checker timed out. First, record the timed-out
-                // invariant so that we are not stuck re-checking it.
-                BinaryInvariant timedOutInv = curInvs.get(curInvNum);
-                invsToSatisfy.remove(timedOutInv);
-                timedOutInvs.add(timedOutInv);
-                logger.info("Timed out in checking invariant: "
-                        + timedOutInv.toString());
-
-                // No invariants are left to try -- increase the timeout value,
-                // unless we reached the timeout limit, in which case we throw
-                // an exception.
-                if (invsToSatisfy.isEmpty()) {
-                    logger.info("Timed out in checking these invariants with timeout value "
-                            + curTimeout + " :" + timedOutInvs.toString());
-
-                    curTimeout += timeoutDelta;
-
-                    if (curTimeout > maxTimeout) {
-                        throw new Exception(
-                                "Spin timed-out on all invariants. Cannot continue.");
-                    }
-
-                    // Append all of the previously timed out invariants back to
-                    // invsToSatisfy.
-                    invsToSatisfy.addAll(timedOutInvs);
-                    timedOutInvs.clear();
+            for (int curInvNum = 0; curInvNum < curInvs.size(); curInvNum++) {
+                try {
+                    logger.info("Running Spin for invariant "
+                            + curInvs.get(curInvNum));
+                    spinMC.verify(mcInputStr, curTimeout, curInvNum);
+                } catch (InterruptedException e) {
+                    // The model checker timed out. First, record the timed-out
+                    // invariant so that we are not stuck re-checking it.
+                    BinaryInvariant timedOutInv = curInvs.get(curInvNum);
+                    invsToSatisfy.remove(timedOutInv);
+                    timedOutInvs.add(timedOutInv);
+                    logger.info("Timed out in checking invariant: "
+                            + timedOutInv.toString());
                 }
 
                 // Fall through and verify the results that didn't time out.
@@ -1023,9 +1002,14 @@ public class CSightMain {
             logger.info(results.size() + " / " + curInvs.size()
                     + " results returned.");
             boolean refined = false;
-            for (int i = 0; i < results.size(); i++) {
+            for (int i = 0; i < curInvs.size(); i++) {
                 // Retrieve the current invariant and the matching result.
+                // If it is null, then we were interrupted and it should be
+                // ignored.
                 MCResult result = results.get(i);
+                if (result == null) {
+                    continue;
+                }
                 BinaryInvariant curInv = curInvs.get(i);
                 logger.info(result.toRawString());
                 logger.info(result.toString());
@@ -1041,75 +1025,56 @@ public class CSightMain {
                 } else {
                     // TODO KS Handle multiple invariants at once. Currently, we
                     // are stopping after the first unsatisfied invariant.
-                    // if (refined) {
-                    // continue;
-                    // }
-                    // refined = true;
 
                     // TODO KS Check for staleness of the counterexample.
 
-                    if (checkCExample(pGraph, result.getCExample())) {
-                        logger.info("Counterexample is valid. Attempting to refine.");
-                        // Refine the pGraph in an attempt to eliminate the
-                        // counter
-                        // example.
-                        refineCExample(pGraph, result.getCExample());
+                    // Refine the pGraph in an attempt to eliminate the
+                    // counterexample.
+                    if (refineCExample(pGraph, result.getCExample())) {
 
                         // Increment the number of refinements:
                         gfsmCounter += 1;
-
+                        refined = true;
                         exportIntermediateModels(pGraph, curInv, gfsmCounter,
                                 gfsmPrefixFilename);
-                    } else {
-                        logger.info("Counterexample for " + curInv
-                                + " no longer exists. Discarding... ");
                     }
 
                 }
-                if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
-                    // No more invariants to check. We are done.
-                    logger.info("Finished checking " + invsCounter + " / "
-                            + totalInvs + " invariants.");
-                    return mcCounter;
-                } else if (invsToSatisfy.isEmpty() && !timedOutInvs.isEmpty()) {
-                    // Append all of the previously timed out invariants
-                    // back to invsToSatisfy.
-                    invsToSatisfy.addAll(timedOutInvs);
-                    timedOutInvs.clear();
+
+            }
+            if (refined) {
+                // Append all of the previously timed out invariants
+                // back to invsToSatisfy.
+                invsToSatisfy.addAll(timedOutInvs);
+                timedOutInvs.clear();
+            }
+            if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
+                // No more invariants to check. We are done.
+                logger.info("Finished checking " + invsCounter + " / "
+                        + totalInvs + " invariants.");
+                return mcCounter;
+            } else if (invsToSatisfy.isEmpty() && !timedOutInvs.isEmpty()) {
+                // No invariants are left to try -- increase the timeout
+                // value, unless we reached the timeout limit, in which case
+                // we throw an exception.
+                logger.info("Timed out in checking these invariants with timeout value "
+                        + curTimeout + " :" + timedOutInvs.toString());
+
+                curTimeout += timeoutDelta;
+
+                if (curTimeout > maxTimeout) {
+                    throw new Exception(
+                            "Spin timed-out on all invariants. Cannot continue.");
                 }
+
+                // Append all of the previously timed out invariants
+                // back to invsToSatisfy.
+                invsToSatisfy.addAll(timedOutInvs);
+                timedOutInvs.clear();
             }
             // Select the next invariants to check.
             curInvs = chooseInvariants(invsToSatisfy);
         }
-    }
-
-    /**
-     * Checks if the given counterexample is in the GFSM.
-     * 
-     * @param pGraph
-     * @param cExample
-     * @return
-     */
-    private boolean checkCExample(GFSM pGraph, MCcExample cExample) {
-        boolean valid = true;
-        for (int i = 0; i < this.getNumProcesses(); i++) {
-            Set<GFSMPath> processPath = pGraph.getCExamplePaths(cExample, i);
-            if (processPath != null) {
-                logger.info(processPath.size() + " paths found for process "
-                        + i);
-                for (GFSMPath path : processPath) {
-                    if (!GFSMPath.checkPathCompleteness(path)) {
-                        logger.info("Path not complete.");
-                    } else {
-                        logger.info("Path is complete.");
-                    }
-                }
-            } else {
-                logger.info("Path not found for process " + i);
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -1123,7 +1088,7 @@ public class CSightMain {
         // TODO KS Have a proper heuristic. For now, add a max of 10 invariants
         // at a time.
         List<BinaryInvariant> invsToCheck = Util.newList();
-        int invCount = Math.min(invsToSatisfy.size(), 10);
+        int invCount = Math.min(invsToSatisfy.size(), 5);
         for (int i = 0; i < invCount; i++) {
             invsToCheck.add(invsToSatisfy.get(i));
         }
@@ -1135,10 +1100,11 @@ public class CSightMain {
      * corresponding GFSM states for each process. Then, refines each process'
      * paths until all paths for some process are successfully refined.
      * 
+     * @return Whether a refinement was performed.
      * @throws Exception
      *             if we were not able to eliminate the counter-example
      */
-    private void refineCExample(GFSM pGraph, MCcExample cexample)
+    private boolean refineCExample(GFSM pGraph, MCcExample cexample)
             throws Exception {
 
         // Resolve all of the complete counter-example paths by:
@@ -1157,7 +1123,7 @@ public class CSightMain {
                         + " exist, continuing.");
                 // Treat this as if we refined all of the paths for the process
                 // -- none exist!
-                return;
+                return false;
             }
 
             // logger.info("Process " + i + " paths: " +
@@ -1171,8 +1137,8 @@ public class CSightMain {
 
             boolean refinedAll = true;
             for (GFSMPath path : processPaths) {
-                logger.info("Attempting to resolve process " + i + " path: "
-                        + path.toString());
+                logger.info("Attempting to resolve process " + i + " path: ");
+                logger.finest(path.toString());
                 // If path is no longer a valid path then it was refined and
                 // eliminated previously.
                 if (!GFSMPath.checkPathCompleteness(path)) {
@@ -1189,15 +1155,20 @@ public class CSightMain {
             // We were able to refine all paths for process i. Therefore, the
             // abstract counter-example path cannot exist.
             if (refinedAll) {
-                return;
+                return true;
             }
 
         }
-        if (CSightMain.assertsOn) {
-            assert false;
+        // TODO KS Check if this is valid for McScM. Also, have an option to
+        // disable these if we're doing the fancier Spin check.
+        if (!opts.spinExperimental) {
+            if (CSightMain.assertsOn) {
+                assert false;
+            }
+            throw new Exception(
+                    "Unable to eliminate CFSM counter-example from GFSM.");
         }
-        throw new Exception(
-                "Unable to eliminate CFSM counter-example from GFSM.");
+        return false;
     }
 
     /**
@@ -1219,7 +1190,7 @@ public class CSightMain {
         String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
                 + ".dot";
         GraphExporter.exportGFSM(dotFilename, pGraph);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM:
         CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -1227,13 +1198,13 @@ public class CSightMain {
         dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
                 + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM, augmented with curInv:
         cfsm.augmentWithInvTracing(curInv);
         dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
 }
