@@ -328,7 +328,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         // the process FSMs.
         CFSM cfsm = new CFSM(numProcesses, channelIds);
 
-        logger.info("GFSM -> CFSM: " + this.toString() + "\n");
+        logger.finest("GFSM -> CFSM: " + this.toString() + "\n");
 
         Set<FSMState> initFSMStates = Util.newSet();
         Set<FSMState> acceptFSMStates = Util.newSet();
@@ -359,7 +359,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 stateMap.put(gstate, fstate);
             }
 
-            logger.info("GFSMState->FSMState[pid=" + pid + "] stateMap : "
+            logger.finest("GFSMState->FSMState[pid=" + pid + "] stateMap : "
                     + stateMap.toString());
 
             // Create transitions between FSMState instances based on
