@@ -93,8 +93,6 @@ public class SpinResult extends MCResult {
                 parseCounterExample(trailLines);
 
             } catch (InterruptedException e) {
-                // TODO KS Properly handle this. For now, this is to test if
-                // this works here.
                 throw new VerifyOutputParseException(
                         "Unable to parse verify result: Spin interrupted during parsing.");
             } catch (IOException e) {

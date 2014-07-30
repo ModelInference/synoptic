@@ -148,8 +148,8 @@ public class Spin extends MC {
         // -N is used to specify which claim to use.
 
         // -t is used to specify the suffix for the trail file.
-        String[] command = new String[] { panExec, "-q", "-m500", "-n",
-                "-N" + invNum, "-t" + invNum + ".trail" };
+        String[] command = new String[] { panExec, "-q", "-m500", "-n", "-N",
+                "never_" + invNum, "-t" + invNum + ".trail" };
 
         mcProcess = new MCProcess(command, "", currentPath, timeoutSecs);
 
