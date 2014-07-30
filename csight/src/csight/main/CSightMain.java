@@ -905,16 +905,15 @@ public class CSightMain {
         // model satisfies.
         Set<BinaryInvariant> satisfiedInvs = Util.newSet();
 
-        // TODO Find a better heuristic for curInvs.
         // curInv will refer to all the invs we need to satisfy.
         List<BinaryInvariant> curInvs = chooseInvariants(invsToSatisfy, 3);
 
         int totalInvs = invsToSatisfy.size();
         int invsCounter = 1;
 
-        // ////// Additive and memory-less timeout value adaptation.
+        // Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
-        int baseTimeout = 5; // opts.baseTimeout;
+        int baseTimeout = opts.baseTimeout;
 
         // How much we increment curTimeout by, when we timeout on checking all
         // invariants.
@@ -954,7 +953,6 @@ public class CSightMain {
                 // Skip model checking if all partitions are singletons
                 return mcCounter;
             }
-            mcCounter++;
 
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -982,6 +980,7 @@ public class CSightMain {
                 try {
                     logger.info("Running Spin for invariant "
                             + curInvs.get(curInvNum));
+                    mcCounter++;
                     spinMC.verify(mcInputStr, curTimeout, curInvNum);
                 } catch (InterruptedException e) {
                     // The model checker timed out. First, record the timed-out
@@ -996,7 +995,6 @@ public class CSightMain {
                 // Fall through and verify the results that didn't time out.
             }
 
-            // TODO KS Stuff.
             // We did not time-out on checking curInv. Therefore, reset
             // curTimeout to base value.
             curTimeout = baseTimeout;
@@ -1009,12 +1007,14 @@ public class CSightMain {
                 // Retrieve the current invariant and the matching result.
                 // If it is null, then we were interrupted and it should be
                 // ignored.
+                BinaryInvariant curInv = curInvs.get(i);
                 MCResult result = results.get(i);
+                logger.info("Retrieving results for invariant " + curInv);
                 if (result == null) {
                     logger.info("No results for invariant " + i);
                     continue;
                 }
-                BinaryInvariant curInv = curInvs.get(i);
+
                 logger.finest(result.toRawString());
                 logger.info(result.toString());
 
@@ -1028,10 +1028,10 @@ public class CSightMain {
                     invsCounter += 1;
                 } else {
 
-                    // TODO KS Check for staleness of the counterexample.
-
                     // Refine the pGraph in an attempt to eliminate the
                     // counterexample.
+                    // The staleness of the counterexample is checked in
+                    // refineCExample.
                     if (refineCExample(pGraph, result.getCExample())) {
 
                         // Increment the number of refinements:
