@@ -34,6 +34,7 @@ import synoptic.main.parser.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
+import synoptic.util.Pair;
 
 public class CSightMainTests extends CSightTest {
 
@@ -55,6 +56,7 @@ public class CSightMainTests extends CSightTest {
         args.add("spin");
         args.add("--mcPath");
         args.add(super.getMcPath("spin"));
+        args.add("--baseTimeout=5");
         args.add("-o");
         args.add("test-output" + File.separator + "test-spin");
         return args;
@@ -563,11 +565,37 @@ public class CSightMainTests extends CSightTest {
     }
 
     /**
-     * Test check and refine loop to not skip model checking when partitions of
-     * the GFSM are not singletons
+     * Test check and refine loop to skip model checking when all partitions of
+     * the GFSM are singletons
      */
     @Test
-    public void testCheckInvsRefineGFSMWithNonSingleton() throws Exception {
+    public void testCheckMultipleInvsRefineGFSMWithSingletonPartition()
+            throws Exception {
+        ChannelId cid0 = new ChannelId(0, 1, 0);
+        DistEventType eSend = DistEventType.SendEvent("e", cid0);
+        DistEventType eRecv = DistEventType.RecvEvent("e", cid0);
+
+        List<BinaryInvariant> invs = Util.newList();
+        BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
+        invs.add(inv);
+        GFSM pGraph = createSingletonGFSM();
+
+        List<String> args = getSpinArgsStr();
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertEquals(0, dyn.checkMultipleInvsRefineGFSM(invs, pGraph));
+    }
+
+    /**
+     * Prepares a list of invariants to check and a GFSM.
+     * 
+     * @return
+     */
+    private Pair<List<BinaryInvariant>, GFSM> prepareGFSMWithNonSingleton() {
         List<ObsFSMState> Pi = Util.newList();
         List<ObsFSMState> Pm = Util.newList();
         List<ObsFSMState> Pf = Util.newList();
@@ -630,6 +658,19 @@ public class CSightMainTests extends CSightTest {
         BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
         invs.add(inv);
 
+        return Util.newPair(invs, pGraph);
+    }
+
+    /**
+     * Test check and refine loop to not skip model checking when partitions of
+     * the GFSM are not singletons
+     */
+    @Test
+    public void testCheckInvsRefineGFSMWithNonSingleton() throws Exception {
+        Pair<List<BinaryInvariant>, GFSM> invsAndGFSM = prepareGFSMWithNonSingleton();
+        List<BinaryInvariant> invs = invsAndGFSM.getLeft();
+        GFSM pGraph = invsAndGFSM.getRight();
+
         List<String> args = getBasicArgsStr();
         args.add("-q");
         args.add("M:0->1;A:1->0");
@@ -638,5 +679,26 @@ public class CSightMainTests extends CSightTest {
         dyn = new CSightMain(opts);
 
         assertTrue(0 < dyn.checkInvsRefineGFSM(invs, pGraph));
+    }
+
+    /**
+     * Test check and refine loop to not skip model checking when partitions of
+     * the GFSM are not singletons
+     */
+    @Test
+    public void testCheckMultipleInvsRefineGFSMWithNonSingleton()
+            throws Exception {
+        Pair<List<BinaryInvariant>, GFSM> invsAndGFSM = prepareGFSMWithNonSingleton();
+        List<BinaryInvariant> invs = invsAndGFSM.getLeft();
+        GFSM pGraph = invsAndGFSM.getRight();
+
+        List<String> args = getSpinArgsStr();
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertTrue(0 < dyn.checkMultipleInvsRefineGFSM(invs, pGraph));
     }
 }
