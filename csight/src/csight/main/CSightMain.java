@@ -920,7 +920,7 @@ public class CSightMain {
         int maxTimeout = opts.maxTimeout;
 
         // Current timeout value to use.
-        int curTimeout = 5;
+        int curTimeout = baseTimeout;
 
         if (maxTimeout < baseTimeout) {
             throw new Exception(
@@ -1037,7 +1037,8 @@ public class CSightMain {
             }
             if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
                 // No more invariants to check. We are done.
-                logger.info("Finished checking " + invsCounter + " / "
+                // We started counting from 1, so we are offset by 1.
+                logger.info("Finished checking " + (invsCounter - 1) + " / "
                         + totalInvs + " invariants.");
                 return mcCounter;
             } else if (invsToSatisfy.isEmpty() && !timedOutInvs.isEmpty()) {
