@@ -31,6 +31,7 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.AbstractMain;
 import synoptic.main.parser.TraceParser;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -700,5 +701,113 @@ public class CSightMainTests extends CSightTest {
         dyn = new CSightMain(opts);
 
         assertTrue(0 < dyn.checkMultipleInvsRefineGFSM(invs, pGraph));
+    }
+
+    private List<BinaryInvariant> generateReqRespInvariants() {
+        ChannelId chanA = new ChannelId(0, 1, 0, "A");
+        ChannelId chanB = new ChannelId(1, 0, 1, "B");
+        DistEventType sendReq = DistEventType.SendEvent("m", chanA);
+        DistEventType recvReq = DistEventType.RecvEvent("m", chanA);
+        DistEventType localAct = DistEventType.LocalEvent("act", 1);
+        DistEventType sendAck = DistEventType.SendEvent("ack", chanB);
+        DistEventType recvAck = DistEventType.RecvEvent("ack", chanB);
+
+        List<BinaryInvariant> invs = Util.newList();
+
+        invs.add(new AlwaysFollowedBy(sendReq, recvReq));
+        invs.add(new AlwaysPrecedes(sendReq, recvReq));
+        invs.add(new AlwaysFollowedBy(sendReq, localAct));
+        invs.add(new AlwaysPrecedes(sendReq, localAct));
+        invs.add(new AlwaysFollowedBy(sendReq, sendAck));
+        invs.add(new AlwaysPrecedes(sendReq, sendAck));
+        invs.add(new AlwaysFollowedBy(sendReq, recvAck));
+        invs.add(new AlwaysPrecedes(sendReq, recvAck));
+
+        invs.add(new AlwaysFollowedBy(recvReq, localAct));
+        invs.add(new AlwaysPrecedes(recvReq, localAct));
+        invs.add(new AlwaysFollowedBy(recvReq, sendAck));
+        invs.add(new AlwaysPrecedes(recvReq, sendAck));
+        invs.add(new AlwaysFollowedBy(recvReq, recvAck));
+        invs.add(new AlwaysPrecedes(recvReq, recvAck));
+
+        invs.add(new AlwaysFollowedBy(localAct, sendAck));
+        invs.add(new AlwaysPrecedes(localAct, sendAck));
+        invs.add(new AlwaysFollowedBy(localAct, recvAck));
+        invs.add(new AlwaysPrecedes(localAct, recvAck));
+
+        invs.add(new AlwaysFollowedBy(sendAck, recvAck));
+        invs.add(new AlwaysPrecedes(sendAck, recvAck));
+
+        invs.add(new EventuallyHappens(sendReq));
+        invs.add(new EventuallyHappens(recvReq));
+        invs.add(new EventuallyHappens(localAct));
+        invs.add(new EventuallyHappens(sendAck));
+        invs.add(new EventuallyHappens(recvAck));
+
+        logger.info("Reordering invariants to place \"eventually\" invariants at the front.");
+
+        for (int i = 0; i < invs.size(); i++) {
+            if (invs.get(i) instanceof EventuallyHappens) {
+                BinaryInvariant inv = invs.remove(i);
+                invs.add(0, inv);
+            }
+        }
+
+        return invs;
+    }
+
+    private GFSM generateInitialGFSM() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("A:0->1;B:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("-minimize");
+        args.add("../traces/abstract/request-response-po/trace.txt");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        dyn.initializeSynoptic();
+
+        // //////////////////
+        // Parse the input log files into _Synoptic_ structures.
+        TraceParser parser = new TraceParser(opts.regExps,
+                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
+
+        List<EventNode> parsedEvents = dyn.parseEventsFromFiles(parser,
+                opts.logFilenames);
+
+        // //////////////////
+        // Generate the Synoptic DAG from parsed events
+        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser,
+                parsedEvents);
+
+        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
+                traceGraph, dyn.getNumProcesses(), dyn.getChannelIds(),
+                opts.consistentInitState);
+
+        GFSM pGraph;
+        pGraph = new GFSM(traces, opts.topKElements);
+
+        return pGraph;
+    }
+
+    @Test
+    public void testSomething() throws Exception {
+        List<BinaryInvariant> invs = generateReqRespInvariants();
+        GFSM pGraph = generateInitialGFSM();
+        String initialGFSM = pGraph.toString();
+        dyn.checkMultipleInvsRefineGFSM(invs, pGraph);
+        String finalGFSM = pGraph.toString();
+
+        logger.info(initialGFSM);
+        logger.info(finalGFSM);
     }
 }

@@ -306,7 +306,7 @@ public class CSightMain {
     }
 
     /**
-     * Runs CSight based on setting sin opts, and uses the Synoptic traceGraph
+     * Runs CSight based on settings in opts, and uses the Synoptic traceGraph
      * passed as an argument instead of parsing files or a string directly.
      * 
      * @param traceGraph
