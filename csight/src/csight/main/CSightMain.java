@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -916,7 +917,12 @@ public class CSightMain {
         Set<InvariantTimeoutPair> curInvs = Util.newSet();
 
         int totalInvs = invsToSatisfy.size();
-        int invsCounter = 1;
+
+        /**
+         * AtomicInteger to provide mutability for methods to alter the value of
+         * the integer. It is not for concurrent access.
+         */
+        AtomicInteger invsCounter = new AtomicInteger(1);
 
         // ////// Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
@@ -964,10 +970,10 @@ public class CSightMain {
 
         parallelizer.start();
         parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                invsCounter, totalInvs, taskChannel);
+                totalInvs, taskChannel);
 
         while (true) {
-            assert invsCounter <= totalInvs;
+            assert invsCounter.get() <= totalInvs;
             assert curInvs.size() <= opts.numParallel;
             assert maxTimedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() + curInvs.size() == totalInvs;
@@ -1000,13 +1006,12 @@ public class CSightMain {
                 // that invariant, unless we reached the timeout limit, in which
                 // case we throw an exception.
                 int curTimeout = resultPair.getTimeout();
-
-                logger.info("Timed out in checking invariant: "
-                        + resultInv.toString() + " with timeout value "
-                        + curTimeout);
-
+                
+                logger.info("Timed out in checking invariant: " + resultInv.toString()
+                        + " with timeout value " + curTimeout);
+                
                 curTimeout += timeoutDelta;
-
+                
                 if (curTimeout > maxTimeout) {
                     // Invariant exceeded maxTimeout. We wait and see if any
                     // model refinement takes place that may lower the execution
@@ -1015,8 +1020,7 @@ public class CSightMain {
                 } else {
                     // Append timed out invariant with new timeout value to
                     // invsToSatisfy.
-                    invsToSatisfy.add(new InvariantTimeoutPair(resultInv,
-                            curTimeout));
+                    invsToSatisfy.add(new InvariantTimeoutPair(resultInv, curTimeout));
                 }
 
                 if (invsToSatisfy.isEmpty()) {
@@ -1032,7 +1036,7 @@ public class CSightMain {
 
                 // Start a new model checking process.
                 parallelizerStartOne(invsToSatisfy, curInvs, pGraph,
-                        gfsmCounter, invsCounter, totalInvs, taskChannel);
+                        gfsmCounter, taskChannel);
 
                 continue;
             }
@@ -1053,33 +1057,15 @@ public class CSightMain {
             logger.info(mcResult.toString());
 
             if (mcResult.modelIsSafe()) {
-                satisfiedInvs.add(resultInv);
-
-                if (invsToSatisfy.isEmpty()) {
-                    // No more invariants to check.
-                    if (curInvs.isEmpty()) {
-                        // We returned our last model checking process. No more
-                        // to check.
-                        if (!maxTimedOutInvs.isEmpty()) {
-                            // There are timed out invariants that we never
-                            // checked, but the model has not been refined. The
-                            // invariants will still exceed the maxTimeout.
-                            throw new Exception(
-                                    "McScM timed-out on all invariants. Cannot continue.");
-                        }
-                        // Every invariant has been satisfied. We are done.
-                        logger.info("Finished checking " + invsCounter + " / "
-                                + totalInvs + " invariants.");
-                        return mcCounter;
-                    }
-                    // We wait for current invariants to finish checking.
-                    continue;
+                if (processSafeModelResult(pGraph, invsToSatisfy,
+                        maxTimedOutInvs, satisfiedInvs, curInvs, totalInvs,
+                        taskChannel, resultInv, invsCounter)) {
+                    // Every invariant has been satisfied. We are done.
+                    logger.info("Finished checking " + invsCounter + " / "
+                            + totalInvs + " invariants.");
+                    return mcCounter;
                 }
-
-                invsCounter += 1;
-
-                parallelizerStartOne(invsToSatisfy, curInvs, pGraph,
-                        gfsmCounter, invsCounter, totalInvs, taskChannel);
+                // Continue to wait for next result
 
             } else {
                 // Increment the number of refinements:
@@ -1121,9 +1107,65 @@ public class CSightMain {
                 }
 
                 parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                        invsCounter, totalInvs, taskChannel);
+                        totalInvs, taskChannel);
             }
         }
+    }
+
+    /**
+     * Returns true if model checking is completed, given an invariant that
+     * returned safe. Else, automatically start the next invariant to check, if
+     * applicable, and returns false.
+     * 
+     * @param pGraph
+     * @param invsToSatisfy
+     * @param maxTimedOutInvs
+     * @param satisfiedInvs
+     * @param curInvs
+     * @param gfsmCounter
+     * @param taskChannel
+     * @param resultInv
+     * @param invsCounter
+     * @return
+     * @throws Exception
+     * @throws InterruptedException
+     */
+    private boolean processSafeModelResult(GFSM pGraph,
+            List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs,
+            Set<BinaryInvariant> satisfiedInvs,
+            Set<InvariantTimeoutPair> curInvs, int gfsmCounter,
+            final BlockingQueue<ParallelizerTask> taskChannel,
+            BinaryInvariant resultInv, AtomicInteger invsCounter)
+            throws Exception, InterruptedException {
+
+        satisfiedInvs.add(resultInv);
+
+        if (invsToSatisfy.isEmpty()) {
+            // No more invariants to check.
+            if (curInvs.isEmpty()) {
+                // We returned our last model checking process. No more
+                // to check.
+                if (!maxTimedOutInvs.isEmpty()) {
+                    // There are timed out invariants that we never
+                    // checked, but the model has not been refined. The
+                    // invariants will still exceed the maxTimeout.
+                    throw new Exception(
+                            "McScM timed-out on all invariants. Cannot continue.");
+                }
+
+                return true;
+            }
+            // We wait for current invariants to finish checking.
+
+        } else {
+            invsCounter.addAndGet(1);
+
+            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter,
+                    taskChannel);
+
+        }
+        return false;
     }
 
     /**
@@ -1141,7 +1183,7 @@ public class CSightMain {
     private ParallelizerResult waitForResult(int refinementCounter,
             BlockingQueue<ParallelizerResult> resultsChannel)
             throws InterruptedException {
-        logger.info("Waiting for model checking result from Parallelizer");
+        logger.info("Waiting for model checking result from Parallelizer...");
         ParallelizerResult result = resultsChannel.take();
 
         if (result.getRefinementCounter() != refinementCounter
@@ -1163,7 +1205,6 @@ public class CSightMain {
      * @param curInvs
      * @param pGraph
      * @param refinementCounter
-     * @param invsCounter
      * @param totalInvs
      * @param taskChannel
      * @param inputsChannel
@@ -1171,7 +1212,7 @@ public class CSightMain {
      */
     private void parallelizerStartK(List<InvariantTimeoutPair> invsToSatisfy,
             Set<InvariantTimeoutPair> curInvs, GFSM pGraph,
-            int refinementCounter, int invsCounter, int totalInvs,
+            int refinementCounter, int totalInvs,
             BlockingQueue<ParallelizerTask> taskChannel)
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
@@ -1190,7 +1231,7 @@ public class CSightMain {
             InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
             ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                    pGraph, invsCounter, totalInvs);
+                    pGraph);
             inputs.add(input);
             curInvs.add(invTimeoutToCheck);
         }
@@ -1208,16 +1249,13 @@ public class CSightMain {
      * @param curInvs
      * @param pGraph
      * @param refinementCounter
-     * @param invsCounter
-     * @param totalInvs
      * @param taskChannel
      * @param inputsChannel
      * @throws InterruptedException
      */
     private void parallelizerStartOne(List<InvariantTimeoutPair> invsToSatisfy,
             Set<InvariantTimeoutPair> curInvs, GFSM pGraph,
-            int refinementCounter, int invsCounter, int totalInvs,
-            BlockingQueue<ParallelizerTask> taskChannel)
+            int refinementCounter, BlockingQueue<ParallelizerTask> taskChannel)
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
 
@@ -1226,11 +1264,11 @@ public class CSightMain {
         InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
         ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                pGraph, invsCounter, totalInvs);
+                pGraph);
         inputs.add(input);
         curInvs.add(invTimeoutToCheck);
 
-        logger.info("Sending START_ONE task to Parallelizer");
+        logger.fine("Sending START_ONE task to Parallelizer");
         taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_ONE,
                 inputs, refinementCounter));
     }
