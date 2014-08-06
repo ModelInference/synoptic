@@ -3,6 +3,8 @@ package csight.model.fifosys.cfsm;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -42,18 +44,34 @@ public class SpinCFSMTests extends CFSMTesting {
         p1Accept.rmTransition(p1Lf, p1Init);
     }
 
-    public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
-            InterruptedException {
-        String cStr = cfsm.toPromelaString(inv, 5);
-        spin.verify(cStr, 60);
+    public Map<Integer, MCResult> verifyAndPrint(List<BinaryInvariant> invs)
+            throws IOException, InterruptedException {
+        String cStr = cfsm.toPromelaString(invs, 5);
         logger.info(cStr);
-
-        MCResult result = spin.getVerifyResult(cfsm.getChannelIds());
+        spin.prepare(cStr, 5);
+        for (int i = 0; i < invs.size(); i++) {
+            spin.verify(cStr, 5, i);
+        }
+        Map<Integer, MCResult> result = spin.getVerifyResults(
+                cfsm.getChannelIds(), invs.size());
         GraphExporter.exportCFSM("test-output/test.dot", cfsm);
         GraphExporter.generatePngFileFromDotFile("test-output/test.dot");
-        logger.info(result.toRawString());
-        logger.info(result.toString());
         return result;
+    }
+
+    /**
+     * Backwards compatibility with old tests.
+     * 
+     * @param inv
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
+            InterruptedException {
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(inv);
+        return verifyAndPrint(invs).get(0);
     }
 
     @Test
@@ -199,6 +217,26 @@ public class SpinCFSMTests extends CFSMTesting {
         MCResult result = verifyAndPrint(inv);
         assertTrue(!result.modelIsSafe());
         assertTrue(result.getCExample() != null);
+    }
+
+    @Test
+    public void verifyMultiple() throws Exception {
+        List<BinaryInvariant> invs = Util.newList();
+        invs.add(new EventuallyHappens(p1Rm)); // Safe
+        invs.add(new AlwaysFollowedBy(p0Sm, p1Rm)); // Safe
+        invs.add(new NeverFollowedBy(p0Sm, p1Rm)); // Unsafe
+        invs.add(new NeverFollowedBy(p1Rm, p0Sm)); // Unsafe
+        invs.add(new NeverFollowedBy(p0Sm, p0Sm)); // Unsafe
+        invs.add(new AlwaysPrecedes(p0Sm, p1Rm)); // Safe
+        invs.add(new AlwaysPrecedes(p1Rm, p0Sm)); // Unsafe
+        Map<Integer, MCResult> result = verifyAndPrint(invs);
+        assertTrue(result.get(0).modelIsSafe());
+        assertTrue(result.get(1).modelIsSafe());
+        assertTrue(!result.get(2).modelIsSafe());
+        assertTrue(!result.get(3).modelIsSafe());
+        assertTrue(!result.get(4).modelIsSafe());
+        assertTrue(result.get(5).modelIsSafe());
+        assertTrue(!result.get(6).modelIsSafe());
     }
 
 }
