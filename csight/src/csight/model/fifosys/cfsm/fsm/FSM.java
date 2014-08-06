@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm.fsm;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -332,7 +333,8 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      *            to move between states.
      * @return
      */
-    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
+    public String toPromelaString(List<BinaryInvariant> invariants,
+            String labelPrefix) {
         assert !initStates.isEmpty();
 
         String ret = "";
@@ -359,7 +361,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         ret += "  fi;\n";
 
         for (FSMState s : states) {
-            ret += s.toPromelaString(invariant, labelPrefix);
+            ret += s.toPromelaString(invariants, labelPrefix);
             ret += "\n\n";
         }
 
