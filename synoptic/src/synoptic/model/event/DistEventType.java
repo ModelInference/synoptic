@@ -87,25 +87,39 @@ public class DistEventType extends EventType implements IDistEventType {
      * @return
      */
     public String interpretEType(List<ChannelId> channelIds) {
-        assert channelIds != null;
-        assert channelId == null;
-        assert eventCls == null;
-        assert pid == -1;
+        if (channelIds == null)
+            return "Empty set of channelIds";
+        if (channelId != null)
+            return "Internal error: channelId != null";
+        if (eventCls != null)
+            return "Internal error: eventCls != null";
+        if (pid != -1)
+            return "Internal error: pid != -1";
 
         // The following characters conflict with SCM's regular-expressions
         // output format.
-        assert !eType.contains("*");
-        assert !eType.contains(".");
-        assert !eType.contains("^");
-        assert !eType.contains(")");
-        assert !eType.contains("(");
-        assert !eType.contains("#");
-        assert !eType.contains("|");
-        assert !eType.contains("+");
-        assert !eType.contains("-");
+        if (eType.contains("*"))
+            return "Parsed event contains illegal character '*'";
+        if (eType.contains("."))
+            return "Parsed event contains illegal character '.'";
+        if (eType.contains("^"))
+            return "Parsed event contains illegal character '^'";
+        if (eType.contains(")"))
+            return "Parsed event contains illegal character ')'";
+        if (eType.contains("("))
+            return "Parsed event contains illegal character '('";
+        if (eType.contains("#"))
+            return "Parsed event contains illegal character '#'";
+        if (eType.contains("|"))
+            return "Parsed event contains illegal character '|'";
+        if (eType.contains("+"))
+            return "Parsed event contains illegal character '+'";
+        if (eType.contains("-"))
+            return "Parsed event contains illegal character '-'";
 
         // There are some other disallowed symbols, as well:
-        assert !eType.contains("'");
+        if (eType.contains("'"))
+            return "Parsed event contains illegal character: '";
 
         // Either '?' for receive event or '!' for send event.
         String delim;
