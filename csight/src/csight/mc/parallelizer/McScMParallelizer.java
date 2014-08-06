@@ -126,7 +126,7 @@ public class McScMParallelizer implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Parallelizer has started");
+        logger.info("McScM Parallelizer has started.");
         try {
             while (true) {
                 // This blocks until there is an item available to take.
@@ -196,14 +196,13 @@ public class McScMParallelizer implements Runnable {
                     String mcInputStr = cfsm.toScmString("checking_scm_"
                             + invTimeoutPair.getInv().getConnectorString());
 
-                    logger.info("*******************************************************");
-                    logger.info("Checking ... "
-                            + invTimeoutPair.getInv().toString() + ". Inv "
-                            + input.invsCounter + " / " + input.totalInvs
+                    logger.fine("*******************************************************");
+                    logger.fine("Checking ... "
+                            + invTimeoutPair.getInv().toString()
                             + ", refinements so far: " + refinementCounter
                             + ". Timeout = " + invTimeoutPair.getTimeout()
                             + ".");
-                    logger.info("*******************************************************");
+                    logger.fine("*******************************************************");
 
                     McScM mcscm = new McScM(mcPath);
 
@@ -257,7 +256,7 @@ public class McScMParallelizer implements Runnable {
      * @throws InterruptedException
      */
     private void stopAll(int refinementCounter) throws InterruptedException {
-        logger.info("Stopping all checking processes");
+        logger.info("Stopping all model checking processes...");
         eService.shutdownNow();
 
         try {
@@ -337,7 +336,7 @@ public class McScMParallelizer implements Runnable {
                 return true;
             }
 
-            logger.info("Parallelizer returned a result. Refinement: "
+            logger.fine("Parallelizer returned a result. Refinement: "
                     + result.getRefinementCounter());
             resultsChannel.put(result);
             numRunning--;
@@ -347,7 +346,7 @@ public class McScMParallelizer implements Runnable {
             return true;
         } catch (InterruptedException e) {
             // BlockingQueue.put() may throw InterruptedException occasionally.
-            logger.info("Failed to enqueue result");
+            logger.info("Parallelizer failed to enqueue result.");
 
             return false;
         } finally {
