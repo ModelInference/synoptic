@@ -941,8 +941,12 @@ public class CSightMain {
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
-        // This counts the number of times we've refined the gfsm.
-        int gfsmCounter = 0;
+        /**
+         * AtomicInteger to provide mutability for methods to alter the value of
+         * the integer. It is not for concurrent access. This counts the number
+         * of times we've refined the gfsm.
+         */
+        AtomicInteger gfsmCounter = new AtomicInteger(0);
         // This counts the number of times we've performed model checking on the
         // gfsm.
         int mcCounter = 0;
@@ -950,7 +954,7 @@ public class CSightMain {
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
         exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
-                gfsmCounter, gfsmPrefixFilename);
+                gfsmCounter.get(), gfsmPrefixFilename);
 
         if (pGraph.isSingleton()) {
             // Skip model checking if all partitions are singletons.
@@ -969,7 +973,7 @@ public class CSightMain {
                 resultsChannel));
 
         parallelizer.start();
-        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
+        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
                 totalInvs, taskChannel);
 
         while (true) {
@@ -978,7 +982,7 @@ public class CSightMain {
             assert maxTimedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() + curInvs.size() == totalInvs;
 
-            ParallelizerResult result = waitForResult(gfsmCounter,
+            ParallelizerResult result = waitForResult(gfsmCounter.get(),
                     resultsChannel);
             mcCounter++;
 
@@ -1001,9 +1005,10 @@ public class CSightMain {
 
             if (result.isTimeout()) {
                 processTimeOut(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs,
-                        timeoutDelta, maxTimeout, gfsmCounter, taskChannel,
-                        resultPair);
+                        timeoutDelta, maxTimeout, gfsmCounter.get(),
+                        taskChannel, resultPair);
 
+                // Continue to wait for next result
                 continue;
             }
 
@@ -1025,8 +1030,8 @@ public class CSightMain {
 
             if (mcResult.modelIsSafe()) {
                 if (processSafeModelResult(pGraph, invsToSatisfy,
-                        maxTimedOutInvs, satisfiedInvs, curInvs, totalInvs,
-                        taskChannel, resultInv, invsCounter)) {
+                        maxTimedOutInvs, satisfiedInvs, curInvs,
+                        gfsmCounter.get(), taskChannel, resultInv, invsCounter)) {
                     // Every invariant has been satisfied. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
                             + totalInvs + " invariants.");
@@ -1035,48 +1040,97 @@ public class CSightMain {
                 // Continue to wait for next result
 
             } else {
-                // Increment the number of refinements:
-                gfsmCounter += 1;
+                if (processUnsafeModelResult(pGraph, invsToSatisfy,
+                        maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
+                        gfsmPrefixFilename, taskChannel, resultsChannel,
+                        resultPair, mcResult)) {
 
-                taskChannel.clear();
-                taskChannel.put(new ParallelizerTask(
-                        ParallelizerCommands.STOP_ALL, null, gfsmCounter));
-                resultsChannel.clear();
-
-                // Add the invariants that didn't return back to invariants to
-                // satisfy.
-                invsToSatisfy.addAll(0, curInvs);
-                // Add the unsatisfied invariant back to invariants to satisfy.
-                invsToSatisfy.add(0, resultPair);
-
-                // Refine the pGraph in an attempt to eliminate the counter
-                // example.
-                synchronized (pGraph) {
-                    refineCExample(pGraph, mcResult.getCExample());
-                }
-
-                exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
-                        gfsmCounter, gfsmPrefixFilename);
-
-                if (pGraph.isSingleton()) {
-                    // Skip model checking if all partitions are singletons.
                     return mcCounter;
                 }
+                // Continue to wait for next result
 
-                // Model changed through refinement. Therefore, forget any
-                // invariants that might have timed out previously,
-                // and add all of them back to invsToSatisfy.
-                if (!maxTimedOutInvs.isEmpty()) {
-                    // Append all of the previously timed out invariants back to
-                    // invsToSatisfy.
-                    invsToSatisfy.addAll(maxTimedOutInvs);
-                    maxTimedOutInvs.clear();
-                }
-
-                parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                        totalInvs, taskChannel);
             }
         }
+    }
+
+    /**
+     * Stops all model checking process and clears curInvs, then refines the
+     * GFSM model given an invariant that returned unsafe. All maxTimedOutInvs
+     * are added back to invsToSatisfy, and the gfsmCounter is updated. Then,
+     * restarts the model checking processes if the new model is not a singleton
+     * and returns false. If the model is a singleton, no more model checking is
+     * necessary, and returns true.
+     * 
+     * @param pGraph
+     *            the model to check
+     * @param invsToSatisfy
+     *            the invariants to check
+     * @param maxTimedOutInvs
+     *            the invs that exceeded maxTimeout
+     * @param curInvs
+     *            the invariants currently being checked
+     * @param totalInvs
+     *            the total number of invariants
+     * @param gfsmCounter
+     *            the refinement counter
+     * @param gfsmPrefixFilename
+     * @param taskChannel
+     * @param resultsChannel
+     * @param resultPair
+     *            the invariant and its corresponding timeout that just returned
+     * @param mcResult
+     *            the result of the model checking
+     * @return true if the model after refinement is a singleton, else false
+     * @throws InterruptedException
+     * @throws Exception
+     * @throws IOException
+     */
+    private boolean processUnsafeModelResult(GFSM pGraph,
+            List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs,
+            Set<InvariantTimeoutPair> curInvs, int totalInvs,
+            AtomicInteger gfsmCounter, String gfsmPrefixFilename,
+            final BlockingQueue<ParallelizerTask> taskChannel,
+            final BlockingQueue<ParallelizerResult> resultsChannel,
+            InvariantTimeoutPair resultPair, MCResult mcResult)
+            throws InterruptedException, Exception, IOException {
+        // Increment the number of refinements:
+        gfsmCounter.addAndGet(1);
+
+        taskChannel.clear();
+        taskChannel.put(new ParallelizerTask(ParallelizerCommands.STOP_ALL,
+                null, gfsmCounter.get()));
+        resultsChannel.clear();
+
+        // Add the invariants that didn't return back to invariants to
+        // satisfy.
+        invsToSatisfy.addAll(0, curInvs);
+        // Add the unsatisfied invariant back to invariants to satisfy.
+        invsToSatisfy.add(0, resultPair);
+
+        // Refine the pGraph in an attempt to eliminate the counter
+        // example.
+        synchronized (pGraph) {
+            refineCExample(pGraph, mcResult.getCExample());
+        }
+
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
+                gfsmCounter.get(), gfsmPrefixFilename);
+
+        // Model changed through refinement. Therefore, forget any
+        // invariants that might have timed out previously,
+        // and add all of them back to invsToSatisfy.
+        if (!maxTimedOutInvs.isEmpty()) {
+            // Append all of the previously timed out invariants back to
+            // invsToSatisfy.
+            invsToSatisfy.addAll(maxTimedOutInvs);
+            maxTimedOutInvs.clear();
+        }
+
+        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
+                totalInvs, taskChannel);
+
+        return pGraph.isSingleton();
     }
 
     /**
