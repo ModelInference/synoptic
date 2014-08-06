@@ -213,7 +213,7 @@ public class CSightMain {
             throw new OptionException(err);
         }
 
-        if (optns.numParallel < 1) {
+        if (opts.numParallel < 1) {
             err = "Cannot run less than one model checking processes concurrently";
             throw new OptionException(err);
         }
@@ -221,7 +221,7 @@ public class CSightMain {
         // Determine the model checker type.
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
-            if (optns.spinChannelCapacity <= 0) {
+            if (opts.spinChannelCapacity <= 0) {
                 err = "Invalid channel capacity for use with spin: "
                         + opts.spinChannelCapacity;
                 throw new OptionException(err);
@@ -696,7 +696,6 @@ public class CSightMain {
      */
     public int checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
             throws Exception, IOException, InterruptedException {
-        // TODO: change inv Counter logging
         assert pGraph != null;
         assert invs != null;
         assert !invs.isEmpty();
@@ -809,20 +808,8 @@ public class CSightMain {
                 // unless we reached the timeout limit, in which case we throw
                 // an exception.
                 if (invsToSatisfy.isEmpty()) {
-                    logger.info("Timed out in checking these invariants with timeout value "
-                            + curTimeout + " :" + timedOutInvs.toString());
-
-                    curTimeout += timeoutDelta;
-
-                    if (curTimeout > maxTimeout) {
-                        throw new Exception(
-                                "McScM timed-out on all invariants. Cannot continue.");
-                    }
-
-                    // Append all of the previously timed out invariants back to
-                    // invsToSatisfy.
-                    invsToSatisfy.addAll(timedOutInvs);
-                    timedOutInvs.clear();
+                    curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs,
+                            timeoutDelta, maxTimeout, curTimeout);
                 }
 
                 // Try the first invariant (perhaps again, but with a higher
@@ -842,17 +829,24 @@ public class CSightMain {
                 satisfiedInvs.add(curInv);
 
                 if (invsToSatisfy.isEmpty()) {
-                    // No more invariants to check. We are done.
-                    logger.info("Finished checking " + invsCounter + " / "
-                            + totalInvs + " invariants.");
-                    return mcCounter;
+                    if (!timedOutInvs.isEmpty()) {
+                        // We ran out of non-timed-out invariants to check,
+                        // re-add timed-out invariants.
+                        curTimeout = reAddTimedOutInvs(invsToSatisfy,
+                                timedOutInvs, timeoutDelta, maxTimeout,
+                                curTimeout);
+                    } else {
+                        // No more invariants to check. We are done.
+                        logger.info("Finished checking " + invsCounter + " / "
+                                + totalInvs + " invariants.");
+                        return mcCounter;
+                    }
                 }
 
                 // Grab and start checking the next invariant.
                 curInv = invsToSatisfy.get(0);
                 invsCounter += 1;
-                logger.info("Model checking " + curInv.toString() + " : "
-                        + invsCounter + " / " + totalInvs);
+
             } else {
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
@@ -1229,6 +1223,47 @@ public class CSightMain {
         logger.info("Sending START_ONE task to Parallelizer");
         taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_ONE,
                 inputs, refinementCounter));
+    }
+
+    /**
+     * Moves the timed-out invariants into the invsToSatisfy list, and updates
+     * the curTimeout value (and returns it) based on the timeoutDelta value.
+     * Checks that the timeout does not exceed maxTimeout and throws an
+     * Exception if it does.
+     * 
+     * @param invsToSatisfy
+     *            invariants we currently need to check
+     * @param timedOutInvs
+     *            invariants that timed-out previously
+     * @param timeoutDelta
+     *            how much to increase the timeout by
+     * @param maxTimeout
+     *            max bound for a timeout
+     * @param curTimeout
+     *            the current timeout value
+     * @return
+     * @throws Exception
+     *             when reached maxTimeout value
+     */
+
+    private int reAddTimedOutInvs(List<BinaryInvariant> invsToSatisfy,
+            Set<BinaryInvariant> timedOutInvs, int timeoutDelta,
+            int maxTimeout, int curTimeout) throws Exception {
+        logger.info("Timed out in checking these invariants with timeout value "
+                + curTimeout + " :" + timedOutInvs.toString());
+
+        curTimeout += timeoutDelta;
+
+        if (curTimeout > maxTimeout) {
+            throw new Exception(
+                    "McScM timed-out on all invariants. Cannot continue.");
+        }
+
+        // Append all of the previously timed out invariants back to
+        // invsToSatisfy.
+        invsToSatisfy.addAll(timedOutInvs);
+        timedOutInvs.clear();
+        return curTimeout;
     }
 
     /**
