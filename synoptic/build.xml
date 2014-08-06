@@ -120,48 +120,48 @@
 	
     <!-- 
 	 Runs test(s) that match a regex partially defined by the
-	 -Djunit.include option from the command line. For example,
+	 -Djunit.class option from the command line. For example,
 
-	 $ ant -Djunit.include=Foo test
+	 $ ant -Djunit.class=Foo test-class
 
 	 Would run all test classes that match the regex '.*Foo.*(\.class)?$'
 
 
          For example, to run just the unit tests, use:
 
-         $ ant -Djunit.include=units test
+         $ ant -Djunit.class=units test-class
 
 
 	 Note: This searches for classes in synoptic's testing directory
 	 and executes all matching files across all subdirectories.
       -->
-    <target name="test" depends="build"> 
-      <!-- If junit.include is not set, complain. -->
-      <fail unless="junit.include">Must supply a class name with -Djunit.include</fail>
-      <echo message="Looking for files matching '.*${junit.include}.*(\.class)?$' in bin/${synoptic.testdir}" />
+    <target name="test-class" depends="build"> 
+      <!-- If junit.class is not set, complain. -->
+      <fail unless="junit.class">Must supply a class name with -Djunit.class</fail>
+      <echo message="Looking for files matching '.*${junit.class}.*(\.class)?$' in bin/${synoptic.testdir}" />
 
       <mkdir dir="${junit.output.dir}"/>
 
       <!-- Build the file set and make sure it's not empty. -->
-      <property name="junit.regex" value=".*${junit.include}.*(\.class)?$" />
+      <property name="junit.regex" value=".*${junit.class}.*(\.class)?$" />
       <condition property="dir.empty">
 	<length length="0">
-	  <fileset id="junit.include.fileset" dir="bin/" includes="${synoptic.testdir}">
+	  <fileset id="junit.class.fileset" dir="bin/" includes="${synoptic.testdir}">
 	    <filename regex="${junit.regex}"/>
 	  </fileset>
 	</length>
       </condition>
 
       <!-- If there were no files found, exit. -->
-      <fail if="dir.empty">No files matching ${junit.include} were found</fail>
+      <fail if="dir.empty">No files matching ${junit.class} were found</fail>
 
       <!-- Print the files to be run. -->
       <echo>Running JUnit on these files:</echo>
       <pathconvert pathsep="${line.separator}    --"             
-		   property="junit.include.path"             
-		   refid="junit.include.fileset">
+		   property="junit.class.path"             
+		   refid="junit.class.fileset">
       </pathconvert>
-      <echo>    ${junit.include.path}</echo>
+      <echo>    ${junit.class.path}</echo>
       
       <!-- Run junit on the found files. -->
       <junit fork="no" printsummary="withOutAndErr" showoutput="true">
@@ -169,8 +169,36 @@
 	<formatter type="xml"/>
 	<batchtest fork="yes" todir="${junit.output.dir}">
 	  <!-- Include all class files, then filter. -->
-	  <fileset refid="junit.include.fileset" />
+	  <fileset refid="junit.class.fileset" />
 	</batchtest>
+      </junit>
+    </target>
+
+
+    <!-- 
+	 Runs test cases from a specific test class that match a
+	 regex. For example, to run the testPositiveDelta test-case
+	 inside of the ITimeTests.class, use this line:
+
+         $ ant -Djunit.class=synoptic.tests.units.ITimeTests -Djunit.case=testPositiveDelta test-case
+          
+         Note: junit.class must refer to the full dotted path of the
+         class, and junit.case must refer to a test method inside of
+         this class.
+      -->
+    <target name="test-case" depends="build"> 
+      <!-- if junit.class or junit.case is not set, complain. -->
+      <fail unless="junit.class">must supply a test-class name with -djunit.class</fail>
+      <fail unless="junit.case">must supply a test-case name with -djunit.case</fail>
+
+      <mkdir dir="${junit.output.dir}"/>
+      
+      <!-- Run junit on just the single test-case. -->
+      <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+	<classpath refid="synoptic.classpath"/>
+	<formatter type="xml"/>
+	<test name="${junit.class}" methods="${junit.case}" todir="${junit.output.dir}">
+	</test>
       </junit>
     </target>
 

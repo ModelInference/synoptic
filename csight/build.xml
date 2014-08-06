@@ -101,6 +101,33 @@
         </junit>
     </target>
 
+    <!-- 
+	 Runs test cases from a specific test class that match a
+	 regex. For example, to run the testPositiveDelta test-case
+	 inside of the ITimeTests.class, use this line:
+
+         $ ant -Djunit.class=csight.model.alphabet.AlphabetTests -Djunit.case=createAlphabet test-case
+          
+         Note: junit.class must refer to the full dotted path of the
+         class, and junit.case must refer to a test method inside of
+         this class.
+      -->
+    <target name="test-case" depends="build"> 
+      <!-- if junit.class or junit.case is not set, complain. -->
+      <fail unless="junit.class">must supply a test-class name with -djunit.class</fail>
+      <fail unless="junit.case">must supply a test-case name with -djunit.case</fail>
+
+      <mkdir dir="${junit.output.dir}"/>
+      
+      <!-- Run junit on just the single test-case. -->
+      <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+	<classpath refid="csight.classpath"/>
+	<formatter type="xml"/>
+	<test name="${junit.class}" methods="${junit.case}" todir="${junit.output.dir}">
+	</test>
+      </junit>
+    </target>
+
     <!--=====================================================================-->
     <target name="jar" depends="build,util.hg-rev-extract">
       <echo message="Embedding hg changeset number ${util.hg.revision}" />
