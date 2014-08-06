@@ -11,14 +11,9 @@ import csight.model.fifosys.gfsm.GFSM;
 public class ParallelizerInput {
     protected final InvariantTimeoutPair invTimeoutPair;
     protected final GFSM gfsm;
-    protected final int invsCounter;
-    protected final int totalInvs;
 
-    public ParallelizerInput(InvariantTimeoutPair invTimeoutPair, GFSM gfsm,
-            int invsCounter, int totalInvs) {
+    public ParallelizerInput(InvariantTimeoutPair invTimeoutPair, GFSM gfsm) {
         this.invTimeoutPair = invTimeoutPair;
         this.gfsm = gfsm;
-        this.invsCounter = invsCounter;
-        this.totalInvs = totalInvs;
     }
 }
