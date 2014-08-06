@@ -999,49 +999,16 @@ public class CSightMain {
             boolean returnedPairCheck = curInvs.remove(resultPair);
             assert returnedPairCheck;
 
-            BinaryInvariant resultInv = resultPair.getInv();
-
             if (result.isTimeout()) {
-                // The model checker timed out. Increase the timeout value for
-                // that invariant, unless we reached the timeout limit, in which
-                // case we throw an exception.
-                int curTimeout = resultPair.getTimeout();
-                
-                logger.info("Timed out in checking invariant: " + resultInv.toString()
-                        + " with timeout value " + curTimeout);
-                
-                curTimeout += timeoutDelta;
-                
-                if (curTimeout > maxTimeout) {
-                    // Invariant exceeded maxTimeout. We wait and see if any
-                    // model refinement takes place that may lower the execution
-                    // time of the invariant.
-                    maxTimedOutInvs.add(resultPair);
-                } else {
-                    // Append timed out invariant with new timeout value to
-                    // invsToSatisfy.
-                    invsToSatisfy.add(new InvariantTimeoutPair(resultInv, curTimeout));
-                }
-
-                if (invsToSatisfy.isEmpty()) {
-                    if (curInvs.isEmpty()) {
-                        // Every invariant reached max timeout.
-                        throw new Exception(
-                                "McScM timed-out on all invariants. Cannot continue.");
-                    }
-                    // We wait to see if any invariants currently being checked
-                    // can complete without exceeding max timeout.
-                    continue;
-                }
-
-                // Start a new model checking process.
-                parallelizerStartOne(invsToSatisfy, curInvs, pGraph,
-                        gfsmCounter, taskChannel);
+                processTimeOut(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs,
+                        timeoutDelta, maxTimeout, gfsmCounter, taskChannel,
+                        resultPair);
 
                 continue;
             }
 
             assert (result.isVerifyResult());
+            BinaryInvariant resultInv = resultPair.getInv();
 
             logger.info("*******************************************************");
             logger.info("Finished Checking ... "
@@ -1109,6 +1076,80 @@ public class CSightMain {
                 parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter,
                         totalInvs, taskChannel);
             }
+        }
+    }
+
+    /**
+     * Adds timeout invariants from parallel model checking back to
+     * invsToSatisfy after increasing their timeout value. If the new timeout
+     * value exceeds maxTimeout, then the invariants are added to
+     * maxTimedOutInvs. If no more invariants can be checked, an Exception is
+     * thrown.
+     * 
+     * @param pGraph
+     *            the model currently being checked
+     * @param invsToSatisfy
+     *            the invariants to check
+     * @param maxTimedOutInvs
+     *            the invariants that exceeded maxTimeout
+     * @param curInvs
+     *            the current invariants being checked
+     * @param timeoutDelta
+     *            the amount to increase timeout
+     * @param maxTimeout
+     *            the max timeout value
+     * @param gfsmCounter
+     *            the number of refinements for the model
+     * @param taskChannel
+     * @param resultPair
+     *            the invariant timeout pair that timed out
+     * @throws Exception
+     *             when maxTimeout is reached
+     * @throws InterruptedException
+     */
+    private void processTimeOut(GFSM pGraph,
+            List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs,
+            Set<InvariantTimeoutPair> curInvs, int timeoutDelta,
+            int maxTimeout, int gfsmCounter,
+            final BlockingQueue<ParallelizerTask> taskChannel,
+            InvariantTimeoutPair resultPair) throws Exception,
+            InterruptedException {
+        // The model checker timed out. Increase the timeout value for
+        // that invariant, unless we reached the timeout limit, in which
+        // case we throw an exception.
+        int curTimeout = resultPair.getTimeout();
+        BinaryInvariant resultInv = resultPair.getInv();
+
+        logger.info("Timed out in checking invariant: " + resultInv.toString()
+                + " with timeout value " + curTimeout);
+
+        curTimeout += timeoutDelta;
+
+        if (curTimeout > maxTimeout) {
+            // Invariant exceeded maxTimeout. We wait and see if any
+            // model refinement takes place that may lower the execution
+            // time of the invariant.
+            maxTimedOutInvs.add(resultPair);
+        } else {
+            // Append timed out invariant with new timeout value to
+            // invsToSatisfy.
+            invsToSatisfy.add(new InvariantTimeoutPair(resultInv, curTimeout));
+        }
+
+        if (invsToSatisfy.isEmpty()) {
+            if (curInvs.isEmpty()) {
+                // Every invariant reached max timeout.
+                throw new Exception(
+                        "McScM timed-out on all invariants. Cannot continue.");
+            }
+            // We wait to see if any invariants currently being checked
+            // can complete without exceeding max timeout.
+
+        } else {
+            // Start a new model checking process.
+            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter,
+                    taskChannel);
         }
     }
 
