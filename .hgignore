@@ -93,6 +93,13 @@ lib/daikonizer.jar
 
 
 #####################
+# Perfume
+#####################
+
+# Ignore the compiled jar
+lib/perfume.jar
+
+#####################
 # Other
 #####################
 
@@ -110,3 +117,18 @@ bin/
 
 # Ignore any files in the output dir.
 output/
+
+# Ignore .orig files
+*.orig
+
+# ignore InvariMint benchmarking traces from icse13
+traces/abstract/icse13-benchmarking-invarimint-traces/
+
+# ignore ICSE14 traces from the BEAR framework (used in Perfume eval)
+traces/FindYourHouseICSE14/
+
+# ignore reverse traceroute traces
+traces/ReverseTraceroute/
+
+# ignore compiled distributions
+distros/
