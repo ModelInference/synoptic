@@ -935,10 +935,6 @@ public class CSightMain {
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking "
-                + invsToSatisfy.get(0).getInv().toString() + " : "
-                + invsCounter + " / " + totalInvs);
-
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
         // This counts the number of times we've performed model checking on the
@@ -980,7 +976,8 @@ public class CSightMain {
                     resultsChannel);
             mcCounter++;
 
-            logger.info("Obtained result (refinement: " + gfsmCounter + ")");
+            logger.info("Obtained result from parallelizer (refinement: "
+                    + gfsmCounter + ")");
 
             if (result.isException()) {
                 logger.severe("Parallelizer encountered exception: "
@@ -1042,7 +1039,16 @@ public class CSightMain {
 
             assert (result.isVerifyResult());
 
+            logger.info("*******************************************************");
+            logger.info("Finished Checking ... "
+                    + resultPair.getInv().toString() + ". Inv " + invsCounter
+                    + " / " + totalInvs + ", refinements so far: "
+                    + gfsmCounter + ". Timeout = " + resultPair.getTimeout()
+                    + ".");
+            logger.info("*******************************************************");
+
             MCResult mcResult = result.getMCResult();
+
             logger.info(mcResult.toRawString());
             logger.info(mcResult.toString());
 
@@ -1071,9 +1077,7 @@ public class CSightMain {
                 }
 
                 invsCounter += 1;
-                logger.info("Model checking "
-                        + invsToSatisfy.get(0).getInv().toString() + " : "
-                        + invsCounter + " / " + totalInvs);
+
                 parallelizerStartOne(invsToSatisfy, curInvs, pGraph,
                         gfsmCounter, invsCounter, totalInvs, taskChannel);
 
@@ -1137,6 +1141,7 @@ public class CSightMain {
     private ParallelizerResult waitForResult(int refinementCounter,
             BlockingQueue<ParallelizerResult> resultsChannel)
             throws InterruptedException {
+        logger.info("Waiting for model checking result from Parallelizer");
         ParallelizerResult result = resultsChannel.take();
 
         if (result.getRefinementCounter() != refinementCounter
@@ -1171,6 +1176,11 @@ public class CSightMain {
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
 
+        logger.info("*******************************************************");
+        logger.info("Model Checking ... " + opts.numParallel + " / "
+                + totalInvs + " being checked in parallel.");
+        logger.info("*******************************************************");
+
         List<ParallelizerInput> inputs = new ArrayList<ParallelizerInput>();
 
         // Run K processes as number of invariants to check may be less than
@@ -1185,7 +1195,7 @@ public class CSightMain {
             curInvs.add(invTimeoutToCheck);
         }
 
-        logger.info("Sending START_K task to Parallelizer");
+        logger.fine("Sending START_K task to Parallelizer");
         taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_K,
                 inputs, refinementCounter));
     }
