@@ -447,14 +447,17 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
 
         if (curState.isAccept()) {
             // Return whether or not the invariant holds.
-            return !invChecker.isFail();
+            if (invChecker.isFail()) {
+                return false;
+            }
+            // Note: even though curState may be accepting, there may be more
+            // transitions from this state that we need to explore.
         }
 
         Set<DistEventType> nextEvents = curState.getTransitioningEvents();
 
         // Create a copy of the checker state to use if we have more than
         // sub-branch to explore.
-        // InvChecker clonedOrig = null;
         BinChecker<State> clonedOrig = null;
         if (nextEvents.size() > 1) {
             clonedOrig = invChecker.getClone();
