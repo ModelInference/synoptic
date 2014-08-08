@@ -1035,6 +1035,7 @@ public class CSightMain {
                     // Every invariant has been satisfied. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
                             + totalInvs + " invariants.");
+                    parallelizer.interrupt();
                     return mcCounter;
                 }
                 // Continue to wait for next result
@@ -1044,7 +1045,7 @@ public class CSightMain {
                         maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
                         gfsmPrefixFilename, taskChannel, resultsChannel,
                         resultPair, mcResult)) {
-
+                    parallelizer.interrupt();
                     return mcCounter;
                 }
                 // Continue to wait for next result
