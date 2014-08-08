@@ -16,8 +16,11 @@ import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
 import csight.invariants.EventuallyHappens;
 import csight.invariants.NeverFollowedBy;
+import csight.mc.MCcExample;
+import csight.model.export.GraphExporter;
 import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import csight.model.fifosys.gfsm.GFSM;
+import csight.model.fifosys.gfsm.GFSMPath;
 import csight.model.fifosys.gfsm.observed.ObsDistEventType;
 import csight.model.fifosys.gfsm.observed.ObsFSMState;
 import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
@@ -703,14 +706,34 @@ public class CSightMainTests extends CSightTest {
         assertTrue(0 < dyn.checkMultipleInvsRefineGFSM(invs, pGraph));
     }
 
-    private List<BinaryInvariant> generateReqRespInvariants() {
-        ChannelId chanA = new ChannelId(0, 1, 0, "A");
-        ChannelId chanB = new ChannelId(1, 0, 1, "B");
+    private List<DistEventType> getReqRespEvents(List<ChannelId> channelIds) {
+
+        ChannelId chanA = channelIds.get(0);
+        ChannelId chanB = channelIds.get(1);
         DistEventType sendReq = DistEventType.SendEvent("m", chanA);
         DistEventType recvReq = DistEventType.RecvEvent("m", chanA);
         DistEventType localAct = DistEventType.LocalEvent("act", 1);
         DistEventType sendAck = DistEventType.SendEvent("ack", chanB);
         DistEventType recvAck = DistEventType.RecvEvent("ack", chanB);
+
+        List<DistEventType> events = Util.newList();
+
+        events.add(sendReq);
+        events.add(recvReq);
+        events.add(localAct);
+        events.add(sendAck);
+        events.add(recvAck);
+
+        return events;
+    }
+
+    private List<BinaryInvariant> generateReqRespInvariants(
+            List<DistEventType> events) {
+        DistEventType sendReq = events.get(0);
+        DistEventType recvReq = events.get(1);
+        DistEventType localAct = events.get(2);
+        DistEventType sendAck = events.get(3);
+        DistEventType recvAck = events.get(4);
 
         List<BinaryInvariant> invs = Util.newList();
 
@@ -799,15 +822,172 @@ public class CSightMainTests extends CSightTest {
         return pGraph;
     }
 
+    private GFSM generateFinalGFSM(List<ChannelId> channelIds,
+            List<DistEventType> events) throws Exception {
+        List<ObsFSMState> PInitial = Util.newList();
+        List<ObsFSMState> PSentReq = Util.newList();
+        List<ObsFSMState> PRcvdReq = Util.newList();
+        List<ObsFSMState> PAct = Util.newList();
+        List<ObsFSMState> PSentAck = Util.newList();
+        List<ObsFSMState> PFinal = Util.newList();
+
+        ObsFSMState P0initial = ObsFSMState.namedObsFSMState(0, "M0", true,
+                false);
+        ObsFSMState P1initial = ObsFSMState.namedObsFSMState(1, "A0", true,
+                false);
+        PInitial.add(P0initial);
+        PInitial.add(P1initial);
+        ObsMultFSMState obsPInitial = ObsMultFSMState
+                .getMultiFSMState(PInitial);
+
+        ObsFSMState P0SentReq = ObsFSMState.namedObsFSMState(0, "M1", false,
+                false);
+        ObsFSMState P1SentReq = ObsFSMState.namedObsFSMState(1, "A1", false,
+                false);
+        PSentReq.add(P0SentReq);
+        PSentReq.add(P1SentReq);
+        ObsMultFSMState obsPSentReq = ObsMultFSMState
+                .getMultiFSMState(PSentReq);
+
+        ObsFSMState P0RcvdReq = ObsFSMState.namedObsFSMState(0, "M2", false,
+                false);
+        ObsFSMState P1RcvdReq = ObsFSMState.namedObsFSMState(1, "A2", false,
+                false);
+        PRcvdReq.add(P0RcvdReq);
+        PRcvdReq.add(P1RcvdReq);
+        ObsMultFSMState obsPRcvdReq = ObsMultFSMState
+                .getMultiFSMState(PRcvdReq);
+
+        ObsFSMState P0Act = ObsFSMState.namedObsFSMState(0, "M3", false, false);
+        ObsFSMState P1Act = ObsFSMState.namedObsFSMState(1, "A3", false, false);
+        PAct.add(P0Act);
+        PAct.add(P1Act);
+        ObsMultFSMState obsPAct = ObsMultFSMState.getMultiFSMState(PAct);
+
+        ObsFSMState P0SentAck = ObsFSMState.namedObsFSMState(0, "M4", false,
+                false);
+        ObsFSMState P1SentAck = ObsFSMState.namedObsFSMState(1, "A4", false,
+                false);
+        PSentAck.add(P0SentAck);
+        PSentAck.add(P1SentAck);
+        ObsMultFSMState obsPSentAck = ObsMultFSMState
+                .getMultiFSMState(PSentAck);
+
+        ObsFSMState P0Final = ObsFSMState
+                .namedObsFSMState(0, "M5", false, true);
+        ObsFSMState P1Final = ObsFSMState
+                .namedObsFSMState(1, "A5", false, true);
+        PFinal.add(P0Final);
+        PFinal.add(P1Final);
+        ObsMultFSMState obsPFinal = ObsMultFSMState.getMultiFSMState(PFinal);
+
+        DistEventType sendReq = events.get(0);
+        DistEventType recvReq = events.get(1);
+        DistEventType localAct = events.get(2);
+        DistEventType sendAck = events.get(3);
+        DistEventType recvAck = events.get(4);
+
+        ImmutableMultiChState PInitialChstate = ImmutableMultiChState
+                .fromChannelIds(channelIds);
+        ImmutableMultiChState PSentReqChstate = PInitialChstate
+                .getNextChState(sendReq);
+        ImmutableMultiChState PRecvReqChstate = PSentReqChstate
+                .getNextChState(recvReq);
+        ImmutableMultiChState PActChstate = PRecvReqChstate
+                .getNextChState(localAct);
+        ImmutableMultiChState PSentAckChstate = PActChstate
+                .getNextChState(sendAck);
+        ImmutableMultiChState PFinalChstate = PSentAckChstate
+                .getNextChState(recvAck);
+
+        ObsFifoSysState SInitial = ObsFifoSysState.getFifoSysState(obsPInitial,
+                PInitialChstate);
+        ObsFifoSysState SSendReq = ObsFifoSysState.getFifoSysState(obsPSentReq,
+                PSentReqChstate);
+        ObsFifoSysState SRecvReq = ObsFifoSysState.getFifoSysState(obsPRcvdReq,
+                PRecvReqChstate);
+        ObsFifoSysState SAct = ObsFifoSysState.getFifoSysState(obsPAct,
+                PActChstate);
+        ObsFifoSysState SSendAck = ObsFifoSysState.getFifoSysState(obsPSentAck,
+                PSentAckChstate);
+        ObsFifoSysState SFinal = ObsFifoSysState.getFifoSysState(obsPFinal,
+                PFinalChstate);
+
+        ObsDistEventType obsESendReq = new ObsDistEventType(sendReq, 2);
+        ObsDistEventType obsERecvReq = new ObsDistEventType(recvReq, 2);
+        ObsDistEventType obsELocalAct = new ObsDistEventType(localAct, 2);
+        ObsDistEventType obsESendAck = new ObsDistEventType(sendAck, 2);
+        ObsDistEventType obsERecvAck = new ObsDistEventType(recvAck, 2);
+
+        // SInitial -> SSentReq -> SRcvdReq -> SAct -> SSentAck -> SFinal
+        // SFinal -> SSentReq -> ... -> SFinal
+        SInitial.addTransition(obsESendReq, SSendReq);
+        SSendReq.addTransition(obsERecvReq, SRecvReq);
+        SRecvReq.addTransition(obsELocalAct, SAct);
+        SAct.addTransition(obsESendAck, SSendAck);
+        SSendAck.addTransition(obsERecvAck, SFinal);
+        SFinal.addTransition(obsESendReq, SSendReq);
+
+        Set<ObsFifoSysState> states = Util.newSet();
+        states.add(SInitial);
+        states.add(SSendReq);
+        states.add(SRecvReq);
+        states.add(SAct);
+        states.add(SSendAck);
+        states.add(SFinal);
+
+        ObsFifoSys trace = new ObsFifoSys(channelIds, SInitial, SFinal, states);
+
+        List<ObsFifoSys> traces = Util.newList(1);
+        traces.add(trace);
+
+        GFSM pGraph = new GFSM(traces, opts.topKElements);
+
+        List<MCcExample> cExamples = Util.newList();
+        MCcExample cEx = new MCcExample();
+        cExamples.add(cEx);
+
+        MCcExample cEx2 = new MCcExample();
+        cEx2.addScmEventStrToPath(sendReq);
+        cEx2.addScmEventStrToPath(recvReq);
+        cExamples.add(cEx2);
+
+        MCcExample cEx3 = new MCcExample();
+        cEx3.addScmEventStrToPath(sendReq);
+        cEx3.addScmEventStrToPath(recvReq);
+        cEx3.addScmEventStrToPath(sendAck);
+        cEx3.addScmEventStrToPath(recvAck);
+        cExamples.add(cEx3);
+
+        for (MCcExample cExample : cExamples) {
+            Set<GFSMPath> paths = pGraph.getCExamplePaths(cExample, 1);
+
+            for (GFSMPath path : paths) {
+                path.refine(pGraph);
+            }
+        }
+        return pGraph;
+    }
+
     @Test
     public void testSomething() throws Exception {
-        List<BinaryInvariant> invs = generateReqRespInvariants();
         GFSM pGraph = generateInitialGFSM();
-        String initialGFSM = pGraph.toString();
-        dyn.checkMultipleInvsRefineGFSM(invs, pGraph);
-        String finalGFSM = pGraph.toString();
 
-        logger.info(initialGFSM);
-        logger.info(finalGFSM);
+        List<DistEventType> events = getReqRespEvents(dyn.getChannelIds());
+        List<BinaryInvariant> invs = generateReqRespInvariants(events);
+
+        dyn.checkMultipleInvsRefineGFSM(invs, pGraph);
+        GFSM finalGFSM = generateFinalGFSM(dyn.getChannelIds(), events);
+
+        GraphExporter.exportGFSM(opts.outputPathPrefix + ".gfsm.dot", pGraph);
+        GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
+                + ".gfsm.dot");
+        GraphExporter.exportGFSM(opts.outputPathPrefix + ".my.gfsm.dot",
+                finalGFSM);
+        GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
+                + ".my.gfsm.dot");
+
+        // KS TODO Properly compare GFSMs.
+
     }
 }
