@@ -62,9 +62,7 @@ public class CSightMainTests extends CSightTest {
 
     public List<String> getParallelArgs() throws Exception {
         List<String> args = Util.newList();
-        args.add("--runParallel");
         args.add("-p");
-        args.add("4");
         return args;
     }
 
