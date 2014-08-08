@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import csight.main.CSightMain;
+import csight.main.OptionException;
 import csight.model.fifosys.AbsMultiFSMState;
 import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import csight.model.fifosys.gfsm.GFSMState;
@@ -121,21 +122,20 @@ public class ObsFifoSysState extends
         super(fsmStates.getNumProcesses());
         this.stateId = stateId;
 
-        if (CSightMain.assertsOn) {
-            // Make sure that channelStates only reference pids that are less
-            // than fsmStates.size().
-            for (ChannelId chId : channelStates.getChannelIds()) {
-                assert chId.getSrcPid() >= 0
-                        && chId.getSrcPid() < fsmStates.getNumProcesses();
-                assert chId.getDstPid() >= 0
-                        && chId.getDstPid() < fsmStates.getNumProcesses();
-            }
+        // Make sure that channelStates only reference pids that are less
+        // than fsmStates.size().
+        for (ChannelId chId : channelStates.getChannelIds()) {
+            assert chId.getSrcPid() >= 0
+                    && chId.getSrcPid() < fsmStates.getNumProcesses();
+            assert chId.getDstPid() >= 0
+                    && chId.getDstPid() < fsmStates.getNumProcesses();
+        }
 
-            // Since these are observed states, by definition, if we are in all
-            // accepting states, then the queues must be empty.
-            if (fsmStates.isAccept()) {
-                assert channelStates.isEmpty();
-            }
+        // Since these are observed states, by definition, if we are in all
+        // accepting states, then the queues must be empty.
+        if (fsmStates.isAccept() && !channelStates.isEmpty()) {
+            throw new OptionException(
+                    "Synthesized a trace in which processes terminated but channels are not empty (i.e., ther are sent messages that have not been received).");
         }
 
         this.fsmStates = fsmStates;
@@ -150,7 +150,7 @@ public class ObsFifoSysState extends
     public boolean isAccept() {
         // NOTE: the assumption that we make here is that a terminal state is
         // an instance of the abstract accepting state. This assumption does not
-        // hold if we our traces are lossy.
+        // hold if the traces are lossy.
         return fsmStates.isAccept() && channelStates.isEmpty();
     }
 

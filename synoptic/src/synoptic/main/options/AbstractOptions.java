@@ -32,7 +32,7 @@ public class AbstractOptions {
     static final String allHelpStr = "-H Print extended usage message (includes debugging options)";
     public boolean allHelp = false;
 
-    static final String versionStr = "-V Print program version";
+    static final String versionStr = "-V Print the current synoptic repo changeset";
     public boolean version = false;
 
     // ////////////////////////////

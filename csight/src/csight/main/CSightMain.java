@@ -1472,9 +1472,6 @@ public class CSightMain {
             }
 
         }
-        if (CSightMain.assertsOn) {
-            assert false;
-        }
         throw new Exception(
                 "Unable to eliminate CFSM counter-example from GFSM.");
     }

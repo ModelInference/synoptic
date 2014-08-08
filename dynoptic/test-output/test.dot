@@ -1,5 +1,0 @@
-digraph {
-  0 [label="0",shape=circle,shape=doublecircle];
-  start_0 [label="start",shape=plaintext];
-  start_0->0;
-title_node [label="pid 0",shape=box, style=rounded];} // digraph {

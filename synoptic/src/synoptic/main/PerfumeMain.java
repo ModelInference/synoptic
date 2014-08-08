@@ -78,6 +78,9 @@ public class PerfumeMain extends AbstractMain {
         // Parse and process command line options
         AbstractOptions options = new PerfumeOptions(args).toAbstractOptions();
         GraphExportFormatter graphExportFormatter = processArgs(options);
+        if (graphExportFormatter == null) {
+            return null;
+        }
 
         // Construct and return main object
         PerfumeMain newMain = new PerfumeMain(options, graphExportFormatter);
