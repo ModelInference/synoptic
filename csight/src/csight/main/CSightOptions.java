@@ -174,12 +174,17 @@ public class CSightOptions extends Options {
     public int spinChannelCapacity = 8;
 
     @Option(
-            value = "Run model checking processes in parallel. (Currently only for McScM)")
+            value = "Run model checking processes in parallel. (Currently only for McScM)",
+            aliases = { "-p" })
     public boolean runParallel = false;
 
+    /**
+     * The default parallelization factor is set as number of cores available,
+     * which provides the most optimal performance.
+     */
     @Option(value = "Number of model checking processes to run in parallel.",
-            aliases = { "-p" })
-    public int numParallel = 8;
+            aliases = { "-pFactor" })
+    public int numParallel = Runtime.getRuntime().availableProcessors();
 
     /**
      * The base timeout that is used to time out invocations of verification
