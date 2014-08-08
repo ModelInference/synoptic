@@ -77,6 +77,9 @@ public class SynopticMain extends AbstractMain {
         // Parse and process command line options
         AbstractOptions options = new SynopticOptions(args).toAbstractOptions();
         GraphExportFormatter graphExportFormatter = processArgs(options);
+        if (graphExportFormatter == null) {
+            return null;
+        }
 
         // Construct and return main object
         SynopticMain newMain = new SynopticMain(options, graphExportFormatter);

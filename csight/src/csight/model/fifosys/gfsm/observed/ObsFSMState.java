@@ -108,7 +108,7 @@ public class ObsFSMState {
             return prevStateAndEventMap.get(key);
         }
 
-        String name = prevState.getName() + "." + prevEvent.toString();
+        String name = prevState.getName() + " => " + prevEvent.toString();
         ObsFSMState state = new ObsFSMState(prevState.getPid(), false, false,
                 name, true);
         prevStateAndEventMap.put(key, state);
@@ -132,8 +132,7 @@ public class ObsFSMState {
 
     @Override
     public String toString() {
-        return ((isInitial) ? "i_" : "") + ((isAnon) ? "a" : "") + name
-                + ((isTerminal) ? "_t" : "");
+        return ((isInitial) ? "i_" : "") + name + ((isTerminal) ? "_t" : "");
     }
 
     @Override

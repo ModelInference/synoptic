@@ -71,11 +71,6 @@ public abstract class AbstractMain {
     public static AbstractMain instance = null;
 
     /**
-     * The current Synoptic version.
-     */
-    public static final String versionString = "0.1";
-
-    /**
      * Global source of pseudo-random numbers.
      */
     public Random random;
@@ -139,11 +134,11 @@ public abstract class AbstractMain {
         }
 
         if (options.version) {
-            System.out
-                    .println("Synoptic version " + AbstractMain.versionString);
             String changesetID = SynopticJar.getHgChangesetID();
             if (changesetID != null) {
-                System.out.println("Synoptic changeset " + changesetID);
+                System.out.println("Synoptic repo changeset " + changesetID);
+            } else {
+                System.out.println("Synoptic repo changeset not available.");
             }
             return null;
         }
