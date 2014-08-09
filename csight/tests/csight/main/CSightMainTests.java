@@ -21,6 +21,7 @@ import csight.model.export.GraphExporter;
 import csight.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import csight.model.fifosys.gfsm.GFSM;
 import csight.model.fifosys.gfsm.GFSMPath;
+import csight.model.fifosys.gfsm.GFSMState;
 import csight.model.fifosys.gfsm.observed.ObsDistEventType;
 import csight.model.fifosys.gfsm.observed.ObsFSMState;
 import csight.model.fifosys.gfsm.observed.ObsMultFSMState;
@@ -982,12 +983,93 @@ public class CSightMainTests extends CSightTest {
         GraphExporter.exportGFSM(opts.outputPathPrefix + ".gfsm.dot", pGraph);
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
                 + ".gfsm.dot");
+
+        GraphExporter.exportCFSM(opts.outputPathPrefix + ".my.dot",
+                finalGFSM.getCFSM(true));
+        GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
+                + ".my.dot");
         GraphExporter.exportGFSM(opts.outputPathPrefix + ".my.gfsm.dot",
                 finalGFSM);
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
                 + ".my.gfsm.dot");
 
         // KS TODO Properly compare GFSMs.
+
+        assert pGraph.equals(finalGFSM);
+        assert pGraph.getCFSM(true).equals(finalGFSM.getCFSM(true));
+        assert pGraph.getNumProcesses() == finalGFSM.getNumProcesses();
+        assert pGraph.getStates().size() == finalGFSM.getStates().size();
+
+        Set<Pair<GFSMState, GFSMState>> checkedStates = Util.newSet();
+        Set<GFSMState> statesToCheck = Util.newSet(finalGFSM.getStates());
+        Set<GFSMState> statesToCheck2 = Util.newSet(pGraph.getStates());
+        List<Pair<GFSMState, GFSMState>> statePairsToCheck = Util.newList();
+
+        assert pGraph.getInitStates().size() == finalGFSM.getInitStates()
+                .size();
+
+        // Initialize the list of states to check.
+        for (int i = 0; i < pGraph.getNumProcesses(); i++) {
+            assert finalGFSM.getInitStatesForPid(i).size() == 1;
+            assert pGraph.getInitStatesForPid(i).size() == 1;
+            GFSMState init = finalGFSM.getInitStatesForPid(i).iterator().next();
+            GFSMState init2 = pGraph.getInitStatesForPid(i).iterator().next();
+            statePairsToCheck.add(Util.newPair(init, init2));
+        }
+
+        while (!statePairsToCheck.isEmpty()) {
+            Pair<GFSMState, GFSMState> statePair = statePairsToCheck.remove(0);
+            GFSMState state1 = statePair.getLeft();
+            GFSMState state2 = statePair.getRight();
+
+            // Compare the two GFSM states.
+            for (int i = 0; i < pGraph.getNumProcesses(); i++) {
+                assert state1.isAcceptForPid(i) == state2.isAcceptForPid(i);
+                assert state1.isInitForPid(i) == state2.isInitForPid(i);
+            }
+            assert state1.getTransitioningEvents().equals(
+                    state2.getTransitioningEvents());
+
+            // Track checked states.
+            checkedStates.add(Util.newPair(state1, state2));
+            statesToCheck.remove(state1);
+            statesToCheck2.remove(state2);
+
+            // Add the next states to the frontier.
+            for (DistEventType event : state1.getTransitioningEvents()) {
+
+                Set<Pair<GFSMState, GFSMState>> tempPairs = Util.newSet();
+                // Iterate through all transitions. We need to compare
+                // transitioning events as some transitions may have multiple
+                // states.
+                for (GFSMState nextS : state1.getNextStates(event)) {
+                    for (GFSMState nextS2 : state2.getNextStates(event)) {
+                        if (nextS.getTransitioningEvents().equals(
+                                nextS2.getTransitioningEvents())) {
+                            tempPairs.add(Util.newPair(nextS, nextS2));
+                        }
+                    }
+                }
+                // We must have at least one pair from the transitioning events.
+                assert !tempPairs.isEmpty();
+                for (Pair<GFSMState, GFSMState> tempPair : tempPairs) {
+                    // If this is our first time seeing these, queue them for
+                    // checking.
+                    if (!checkedStates.contains(tempPair)) {
+                        statePairsToCheck.add(tempPair);
+                    }
+                }
+            }
+
+        }
+        logger.info(statesToCheck.toString());
+        logger.info(statesToCheck2.toString());
+        logger.info(checkedStates.toString());
+        // Every pair must have been checked.
+        assert statesToCheck.isEmpty();
+        assert statesToCheck2.isEmpty();
+
+        assert checkedStates.size() == pGraph.getStates().size();
 
     }
 }
