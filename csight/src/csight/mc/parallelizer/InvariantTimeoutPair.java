@@ -3,13 +3,12 @@ package csight.mc.parallelizer;
 import csight.invariants.BinaryInvariant;
 
 /**
- * A InvariantTimeoutPair used to store an invariant with its corresponding
- * timeout value. Used in checkInvsRefineGFSMParallel to manage timeout value
- * per invariant.
+ * Stores an invariant with its corresponding timeout value. Used in
+ * checkInvsRefineGFSMParallel to manage timeout value per invariant.
  */
 public class InvariantTimeoutPair {
     private final BinaryInvariant inv;
-    private final int timeout;
+    private final int timeout; // TODO ib: in seconds, milliseconds?
 
     public InvariantTimeoutPair(BinaryInvariant inv, int timeout) {
         this.inv = inv;

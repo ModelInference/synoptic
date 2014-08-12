@@ -8,6 +8,8 @@ import csight.mc.MCResult;
  */
 public class ParallelizerResult {
 
+    // TODO ib: give a brief comment next to each of these to explain their
+    // purpose.
     private final InvariantTimeoutPair invTimeoutPair;
     private final MCResult mcResult;
     private final boolean isTimeout;

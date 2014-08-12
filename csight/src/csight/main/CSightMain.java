@@ -430,6 +430,10 @@ public class CSightMain {
         // Check if model checking is to be done in parallel and use the
         // corresponding methods.
         if (opts.runParallel) {
+
+            // TODO ib: change assert to be an if, and throw an OptionException
+            // to help the user correct the mistake (asserts fail silently).
+
             // Parallelization is currently only supported for McScM
             assert (opts.mcType == "mcscm");
             checkInvsRefineGFSMParallel(dynInvs, pGraph);
@@ -924,6 +928,10 @@ public class CSightMain {
          */
         AtomicInteger invsCounter = new AtomicInteger(1);
 
+        // TODO ib: why create copies of the opts timeout-related vars? These
+        // variables never change, and you are not modifying them in your code,
+        // so why not just use them directly?
+
         // ////// Additive and memory-less timeout value adaptation.
         // Initial McScM invocation timeout in seconds.
         int baseTimeout = opts.baseTimeout;
@@ -951,6 +959,7 @@ public class CSightMain {
         // gfsm.
         int mcCounter = 0;
 
+        // TODO ib: same comment as above -- why create a copy of this opts var?
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
         exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
@@ -1039,18 +1048,18 @@ public class CSightMain {
                     return mcCounter;
                 }
                 // Continue to wait for next result
-
-            } else {
-                if (processUnsafeModelResult(pGraph, invsToSatisfy,
-                        maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
-                        gfsmPrefixFilename, taskChannel, resultsChannel,
-                        resultPair, mcResult)) {
-                    parallelizer.interrupt();
-                    return mcCounter;
-                }
-                // Continue to wait for next result
-
+                continue;
             }
+
+            if (processUnsafeModelResult(pGraph, invsToSatisfy,
+                    maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
+                    gfsmPrefixFilename, taskChannel, resultsChannel,
+                    resultPair, mcResult)) {
+                parallelizer.interrupt();
+                return mcCounter;
+            }
+            // Continue to wait for next result
+            continue;
         }
     }
 
@@ -1282,11 +1291,18 @@ public class CSightMain {
         logger.info("Waiting for model checking result from Parallelizer...");
         ParallelizerResult result = resultsChannel.take();
 
+        // TODO ib: turn this into a while loop, instead of using recursion.
+
+        // TODO ib: is there a way to check if there are any results possible?
+        // What if all of the results end up being exceptional, in that case we
+        // want to time out here, no?
         if (result.getRefinementCounter() != refinementCounter
                 && !result.isException()) {
             return waitForResult(refinementCounter, resultsChannel);
         }
 
+        // TODO ib: remove redundant assert, since the if condition above
+        // handles this.
         assert (result.getRefinementCounter() == refinementCounter || result
                 .isException());
 
