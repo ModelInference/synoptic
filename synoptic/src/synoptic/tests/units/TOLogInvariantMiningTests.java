@@ -53,7 +53,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         Object[][] data = new Object[][] {
                 { new TransitiveClosureInvMiner(false) },
                 { new TransitiveClosureInvMiner(true) },
-                { new ChainWalkingTOInvMiner(true) },
+                { new ChainWalkingTOInvMiner() },
                 { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
     }

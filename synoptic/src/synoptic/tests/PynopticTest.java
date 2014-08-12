@@ -65,7 +65,7 @@ public abstract class PynopticTest extends SynopticTest {
                 events, genITimeParser());
 
         // Set up invariant miners
-        ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner(true);
+        ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner();
         ConstrainedInvMiner constMiner = new ConstrainedInvMiner();
 
         // Generate constrained invariants

@@ -48,7 +48,7 @@ public class InvariantStatisticsTests extends SynopticTest {
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
         // Currently, only the chain walking miner supports InvariantStatistics.
-        { new ChainWalkingTOInvMiner(false) } };
+        { new ChainWalkingTOInvMiner() } };
         return Arrays.asList(data);
     }
 

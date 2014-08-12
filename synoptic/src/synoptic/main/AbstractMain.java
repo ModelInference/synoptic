@@ -26,6 +26,7 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
+import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.IPOInvariantMiner;
@@ -489,22 +490,25 @@ public abstract class AbstractMain {
         if (useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
-            // The chain walking miner is used by Perfume because it can mine
-            // IntrBy invariants. If we are running Synoptic, we do not want to
-            // use this invariant.
-            miner = new ChainWalkingTOInvMiner(options.usePerformanceInfo);
+            miner = new ChainWalkingTOInvMiner();
         }
 
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
                 options.multipleRelations, options.outputSupportCount);
-        // for (ITemporalInvariant minedInv : minedInvs) {
-        // int threshold = options.supportCountThreshold;
-        // if (minedInv.getSupportCount()) {
 
-        // }
-        // }
+        // Remove the interrupted by invariants from the mined set (not used in
+        // Synoptic).
+        if (!options.usePerformanceInfo) {
+            TemporalInvariantSet minedInvsCopy = new TemporalInvariantSet();
+            minedInvsCopy.add(minedInvs);
+            for (ITemporalInvariant minedInv : minedInvsCopy) {
+                if (minedInv instanceof TempConstrainedInvariant<?>) {
+                    minedInvs.remove(minedInv);
+                }
+            }
+        }
 
         loggerInfoEnd("Mining took ", startTime);
 
