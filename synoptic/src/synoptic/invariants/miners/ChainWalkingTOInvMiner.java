@@ -32,17 +32,6 @@ import synoptic.model.interfaces.IRelationPath;
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {
 
-    private boolean mineIntrByInvs;
-
-    public ChainWalkingTOInvMiner(boolean mineIntrByInvs) {
-        this.mineIntrByInvs = mineIntrByInvs;
-    }
-
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations) {
-        return computeInvariants(g, multipleRelations, false);
-    }
-
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, boolean supportCount) {
         TemporalInvariantSet result = new TemporalInvariantSet();
@@ -208,13 +197,11 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
              * Updates the graph global InterruptedBy counts with the
              * RelationPath counts
              */
-            if (this.mineIntrByInvs) {
-                gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
-                Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
-                        .getPossibleInterrupts();
-                intersectInterrupts(relationPathPossibleInterrupts,
-                        gPossibleInterrupts);
-            }
+            gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
+            Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
+                    .getPossibleInterrupts();
+            intersectInterrupts(relationPathPossibleInterrupts,
+                    gPossibleInterrupts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this RelationPath.
@@ -296,4 +283,5 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
         return set;
     }
+
 }
