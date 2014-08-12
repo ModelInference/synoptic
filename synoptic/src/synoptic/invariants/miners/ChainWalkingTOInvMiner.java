@@ -151,7 +151,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // Tracks precedence counts.
         Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks interrupted-by counts.
-        Map<EventType, Set<EventType>> gPossibleInterrupts = null;
+        Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
 
         // Initialize the event-type contents of the maps that persist
         // across traces (global counts maps).
@@ -197,7 +197,6 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
              * Updates the graph global InterruptedBy counts with the
              * RelationPath counts
              */
-            gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
             Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
                     .getPossibleInterrupts();
             intersectInterrupts(relationPathPossibleInterrupts,
