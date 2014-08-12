@@ -137,7 +137,10 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                     }
                 }
 
-                if (interruptedBy(gPossibleInterrupts, e1, e2)) {
+                // If gPossibleInterrupts is null then we do not mine
+                // interrupted-by invariants.
+                if (gPossibleInterrupts != null
+                        && interruptedBy(gPossibleInterrupts, e1, e2)) {
                     if (multipleRelations) {
                         throw new NotImplementedException();
                     }

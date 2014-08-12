@@ -69,7 +69,7 @@ public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         // Currently, only the chain walking miner supports multiple relations.
-        Object[][] data = new Object[][] { { new ChainWalkingTOInvMiner() } };
+        Object[][] data = new Object[][] { { new ChainWalkingTOInvMiner(false) } };
         return Arrays.asList(data);
     }
 

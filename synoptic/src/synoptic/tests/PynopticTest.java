@@ -2,7 +2,6 @@ package synoptic.tests;
 
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Before;
 
 import synoptic.invariants.BinaryInvariant;
@@ -20,7 +19,6 @@ import synoptic.invariants.fsmcheck.IntrByUpperTracingSet;
 import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ConstrainedInvMiner;
-import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
@@ -67,7 +65,7 @@ public abstract class PynopticTest extends SynopticTest {
                 events, genITimeParser());
 
         // Set up invariant miners
-        ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner();
+        ChainWalkingTOInvMiner miner = new ChainWalkingTOInvMiner(true);
         ConstrainedInvMiner constMiner = new ConstrainedInvMiner();
 
         // Generate constrained invariants

@@ -143,11 +143,6 @@ public class SynopticOptions extends Options {
     public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
 
     /**
-     * This flag indicates whether Synoptic should partition traces by file
-     */
-    public boolean partitionViaFile = true;
-
-    /**
      * This option relieves the user from writing regular expressions to parse
      * lines that they are not interested in. This also help to avoid parsing of
      * lines that are corrupted.
@@ -159,7 +154,7 @@ public class SynopticOptions extends Options {
      * Synoptic never uses performance information. Enabling this option would
      * effectively run Perfume.
      */
-    public boolean usePerformanceInfo = false;
+    public static final boolean usePerformanceInfo = false;
 
     /**
      * Synoptic doesn't support trace-wise normalization
@@ -487,7 +482,6 @@ public class SynopticOptions extends Options {
         AbstractOptions.separatorRegExp = separatorRegExp;
         absOpts.regExps = regExps;
         AbstractOptions.partitionRegExp = partitionRegExp;
-        absOpts.partitionViaFile = partitionViaFile;
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;

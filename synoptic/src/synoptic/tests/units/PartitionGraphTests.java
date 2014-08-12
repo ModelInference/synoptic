@@ -42,7 +42,7 @@ public class PartitionGraphTests extends SynopticTest {
         ChainsTraceGraph inputGraph = parser
                 .generateDirectTORelation(parsedEvents);
 
-        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner(false);
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false, false);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
@@ -121,7 +121,7 @@ public class PartitionGraphTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
 
-        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner(false);
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
 
@@ -161,7 +161,7 @@ public class PartitionGraphTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<DTIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
-        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner(false);
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
 
@@ -179,7 +179,7 @@ public class PartitionGraphTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
-        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner(false);
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
         return pGraph;

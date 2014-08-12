@@ -100,7 +100,7 @@ public class BisimulationTests extends SynopticTest {
 
         exportTestGraph(inputGraph, 0);
 
-        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner(false);
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false, false);
 

@@ -32,6 +32,12 @@ import synoptic.model.interfaces.IRelationPath;
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         ITOInvariantMiner {
 
+    private boolean mineIntrByInvs;
+
+    public ChainWalkingTOInvMiner(boolean mineIntrByInvs) {
+        this.mineIntrByInvs = mineIntrByInvs;
+    }
+
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
         return computeInvariants(g, multipleRelations, false);
@@ -156,7 +162,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // Tracks precedence counts.
         Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks interrupted-by counts.
-        Map<EventType, Set<EventType>> gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
+        Map<EventType, Set<EventType>> gPossibleInterrupts = null;
 
         // Initialize the event-type contents of the maps that persist
         // across traces (global counts maps).
@@ -202,11 +208,13 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
              * Updates the graph global InterruptedBy counts with the
              * RelationPath counts
              */
-
-            Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
-                    .getPossibleInterrupts();
-            intersectInterrupts(relationPathPossibleInterrupts,
-                    gPossibleInterrupts);
+            if (this.mineIntrByInvs) {
+                gPossibleInterrupts = new LinkedHashMap<EventType, Set<EventType>>();
+                Map<EventType, Set<EventType>> relationPathPossibleInterrupts = relationPath
+                        .getPossibleInterrupts();
+                intersectInterrupts(relationPathPossibleInterrupts,
+                        gPossibleInterrupts);
+            }
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this RelationPath.

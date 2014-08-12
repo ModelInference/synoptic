@@ -141,9 +141,9 @@ public class PerfumeOptions extends Options {
     public boolean ignoreNonMatchingLines = false;
 
     /**
-     * Perfume always uses performance information
+     * Perfume always uses performance information.
      */
-    public final boolean usePerformanceInfo = true;
+    public final static boolean usePerformanceInfo = true;
 
     /**
      * Perform trace-wise normalization
@@ -471,7 +471,6 @@ public class PerfumeOptions extends Options {
         AbstractOptions.separatorRegExp = separatorRegExp;
         absOpts.regExps = regExps;
         AbstractOptions.partitionRegExp = partitionRegExp;
-        absOpts.partitionViaFile = partitionViaFile;
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;

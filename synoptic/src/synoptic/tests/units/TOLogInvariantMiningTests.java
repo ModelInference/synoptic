@@ -53,7 +53,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         Object[][] data = new Object[][] {
                 { new TransitiveClosureInvMiner(false) },
                 { new TransitiveClosureInvMiner(true) },
-                { new ChainWalkingTOInvMiner() },
+                { new ChainWalkingTOInvMiner(true) },
                 { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
     }
@@ -295,7 +295,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         // TODO: create own utility method, as synoptic code should not be
-        // dependant on perfume
+        // dependent on perfume.
         minedInvs = PynopticTest.getOnlyIntrByInvs(minedInvs);
         trueInvs.add(new InterruptedByInvariant("b", "a",
                 Event.defTimeRelationStr));

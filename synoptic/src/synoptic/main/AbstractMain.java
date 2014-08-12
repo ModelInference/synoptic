@@ -489,7 +489,10 @@ public abstract class AbstractMain {
         if (useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
-            miner = new ChainWalkingTOInvMiner();
+            // The chain walking miner is used by Perfume because it can mine
+            // IntrBy invariants. If we are running Synoptic, we do not want to
+            // use this invariant.
+            miner = new ChainWalkingTOInvMiner(options.usePerformanceInfo);
         }
 
         long startTime = loggerInfoStart("Mining invariants ["

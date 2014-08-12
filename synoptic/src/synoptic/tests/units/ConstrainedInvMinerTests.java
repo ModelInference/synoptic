@@ -36,7 +36,7 @@ public class ConstrainedInvMinerTests extends PynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        miner = new ChainWalkingTOInvMiner();
+        miner = new ChainWalkingTOInvMiner(true);
     }
 
     /**

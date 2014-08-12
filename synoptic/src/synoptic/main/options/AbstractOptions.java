@@ -77,15 +77,14 @@ public class AbstractOptions {
     static final String regExpsStr = "-r Parser reg-exp: extracts event type and event time from a log line";
     public List<String> regExps = null;
 
+    static final String partitionRegExpStr = "-m Partitions mapping reg-exp: maps a log line to a partition";
     public static final String partitionRegExpDefault = "\\k<FILE>";
     public static String partitionRegExp = partitionRegExpDefault;
 
-    public boolean partitionViaFile = true;
-
-    static final String partitionRegExpStr = "-m Partitions mapping reg-exp: maps a log line to a partition";
+    static final String ignoreNonMatchingLinesStr = "-i Ignore lines that do not match any of the passed regular expressions";
     public boolean ignoreNonMatchingLines = false;
 
-    static final String ignoreNonMatchingLinesStr = "-i Ignore lines that do not match any of the passed regular expressions";
+    // Whether or not we are running Perfume (true), or Synoptic (false).
     public boolean usePerformanceInfo = false;
 
     static final String outputJSONStr = "-j Output the final model as a JSON object";
