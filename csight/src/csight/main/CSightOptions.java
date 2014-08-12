@@ -255,7 +255,9 @@ public class CSightOptions extends Options {
             aliases = "-consistent-init-state")
     public boolean consistentInitState = true;
 
-    @Option(value = "Minimize each of the process FSMs", aliases = "-minimize")
+    @Option(
+            value = "Minimize each of the process FSMs during GFSM to CFSM conversion",
+            aliases = "-minimize")
     public boolean minimize = false;
 
     // end option group "Strategy Options"

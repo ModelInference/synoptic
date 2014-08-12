@@ -3,7 +3,7 @@ package csight.mc.parallelizer;
 import java.util.List;
 
 /**
- * A MC Parallelizer task that contains a command to the Parallelizer, the
+ * An MC Parallelizer task that contains a command to the Parallelizer, the
  * corresponding inputs, and the current refinement counter in CSightMain. The
  * START_K command should have inputs of size K = min{numParallel,
  * invsToCheck.size()}. The START_ONE command should have inputs of size = 1.
@@ -12,12 +12,7 @@ import java.util.List;
 public class ParallelizerTask {
 
     public enum ParallelizerCommands {
-
-        START_K,
-
-        START_ONE,
-
-        STOP_ALL;
+        START_K, START_ONE, STOP_ALL;
     }
 
     protected final ParallelizerCommands cmd;
@@ -26,6 +21,8 @@ public class ParallelizerTask {
 
     public ParallelizerTask(ParallelizerCommands cmd,
             List<ParallelizerInput> inputs, int refinementCounter) {
+        // TODO ib: assert that the inputs have the right size (based on
+        // the class-level comment above).
         this.cmd = cmd;
         this.inputs = inputs;
         this.refinementCounter = refinementCounter;

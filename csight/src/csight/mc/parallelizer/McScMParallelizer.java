@@ -13,38 +13,39 @@ import csight.model.fifosys.cfsm.CFSM;
 
 /**
  * <p>
- * A McScMParallelizer that operates concurrently with CSightMain in its own
- * thread to manage concurrent model checking. N model checking processes are
- * run concurrently as commanded by CSightMain, and results are given to
- * CSightMain on model checking completion. McScMParallelizer will always wait
- * for tasks from CSightMain before starting new McScM model checking processes.
- * CSightMain is allowed to send tasks in any order, provided the tasks do not
- * cause numRunning to exceed numParallel. McScMParallelizer will always run
- * startOne() and stopAll() non-concurrently.
+ * The McScMParallelizer manages concurrent model checking and operates
+ * concurrently with CSightMain in its own thread. N model checking processes
+ * are run concurrently as commanded by CSightMain, and results are given back
+ * to CSightMain when model checking completes. McScMParallelizer will always
+ * wait for tasks from CSightMain before starting new McScM model checking
+ * processes. CSightMain is allowed to send tasks in any order, provided the
+ * tasks do not cause numRunning (number of actively running McScM instances) to
+ * exceed numParallel (the max parallelization factor). McScMParallelizer will
+ * always run startOne() and stopAll() non-concurrently.
  * </p>
  * <p>
- * McScMParallelizer communicates with CSightMain through the following queues:
+ * McScMParallelizer communicates with CSightMain through two queues:
  * </p>
  * <p>
- * -taskChannel: A BlockingQueue with capacity one that CSightMain uses to send
- * tasks to the McScMParallelizer. ParallelizerTask contains
+ * QUEUE1 (taskChannel): A BlockingQueue with capacity one that CSightMain uses
+ * to send tasks to the McScMParallelizer. ParallelizerTask contains
  * ParallelizerCommands, the corresponding inputs (@see ParallelizerInput), and
  * the refinement counter. ParallelizerCommands is an enumeration of the
  * following: <br />
  * 1) START_K: Starts K model checking processes, where K = min{numParallel,
- * invsToCheck.size()}. Corresponding inputs sent in the task is expected to be
- * of same size as K.<br/>
+ * invsToCheck.size()}. Corresponding inputs sent as part of the task is
+ * expected to be of same size as K.<br/>
  * 2) START_ONE: Starts one model checking process. Corresponding inputs sent in
  * the task is expected to be of size 1.<br />
  * 3) STOP_ALL: Stop all model checking processes and their results will be
  * discarded. Corresponding inputs sent in the task is expected to be null.<br />
- * The refinement counter will act as guard to prevent out-dated model checking
- * runs from executing. STOP_ALL is expected to be associated with the new
- * refinementCounter.
+ * The refinement counter will act as a guard to prevent out-dated model
+ * checking runs from executing. STOP_ALL is expected to be associated with the
+ * new refinementCounter.
  * </p>
  * <p>
- * -resultsChannel: An unbounded BlockingQueue that provides completed model
- * checking results back to CSightMain from McScMParallelizer. Each
+ * QUEUE2 (resultsChannel): An unbounded BlockingQueue that provides completed
+ * model checking results back to CSightMain from McScMParallelizer. Each
  * ParallelizerResult contains the invariant for the model checking run, the
  * MCResult class, and the refinement counter to prevent CSightMain from using
  * out-dated results. ParallelizerResult can also pass exceptions to CSightMain
@@ -84,19 +85,20 @@ public class McScMParallelizer implements Runnable {
      */
     private final ReentrantReadWriteLock resultsLock;
 
-    /** The maximum number of processes to run at once */
+    /** The maximum number of processes to run at once. */
     private final int numParallel;
 
-    /** The CSight option minimize */
+    /** The CSight command line minimize option. */
     private final boolean minimize;
 
     private final BlockingQueue<ParallelizerTask> taskChannel;
     private final BlockingQueue<ParallelizerResult> resultsChannel;
 
-    /** The path to McScM */
+    /** The location of McScM. */
     protected final String mcPath;
     protected final Logger logger;
 
+    // TODO ib: add brief comment description.
     private ExecutorService eService;
 
     /**
@@ -138,12 +140,18 @@ public class McScMParallelizer implements Runnable {
 
                 } else if (task.cmd == ParallelizerCommands.START_ONE) {
                     assert (task.refinementCounter == refinementCount);
+
+                    // TODO ib: push this assert into the task constructor.
                     assert (task.inputs.size() == 1);
+
                     startOne(task.inputs.get(0), task.refinementCounter);
 
                 } else if (task.cmd == ParallelizerCommands.STOP_ALL) {
                     assert (task.refinementCounter > refinementCount);
+
+                    // TODO ib: push this assert into the task constructor.
                     assert (task.inputs == null);
+
                     stopAll(task.refinementCounter);
                 }
             }
@@ -151,6 +159,10 @@ public class McScMParallelizer implements Runnable {
             logger.severe("Interrupted Exception occured: " + e.getMessage());
             boolean success;
             do {
+                // TODO ib: bad comment below -- infinite number of attempts
+                // will be made. Can you cap this at some constant number, e.g.,
+                // 5 or 10?
+
                 // Result may occasionally fail to enqueue into the results
                 // channel, so another attempt is made.
                 success = writeResult(ParallelizerResult.exceptionResult(e));
@@ -169,17 +181,27 @@ public class McScMParallelizer implements Runnable {
      */
     private boolean startOne(final ParallelizerInput input,
             final int refinementCounter) throws InterruptedException {
-        // This is an optimization to stop starting new processes when STOP_ALL
-        // is sent while starting N processes.
+        // An optimization to stop starting new processes when STOP_ALL is sent
+        // while starting N processes.
         if (checkIfStopAll()) {
             return true;
         }
 
         // Get the CFSM corresponding to the partition graph.
+
+        // TODO ib: how does getCFSM modify the GFSM? I don't believe that it
+        // does..
+
         // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
         // GFSM.
         final CFSM cfsm;
         synchronized (input.gfsm) {
+            // TODO ib: By the time you get here, the input.gfsm might have been
+            // updated (i.e., refined) by the CSightMain thread. To fix this,
+            // you need to communicate a CFSM, not a GFSM to the parallelizer
+            // thread. If getCFSM is called in the CSight main thread then you
+            // won't have a race condition between generating this graph and
+            // refinement of the GFSM.
             cfsm = input.gfsm.getCFSM(minimize);
         }
         final InvariantTimeoutPair invTimeoutPair = input.invTimeoutPair;
