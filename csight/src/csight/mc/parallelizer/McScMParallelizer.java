@@ -149,7 +149,7 @@ public class McScMParallelizer implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            logger.severe("Interrupted Exception occured: " + e.getMessage());
+            logger.info("Parallelizer is interrupted: " + e.getMessage());
             boolean success;
             do {
                 // Result may occasionally fail to enqueue into the results
