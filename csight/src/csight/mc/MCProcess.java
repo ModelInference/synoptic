@@ -14,7 +14,7 @@ import csight.util.Util;
 public class MCProcess {
 
     // The started underlying MC process.
-    Process process = null;
+    public Process process = null;
 
     String[] command;
     String stdinInput;
@@ -78,6 +78,7 @@ public class MCProcess {
         if (!pkt.killed) {
             // The killed flag is false: verify process terminated naturally.
             // Make sure that the timer thread stops waiting.
+            pkt.killed = true;
             t.interrupt();
         } else {
             // Otherwise: the process had to be killed by the timer thread.
@@ -133,14 +134,32 @@ final class ProcessKillTimer implements Runnable {
 
     @Override
     public void run() {
+
+        /*
+         * long timeoutRemaining = timeout * 1000L; long timeStarted =
+         * System.currentTimeMillis(); while (true) { try { synchronized (this)
+         * { wait(timeoutRemaining); } } catch (InterruptedException e) { if
+         * (killed == true) { return; }
+         * 
+         * timeoutRemaining = (timeout * 1000L) - (System.currentTimeMillis() -
+         * timeStarted);
+         * 
+         * if (timeoutRemaining < 0) { Thread.interrupted(); break; } continue;
+         * } break; }
+         */
         try {
             synchronized (this) {
                 wait(timeout * 1000L);
             }
         } catch (InterruptedException e) {
-            // This happens when the main thread calls interrupt(), which can
-            // only happen if the process p terminated naturally.
-            return;
+            // This happens when either (1) the main thread calls interrupt(),
+            // which happens if the process p terminated naturally, or (2) we
+            // were interrupted by the JVM or executor service higher up the
+            // stack. Either way, we want to stop the process, possibly a second
+            // time.
+            if (killed == true) {
+                return;
+            }
         }
         // Kill the process and set the flag so we know we killed it.
         killed = true;
