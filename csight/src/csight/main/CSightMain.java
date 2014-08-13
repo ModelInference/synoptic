@@ -1245,12 +1245,12 @@ public class CSightMain {
             }
             // We wait for current invariants to finish checking.
 
-        } else {
             invsCounter.addAndGet(1);
-
+        } else {
             parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter,
                     taskChannel);
 
+            invsCounter.addAndGet(1);
         }
         return false;
     }
