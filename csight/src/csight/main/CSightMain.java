@@ -1283,11 +1283,6 @@ public class CSightMain {
             return waitForResult(refinementCounter, resultsChannel);
         }
 
-        // TODO ib: remove redundant assert, since the if condition above
-        // handles this.
-        assert (result.getRefinementCounter() == refinementCounter || result
-                .isException());
-
         return result;
     }
 
