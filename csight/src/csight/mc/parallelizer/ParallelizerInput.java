@@ -1,6 +1,6 @@
 package csight.mc.parallelizer;
 
-import csight.model.fifosys.gfsm.GFSM;
+import csight.model.fifosys.cfsm.CFSM;
 
 /**
  * Inputs to the Parallelizer that are sent with ParallelizerCommands through
@@ -10,10 +10,10 @@ import csight.model.fifosys.gfsm.GFSM;
  */
 public class ParallelizerInput {
     protected final InvariantTimeoutPair invTimeoutPair;
-    protected final GFSM gfsm;
+    protected final CFSM cfsm;
 
-    public ParallelizerInput(InvariantTimeoutPair invTimeoutPair, GFSM gfsm) {
+    public ParallelizerInput(InvariantTimeoutPair invTimeoutPair, CFSM cfsm) {
         this.invTimeoutPair = invTimeoutPair;
-        this.gfsm = gfsm;
+        this.cfsm = cfsm;
     }
 }

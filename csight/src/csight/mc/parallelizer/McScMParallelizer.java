@@ -88,9 +88,6 @@ public class McScMParallelizer implements Runnable {
     /** The maximum number of processes to run at once. */
     private final int numParallel;
 
-    /** The CSight command line minimize option. */
-    private final boolean minimize;
-
     private final BlockingQueue<ParallelizerTask> taskChannel;
     private final BlockingQueue<ParallelizerResult> resultsChannel;
 
@@ -110,16 +107,14 @@ public class McScMParallelizer implements Runnable {
      * 
      * @param numParallel
      * @param mcPath
-     * @param minimize
      * @param taskChannel
      * @param resultsChannel
      */
-    public McScMParallelizer(int numParallel, String mcPath, boolean minimize,
+    public McScMParallelizer(int numParallel, String mcPath,
             BlockingQueue<ParallelizerTask> taskChannel,
             BlockingQueue<ParallelizerResult> resultsChannel) {
         this.numParallel = numParallel;
         this.mcPath = mcPath;
-        this.minimize = minimize;
         this.taskChannel = taskChannel;
         this.resultsChannel = resultsChannel;
 
@@ -186,18 +181,7 @@ public class McScMParallelizer implements Runnable {
         }
 
         // Get the CFSM corresponding to the partition graph.
-        // NOTE: GFSM.getCFSM() cannot be run concurrently as it involves the
-        // mutation of several fields in the GFSM.
-        final CFSM cfsm;
-        synchronized (input.gfsm) {
-            // TODO ib: By the time you get here, the input.gfsm might have been
-            // updated (i.e., refined) by the CSightMain thread. To fix this,
-            // you need to communicate a CFSM, not a GFSM to the parallelizer
-            // thread. If getCFSM is called in the CSight main thread then you
-            // won't have a race condition between generating this graph and
-            // refinement of the GFSM.
-            cfsm = input.gfsm.getCFSM(minimize);
-        }
+        final CFSM cfsm = input.cfsm;
         final InvariantTimeoutPair invTimeoutPair = input.invTimeoutPair;
 
         Runnable runnable = new Runnable() {

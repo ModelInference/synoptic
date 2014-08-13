@@ -959,8 +959,7 @@ public class CSightMain {
         final BlockingQueue<ParallelizerResult> resultsChannel = new LinkedBlockingQueue<ParallelizerResult>();
 
         Thread parallelizer = new Thread(new McScMParallelizer(
-                opts.numParallel, opts.mcPath, opts.minimize, taskChannel,
-                resultsChannel));
+                opts.numParallel, opts.mcPath, taskChannel, resultsChannel));
 
         parallelizer.start();
         parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
@@ -1326,7 +1325,7 @@ public class CSightMain {
             InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
             ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                    pGraph);
+                    pGraph.getCFSM(opts.minimize));
             inputs.add(input);
             curInvs.add(invTimeoutToCheck);
         }
@@ -1359,7 +1358,7 @@ public class CSightMain {
         InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
         ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                pGraph);
+                pGraph.getCFSM(opts.minimize));
         inputs.add(input);
         curInvs.add(invTimeoutToCheck);
 
