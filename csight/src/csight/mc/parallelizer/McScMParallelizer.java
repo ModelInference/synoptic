@@ -152,12 +152,9 @@ public class McScMParallelizer implements Runnable {
             logger.severe("Interrupted Exception occured: " + e.getMessage());
             boolean success;
             do {
-                // TODO ib: bad comment below -- infinite number of attempts
-                // will be made. Can you cap this at some constant number, e.g.,
-                // 5 or 10?
-
                 // Result may occasionally fail to enqueue into the results
-                // channel, so another attempt is made.
+                // channel, so attempts are made until the result is
+                // successfully written into the queue.
                 success = writeResult(ParallelizerResult.exceptionResult(e));
             } while (!success);
         }
@@ -226,7 +223,8 @@ public class McScMParallelizer implements Runnable {
                 boolean success;
                 do {
                     // Result may occasionally fail to enqueue into the results
-                    // channel, so another attempt is made.
+                    // channel, so attempts are made until the result is
+                    // successfully written into the queue.
                     success = McScMParallelizer.this.writeResult(result);
                 } while (!success);
             }
