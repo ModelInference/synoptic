@@ -1,5 +1,6 @@
 package csight.model.fifosys.cfsm.fsm;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -246,7 +247,8 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     /**
      * Returns a Promela representation of this FSMState.
      */
-    public String toPromelaString(BinaryInvariant invariant, String labelPrefix) {
+    public String toPromelaString(List<BinaryInvariant> invariants,
+            String labelPrefix) {
         // Every state starts with a label.
         String ret = labelPrefix + "_" + getStateId() + ":\n";
 
@@ -274,14 +276,14 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
                 // This is used by our never claim to track the event.
                 String traceString;
 
-                if (e.equals(invariant.getFirst())
-                        || e.equals(invariant.getSecond())) {
-                    traceString = e.toPromelaTraceString();
-                } else {
-                    // Other events don't get tracked.
-                    traceString = "recentEvent.type = OTHEREVENT";
+                traceString = "recentEvent.type = OTHEREVENT";
+                for (BinaryInvariant invariant : invariants) {
+                    if (e.equals(invariant.getFirst())
+                            || e.equals(invariant.getSecond())) {
+                        traceString = e.toPromelaTraceString();
+                        break; // Break out after the first match.
+                    }
                 }
-
                 // We only change the terminal state status if there is a change
                 // in the acceptance of the state.
                 String terminalState = "";
