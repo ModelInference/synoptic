@@ -14,7 +14,7 @@ import csight.util.Util;
 public class MCProcess {
 
     // The started underlying MC process.
-    public Process process = null;
+    private Process process = null;
 
     String[] command;
     String stdinInput;
@@ -135,7 +135,9 @@ final class ProcessKillTimer implements Runnable {
     @Override
     public void run() {
 
+        // Code to handle spurious interrupts.
         /*
+         * 
          * long timeoutRemaining = timeout * 1000L; long timeStarted =
          * System.currentTimeMillis(); while (true) { try { synchronized (this)
          * { wait(timeoutRemaining); } } catch (InterruptedException e) { if
