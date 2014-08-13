@@ -868,7 +868,7 @@ public class CSightMainTests extends CSightTest {
         ObsFSMState P0SentAck = ObsFSMState.namedObsFSMState(0, "M4", false,
                 false);
         ObsFSMState P1SentAck = ObsFSMState.namedObsFSMState(1, "A4", false,
-                false);
+                true);
         PSentAck.add(P0SentAck);
         PSentAck.add(P1SentAck);
         ObsMultFSMState obsPSentAck = ObsMultFSMState
