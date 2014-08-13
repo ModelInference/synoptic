@@ -1137,10 +1137,12 @@ public class CSightMain {
             maxTimedOutInvs.clear();
         }
 
+        if (pGraph.isSingleton()) {
+            return true;
+        }
         parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
                 totalInvs, taskChannel);
-
-        return pGraph.isSingleton();
+        return false;
     }
 
     /**
