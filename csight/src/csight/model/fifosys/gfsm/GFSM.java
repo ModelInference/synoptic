@@ -21,6 +21,7 @@ import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
+import synoptic.util.Pair;
 
 /**
  * <p>
@@ -913,5 +914,105 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         if (CSightMain.assertsOn) {
             checkPartitioningConsistency(obsToCheck);
         }
+    }
+
+    /**
+     * A stricter equality check against another GFSM.
+     * 
+     * @param otherGFSM
+     *            Other GFSM to compare with.
+     * @return
+     */
+    public boolean deepEquals(GFSM otherGFSM) {
+        if (!this.equals(otherGFSM)) {
+            return false;
+        }
+        if (!this.getCFSM(true).equals(otherGFSM.getCFSM(true))) {
+            return false;
+        }
+        if (getNumProcesses() != otherGFSM.getNumProcesses()) {
+            return false;
+        }
+        if (getStates().size() != otherGFSM.getStates().size()) {
+            return false;
+        }
+
+        Set<Pair<GFSMState, GFSMState>> checkedStates = Util.newSet();
+        Set<GFSMState> myStatesToCheck = Util.newSet(getStates());
+        Set<GFSMState> otherStatesToCheck = Util.newSet(otherGFSM.getStates());
+        List<Pair<GFSMState, GFSMState>> statePairsToCheck = Util.newList();
+
+        // Initialize the list of states to check.
+        for (int i = 0; i < this.getNumProcesses(); i++) {
+            assert otherGFSM.getInitStatesForPid(i).size() == 1;
+            assert getInitStatesForPid(i).size() == 1;
+            GFSMState myInit = getInitStatesForPid(i).iterator().next();
+            GFSMState otherInit = otherGFSM.getInitStatesForPid(i).iterator()
+                    .next();
+            statePairsToCheck.add(Util.newPair(myInit, otherInit));
+        }
+
+        while (!statePairsToCheck.isEmpty()) {
+            Pair<GFSMState, GFSMState> statePair = statePairsToCheck.remove(0);
+            GFSMState myState = statePair.getLeft();
+            GFSMState otherState = statePair.getRight();
+
+            // Compare the two GFSM states.
+            for (int i = 0; i < this.getNumProcesses(); i++) {
+                if (myState.isAcceptForPid(i) != otherState.isAcceptForPid(i)) {
+                    return false;
+                }
+                if (myState.isInitForPid(i) != otherState.isInitForPid(i)) {
+                    return false;
+                }
+            }
+            if (!myState.getTransitioningEvents().equals(
+                    otherState.getTransitioningEvents())) {
+                return false;
+            }
+
+            // Track checked states.
+            checkedStates.add(Util.newPair(myState, otherState));
+            myStatesToCheck.remove(myState);
+            otherStatesToCheck.remove(otherState);
+
+            // Add the next states to the frontier.
+            for (DistEventType event : myState.getTransitioningEvents()) {
+
+                Set<Pair<GFSMState, GFSMState>> tempPairs = Util.newSet();
+                // Iterate through all transitions. We need to compare
+                // transitioning events as some transitions may have multiple
+                // states.
+                for (GFSMState myNextState : myState.getNextStates(event)) {
+                    for (GFSMState otherNextState : otherState
+                            .getNextStates(event)) {
+                        if (myNextState.getTransitioningEvents().equals(
+                                otherNextState.getTransitioningEvents())) {
+                            tempPairs.add(Util.newPair(myNextState,
+                                    otherNextState));
+                        }
+                    }
+                }
+                // We must have at least one pair from the transitioning events.
+                assert !tempPairs.isEmpty();
+                for (Pair<GFSMState, GFSMState> tempPair : tempPairs) {
+                    // If this is our first time seeing these, queue them for
+                    // checking.
+                    if (!checkedStates.contains(tempPair)) {
+                        statePairsToCheck.add(tempPair);
+                    }
+                }
+            }
+
+        }
+        // Every pair must have been checked.
+        if (!myStatesToCheck.isEmpty() || !otherStatesToCheck.isEmpty()) {
+            return false;
+        }
+        if (checkedStates.size() != getStates().size()) {
+            return false;
+        }
+
+        return true;
     }
 }
