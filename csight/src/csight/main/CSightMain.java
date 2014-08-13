@@ -928,23 +928,7 @@ public class CSightMain {
          */
         AtomicInteger invsCounter = new AtomicInteger(1);
 
-        // TODO ib: why create copies of the opts timeout-related vars? These
-        // variables never change, and you are not modifying them in your code,
-        // so why not just use them directly?
-
-        // ////// Additive and memory-less timeout value adaptation.
-        // Initial McScM invocation timeout in seconds.
-        int baseTimeout = opts.baseTimeout;
-
-        // How much we increment curTimeout by, when we timeout on checking all
-        // invariants.
-        int timeoutDelta = opts.timeoutDelta;
-
-        // At what point to we stop the incrementing the timeout and terminate
-        // with a failure.
-        int maxTimeout = opts.maxTimeout;
-
-        if (maxTimeout < baseTimeout) {
+        if (opts.maxTimeout < opts.baseTimeout) {
             throw new Exception(
                     "maxTimeout value must be greater than baseTimeout value");
         }
@@ -959,11 +943,8 @@ public class CSightMain {
         // gfsm.
         int mcCounter = 0;
 
-        // TODO ib: same comment as above -- why create a copy of this opts var?
-        String gfsmPrefixFilename = opts.outputPathPrefix;
-
         exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
-                gfsmCounter.get(), gfsmPrefixFilename);
+                gfsmCounter.get(), opts.outputPathPrefix);
 
         if (pGraph.isSingleton()) {
             // Skip model checking if all partitions are singletons.
@@ -1014,7 +995,7 @@ public class CSightMain {
 
             if (result.isTimeout()) {
                 processTimeOut(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs,
-                        timeoutDelta, maxTimeout, gfsmCounter.get(),
+                        opts.timeoutDelta, opts.maxTimeout, gfsmCounter.get(),
                         taskChannel, resultPair);
 
                 // Continue to wait for next result
@@ -1053,7 +1034,7 @@ public class CSightMain {
 
             if (processUnsafeModelResult(pGraph, invsToSatisfy,
                     maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
-                    gfsmPrefixFilename, taskChannel, resultsChannel,
+                    opts.outputPathPrefix, taskChannel, resultsChannel,
                     resultPair, mcResult)) {
                 parallelizer.interrupt();
                 return mcCounter;
