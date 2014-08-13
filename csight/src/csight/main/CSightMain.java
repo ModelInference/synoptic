@@ -1050,6 +1050,10 @@ public class CSightMain {
 
     /**
      * Heuristic for choosing some of the invariants that we want to satisfy.
+     * The basic idea is that the most common events are involved in many
+     * invariants. By choosing the most common events, we likely have many
+     * invariants to refine. If we don't have enough invariants, we just need to
+     * consider another event.
      * 
      * @param invsToSatisfy
      * @param threshold
@@ -1101,6 +1105,8 @@ public class CSightMain {
         }
 
         int minInvCount = threshold;
+        // We limit the number of invs to the size of invsToSatisfy so we don't
+        // run out of invariants.
         while (invsToCheck.size() < Math.min(minInvCount, invsToSatisfy.size())) {
             assert sortedEventList.size() >= addedEvents.size();
             invsToCheck.clear();
@@ -1117,7 +1123,9 @@ public class CSightMain {
                     invsToCheck.add(inv);
                 }
             }
-            // In preparation for the next loop, add the next event in line.
+            // In preparation for the next loop, add the next event in line. We
+            // will have one more event to consider if we don't have enough
+            // invariants.
             if (sortedEventList.size() > addedEvents.size()) {
                 addedEvents.add(sortedEventList.get(addedEvents.size())
                         .getKey());
