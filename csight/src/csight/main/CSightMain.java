@@ -57,13 +57,13 @@ import synoptic.util.InternalSynopticException;
  * well as an API, to run CSight programmatically.
  * </p>
  * <p>
- * Unlike the synoptic code-base, DynopticMain is not a singleton and can be
- * instantiated for every new execution of CSight. However, DynopticMain cannot
- * be re-used. That is, a new version _must_ be instantiated for each new
- * execution of the CSight process.
+ * Unlike the synoptic code-base, CSightMain is not a singleton and can be
+ * instantiated for every new execution of CSight. However, CSightMain cannot be
+ * re-used. That is, a new version _must_ be instantiated for each new execution
+ * of the CSight process.
  * </p>
  * <p>
- * For options that CSight recognizes, see DynopticOptions.
+ * For options that CSight recognizes, see CSightOptions.
  * </p>
  */
 public class CSightMain {
@@ -120,7 +120,7 @@ public class CSightMain {
         }
 
         // Get the top Logger instance
-        logger = Logger.getLogger("DynopticMain");
+        logger = Logger.getLogger("CSightMain");
 
         // Set the logger's log level based on command line arguments
         if (opts.logLvlQuiet) {
@@ -151,10 +151,10 @@ public class CSightMain {
     private SynopticMain synMain = null;
 
     // Total number of processes in the log processed by this instance of
-    // DynopticMain
+    // CSightMain
     private int numProcesses = -1;
 
-    /** Prepares a new DynopticMain instance based on opts. */
+    /** Prepares a new CSightMain instance based on opts. */
     public CSightMain(CSightOptions opts) throws OptionException {
         this.opts = opts;
         setUpLogging(opts);
