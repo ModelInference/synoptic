@@ -98,7 +98,11 @@ public class McScMParallelizer implements Runnable {
     protected final String mcPath;
     protected final Logger logger;
 
-    // TODO ib: add brief comment description.
+    /**
+     * Executes the model checking processes concurrently in a fixed thread pool
+     * size. ExecutorService will handle starting and terminating of threads for
+     * us.
+     */
     private ExecutorService eService;
 
     /**
@@ -141,16 +145,10 @@ public class McScMParallelizer implements Runnable {
                 } else if (task.cmd == ParallelizerCommands.START_ONE) {
                     assert (task.refinementCounter == refinementCount);
 
-                    // TODO ib: push this assert into the task constructor.
-                    assert (task.inputs.size() == 1);
-
                     startOne(task.inputs.get(0), task.refinementCounter);
 
                 } else if (task.cmd == ParallelizerCommands.STOP_ALL) {
                     assert (task.refinementCounter > refinementCount);
-
-                    // TODO ib: push this assert into the task constructor.
-                    assert (task.inputs == null);
 
                     stopAll(task.refinementCounter);
                 }
@@ -188,12 +186,8 @@ public class McScMParallelizer implements Runnable {
         }
 
         // Get the CFSM corresponding to the partition graph.
-
-        // TODO ib: how does getCFSM modify the GFSM? I don't believe that it
-        // does..
-
-        // NOTE: GFSM.getCFSM() cannot be run concurrently as it modifies the
-        // GFSM.
+        // NOTE: GFSM.getCFSM() cannot be run concurrently as it involves the
+        // mutation of several fields in the GFSM.
         final CFSM cfsm;
         synchronized (input.gfsm) {
             // TODO ib: By the time you get here, the input.gfsm might have been
