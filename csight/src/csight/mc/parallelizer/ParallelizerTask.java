@@ -21,8 +21,14 @@ public class ParallelizerTask {
 
     public ParallelizerTask(ParallelizerCommands cmd,
             List<ParallelizerInput> inputs, int refinementCounter) {
-        // TODO ib: assert that the inputs have the right size (based on
-        // the class-level comment above).
+        if (cmd.equals(ParallelizerCommands.START_K)) {
+            assert (inputs.size() > 0);
+        } else if (cmd.equals(ParallelizerCommands.START_ONE)) {
+            assert (inputs.size() == 1);
+        } else {
+            assert (inputs == null);
+        }
+
         this.cmd = cmd;
         this.inputs = inputs;
         this.refinementCounter = refinementCounter;
