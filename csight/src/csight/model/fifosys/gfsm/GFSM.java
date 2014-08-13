@@ -917,7 +917,9 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     }
 
     /**
-     * A stricter equality check against another GFSM.
+     * A stricter equality check against another GFSM. This is equality check is
+     * for states and the transitions, but not any observed states. Two GFSMs
+     * are equal if they can be traversed the same way.
      * 
      * @param otherGFSM
      *            Other GFSM to compare with.
@@ -957,7 +959,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             GFSMState myState = statePair.getLeft();
             GFSMState otherState = statePair.getRight();
 
-            // Compare the two GFSM states.
+            // Compare the two GFSM states for each process.
             for (int i = 0; i < this.getNumProcesses(); i++) {
                 if (myState.isAcceptForPid(i) != otherState.isAcceptForPid(i)) {
                     return false;
@@ -981,8 +983,9 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
                 Set<Pair<GFSMState, GFSMState>> tempPairs = Util.newSet();
                 // Iterate through all transitions. We need to compare
-                // transitioning events as some transitions may have multiple
-                // states.
+                // transitioning events of the next states as some transitions
+                // may have multiple next states. We do this so we can determine
+                // which ones to pair.
                 for (GFSMState myNextState : myState.getNextStates(event)) {
                     for (GFSMState otherNextState : otherState
                             .getNextStates(event)) {

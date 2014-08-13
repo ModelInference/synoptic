@@ -706,6 +706,12 @@ public class CSightMainTests extends CSightTest {
         assertTrue(0 < dyn.checkMultipleInvsRefineGFSM(invs, pGraph));
     }
 
+    /**
+     * This returns events that are involved with Request Response.
+     * 
+     * @param channelIds
+     * @return
+     */
     private List<DistEventType> getReqRespEvents(List<ChannelId> channelIds) {
 
         ChannelId chanA = channelIds.get(0);
@@ -727,6 +733,13 @@ public class CSightMainTests extends CSightTest {
         return events;
     }
 
+    /**
+     * Invariants for the request response GFSM. This requires events since we
+     * are reusing them.
+     * 
+     * @param events
+     * @return
+     */
     private List<BinaryInvariant> generateReqRespInvariants(
             List<DistEventType> events) {
         DistEventType sendReq = events.get(0);
@@ -736,6 +749,12 @@ public class CSightMainTests extends CSightTest {
         DistEventType recvAck = events.get(4);
 
         List<BinaryInvariant> invs = Util.newList();
+
+        invs.add(new EventuallyHappens(sendReq));
+        invs.add(new EventuallyHappens(recvReq));
+        invs.add(new EventuallyHappens(localAct));
+        invs.add(new EventuallyHappens(sendAck));
+        invs.add(new EventuallyHappens(recvAck));
 
         invs.add(new AlwaysFollowedBy(sendReq, recvReq));
         invs.add(new AlwaysPrecedes(sendReq, recvReq));
@@ -761,24 +780,16 @@ public class CSightMainTests extends CSightTest {
         invs.add(new AlwaysFollowedBy(sendAck, recvAck));
         invs.add(new AlwaysPrecedes(sendAck, recvAck));
 
-        invs.add(new EventuallyHappens(sendReq));
-        invs.add(new EventuallyHappens(recvReq));
-        invs.add(new EventuallyHappens(localAct));
-        invs.add(new EventuallyHappens(sendAck));
-        invs.add(new EventuallyHappens(recvAck));
-
-        logger.info("Reordering invariants to place \"eventually\" invariants at the front.");
-
-        for (int i = 0; i < invs.size(); i++) {
-            if (invs.get(i) instanceof EventuallyHappens) {
-                BinaryInvariant inv = invs.remove(i);
-                invs.add(0, inv);
-            }
-        }
-
         return invs;
     }
 
+    /**
+     * This generates a new Request Response GFSM which is ready for refinement.
+     * Due to initializeSynoptic(), it should only be called once.
+     * 
+     * @return
+     * @throws Exception
+     */
     private GFSM generateInitialGFSM() throws Exception {
         List<String> args = getSpinArgsStr();
         args.add("-r");
@@ -822,7 +833,15 @@ public class CSightMainTests extends CSightTest {
         return pGraph;
     }
 
-    private GFSM generateFinalGFSM(List<ChannelId> channelIds,
+    /**
+     * A reference RequestResponse GFSM for equality checking.
+     * 
+     * @param channelIds
+     * @param events
+     * @return
+     * @throws Exception
+     */
+    private GFSM generateReferenceGFSM(List<ChannelId> channelIds,
             List<DistEventType> events) throws Exception {
         List<ObsFSMState> PInitial = Util.newList();
         List<ObsFSMState> PSentReq = Util.newList();
@@ -920,12 +939,13 @@ public class CSightMainTests extends CSightTest {
         ObsDistEventType obsERecvAck = new ObsDistEventType(recvAck, 2);
 
         // SInitial -> SSentReq -> SRcvdReq -> SAct -> SSentAck -> SFinal
-        // SFinal -> SSentReq -> ... -> SFinal
         SInitial.addTransition(obsESendReq, SSendReq);
         SSendReq.addTransition(obsERecvReq, SRecvReq);
         SRecvReq.addTransition(obsELocalAct, SAct);
         SAct.addTransition(obsESendAck, SSendAck);
         SSendAck.addTransition(obsERecvAck, SFinal);
+
+        // SFinal -> SSentReq -> ... -> SFinal
         SFinal.addTransition(obsESendReq, SSendReq);
 
         Set<ObsFifoSysState> states = Util.newSet();
@@ -943,6 +963,8 @@ public class CSightMainTests extends CSightTest {
 
         GFSM pGraph = new GFSM(traces, opts.topKElements);
 
+        // Couldn't make a GFSM that was ready for checking so we manually
+        // refine a few times.
         List<MCcExample> cExamples = Util.newList();
         MCcExample cEx = new MCcExample();
         cExamples.add(cEx);
@@ -970,32 +992,30 @@ public class CSightMainTests extends CSightTest {
     }
 
     @Test
-    public void testSomething() throws Exception {
+    public void testMultipleInvRefine() throws Exception {
         GFSM pGraph = generateInitialGFSM();
 
         List<DistEventType> events = getReqRespEvents(dyn.getChannelIds());
         List<BinaryInvariant> invs = generateReqRespInvariants(events);
 
         dyn.checkMultipleInvsRefineGFSM(invs, pGraph);
-        GFSM finalGFSM = generateFinalGFSM(dyn.getChannelIds(), events);
+        GFSM refGFSM = generateReferenceGFSM(dyn.getChannelIds(), events);
 
         GraphExporter.exportGFSM(opts.outputPathPrefix + ".gfsm.dot", pGraph);
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
                 + ".gfsm.dot");
 
         GraphExporter.exportCFSM(opts.outputPathPrefix + ".my.dot",
-                finalGFSM.getCFSM(true));
+                refGFSM.getCFSM(true));
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
                 + ".my.dot");
         GraphExporter.exportGFSM(opts.outputPathPrefix + ".my.gfsm.dot",
-                finalGFSM);
+                refGFSM);
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
                 + ".my.gfsm.dot");
 
-        // KS TODO Properly compare GFSMs.
-
-        assert pGraph.deepEquals(finalGFSM);
-        assert finalGFSM.deepEquals(pGraph);
+        assert pGraph.deepEquals(refGFSM);
+        assert refGFSM.deepEquals(pGraph);
 
     }
 }
