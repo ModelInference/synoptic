@@ -1271,19 +1271,16 @@ public class CSightMain {
             BlockingQueue<ParallelizerResult> resultsChannel)
             throws InterruptedException {
         logger.info("Waiting for model checking result from Parallelizer...");
-        ParallelizerResult result = resultsChannel.take();
 
-        // TODO ib: turn this into a while loop, instead of using recursion.
+        while (true) {
+            ParallelizerResult result = resultsChannel.take();
 
-        // TODO ib: is there a way to check if there are any results possible?
-        // What if all of the results end up being exceptional, in that case we
-        // want to time out here, no?
-        if (result.getRefinementCounter() != refinementCounter
-                && !result.isException()) {
-            return waitForResult(refinementCounter, resultsChannel);
+            if (result.getRefinementCounter() == refinementCounter
+                    || result.isException()) {
+                return result;
+            }
         }
 
-        return result;
     }
 
     /**
