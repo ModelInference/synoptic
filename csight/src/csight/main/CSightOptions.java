@@ -173,6 +173,19 @@ public class CSightOptions extends Options {
             value = "Default channel capacity to use when using the spin model checker.")
     public int spinChannelCapacity = 8;
 
+    @Option(
+            value = "Run model checking processes in parallel. (Currently only for McScM)",
+            aliases = { "-p" })
+    public boolean runParallel = false;
+
+    /**
+     * The default parallelization factor is set as number of cores available,
+     * which provides the most optimal performance.
+     */
+    @Option(value = "Number of model checking processes to run in parallel.",
+            aliases = { "-pFactor" })
+    public int numParallel = Runtime.getRuntime().availableProcessors();
+
     /**
      * The base timeout that is used to time out invocations of verification
      * (which may run indefinitely).
@@ -242,7 +255,9 @@ public class CSightOptions extends Options {
             aliases = "-consistent-init-state")
     public boolean consistentInitState = true;
 
-    @Option(value = "Minimize each of the process FSMs", aliases = "-minimize")
+    @Option(
+            value = "Minimize each of the process FSMs during GFSM to CFSM conversion",
+            aliases = "-minimize")
     public boolean minimize = false;
 
     // end option group "Strategy Options"

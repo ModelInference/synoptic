@@ -63,8 +63,16 @@ public class MCProcess {
         Thread t = new Thread(pkt);
         t.start();
 
-        // Wait until the verify process terminates.
-        process.waitFor();
+        while (true) {
+            try {
+                // Wait until the verify process terminates.
+                process.waitFor();
+            } catch (InterruptedException e) {
+                // On interrupt we just call waitFor again.
+                continue;
+            }
+            break;
+        }
 
         // Clean up the timer thread.
         if (!pkt.killed) {
