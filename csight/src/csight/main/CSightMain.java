@@ -430,13 +430,13 @@ public class CSightMain {
         // Check if model checking is to be done in parallel and use the
         // corresponding methods.
         if (opts.runParallel) {
-
-            // TODO ib: change assert to be an if, and throw an OptionException
-            // to help the user correct the mistake (asserts fail silently).
-
-            // Parallelization is currently only supported for McScM
-            assert (opts.mcType == "mcscm");
-            checkInvsRefineGFSMParallel(dynInvs, pGraph);
+            if (opts.mcType.equals("mcscm")) {
+                // Parallelization is currently only supported for McScM
+                checkInvsRefineGFSMParallel(dynInvs, pGraph);
+            } else {
+                throw new OptionException(
+                        "Parallel model checking is currently only supported for McScM");
+            }
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);
         }
