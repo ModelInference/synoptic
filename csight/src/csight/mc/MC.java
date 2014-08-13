@@ -16,7 +16,7 @@ public abstract class MC {
      * The started model checker process instance (e.g., of the McScM verify
      * process).
      */
-    protected MCProcess mcProcess;
+    public MCProcess mcProcess;
 
     /**
      * Creates a new instance of McScM that will use the specified verifyPath.
