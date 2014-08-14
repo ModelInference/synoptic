@@ -919,13 +919,23 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     /**
      * A stricter equality check against another GFSM. This is equality check is
      * for states and the transitions, but not any observed states. Two GFSMs
-     * are equal if they can be traversed the same way.
+     * are equal if they can be traversed the same way. <br>
+     * <br>
+     * There are several limitations to this check. <br>
+     * <br>
+     * This check assumes that you only have one initial state. <br>
+     * <br>
+     * This is a deterministic check and will fail on nondeterministic GFSMs.
      * 
      * @param otherGFSM
      *            Other GFSM to compare with.
-     * @return
+     * @return True if the two GFSMs are equivalent. False if the two GFSMs are
+     *         not equivalent.
+     * @throws NondeterministicGFSMException
      */
-    public boolean deepEquals(GFSM otherGFSM) {
+
+    public boolean deepEquals(GFSM otherGFSM)
+            throws NondeterministicGFSMException {
         if (!this.equals(otherGFSM)) {
             return false;
         }
@@ -946,11 +956,16 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
         // Initialize the list of states to check.
         for (int i = 0; i < this.getNumProcesses(); i++) {
-            assert otherGFSM.getInitStatesForPid(i).size() == 1;
-            assert getInitStatesForPid(i).size() == 1;
+            if (otherGFSM.getInitStatesForPid(i).size() != 1
+                    || getInitStatesForPid(i).size() != 1) {
+                throw new NondeterministicGFSMException(
+                        "Checked GFSMs must have only one initial state.");
+            }
+
             GFSMState myInit = getInitStatesForPid(i).iterator().next();
             GFSMState otherInit = otherGFSM.getInitStatesForPid(i).iterator()
                     .next();
+
             statePairsToCheck.add(Util.newPair(myInit, otherInit));
         }
 
@@ -967,10 +982,10 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 if (myState.isInitForPid(i) != otherState.isInitForPid(i)) {
                     return false;
                 }
-            }
-            if (!myState.getTransitioningEvents().equals(
-                    otherState.getTransitioningEvents())) {
-                return false;
+                if (!myState.getTransitioningEvents().equals(
+                        otherState.getTransitioningEvents())) {
+                    return false;
+                }
             }
 
             // Track checked states.
@@ -981,29 +996,24 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             // Add the next states to the frontier.
             for (DistEventType event : myState.getTransitioningEvents()) {
 
-                Set<Pair<GFSMState, GFSMState>> tempPairs = Util.newSet();
-                // Iterate through all transitions. We need to compare
-                // transitioning events of the next states as some transitions
-                // may have multiple next states. We do this so we can determine
-                // which ones to pair.
-                for (GFSMState myNextState : myState.getNextStates(event)) {
-                    for (GFSMState otherNextState : otherState
-                            .getNextStates(event)) {
-                        if (myNextState.getTransitioningEvents().equals(
-                                otherNextState.getTransitioningEvents())) {
-                            tempPairs.add(Util.newPair(myNextState,
-                                    otherNextState));
-                        }
-                    }
+                // We need to check for deterministic transitions.
+                if (myState.getNextStates(event).size() < 1
+                        || otherState.getNextStates(event).size() < 1) {
+                    throw new NondeterministicGFSMException(
+                            "Multiple transistions out of the GFSMState.");
                 }
-                // We must have at least one pair from the transitioning events.
-                assert !tempPairs.isEmpty();
-                for (Pair<GFSMState, GFSMState> tempPair : tempPairs) {
-                    // If this is our first time seeing these, queue them for
-                    // checking.
-                    if (!checkedStates.contains(tempPair)) {
-                        statePairsToCheck.add(tempPair);
-                    }
+                GFSMState myNextState = myState.getNextStates(event).iterator()
+                        .next();
+                GFSMState otherNextState = otherState.getNextStates(event)
+                        .iterator().next();
+
+                Pair<GFSMState, GFSMState> tempPair = Util.newPair(myNextState,
+                        otherNextState);
+                // If this is our first time seeing these, queue them for
+                // checking.
+                if (!checkedStates.contains(tempPair)
+                        && !statePairsToCheck.contains(tempPair)) {
+                    statePairsToCheck.add(tempPair);
                 }
             }
 
