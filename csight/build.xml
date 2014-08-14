@@ -114,8 +114,8 @@
       -->
     <target name="test-case" depends="build"> 
       <!-- if junit.class or junit.case is not set, complain. -->
-      <fail unless="junit.class">must supply a test-class name with -djunit.class</fail>
-      <fail unless="junit.case">must supply a test-case name with -djunit.case</fail>
+      <fail unless="junit.class">must supply a test-class name with -Djunit.class</fail>
+      <fail unless="junit.case">must supply a test-case name with -Djunit.case</fail>
 
       <mkdir dir="${junit.output.dir}"/>
       
