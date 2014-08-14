@@ -790,7 +790,7 @@ public class CSightMainTests extends CSightTest {
      * @return
      * @throws Exception
      */
-    private GFSM generateInitialGFSM() throws Exception {
+    private GFSM generateNewReqRespGFSM() throws Exception {
         List<String> args = getSpinArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
@@ -841,7 +841,7 @@ public class CSightMainTests extends CSightTest {
      * @return
      * @throws Exception
      */
-    private GFSM generateReferenceGFSM(List<ChannelId> channelIds,
+    private GFSM generateReferenceReqRespGFSM(List<ChannelId> channelIds,
             List<DistEventType> events) throws Exception {
         List<ObsFSMState> PInitial = Util.newList();
         List<ObsFSMState> PSentReq = Util.newList();
@@ -993,13 +993,13 @@ public class CSightMainTests extends CSightTest {
 
     @Test
     public void testMultipleInvRefine() throws Exception {
-        GFSM pGraph = generateInitialGFSM();
+        GFSM pGraph = generateNewReqRespGFSM();
 
         List<DistEventType> events = getReqRespEvents(dyn.getChannelIds());
         List<BinaryInvariant> invs = generateReqRespInvariants(events);
 
         dyn.checkMultipleInvsRefineGFSM(invs, pGraph);
-        GFSM refGFSM = generateReferenceGFSM(dyn.getChannelIds(), events);
+        GFSM refGFSM = generateReferenceReqRespGFSM(dyn.getChannelIds(), events);
 
         GraphExporter.exportGFSM(opts.outputPathPrefix + ".gfsm.dot", pGraph);
         GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix

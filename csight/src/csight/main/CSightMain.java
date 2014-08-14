@@ -413,7 +413,7 @@ public class CSightMain {
         // ///////////////////
         // Model check, refine loop. Check each invariant in the model, and
         // refine the model as needed until all invariants hold.
-        if (opts.spinExperimental && mc instanceof Spin) {
+        if (opts.spinMultipleInvs && mc instanceof Spin) {
             checkMultipleInvsRefineGFSM(dynInvs, pGraph);
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);

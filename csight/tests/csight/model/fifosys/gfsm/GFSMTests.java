@@ -145,7 +145,7 @@ public class GFSMTests extends CSightTest {
     }
 
     @Test
-    public void testIsDeepEqual() {
+    public void testIsDeepEqual() throws Exception {
         GFSM notG = createSingletonGFSM();
         assertTrue(g.deepEquals(g));
         assertTrue(notG.deepEquals(notG));
