@@ -160,7 +160,10 @@ public class McScMParallelizer implements Runnable {
                 do {
                     // Result may occasionally fail to enqueue into the results
                     // channel, so attempts are made until the result is
-                    // successfully written into the queue.
+                    // successfully written into the queue. If a limit of how
+                    // many attempts are introduced, we need to introduce a
+                    // timeout in CSightMain.waitForResult() as there may be no
+                    // result returned through the queue.
                     success = writeResult(ParallelizerResult.exceptionResult(e));
                 } while (!success);
             }
@@ -231,7 +234,10 @@ public class McScMParallelizer implements Runnable {
                 do {
                     // Result may occasionally fail to enqueue into the results
                     // channel, so attempts are made until the result is
-                    // successfully written into the queue.
+                    // successfully written into the queue. If a limit of how
+                    // many attempts are introduced, we need to introduce a
+                    // timeout in CSightMain.waitForResult() as there may be no
+                    // result returned through the queue.
                     success = McScMParallelizer.this.writeResult(result);
                 } while (!success);
             }
