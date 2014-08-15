@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -212,11 +213,15 @@ public class McScMParallelizer implements Runnable {
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
 
-                } catch (InterruptedException e) {
+                } catch (TimeoutException e) {
                     // Model checking timed out.
                     result = ParallelizerResult.timeOutResult(invTimeoutPair,
                             refinementCounter);
 
+                } catch (InterruptedException e) {
+                    // Model checking process was interrupted.
+                    result = ParallelizerResult.interruptedResult(
+                            invTimeoutPair, refinementCounter);
                 } catch (Exception e) {
                     // Exception during model checking. Send it to CSightMain.
                     result = ParallelizerResult.exceptionResult(e,
