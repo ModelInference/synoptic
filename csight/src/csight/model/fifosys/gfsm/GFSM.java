@@ -116,8 +116,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     /**
      * Checks that the following property is true for a set of observations: if
-     * two observations have identical process states, then belong to the same
-     * GFSMState partition.
+     * two observations have identical process states, then they belong to the
+     * same GFSMState partition.
      */
     private static void checkPartitioningConsistency(
             Set<ObsFifoSysState> obsToCheck) {
