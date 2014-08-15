@@ -822,6 +822,10 @@ public class CSightMain {
                 // timeout value).
                 curInv = invsToSatisfy.get(0);
                 continue;
+            } catch (InterruptedException e) {
+                // The CSightMain Thread was interrupted. Stop model checking
+                // and terminate with InterruptedException.
+                throw new InterruptedException("CSightMain was interrupted.");
             }
 
             MCResult result = mc.getVerifyResult(cfsm.getChannelIds());

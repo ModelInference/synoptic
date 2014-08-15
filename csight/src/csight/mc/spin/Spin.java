@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -40,10 +41,12 @@ public class Spin extends MC {
      * require that the user has gcc on their system. The model checker will
      * return a result after it finishes running. To retrieve the result, call
      * getVerifyResult.
+     * 
+     * @throws TimeoutException
      */
     @Override
     public void verify(String input, int timeoutSecs) throws IOException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
 
         // Tracking how much of our timeout is left. This is coarse-grained.
         int timeoutSecsLeft = timeoutSecs;
@@ -113,9 +116,10 @@ public class Spin extends MC {
      * @return Time taken to run process.
      * @throws IOException
      * @throws InterruptedException
+     * @throws TimeoutException
      */
     private int generateMCSource(MCProcess process) throws IOException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
         final String syntaxErrRe = "Error: syntax error";
         final String missingPmlErrRe = "spin: error: No file";
         long startTime = System.currentTimeMillis();
@@ -142,9 +146,10 @@ public class Spin extends MC {
      * @return
      * @throws IOException
      * @throws InterruptedException
+     * @throws TimeoutException
      */
     private int compileMC(MCProcess process) throws IOException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
         long startTime = System.currentTimeMillis();
         process.runProcess();
 
