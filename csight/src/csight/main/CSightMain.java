@@ -1100,9 +1100,7 @@ public class CSightMain {
 
         // Refine the pGraph in an attempt to eliminate the counter
         // example.
-        synchronized (pGraph) {
-            refineCExample(pGraph, mcResult.getCExample());
-        }
+        refineCExample(pGraph, mcResult.getCExample());
 
         exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
                 gfsmCounter.get(), gfsmPrefixFilename);
