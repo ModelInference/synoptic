@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import csight.util.Util;
 
@@ -43,8 +44,11 @@ public class MCProcess {
      * @throws IOException
      * @throws InterruptedException
      *             when the started process had to be killed forcibly
+     * @throws TimeoutException
+     *             when the started process is killed after timing out
      */
-    public void runProcess() throws IOException, InterruptedException {
+    public void runProcess() throws IOException, InterruptedException,
+            TimeoutException {
         ProcessBuilder pBuilder = new ProcessBuilder(command);
         pBuilder.directory(processDir);
 
@@ -68,11 +72,15 @@ public class MCProcess {
                 // Wait until the verify process terminates.
                 process.waitFor();
             } catch (InterruptedException e) {
+                // The current thread was interrupted, so stop the process
+                // and throw InterruptedException.
                 pkt.killed = true;
+
                 process.destroy();
                 t.interrupt();
-                // TODO: distinguish between timeout and interrupted
+
                 throw new InterruptedException("MC Process killed.");
+
             }
             break;
         }
@@ -85,7 +93,7 @@ public class MCProcess {
             t.interrupt();
         } else {
             // Otherwise: the process had to be killed by the timer thread.
-            throw new InterruptedException("MC process killed.");
+            throw new TimeoutException("MC process timed out.");
         }
     }
 
