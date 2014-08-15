@@ -71,6 +71,7 @@ public class MCProcess {
                 pkt.killed = true;
                 process.destroy();
                 t.interrupt();
+                // TODO: distinguish between timeout and interrupted
                 throw new InterruptedException("MC Process killed.");
             }
             break;
