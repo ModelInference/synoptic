@@ -149,24 +149,17 @@ public class McScMParallelizer implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            if (Thread.interrupted()) {
-                // Parallelizer Thread was shutdown. Terminate parallelizer and
-                // ignore the interrupted exception.
-            } else {
+            boolean success;
+            do {
+                // Result may occasionally fail to enqueue into the results
+                // channel, so attempts are made until the result is
+                // successfully written into the queue. If a limit of how
+                // many attempts are introduced, we need to introduce a
+                // timeout in CSightMain.waitForResult() as there may be no
+                // result returned through the queue.
+                success = writeResult(ParallelizerResult.exceptionResult(e));
+            } while (!success);
 
-                logger.info("Interrupted Exception occured: " + e.getMessage());
-
-                boolean success;
-                do {
-                    // Result may occasionally fail to enqueue into the results
-                    // channel, so attempts are made until the result is
-                    // successfully written into the queue. If a limit of how
-                    // many attempts are introduced, we need to introduce a
-                    // timeout in CSightMain.waitForResult() as there may be no
-                    // result returned through the queue.
-                    success = writeResult(ParallelizerResult.exceptionResult(e));
-                } while (!success);
-            }
         }
     }
 
