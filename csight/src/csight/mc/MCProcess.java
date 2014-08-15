@@ -68,8 +68,10 @@ public class MCProcess {
                 // Wait until the verify process terminates.
                 process.waitFor();
             } catch (InterruptedException e) {
-                // On interrupt we just call waitFor again.
-                continue;
+                pkt.killed = true;
+                process.destroy();
+                t.interrupt();
+                throw new InterruptedException("MC Process killed.");
             }
             break;
         }
