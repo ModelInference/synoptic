@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
@@ -27,8 +28,8 @@ public class McScMCFSMTests extends CFSMTesting {
         mcscm = new McScM(verifyPath);
     }
 
-    public MCResult verifyAndPrint() throws IOException,
-            InterruptedException {
+    public MCResult verifyAndPrint() throws IOException, InterruptedException,
+            TimeoutException {
         String cStr = cfsm.toScmString("test");
 
         mcscm.verify(cStr, 60);

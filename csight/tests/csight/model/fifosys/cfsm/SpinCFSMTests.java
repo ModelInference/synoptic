@@ -3,6 +3,7 @@ package csight.model.fifosys.cfsm;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class SpinCFSMTests extends CFSMTesting {
     }
 
     public MCResult verifyAndPrint(BinaryInvariant inv) throws IOException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
         String cStr = cfsm.toPromelaString(inv, 5);
         spin.verify(cStr, 60);
         logger.info(cStr);

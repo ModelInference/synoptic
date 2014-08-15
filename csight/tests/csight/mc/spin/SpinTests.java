@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +59,8 @@ public class SpinTests extends CSightTest {
             fail("Verify should have thrown an exception.");
         } catch (InterruptedException e) {
             fail("Verify should not have been interrupted.");
+        } catch (TimeoutException e) {
+            fail("Verify should not have timed out.");
         }
     }
 }
