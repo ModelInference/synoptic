@@ -13,6 +13,7 @@ public class ParallelizerResult {
     private final InvariantTimeoutPair invTimeoutPair;
     private final MCResult mcResult;
     private final boolean isTimeout;
+    private final boolean isInterrupted;
     private final boolean isException;
     private final Exception e;
     private final int refinementCounter;
@@ -26,8 +27,14 @@ public class ParallelizerResult {
      */
     protected static ParallelizerResult timeOutResult(
             InvariantTimeoutPair invTimeoutPair, int refinementCounter) {
-        return new ParallelizerResult(invTimeoutPair, null, true, false, null,
-                refinementCounter);
+        return new ParallelizerResult(invTimeoutPair, null, true, false, false,
+                null, refinementCounter);
+    }
+
+    public static ParallelizerResult interruptedResult(
+            InvariantTimeoutPair invTimeoutPair, int refinementCounter) {
+        return new ParallelizerResult(invTimeoutPair, null, false, true, false,
+                null, refinementCounter);
     }
 
     /**
@@ -42,7 +49,7 @@ public class ParallelizerResult {
             InvariantTimeoutPair invTimeoutPair, MCResult mcResult,
             int refinementCounter) {
         return new ParallelizerResult(invTimeoutPair, mcResult, false, false,
-                null, refinementCounter);
+                false, null, refinementCounter);
     }
 
     /**
@@ -54,7 +61,7 @@ public class ParallelizerResult {
      */
     protected static ParallelizerResult exceptionResult(Exception e,
             int refinementCounter) {
-        return new ParallelizerResult(null, null, false, true, e,
+        return new ParallelizerResult(null, null, false, false, true, e,
                 refinementCounter);
     }
 
@@ -65,7 +72,7 @@ public class ParallelizerResult {
      * @return
      */
     protected static ParallelizerResult exceptionResult(Exception e) {
-        return new ParallelizerResult(null, null, false, true, e, -1);
+        return new ParallelizerResult(null, null, false, false, true, e, -1);
     }
 
     /**
@@ -74,16 +81,19 @@ public class ParallelizerResult {
      * @param invTimeoutPair
      * @param mcResult
      * @param isTimeout
+     * @param isInterrupted
+     *            TODO
      * @param isException
      * @param e
      * @param refinementCounter
      */
     private ParallelizerResult(InvariantTimeoutPair invTimeoutPair,
-            MCResult mcResult, boolean isTimeout, boolean isException,
-            Exception e, int refinementCounter) {
+            MCResult mcResult, boolean isTimeout, boolean isInterrupted,
+            boolean isException, Exception e, int refinementCounter) {
         this.invTimeoutPair = invTimeoutPair;
         this.mcResult = mcResult;
         this.isTimeout = isTimeout;
+        this.isInterrupted = isInterrupted;
         this.isException = isException;
         this.e = e;
         this.refinementCounter = refinementCounter;
@@ -105,6 +115,10 @@ public class ParallelizerResult {
         return isTimeout;
     }
 
+    public boolean isInterrupted() {
+        return isInterrupted;
+    }
+
     public boolean isException() {
         return isException;
     }
@@ -116,4 +130,5 @@ public class ParallelizerResult {
     public int getRefinementCounter() {
         return refinementCounter;
     }
+
 }

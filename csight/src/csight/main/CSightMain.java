@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -800,7 +801,7 @@ public class CSightMain {
 
             try {
                 mc.verify(mcInputStr, curTimeout);
-            } catch (InterruptedException e) {
+            } catch (TimeoutException e) {
                 // The model checker timed out. First, record the timed-out
                 // invariant so that we are not stuck re-checking it.
                 invsToSatisfy.remove(0);
@@ -997,7 +998,18 @@ public class CSightMain {
                         opts.timeoutDelta, opts.maxTimeout, gfsmCounter.get(),
                         taskChannel, resultPair);
 
-                // Continue to wait for next result
+                // Continue to wait for next result.
+                continue;
+            }
+
+            if (result.isInterrupted()) {
+                // Add the invariant back to beginning of queue checking to
+                // check again.
+                invsToSatisfy.add(0, resultPair);
+                parallelizerStartOne(invsToSatisfy, curInvs, pGraph, mcCounter,
+                        taskChannel);
+
+                // Continue to wait for next result.
                 continue;
             }
 
@@ -1027,7 +1039,7 @@ public class CSightMain {
                     parallelizer.interrupt();
                     return mcCounter;
                 }
-                // Continue to wait for next result
+                // Continue to wait for next result.
                 continue;
             }
 
@@ -1038,7 +1050,7 @@ public class CSightMain {
                 parallelizer.interrupt();
                 return mcCounter;
             }
-            // Continue to wait for next result
+            // Continue to wait for next result.
             continue;
         }
     }
