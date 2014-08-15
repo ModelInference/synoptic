@@ -8,14 +8,42 @@ import csight.mc.MCResult;
  */
 public class ParallelizerResult {
 
-    // TODO ib: give a brief comment next to each of these to explain their
-    // purpose.
+    /**
+     * Specifies for which invariant and for what timeout the result is for so
+     * CSightMain knows which of the p invariants currently running returned the
+     * result.
+     */
     private final InvariantTimeoutPair invTimeoutPair;
+
+    /**
+     * The MCResult returned by the invTimeoutPair, if applicable.
+     */
     private final MCResult mcResult;
+
+    /**
+     * Specifies if the invTimeoutPair has timed out during model checking.
+     */
     private final boolean isTimeout;
+
+    /**
+     * Specifies the invTimeoutPair was interrupted during model checking.
+     */
     private final boolean isInterrupted;
+
+    /**
+     * Specifies if the result is passing an Exception to CSightMain.
+     */
     private final boolean isException;
+
+    /**
+     * The Exception being passed to CSightMain, if applicable.
+     */
     private final Exception e;
+
+    /**
+     * The refinementCounter associated with the CFSM that the invTimeoutPair
+     * was model checking to determine if the result is out-dated.
+     */
     private final int refinementCounter;
 
     /**
@@ -82,7 +110,6 @@ public class ParallelizerResult {
      * @param mcResult
      * @param isTimeout
      * @param isInterrupted
-     *            TODO
      * @param isException
      * @param e
      * @param refinementCounter
