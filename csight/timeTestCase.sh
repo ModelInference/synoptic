@@ -24,5 +24,5 @@ do
 done;
 
 average=$(echo "scale=3;$total/10" | bc);
-echo "Average rutime is: $average seconds";
+echo "Average runtime is: $average seconds";
 
