@@ -1,8 +1,8 @@
 package csight.main;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1368,8 +1368,7 @@ public class CSightMain {
                 inputs, refinementCounter));
     }
 
-
-        /**
+    /**
      * Implements the (model check - refine loop). Check each invariant in
      * dynInvs in the pGraph model, and refine pGraph as needed until all
      * invariants are satisfied.
@@ -1410,14 +1409,16 @@ public class CSightMain {
         // model satisfies.
         Set<BinaryInvariant> satisfiedInvs = Util.newSet();
 
-        // curInv will refer to all the invs we need to satisfy.
+        // Contains all the invs we are checking on the current run.
         List<BinaryInvariant> curInvs = chooseInvariants(invsToSatisfy, 3);
 
         int totalInvs = invsToSatisfy.size();
+
+        // TODO ib: what invariant is this counting?
         int invsCounter = 1;
 
         // Additive and memory-less timeout value adaptation.
-        // Initial McScM invocation timeout in seconds.
+        // Initial invocation timeout in seconds.
         int baseTimeout = opts.baseTimeout;
 
         // How much we increment curTimeout by, when we timeout on checking all
@@ -1432,6 +1433,7 @@ public class CSightMain {
         int curTimeout = baseTimeout;
 
         if (maxTimeout < baseTimeout) {
+            // TODO ib: this should be an option exception.
             throw new Exception(
                     "maxTimeout value must be greater than baseTimeout value");
         }
@@ -1443,11 +1445,13 @@ public class CSightMain {
         int gfsmCounter = 0;
         // This counts the number of times we've performed model checking on the
         // gfsm
+        // TODO ib: this is a bad var name for this.
         int mcCounter = 0;
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
         while (true) {
+            // TODO ib: add parenthesis around bin-ops in asserts below.
             assert invsCounter <= totalInvs;
             assert invsCounter == satisfiedInvs.size() + 1;
             assert curInvs.size() <= invsToSatisfy.size();
@@ -1463,6 +1467,8 @@ public class CSightMain {
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
             String mcInputStr;
+            // TODO ib: you have already checked that mc is Spin above -- why do
+            // it again? Remove this check.
             if (mc instanceof Spin) {
                 mcInputStr = cfsm.toPromelaString(curInvs,
                         opts.spinChannelCapacity);
@@ -1508,8 +1514,15 @@ public class CSightMain {
                 // Retrieve the current invariant and the matching result.
                 // If it is null, then we were interrupted and it should be
                 // ignored.
+
+                // TODO ib: if the result is null then were all invariants
+                // interrupted or just this one? If all were interrupted then
+                // shouldn't we break out of this loop?
+
                 BinaryInvariant curInv = curInvs.get(i);
                 MCResult result = results.get(i);
+
+                // TODO ib: use logger.fine for such detailed logging info.
                 logger.info("Retrieving results for invariant " + curInv);
                 if (result == null) {
                     logger.info("No results for invariant " + i);
@@ -1558,30 +1571,31 @@ public class CSightMain {
                         timeoutDelta, maxTimeout, curTimeout);
             }
             // Select the next invariants to check.
+
+            // TODO ib: why is gfsmCounter passed as the second arg??
             curInvs = chooseInvariants(invsToSatisfy, gfsmCounter);
         }
     }
 
     /**
-     * Heuristic for choosing some of the invariants that we want to satisfy.
-     * The basic idea is that the most common events are involved in many
-     * invariants. By choosing the most common events, we likely have many
-     * invariants to refine. If we don't have enough invariants, we just need to
-     * consider another event.
+     * Implements a heuristic for choosing a subset of the invariants that we
+     * want to check. The basic idea is that there may be events that are
+     * associated with multiple invariants. By choosing these events we optimize
+     * model-checking with Spin because we have to track/instrument fewer types
+     * of events.
      * 
-     * @param invsToSatisfy
-     * @param threshold
-     *            A value for determining how many events are
+     * @param invs
+     * @param minInvs
+     *            Minimum number of invariants to return.
      * @return
      */
-    private List<BinaryInvariant> chooseInvariants(
-            List<BinaryInvariant> invsToSatisfy, int threshold) {
-        List<BinaryInvariant> invsToCheck = Util.newList();
+    private List<BinaryInvariant> chooseInvariants(List<BinaryInvariant> invs,
+            int minInvs) {
+        List<BinaryInvariant> selectedInvs = Util.newList();
 
-        // Count events by number of related invariants.
-        List<CounterPair<DistEventType>> sortedEventList = Util.newList();
+        // Count events by number of invariants they are associated with.
         Map<DistEventType, Integer> eventMap = Util.newMap();
-        for (BinaryInvariant inv : invsToSatisfy) {
+        for (BinaryInvariant inv : invs) {
             // Add first event, but not if it's a case of initial.
             DistEventType curEvent = inv.getFirst();
             if (!inv.equals(DistEventType.INITIALEventType)) {
@@ -1603,38 +1617,44 @@ public class CSightMain {
         }
 
         // Sort events by number of related invariants.
+        List<CounterPair<DistEventType>> sortedEventList = Util.newList();
         for (Entry<DistEventType, Integer> entry : eventMap.entrySet()) {
             sortedEventList.add(new CounterPair<DistEventType>(entry.getKey(),
                     entry.getValue()));
         }
         Collections.sort(sortedEventList);
 
+        // TODO ib: what does minEventCount represent?
         // Lower minEventCount if we don't have enough events for it.
         int minEventCount = Math.min(sortedEventList.size(),
-                (int) Math.sqrt(threshold));
+                (int) Math.sqrt(minInvs));
 
         Set<DistEventType> addedEvents = Util.newSet();
         for (int i = 0; i < minEventCount; i++) {
             addedEvents.add(sortedEventList.get(i).getKey());
         }
 
-        int minInvCount = threshold;
+        int minInvCount = minInvs;
         // We limit the number of invs to the size of invsToSatisfy so we don't
         // run out of invariants.
-        while (invsToCheck.size() < Math.min(minInvCount, invsToSatisfy.size())) {
+
+        // TODO ib: compute Math.min(minInvCount, invs.size()) once.
+        while (selectedInvs.size() < Math.min(minInvCount, invs.size())) {
             assert sortedEventList.size() >= addedEvents.size();
-            invsToCheck.clear();
-            for (BinaryInvariant inv : invsToSatisfy) {
+            selectedInvs.clear();
+
+            // TODO ib: explain what these two loops do -- it's not clear.
+            for (BinaryInvariant inv : invs) {
                 // Add special case for eventually happens, as the first event
                 // doesn't matter here.
                 if (inv instanceof EventuallyHappens
                         && addedEvents.contains(inv.getSecond())) {
-                    invsToCheck.add(inv);
+                    selectedInvs.add(inv);
                 } else if (addedEvents.contains(inv.getFirst())
                         && addedEvents.contains(inv.getSecond())) {
                     // Add invariant only if both events are in the set of
                     // events we're using
-                    invsToCheck.add(inv);
+                    selectedInvs.add(inv);
                 }
             }
             // In preparation for the next loop, add the next event in line. We
@@ -1645,9 +1665,9 @@ public class CSightMain {
                         .getKey());
             }
         }
-        return invsToCheck;
+        return selectedInvs;
     }
-    
+
     /**
      * Moves the timed-out invariants into the invsToSatisfy list, and updates
      * the curTimeout value (and returns it) based on the timeoutDelta value.

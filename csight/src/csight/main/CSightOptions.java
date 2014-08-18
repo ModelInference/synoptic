@@ -174,7 +174,7 @@ public class CSightOptions extends Options {
     public int spinChannelCapacity = 8;
 
     @Option(
-            value = "Check multiple Spin invariants when model checking.")
+            value = "Check multiple invariants per model checking run when using Spin.")
     public boolean spinMultipleInvs = true;
 
     @Option(
