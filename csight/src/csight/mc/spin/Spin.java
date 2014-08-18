@@ -248,6 +248,16 @@ public class Spin extends MC {
      */
     public Map<Integer, MCResult> getVerifyResults(List<ChannelId> cids,
             int runCount) throws IOException {
+
+        // TODO ib: runCount is a bad name for what seems like numExpectedInvs
+        // or similar.
+
+        // TODO ib: This method name is very similar to the one above
+        // 'getVerifyResult' which is confusing. They should differ more, and
+        // the method comment should emphasize how these two differ.
+
+        // TODO ib: in comment below what does "check" mean? I'm confused.
+
         // We check based on the size of the results because we may have been
         // interrupted while we were checking. We don't want to try to verify
         // runs that did not complete.
@@ -255,6 +265,10 @@ public class Spin extends MC {
             List<String> lines = returnedLines.get(i);
             // If the run was interrupted, it would have a null return.
             // We need to record this.
+
+            // TODO ib: unclear -- are all results null in this case, or just
+            // the one for this invariant?
+
             if (lines != null) {
                 MCResult ret = getVerifyResult(cids, lines);
                 returnedResults.put(i, ret);
@@ -274,6 +288,10 @@ public class Spin extends MC {
      * checker executable and the trail file.
      */
     public void cleanUpFiles() {
+
+        // TODO ib: these files and the assumption about where they are created
+        // should be documented in the class-level comment.
+
         File outputDir = new File(".");
         String[] filters = new String[] { "pan*", "csight.pml*" };
         FileFilter filter = new WildcardFileFilter(filters);
