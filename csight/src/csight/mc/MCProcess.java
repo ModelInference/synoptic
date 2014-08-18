@@ -63,8 +63,9 @@ public class MCProcess {
         }
 
         // Timer setup.
-        ProcessKillTimer pkt = new ProcessKillTimer(process, timeoutSecs);
-        Thread t = new Thread(pkt);
+        ProcessKillTimer killTimerThread = new ProcessKillTimer(process,
+                timeoutSecs);
+        Thread t = new Thread(killTimerThread);
         t.start();
 
         while (true) {
@@ -74,7 +75,7 @@ public class MCProcess {
             } catch (InterruptedException e) {
                 // The current thread was interrupted, so stop the process
                 // and throw InterruptedException.
-                pkt.killed = true;
+                killTimerThread.killed = true;
 
                 process.destroy();
                 t.interrupt();
@@ -86,10 +87,10 @@ public class MCProcess {
         }
 
         // Clean up the timer thread.
-        if (!pkt.killed) {
+        if (!killTimerThread.killed) {
             // The killed flag is false: verify process terminated naturally.
             // Make sure that the timer thread stops waiting.
-            pkt.killed = true;
+            killTimerThread.killed = true;
             t.interrupt();
         } else {
             // Otherwise: the process had to be killed by the timer thread.
@@ -145,23 +146,10 @@ final class ProcessKillTimer implements Runnable {
 
     @Override
     public void run() {
-
-        // Code to handle spurious interrupts.
-        /*
-         * 
-         * long timeoutRemaining = timeout * 1000L; long timeStarted =
-         * System.currentTimeMillis(); while (true) { try { synchronized (this)
-         * { wait(timeoutRemaining); } } catch (InterruptedException e) { if
-         * (killed == true) { return; }
-         * 
-         * timeoutRemaining = (timeout * 1000L) - (System.currentTimeMillis() -
-         * timeStarted);
-         * 
-         * if (timeoutRemaining < 0) { Thread.interrupted(); break; } continue;
-         * } break; }
-         */
         try {
             synchronized (this) {
+                // Sleep for timeout seconds and then kill the MC process if it
+                // hasn't been killed yet.
                 wait(timeout * 1000L);
             }
         } catch (InterruptedException e) {
