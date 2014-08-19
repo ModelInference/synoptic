@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
@@ -149,24 +150,17 @@ public class McScMParallelizer implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            if (Thread.interrupted()) {
-                // Parallelizer Thread was shutdown. Terminate parallelizer and
-                // ignore the interrupted exception.
-            } else {
+            boolean success;
+            do {
+                // Result may occasionally fail to enqueue into the results
+                // channel, so attempts are made until the result is
+                // successfully written into the queue. If a limit of how
+                // many attempts are introduced, we need to introduce a
+                // timeout in CSightMain.waitForResult() as there may be no
+                // result returned through the queue.
+                success = writeResult(ParallelizerResult.exceptionResult(e));
+            } while (!success);
 
-                logger.info("Interrupted Exception occured: " + e.getMessage());
-
-                boolean success;
-                do {
-                    // Result may occasionally fail to enqueue into the results
-                    // channel, so attempts are made until the result is
-                    // successfully written into the queue. If a limit of how
-                    // many attempts are introduced, we need to introduce a
-                    // timeout in CSightMain.waitForResult() as there may be no
-                    // result returned through the queue.
-                    success = writeResult(ParallelizerResult.exceptionResult(e));
-                } while (!success);
-            }
         }
     }
 
@@ -219,11 +213,15 @@ public class McScMParallelizer implements Runnable {
                             mcscm.getVerifyResult(cfsm.getChannelIds()),
                             refinementCounter);
 
-                } catch (InterruptedException e) {
+                } catch (TimeoutException e) {
                     // Model checking timed out.
                     result = ParallelizerResult.timeOutResult(invTimeoutPair,
                             refinementCounter);
 
+                } catch (InterruptedException e) {
+                    // Model checking process was interrupted.
+                    result = ParallelizerResult.interruptedResult(
+                            invTimeoutPair, refinementCounter);
                 } catch (Exception e) {
                     // Exception during model checking. Send it to CSightMain.
                     result = ParallelizerResult.exceptionResult(e,

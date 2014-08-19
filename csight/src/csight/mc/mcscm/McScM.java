@@ -3,6 +3,7 @@ package csight.mc.mcscm;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import csight.mc.MC;
@@ -27,9 +28,10 @@ public class McScM extends MC {
      * @param timeoutSecs
      * @throws InterruptedException
      * @throws IOException
+     * @throws TimeoutException
      */
     public void verify(String scmInput, int timeoutSecs) throws IOException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
         File currentPath = new java.io.File(".");
 
         mcProcess = new MCProcess(new String[] { mcPath, "-no-validation",

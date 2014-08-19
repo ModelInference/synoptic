@@ -3,6 +3,7 @@ package csight.mc.spin;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +86,13 @@ public class SpinResult extends MCResult {
                 parseCounterExample(trailLines);
 
             } catch (InterruptedException e) {
+                // Process thread was killed
+                // TODO KS Properly handle this. For now, this is to test if
+                // this works here.
+                throw new VerifyOutputParseException(
+                        "Unable to parse verify result: Spin interrupted during parsing.");
+            } catch (TimeoutException e) {
+                // Process timed out.
                 // TODO KS Properly handle this. For now, this is to test if
                 // this works here.
                 throw new VerifyOutputParseException(

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import csight.util.Util;
 
@@ -43,8 +44,11 @@ public class MCProcess {
      * @throws IOException
      * @throws InterruptedException
      *             when the started process had to be killed forcibly
+     * @throws TimeoutException
+     *             when the started process is killed after timing out
      */
-    public void runProcess() throws IOException, InterruptedException {
+    public void runProcess() throws IOException, InterruptedException,
+            TimeoutException {
         ProcessBuilder pBuilder = new ProcessBuilder(command);
         pBuilder.directory(processDir);
 
@@ -59,8 +63,9 @@ public class MCProcess {
         }
 
         // Timer setup.
-        ProcessKillTimer pkt = new ProcessKillTimer(process, timeoutSecs);
-        Thread t = new Thread(pkt);
+        ProcessKillTimer killTimerThread = new ProcessKillTimer(process,
+                timeoutSecs);
+        Thread t = new Thread(killTimerThread);
         t.start();
 
         while (true) {
@@ -68,21 +73,28 @@ public class MCProcess {
                 // Wait until the verify process terminates.
                 process.waitFor();
             } catch (InterruptedException e) {
-                // On interrupt we just call waitFor again.
-                continue;
+                // The current thread was interrupted, so stop the process
+                // and throw InterruptedException.
+                killTimerThread.killed = true;
+
+                process.destroy();
+                t.interrupt();
+
+                throw new InterruptedException("MC Process killed.");
+
             }
             break;
         }
 
         // Clean up the timer thread.
-        if (!pkt.killed) {
+        if (!killTimerThread.killed) {
             // The killed flag is false: verify process terminated naturally.
             // Make sure that the timer thread stops waiting.
-            pkt.killed = true;
+            killTimerThread.killed = true;
             t.interrupt();
         } else {
             // Otherwise: the process had to be killed by the timer thread.
-            throw new InterruptedException("MC process killed.");
+            throw new TimeoutException("MC process timed out.");
         }
     }
 
@@ -134,23 +146,10 @@ final class ProcessKillTimer implements Runnable {
 
     @Override
     public void run() {
-
-        // Code to handle spurious interrupts.
-        /*
-         * 
-         * long timeoutRemaining = timeout * 1000L; long timeStarted =
-         * System.currentTimeMillis(); while (true) { try { synchronized (this)
-         * { wait(timeoutRemaining); } } catch (InterruptedException e) { if
-         * (killed == true) { return; }
-         * 
-         * timeoutRemaining = (timeout * 1000L) - (System.currentTimeMillis() -
-         * timeStarted);
-         * 
-         * if (timeoutRemaining < 0) { Thread.interrupted(); break; } continue;
-         * } break; }
-         */
         try {
             synchronized (this) {
+                // Sleep for timeout seconds and then kill the MC process if it
+                // hasn't been killed yet.
                 wait(timeout * 1000L);
             }
         } catch (InterruptedException e) {

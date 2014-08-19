@@ -8,7 +8,11 @@ import csight.invariants.BinaryInvariant;
  */
 public class InvariantTimeoutPair {
     private final BinaryInvariant inv;
-    private final int timeout; // TODO ib: in seconds, milliseconds?
+
+    /**
+     * Timeout in seconds.
+     */
+    private final int timeout;
 
     public InvariantTimeoutPair(BinaryInvariant inv, int timeout) {
         this.inv = inv;
