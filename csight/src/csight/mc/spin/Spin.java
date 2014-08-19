@@ -27,13 +27,32 @@ import synoptic.model.channelid.ChannelId;
  * directly check models. Instead, it generates source code for a model checker.
  * We'll need to compile the source code and then execute the resulting program
  * to verify. The generated program is called pan.
+ * <p>
+ * This class generates and deletes files in the current directory that match:
+ * <ul>
+ * <li>csight.pml</li>
+ * <li>csight.pml.*.trail</li>
+ * <li>pan</li>
+ * <li>pan.*</li>
+ * </ul>
+ * </p>
  */
 public class Spin extends MC {
 
     static Logger logger = Logger.getLogger("Spin");
 
+    /**
+     * Stores the returned lines from model checking. These lines need to be
+     * parsed to determine which trail file to use for the counterexamples.
+     * Spin's result won't be the exact thing we need. We need to take an
+     * additional step to get the counterexample. This is handled by SpinResult.
+     */
     Map<Integer, List<String>> returnedLines;
 
+    /**
+     * Stores the counterexamples parsed from the Spin trail file. A null
+     * MCResult means that the corresponding run did not complete.
+     */
     Map<Integer, MCResult> returnedResults;
 
     public Spin(String mcPath) {
@@ -206,8 +225,8 @@ public class Spin extends MC {
     }
 
     /**
-     * Spin's result won't be the exact thing we need. We need to take an
-     * additional step to get the counterexample. This is handled by SpinResult.
+     * Parses a single list of returned lines into a MCResult. We keep this for
+     * function for compatibility with the generic refinement loop.
      */
     @Override
     public MCResult getVerifyResult(List<ChannelId> cids) throws IOException {
@@ -222,8 +241,7 @@ public class Spin extends MC {
     }
 
     /**
-     * Parses a MCResult from the supplied lines. We need to run Spin once more
-     * to get the counterexample. This is handled by SpinResult.
+     * Parses a single MCResult from the supplied lines.
      * 
      * @param cids
      * @param lines
@@ -238,45 +256,40 @@ public class Spin extends MC {
     }
 
     /**
-     * Retrieves MCResults from parsing the Spin counterexamples.
+     * Retrieves multiple MCResults from parsing the Spin counterexamples. It is
+     * recommended that the iterator is not used for the returned result as a
+     * null result is valid for the Map.
      * 
      * @param cids
-     * @param runCount
-     *            Number of runs for this set of results.
+     * @param numInvsInRun
+     *            Number of invariants in this Spin model checking run.
      * @return
      * @throws IOException
      */
-    public Map<Integer, MCResult> getVerifyResults(List<ChannelId> cids,
-            int runCount) throws IOException {
+    public Map<Integer, MCResult> getMultipleVerifyResults(
+            List<ChannelId> cids, int numInvsInRun) throws IOException {
 
-        // TODO ib: runCount is a bad name for what seems like numExpectedInvs
-        // or similar.
-
-        // TODO ib: This method name is very similar to the one above
-        // 'getVerifyResult' which is confusing. They should differ more, and
-        // the method comment should emphasize how these two differ.
-
-        // TODO ib: in comment below what does "check" mean? I'm confused.
-
-        // We check based on the size of the results because we may have been
-        // interrupted while we were checking. We don't want to try to verify
-        // runs that did not complete.
-        for (int i = 0; i < runCount; i++) {
+        /*
+         * We iterate through returnedLines based on the number of expected
+         * results as we may have been interrupted while we were model checking.
+         * We don't want to verify runs that did not complete.
+         */
+        for (int i = 0; i < numInvsInRun; i++) {
             List<String> lines = returnedLines.get(i);
-            // If the run was interrupted, it would have a null return.
-            // We need to record this.
-
-            // TODO ib: unclear -- are all results null in this case, or just
-            // the one for this invariant?
+            // If the run for this invariant was interrupted, it would have a
+            // null entry for returnedLines. We do not attempt to parse these
+            // runs.
 
             if (lines != null) {
+                // Parse only the lines that returned when retrieving
+                // counterexamples.
                 MCResult ret = getVerifyResult(cids, lines);
                 returnedResults.put(i, ret);
             } else {
                 returnedResults.put(i, null);
             }
         }
-        assert runCount == returnedResults.size();
+        assert numInvsInRun == returnedResults.size();
         // Clean files once we're done with them.
         cleanUpFiles();
         return returnedResults;
@@ -288,12 +301,9 @@ public class Spin extends MC {
      * checker executable and the trail file.
      */
     public void cleanUpFiles() {
-
-        // TODO ib: these files and the assumption about where they are created
-        // should be documented in the class-level comment.
-
         File outputDir = new File(".");
-        String[] filters = new String[] { "pan*", "csight.pml*" };
+        String[] filters = new String[] { "pan", "pan.*", "csight.pml",
+                "csight.pml.*.trail" };
         FileFilter filter = new WildcardFileFilter(filters);
         File[] spinFiles = outputDir.listFiles(filter);
         for (File spinFile : spinFiles) {

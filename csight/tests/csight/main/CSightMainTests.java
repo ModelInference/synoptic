@@ -1160,4 +1160,79 @@ public class CSightMainTests extends CSightTest {
         assert refGFSM.deepEquals(pGraph);
 
     }
+
+    private void setUpChooseInvTest() throws Exception {
+        List<String> args = getSpinArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)#.*$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("A:0->1;B:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("-minimize");
+        args.add("../traces/abstract/request-response-po/trace.txt");
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+    }
+
+    /**
+     * Basic invariant selection test.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testChooseInvariants() throws Exception {
+        setUpChooseInvTest();
+        List<ChannelId> channelIds = Util.newList();
+        channelIds.add(new ChannelId(0, 1, 0));
+        channelIds.add(new ChannelId(1, 0, 1));
+        List<DistEventType> events = getReqRespEvents(channelIds);
+        List<BinaryInvariant> invs = generateReqRespInvariants(events);
+        List<BinaryInvariant> invsToCheck = dyn.chooseInvariants(invs, 6);
+        assert (invsToCheck.size() >= 6);
+        invsToCheck = dyn.chooseInvariants(invs, 20);
+        assert (invsToCheck.size() >= 20);
+    }
+
+    /**
+     * Test to ensure we don't exceed more invariants than we actually have.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testChooseInvariantsExceedInvCount() throws Exception {
+        setUpChooseInvTest();
+        List<ChannelId> channelIds = Util.newList();
+        channelIds.add(new ChannelId(0, 1, 0));
+        channelIds.add(new ChannelId(1, 0, 1));
+        List<DistEventType> events = getReqRespEvents(channelIds);
+        List<BinaryInvariant> invs = generateReqRespInvariants(events);
+        List<BinaryInvariant> invsToCheck = dyn.chooseInvariants(invs,
+                invs.size() * 2);
+        // We can't end up with more invariants than we have.
+        assert (invsToCheck.size() <= invs.size());
+    }
+
+    /**
+     * Make sure we get at least one invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testChooseInvariantsMinOne() throws Exception {
+        setUpChooseInvTest();
+        List<ChannelId> channelIds = Util.newList();
+        channelIds.add(new ChannelId(0, 1, 0));
+        channelIds.add(new ChannelId(1, 0, 1));
+        List<DistEventType> events = getReqRespEvents(channelIds);
+        List<BinaryInvariant> invs = generateReqRespInvariants(events);
+        List<BinaryInvariant> invsToCheck = dyn.chooseInvariants(invs, 0);
+        assert (invsToCheck.size() > 0);
+        invsToCheck = dyn.chooseInvariants(invs, -3);
+        assert (invsToCheck.size() > 0);
+    }
 }

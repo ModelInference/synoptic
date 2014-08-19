@@ -52,7 +52,7 @@ public class SpinCFSMTests extends CFSMTesting {
         for (int i = 0; i < invs.size(); i++) {
             spin.verify(cStr, 5, i);
         }
-        Map<Integer, MCResult> result = spin.getVerifyResults(
+        Map<Integer, MCResult> result = spin.getMultipleVerifyResults(
                 cfsm.getChannelIds(), invs.size());
         GraphExporter.exportCFSM("test-output/test.dot", cfsm);
         GraphExporter.generatePngFileFromDotFile("test-output/test.dot");
