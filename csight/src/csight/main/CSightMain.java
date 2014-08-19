@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -800,7 +801,7 @@ public class CSightMain {
 
             try {
                 mc.verify(mcInputStr, curTimeout);
-            } catch (InterruptedException e) {
+            } catch (TimeoutException e) {
                 // The model checker timed out. First, record the timed-out
                 // invariant so that we are not stuck re-checking it.
                 invsToSatisfy.remove(0);
@@ -821,6 +822,10 @@ public class CSightMain {
                 // timeout value).
                 curInv = invsToSatisfy.get(0);
                 continue;
+            } catch (InterruptedException e) {
+                // The CSightMain Thread was interrupted. Stop model checking
+                // and terminate with InterruptedException.
+                throw new InterruptedException("CSightMain was interrupted.");
             }
 
             MCResult result = mc.getVerifyResult(cfsm.getChannelIds());
@@ -997,7 +1002,18 @@ public class CSightMain {
                         opts.timeoutDelta, opts.maxTimeout, gfsmCounter.get(),
                         taskChannel, resultPair);
 
-                // Continue to wait for next result
+                // Continue to wait for next result.
+                continue;
+            }
+
+            if (result.isInterrupted()) {
+                // Add the invariant back to beginning of queue checking to
+                // check again.
+                invsToSatisfy.add(0, resultPair);
+                parallelizerStartOne(invsToSatisfy, curInvs, pGraph, mcCounter,
+                        taskChannel);
+
+                // Continue to wait for next result.
                 continue;
             }
 
@@ -1027,7 +1043,7 @@ public class CSightMain {
                     parallelizer.interrupt();
                     return mcCounter;
                 }
-                // Continue to wait for next result
+                // Continue to wait for next result.
                 continue;
             }
 
@@ -1038,7 +1054,7 @@ public class CSightMain {
                 parallelizer.interrupt();
                 return mcCounter;
             }
-            // Continue to wait for next result
+            // Continue to wait for next result.
             continue;
         }
     }
@@ -1100,9 +1116,7 @@ public class CSightMain {
 
         // Refine the pGraph in an attempt to eliminate the counter
         // example.
-        synchronized (pGraph) {
-            refineCExample(pGraph, mcResult.getCExample());
-        }
+        refineCExample(pGraph, mcResult.getCExample());
 
         exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
                 gfsmCounter.get(), gfsmPrefixFilename);

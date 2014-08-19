@@ -2,6 +2,7 @@ package csight.mc;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -32,7 +33,7 @@ public abstract class MC {
      * Times out the process after timeoutSecs.
      */
     public abstract void verify(String input, int timeoutSecs)
-            throws IOException, InterruptedException;
+            throws IOException, InterruptedException, TimeoutException;
 
     /**
      * 
