@@ -1,5 +1,9 @@
 package csight.util;
 
+/**
+ * A wrapper that is used to count the number of an object. This wrapper is
+ * sorted by the value.
+ */
 public class CounterPair<K> implements Comparable<CounterPair<K>> {
 
     private K key;

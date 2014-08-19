@@ -166,7 +166,7 @@ public class CSightOptions extends Options {
     public String mcPath = null;
 
     @Option(
-            value = "Model checker type to use. Must be either 'spin' or 'mcscm'")
+            value = "Model checker type to use. Must be either 'spin' or 'mcscm'. Spin is only supported on 64-bit Linux.")
     public String mcType = "mcscm";
 
     @Option(
