@@ -5,8 +5,7 @@ import csight.model.fifosys.cfsm.CFSM;
 /**
  * Inputs to the Parallelizer that are sent with ParallelizerCommands through
  * the ParallelizerTask channel. An input contains the invariant to check, the
- * model to check the invariant against, the timeout in seconds, and the current
- * invariant counter and total invariant count for logging.
+ * model to check the invariant against, and the timeout in seconds.
  */
 public class ParallelizerInput {
     protected final InvariantTimeoutPair invTimeoutPair;
