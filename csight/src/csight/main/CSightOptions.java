@@ -174,8 +174,7 @@ public class CSightOptions extends Options {
     public int spinChannelCapacity = 8;
 
     @Option(
-            value = "Run model checking processes in parallel. (Only available for McScM)",
-            aliases = { "-p" })
+            value = "-p Run model checking processes in parallel. (Only available for McScM)")
     public boolean runParallel = true;
 
     /**
