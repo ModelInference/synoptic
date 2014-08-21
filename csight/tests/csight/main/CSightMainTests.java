@@ -49,8 +49,15 @@ public class CSightMainTests extends CSightTest {
         return args;
     }
 
+    public List<String> getSequentialArgs() throws Exception {
+        List<String> args = Util.newList();
+        args.add("-p=false");
+        return args;
+    }
+
     public List<String> getSpinArgsStr() throws Exception {
         List<String> args = Util.newList();
+        args.addAll(getSequentialArgs());
         args.add("--mcType");
         args.add("spin");
         args.add("--mcPath");
@@ -274,6 +281,7 @@ public class CSightMainTests extends CSightTest {
     public void runABPSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
+        args.addAll(getSequentialArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_sr_simple.txt");
         runDynFromFileArgs(args);
     }
@@ -303,6 +311,7 @@ public class CSightMainTests extends CSightTest {
     public void runABPTwoTerminalSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
+        args.addAll(getSequentialArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_sr_no_timeout.txt");
         runDynFromFileArgs(args);
     }
@@ -332,6 +341,7 @@ public class CSightMainTests extends CSightTest {
     public void runABPLongTraceSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.addAll(getABPArgs());
+        args.addAll(getSequentialArgs());
         args.add("../traces/AlternatingBitProtocol/trace_po_long.txt");
         // runDynFromFileArgs(args);
     }
@@ -373,6 +383,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runTCPTrace() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -425,6 +436,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runVoldemortTrace() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -482,6 +494,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleReqRes() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-r");
@@ -546,6 +559,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleConcurrencyFileSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -562,6 +576,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleConcurrencyStringSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -617,6 +632,7 @@ public class CSightMainTests extends CSightTest {
     @Test
     public void runSimpleConcurrencyString2Success() throws Exception {
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -694,7 +710,20 @@ public class CSightMainTests extends CSightTest {
         invs.add(inv);
         GFSM pGraph = createSingletonGFSM();
 
+        // Assert for sequential
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertEquals(0, dyn.checkInvsRefineGFSM(invs, pGraph));
+
+        // Assert for parallel
+        args = getBasicArgsStr();
+        args.addAll(getParallelArgs());
         args.add("-q");
         args.add("M:0->1;A:1->0");
 
@@ -772,7 +801,20 @@ public class CSightMainTests extends CSightTest {
         BinaryInvariant inv = new AlwaysPrecedes(eSend, eRecv);
         invs.add(inv);
 
+        // Assert for sequential
         List<String> args = getBasicArgsStr();
+        args.addAll(getSequentialArgs());
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+
+        opts = new CSightOptions(args.toArray(new String[0]));
+        dyn = new CSightMain(opts);
+
+        assertTrue(0 < dyn.checkInvsRefineGFSM(invs, pGraph));
+
+        // Assert for parallel
+        args = getBasicArgsStr();
+        args.addAll(getParallelArgs());
         args.add("-q");
         args.add("M:0->1;A:1->0");
 
