@@ -448,7 +448,7 @@ public class CSightMain {
                 throw new OptionException(
                         "Parallel model checking is currently only supported for McScM");
             }
-        } else if (opts.spinMultipleInvs) {
+        } else if (opts.spinMultipleInvs && opts.mcType.equals("spin")) {
             checkMultipleInvsRefineGFSM(dynInvs, pGraph);
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);
