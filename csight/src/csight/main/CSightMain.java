@@ -2,7 +2,10 @@ package csight.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,6 +23,7 @@ import csight.mc.MC;
 import csight.mc.MCResult;
 import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
+import csight.mc.mcscm.Os;
 import csight.mc.parallelizer.InvariantTimeoutPair;
 import csight.mc.parallelizer.McScMParallelizer;
 import csight.mc.parallelizer.ParallelizerInput;
@@ -31,7 +35,9 @@ import csight.model.export.GraphExporter;
 import csight.model.fifosys.cfsm.CFSM;
 import csight.model.fifosys.gfsm.GFSM;
 import csight.model.fifosys.gfsm.GFSMPath;
+import csight.model.fifosys.gfsm.GFSMState;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import csight.util.CounterPair;
 import csight.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -232,6 +238,10 @@ public class CSightMain {
                 err = "Parallel model checking not supported for spin";
                 throw new OptionException(err);
             }
+            if (!Os.getOsArch().contains("64")) {
+                err = "Spin is not supported on 32-bit systems.";
+                throw new OptionException(err);
+            }
         } else if (optns.mcType.equals("mcscm")) {
             mc = new McScM(opts.mcPath);
         } else {
@@ -321,7 +331,7 @@ public class CSightMain {
     }
 
     /**
-     * Runs CSight based on setting sin opts, and uses the Synoptic traceGraph
+     * Runs CSight based on settings in opts, and uses the Synoptic traceGraph
      * passed as an argument instead of parsing files or a string directly.
      * 
      * @param traceGraph
@@ -438,6 +448,8 @@ public class CSightMain {
                 throw new OptionException(
                         "Parallel model checking is currently only supported for McScM");
             }
+        } else if (opts.spinMultipleInvs) {
+            checkMultipleInvsRefineGFSM(dynInvs, pGraph);
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);
         }
@@ -740,7 +752,7 @@ public class CSightMain {
         int curTimeout = baseTimeout;
 
         if (maxTimeout < baseTimeout) {
-            throw new Exception(
+            throw new OptionException(
                     "maxTimeout value must be greater than baseTimeout value");
         }
 
@@ -784,7 +796,9 @@ public class CSightMain {
                 mcInputStr = cfsm.toScmString("checking_scm_"
                         + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
-                mcInputStr = cfsm.toPromelaString(curInv,
+                List<BinaryInvariant> curInvs = Util.newList();
+                curInvs.add(curInv);
+                mcInputStr = cfsm.toPromelaString(curInvs,
                         opts.spinChannelCapacity);
 
             } else {
@@ -1374,6 +1388,304 @@ public class CSightMain {
     }
 
     /**
+     * Implements the (model check - refine loop). Check each invariant in
+     * dynInvs in the pGraph model, and refine pGraph as needed until all
+     * invariants are satisfied.
+     * 
+     * @param invsToSatisfy
+     *            CSight invariants to check and satisfy in pGraph
+     * @param pGraph
+     *            The GFSM model that will be checked and refined to satisfy all
+     *            of the invariants in invsTocheck
+     * @throws Exception
+     * @throws IOException
+     * @throws InterruptedException
+     * @return The number of iteration of the model checking loop
+     */
+    public int checkMultipleInvsRefineGFSM(List<BinaryInvariant> invs,
+            GFSM pGraph) throws Exception, IOException, InterruptedException {
+        assert pGraph != null;
+        assert invs != null;
+        assert !invs.isEmpty();
+        assert mc instanceof Spin;
+
+        if (!(mc instanceof Spin)) {
+            throw new RuntimeException(
+                    "Only Spin can check multiple invariants at one time. Model checker is not properly specified.");
+        }
+
+        Spin spinMC = (Spin) mc;
+
+        // Make a copy of invs, as we'll be modifying the list (removing
+        // invariants once they are satisfied by the model).
+        List<BinaryInvariant> invsToSatisfy = Util.newList(invs);
+
+        // The set of invariants that have timed-out so far. This set is reset
+        // whenever we successfully check/refine an invariant.
+        Set<BinaryInvariant> timedOutInvs = Util.newSet();
+
+        // The set of invariants (subset of original invsToSatisfy) that the
+        // model satisfies.
+        Set<BinaryInvariant> satisfiedInvs = Util.newSet();
+
+        /* Contains all the invs we are checking on the current run. */
+        List<BinaryInvariant> curInvs = chooseInvariants(invsToSatisfy, 3);
+
+        int totalInvs = invsToSatisfy.size();
+
+        // Additive and memory-less timeout value adaptation.
+        // Initial invocation timeout in seconds.
+        int baseTimeout = opts.baseTimeout;
+
+        // How much we increment curTimeout by, when we timeout on checking all
+        // invariants.
+        int timeoutDelta = opts.timeoutDelta;
+
+        // At what point to we stop the incrementing the timeout and terminate
+        // with a failure.
+        int maxTimeout = opts.maxTimeout;
+
+        // Current timeout value to use.
+        int curTimeout = baseTimeout;
+
+        if (maxTimeout < baseTimeout) {
+            throw new OptionException(
+                    "maxTimeout value must be greater than baseTimeout value");
+        }
+
+        logger.info("Model checking " + curInvs.size() + " invariants : "
+                + satisfiedInvs.size() + " / " + totalInvs + " satisfied");
+
+        // This counts the number of times we've refined the gfsm.
+        int gfsmCounter = 0;
+        // This counts the number of times we've performed model checking on the
+        // gfsm
+        int modelCheckCounter = 0;
+
+        String gfsmPrefixFilename = opts.outputPathPrefix;
+
+        while (true) {
+            assert (satisfiedInvs.size() <= totalInvs);
+            assert (curInvs.size() <= invsToSatisfy.size());
+            assert ((timedOutInvs.size() + satisfiedInvs.size() + invsToSatisfy
+                    .size()) == totalInvs);
+
+            if (pGraph.isSingleton()) {
+                // Skip model checking if all partitions are singletons
+                return modelCheckCounter;
+            }
+
+            // Get the CFSM corresponding to the partition graph.
+            CFSM cfsm = pGraph.getCFSM(opts.minimize);
+
+            String mcInputStr;
+            mcInputStr = cfsm
+                    .toPromelaString(curInvs, opts.spinChannelCapacity);
+            spinMC.prepare(mcInputStr, 20);
+
+            logger.info("*******************************************************");
+            logger.info("Checking ... " + curInvs.size() + " invariants. Inv "
+                    + satisfiedInvs.size() + " / " + totalInvs + " satisfied"
+                    + ", refinements so far: " + gfsmCounter + ". Timeout = "
+                    + curTimeout + ". " + timedOutInvs.size()
+                    + " invariants are timed out.");
+            logger.info("*******************************************************");
+
+            for (int curInvNum = 0; curInvNum < curInvs.size(); curInvNum++) {
+                try {
+                    logger.info("Running Spin for invariant "
+                            + curInvs.get(curInvNum));
+                    modelCheckCounter++;
+                    spinMC.verify(mcInputStr, curTimeout, curInvNum);
+                } catch (InterruptedException e) {
+                    // The model checker timed out. First, record the timed-out
+                    // invariant so that we are not stuck re-checking it.
+                    BinaryInvariant timedOutInv = curInvs.get(curInvNum);
+                    invsToSatisfy.remove(timedOutInv);
+                    timedOutInvs.add(timedOutInv);
+                    logger.info("Timed out in checking invariant: "
+                            + timedOutInv.toString());
+                    // Stay in the loop.
+                    // Continue checking the rest of the invariants.
+                }
+            }
+
+            // Verify the results that didn't time out.
+            Map<Integer, MCResult> results = spinMC.getMultipleVerifyResults(
+                    cfsm.getChannelIds(), curInvs.size());
+            logger.info(results.size() + " / " + curInvs.size()
+                    + " results returned.");
+            for (int i = 0; i < curInvs.size(); i++) {
+                /*
+                 * Retrieve the current invariant and the matching result. If
+                 * the result is null, then this invariant was interrupted and
+                 * it should be ignored. We still need to check the other
+                 * invariants.
+                 */
+
+                BinaryInvariant curInv = curInvs.get(i);
+                MCResult result = results.get(i);
+
+                logger.fine("Retrieving results for invariant " + curInv);
+                if (result == null) {
+                    // This invariant has no result, but the other invariants
+                    // might.
+                    logger.fine("No results for invariant " + i);
+                    continue;
+                }
+
+                logger.finest(result.toRawString());
+                logger.info(result.toString());
+
+                if (result.modelIsSafe()) {
+                    logger.info("Invariant " + curInv.toString() + " is safe.");
+                    // Remove the current invariant from the invsToSatisfy list.
+                    boolean curInvCheck = invsToSatisfy.remove(curInv);
+                    assert curInvCheck;
+                    satisfiedInvs.add(curInv);
+
+                } else {
+
+                    // Refine the pGraph in an attempt to eliminate the
+                    // counterexample.
+                    // The staleness of the counterexample is checked in
+                    // refineCExample.
+                    if (refineCExample(pGraph, result.getCExample())) {
+
+                        // Increment the number of refinements:
+                        gfsmCounter += 1;
+                        exportIntermediateModels(pGraph, curInv, gfsmCounter,
+                                gfsmPrefixFilename);
+                    }
+
+                }
+
+            }
+            if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
+                // No more invariants to check. We are done.
+                logger.info("Finished checking " + satisfiedInvs.size() + " / "
+                        + totalInvs + " invariants.");
+                return modelCheckCounter;
+            } else if (invsToSatisfy.isEmpty() && !timedOutInvs.isEmpty()) {
+                // No invariants are left to try -- increase the timeout
+                // value, unless we reached the timeout limit, in which case
+                // we throw an exception.
+                curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs,
+                        timeoutDelta, maxTimeout, curTimeout);
+            }
+
+            /*
+             * HEURISTIC: Select the next invariants to check. gfsmCounter
+             * increases as the model gets refined. As the model gets further
+             * refinement, invariants are usually satisfied and the model does
+             * not change. Increasing the number of invariants we check in one
+             * run at the later stages of model checking will speed up
+             * refinement.
+             */
+            curInvs = chooseInvariants(invsToSatisfy, gfsmCounter);
+        }
+    }
+
+    /**
+     * Implements a heuristic for choosing a subset of the invariants that we
+     * want to check. The basic idea is that there may be events that are
+     * associated with multiple invariants. By choosing these events we optimize
+     * model-checking with Spin because we have to track/instrument fewer types
+     * of events. We then select invariants that only have these events.
+     * 
+     * @param invs
+     *            Invariants that need to be satisfied.
+     * @param minInvs
+     *            Minimum number of invariants to return.
+     * @return Invariants to check.
+     */
+    public List<BinaryInvariant> chooseInvariants(List<BinaryInvariant> invs,
+            int minInvs) {
+        // Make sure we get at least one invariant.
+        minInvs = Math.max(minInvs, 1);
+
+        List<BinaryInvariant> invsToCheck = Util.newList();
+
+        // Count events by number of invariants they are associated with.
+        Map<DistEventType, Integer> eventMap = Util.newMap();
+        for (BinaryInvariant inv : invs) {
+            // Add first event, but not if it's a case of initial.
+            DistEventType curEvent = inv.getFirst();
+            if (!inv.equals(DistEventType.INITIALEventType)) {
+                if (eventMap.containsKey(curEvent)) {
+                    eventMap.put(curEvent, eventMap.remove(curEvent) + 1);
+                } else {
+                    eventMap.put(curEvent, 1);
+                }
+            }
+            // Add second event, but do not double count.
+            if (!curEvent.equals(inv.getSecond())) {
+                curEvent = inv.getSecond();
+                if (eventMap.containsKey(curEvent)) {
+                    eventMap.put(curEvent, eventMap.remove(curEvent) + 1);
+                } else {
+                    eventMap.put(curEvent, 1);
+                }
+            }
+        }
+
+        // Sort events by number of related invariants.
+        List<CounterPair<DistEventType>> sortedEventList = Util.newList();
+        for (Entry<DistEventType, Integer> entry : eventMap.entrySet()) {
+            sortedEventList.add(new CounterPair<DistEventType>(entry.getKey(),
+                    entry.getValue()));
+        }
+        Collections.sort(sortedEventList);
+
+        // minEventCount is the minimum number of events we want involved in our
+        // invariant check.
+        // Lower minEventCount if we don't have enough events for it.
+        int minEventCount = Math.min(sortedEventList.size(),
+                (int) Math.sqrt(minInvs));
+
+        Set<DistEventType> addedEvents = Util.newSet();
+        for (int i = 0; i < minEventCount; i++) {
+            addedEvents.add(sortedEventList.get(i).getKey());
+        }
+
+        // We limit the minimum number of invariants to the size of invs so we
+        // don't run out of invariants.
+        int minInvCount = Math.min(minInvs, invs.size());
+
+        // Select invariants that have events in addedEvents. If we do not have
+        // enough invariants, we add another event before repeating.
+        while (invsToCheck.size() < minInvCount) {
+            assert sortedEventList.size() >= addedEvents.size();
+            invsToCheck.clear();
+
+            // Check each invariant to see if the invariant has both events in
+            // addedEvents.
+            // Add them to the InvsToCheck if they do.
+            for (BinaryInvariant inv : invs) {
+                // Add special case for eventually happens, as the first event
+                // doesn't matter here.
+                if (inv instanceof EventuallyHappens
+                        && addedEvents.contains(inv.getSecond())) {
+                    invsToCheck.add(inv);
+                } else if (addedEvents.contains(inv.getFirst())
+                        && addedEvents.contains(inv.getSecond())) {
+                    // Add invariant only if both events are in the set of
+                    // events we're using
+                    invsToCheck.add(inv);
+                }
+            }
+            // In preparation for the next loop, add the next event in line. We
+            // will have one more event to consider if we don't have enough
+            // invariants.
+            if (sortedEventList.size() > addedEvents.size()) {
+                addedEvents.add(sortedEventList.get(addedEvents.size())
+                        .getKey());
+            }
+        }
+        return invsToCheck;
+    }
+
+    /**
      * Moves the timed-out invariants into the invsToSatisfy list, and updates
      * the curTimeout value (and returns it) based on the timeoutDelta value.
      * Checks that the timeout does not exceed maxTimeout and throws an
@@ -1403,8 +1715,7 @@ public class CSightMain {
         curTimeout += timeoutDelta;
 
         if (curTimeout > maxTimeout) {
-            throw new Exception(
-                    "McScM timed-out on all invariants. Cannot continue.");
+            throw new Exception("Timed-out on all invariants. Cannot continue.");
         }
 
         // Append all of the previously timed out invariants back to
@@ -1419,10 +1730,11 @@ public class CSightMain {
      * corresponding GFSM states for each process. Then, refines each process'
      * paths until all paths for some process are successfully refined.
      * 
+     * @return Whether a refinement was performed.
      * @throws Exception
      *             if we were not able to eliminate the counter-example
      */
-    private void refineCExample(GFSM pGraph, MCcExample cexample)
+    private boolean refineCExample(GFSM pGraph, MCcExample cexample)
             throws Exception {
 
         // Resolve all of the complete counter-example paths by:
@@ -1441,7 +1753,7 @@ public class CSightMain {
                         + " exist, continuing.");
                 // Treat this as if we refined all of the paths for the process
                 // -- none exist!
-                return;
+                return false;
             }
 
             // logger.info("Process " + i + " paths: " +
@@ -1455,14 +1767,28 @@ public class CSightMain {
 
             boolean refinedAll = true;
             for (GFSMPath path : processPaths) {
-                logger.info("Attempting to resolve process " + i + " path: "
-                        + path.toString());
+                logger.info("Attempting to resolve process " + i + " path: ");
+                logger.finest(path.toString());
                 // If path is no longer a valid path then it was refined and
                 // eliminated previously.
                 if (!GFSMPath.checkPathCompleteness(path)) {
                     continue;
                 }
 
+                // Checks to see if the empty execution is still valid.
+                // An event-less trace has a single state by default.
+                // This state is automatically the last state and should be both
+                // an accept and an initial state. If it is not both, the path
+                // is no longer complete.
+
+                // We need to pull the check out so we don't impact
+                // checkPathCompleteness.
+                if (path.numEvents() == 0) {
+                    GFSMState s = path.lastState();
+                    if (!s.isAccept() || !s.isInitial()) {
+                        continue;
+                    }
+                }
                 // Otherwise, the path still needs to be refined.
                 if (!path.refine(pGraph)) {
                     refinedAll = false;
@@ -1473,7 +1799,7 @@ public class CSightMain {
             // We were able to refine all paths for process i. Therefore, the
             // abstract counter-example path cannot exist.
             if (refinedAll) {
-                return;
+                return true;
             }
 
         }

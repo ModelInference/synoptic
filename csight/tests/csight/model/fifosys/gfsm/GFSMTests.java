@@ -68,7 +68,7 @@ public class GFSMTests extends CSightTest {
         ObsFifoSys trace = new ObsFifoSys(cids, Si, St, states);
         traces.add(trace);
 
-        g = new GFSM(traces,1);
+        g = new GFSM(traces, 1);
     }
 
     @Test
@@ -142,5 +142,14 @@ public class GFSMTests extends CSightTest {
 
         GFSM singleton = createSingletonGFSM();
         assertTrue(singleton.isSingleton());
+    }
+
+    @Test
+    public void testIsDeepEqual() throws Exception {
+        GFSM notG = createSingletonGFSM();
+        assertTrue(g.deepEquals(g));
+        assertTrue(notG.deepEquals(notG));
+        assertFalse(g.deepEquals(notG));
+        assertFalse(notG.deepEquals(g));
     }
 }
