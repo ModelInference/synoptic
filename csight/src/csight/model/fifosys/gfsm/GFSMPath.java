@@ -238,8 +238,8 @@ public class GFSMPath {
     private boolean refinePartition(GFSM pGraph, int partIndex) {
         GFSMState part = states.get(partIndex);
 
-        logger.info("Tentatively refining partition: " + part + ", at index "
-                + partIndex);
+        logger.info("Tentatively refining partition at index " + partIndex);
+        logger.finest("Partition: " + part);
 
         // Ground rules:
         // 1. We can't refine a partition if it contains just a single

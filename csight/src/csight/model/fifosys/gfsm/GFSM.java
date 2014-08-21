@@ -21,6 +21,7 @@ import csight.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
+import synoptic.util.Pair;
 
 /**
  * <p>
@@ -328,7 +329,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         // the process FSMs.
         CFSM cfsm = new CFSM(numProcesses, channelIds);
 
-        logger.fine("GFSM -> CFSM: " + this.toString() + "\n");
+        logger.finest("GFSM -> CFSM: " + this.toString() + "\n");
 
         Set<FSMState> initFSMStates = Util.newSet();
         Set<FSMState> acceptFSMStates = Util.newSet();
@@ -359,7 +360,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 stateMap.put(gstate, fstate);
             }
 
-            logger.info("GFSMState->FSMState[pid=" + pid + "] stateMap : "
+            logger.finest("GFSMState->FSMState[pid=" + pid + "] stateMap : "
                     + stateMap.toString());
 
             // Create transitions between FSMState instances based on
@@ -913,5 +914,118 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         if (CSightMain.assertsOn) {
             checkPartitioningConsistency(obsToCheck);
         }
+    }
+
+    /**
+     * A stricter equality check against another GFSM. This is equality check is
+     * for states and the transitions, but not any observed states. Two GFSMs
+     * are equal if they can be traversed the same way. <br>
+     * <br>
+     * There are several limitations to this check. <br>
+     * <br>
+     * This check assumes that you only have one initial state. <br>
+     * <br>
+     * This is a deterministic check and will fail on nondeterministic GFSMs.
+     * 
+     * @param otherGFSM
+     *            Other GFSM to compare with.
+     * @return True if the two GFSMs are equivalent. False if the two GFSMs are
+     *         not equivalent.
+     * @throws NondeterministicGFSMException
+     */
+
+    public boolean deepEquals(GFSM otherGFSM)
+            throws NondeterministicGFSMException {
+        if (!this.equals(otherGFSM)) {
+            return false;
+        }
+        if (!this.getCFSM(true).equals(otherGFSM.getCFSM(true))) {
+            return false;
+        }
+        if (getNumProcesses() != otherGFSM.getNumProcesses()) {
+            return false;
+        }
+        if (getStates().size() != otherGFSM.getStates().size()) {
+            return false;
+        }
+
+        Set<Pair<GFSMState, GFSMState>> checkedStates = Util.newSet();
+        Set<GFSMState> myStatesToCheck = Util.newSet(getStates());
+        Set<GFSMState> otherStatesToCheck = Util.newSet(otherGFSM.getStates());
+        List<Pair<GFSMState, GFSMState>> statePairsToCheck = Util.newList();
+
+        // Initialize the list of states to check.
+        for (int i = 0; i < this.getNumProcesses(); i++) {
+            if (otherGFSM.getInitStatesForPid(i).size() != 1
+                    || getInitStatesForPid(i).size() != 1) {
+                throw new NondeterministicGFSMException(
+                        "Checked GFSMs must have only one initial state.");
+            }
+
+            GFSMState myInit = getInitStatesForPid(i).iterator().next();
+            GFSMState otherInit = otherGFSM.getInitStatesForPid(i).iterator()
+                    .next();
+
+            statePairsToCheck.add(Util.newPair(myInit, otherInit));
+        }
+
+        while (!statePairsToCheck.isEmpty()) {
+            Pair<GFSMState, GFSMState> statePair = statePairsToCheck.remove(0);
+            GFSMState myState = statePair.getLeft();
+            GFSMState otherState = statePair.getRight();
+
+            // Compare the two GFSM states for each process.
+            for (int i = 0; i < this.getNumProcesses(); i++) {
+                if (myState.isAcceptForPid(i) != otherState.isAcceptForPid(i)) {
+                    return false;
+                }
+                if (myState.isInitForPid(i) != otherState.isInitForPid(i)) {
+                    return false;
+                }
+                if (!myState.getTransitioningEvents().equals(
+                        otherState.getTransitioningEvents())) {
+                    return false;
+                }
+            }
+
+            // Track checked states.
+            checkedStates.add(Util.newPair(myState, otherState));
+            myStatesToCheck.remove(myState);
+            otherStatesToCheck.remove(otherState);
+
+            // Add the next states to the frontier.
+            for (DistEventType event : myState.getTransitioningEvents()) {
+
+                // We need to check for deterministic transitions.
+                if (myState.getNextStates(event).size() < 1
+                        || otherState.getNextStates(event).size() < 1) {
+                    throw new NondeterministicGFSMException(
+                            "Multiple transistions out of the GFSMState.");
+                }
+                GFSMState myNextState = myState.getNextStates(event).iterator()
+                        .next();
+                GFSMState otherNextState = otherState.getNextStates(event)
+                        .iterator().next();
+
+                Pair<GFSMState, GFSMState> tempPair = Util.newPair(myNextState,
+                        otherNextState);
+                // If this is our first time seeing these, queue them for
+                // checking.
+                if (!checkedStates.contains(tempPair)
+                        && !statePairsToCheck.contains(tempPair)) {
+                    statePairsToCheck.add(tempPair);
+                }
+            }
+
+        }
+        // Every pair must have been checked.
+        if (!myStatesToCheck.isEmpty() || !otherStatesToCheck.isEmpty()) {
+            return false;
+        }
+        if (checkedStates.size() != getStates().size()) {
+            return false;
+        }
+
+        return true;
     }
 }

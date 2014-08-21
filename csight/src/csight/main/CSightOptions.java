@@ -166,7 +166,7 @@ public class CSightOptions extends Options {
     public String mcPath = null;
 
     @Option(
-            value = "Model checker type to use. Must be either 'spin' or 'mcscm'")
+            value = "Model checker type to use. Must be either 'spin' or 'mcscm'. Spin is only supported on 64-bit Linux.")
     public String mcType = "mcscm";
 
     @Option(
@@ -176,6 +176,10 @@ public class CSightOptions extends Options {
     @Option(
             value = "-p Run model checking processes in parallel. (Only available for McScM)")
     public boolean runParallel = true;
+
+    @Option(
+            value = "Check multiple invariants per model checking run when using Spin.")
+    public boolean spinMultipleInvs = true;
 
     /**
      * The default parallelization factor is set to the number of available
