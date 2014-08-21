@@ -1561,11 +1561,12 @@ public class CSightMain {
             }
 
             /*
-             * Select the next invariants to check. gfsmCounter increases as the
-             * model gets refined. As the model gets further refinement,
-             * invariants are usually satisfied and the model is does not
-             * change. Increasing the number of invariants we check in one run
-             * at the later stages of model checking will speed up refinement.
+             * HEURISTIC: Select the next invariants to check. gfsmCounter
+             * increases as the model gets refined. As the model gets further
+             * refinement, invariants are usually satisfied and the model does
+             * not change. Increasing the number of invariants we check in one
+             * run at the later stages of model checking will speed up
+             * refinement.
              */
             curInvs = chooseInvariants(invsToSatisfy, gfsmCounter);
         }
