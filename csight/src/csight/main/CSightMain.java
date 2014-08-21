@@ -448,7 +448,7 @@ public class CSightMain {
                 throw new OptionException(
                         "Parallel model checking is currently only supported for McScM");
             }
-        } else if (opts.spinMultipleInvs) {
+        } else if (opts.mcType.equals("spin") && opts.spinMultipleInvs) {
             checkMultipleInvsRefineGFSM(dynInvs, pGraph);
         } else {
             checkInvsRefineGFSM(dynInvs, pGraph);
@@ -1497,7 +1497,7 @@ public class CSightMain {
                             + curInvs.get(curInvNum));
                     modelCheckCounter++;
                     spinMC.verify(mcInputStr, curTimeout, curInvNum);
-                } catch (InterruptedException e) {
+                } catch (TimeoutException e) {
                     // The model checker timed out. First, record the timed-out
                     // invariant so that we are not stuck re-checking it.
                     BinaryInvariant timedOutInv = curInvs.get(curInvNum);
