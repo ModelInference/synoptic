@@ -23,7 +23,6 @@ import csight.mc.MC;
 import csight.mc.MCResult;
 import csight.mc.MCcExample;
 import csight.mc.mcscm.McScM;
-import csight.mc.mcscm.Os;
 import csight.mc.parallelizer.InvariantTimeoutPair;
 import csight.mc.parallelizer.McScMParallelizer;
 import csight.mc.parallelizer.ParallelizerInput;
@@ -236,10 +235,6 @@ public class CSightMain {
             }
             if (opts.runParallel) {
                 err = "Parallel model checking not supported for spin";
-                throw new OptionException(err);
-            }
-            if (!Os.getOsArch().contains("64")) {
-                err = "Spin is not supported on 32-bit systems.";
                 throw new OptionException(err);
             }
         } else if (optns.mcType.equals("mcscm")) {
