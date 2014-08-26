@@ -34,8 +34,8 @@ public class McScM extends MC {
             InterruptedException, TimeoutException {
         File currentPath = new java.io.File(".");
 
-        mcProcess = new MCProcess(new String[] { mcPath, "-no-validation",
-                "-quiet" }, scmInput, currentPath, timeoutSecs);
+        mcProcess = new MCProcess(new String[] { mcPath, "-no-validation" },
+                scmInput, currentPath, timeoutSecs);
         mcProcess.runProcess();
     }
 
