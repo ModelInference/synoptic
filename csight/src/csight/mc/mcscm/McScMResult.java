@@ -19,8 +19,8 @@ import synoptic.model.event.DistEventType;
  * parsing the output of the verify tool.
  */
 public class McScMResult extends MCResult {
-    static String safeRe = "^Result: Model is safe.";
-    static String unsafeRe = "^Result: Model is unsafe.*";
+    static String safeRe = ".*Result: Model is safe.";
+    static String unsafeRe = ".*Result: Model is unsafe.*";
     static String syntaxErrRe = "^Syntaxical error:.*";
     static String counterExRe = "^Counterexample:";
     static String counterExEventRe = "^.*\\|- (.*) -\\|.*";
