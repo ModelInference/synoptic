@@ -80,9 +80,9 @@ public class SpinTests extends CSightTest {
         assertTrue("Cannot write to target directory.",
                 new File(".").canWrite());
         assertTrue("Cannot read from target directory.",
-                new File(".").canWrite());
+                new File(".").canRead());
 
-        File spinMC = new File(super.getMcPath("spin"));
+        File spinMC = new File(spinPath);
         assertTrue("Cannot execute Spin.", spinMC.canExecute());
 
         spin.prepare("active proctype p1() { printf(\"Compile Test.\"); }", 20);
@@ -91,9 +91,15 @@ public class SpinTests extends CSightTest {
                 new File("csight.pml").exists());
         assertTrue("Cannot read csight.pml.", new File("csight.pml").canRead());
 
+        assertTrue("pan source files were not written by Spin.", 
+                new File("pan.c").exists());
+        assertTrue("pan source files cannot be read.", 
+                new File("pan.c").canRead());
+        
         // Select the correct name for pan.
         File pan = new File(Os.isWindows() ? "./pan.exe" : "./pan");
         assertTrue("Pan was not compiled.", pan.exists());
         assertTrue("Cannot execute pan.", pan.canExecute());
+        spin.cleanUpFiles();
     }
 }

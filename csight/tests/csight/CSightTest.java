@@ -146,6 +146,13 @@ public class CSightTest {
         if (mcType.equals("mcscm")) {
             mcStr = "../bin/mcscm/verify.native.";
         } else if (mcType.equals("spin")) {
+            // Use the environment variable if it is set.
+            String bin = System.getenv("SPIN_BIN");
+            if (bin != null) {
+                System.err.println("Using environment variable SPIN_BIN: "
+                        + bin);
+                return bin;
+            }
             mcStr = "../bin/spin/spin.";
         } else {
             fail("Unsupported model checker (not McScM or SPIN).");
