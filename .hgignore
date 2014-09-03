@@ -1,0 +1,134 @@
+# Use the glob syntax:
+syntax: glob
+
+#####################
+# Synoptic
+#####################
+
+# Ignore directories with auto-generated files
+synoptic/bin/*
+synoptic/junit/*
+synoptic/test-output/*
+
+# Ignore the compiled jar file
+lib/synoptic.jar
+
+
+#####################
+# SynopticGWT
+#####################
+
+# Manifest is generated automatically during build.
+synopticgwt/META-INF/MANIFEST.MF
+
+synopticgwt/war/WEB-INF/*
+synopticgwt/www-test/*
+synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
+synopticgwt/war/synopticgwt/
+synopticgwt/junit/
+synopticgwt/war/model-exports/*
+synopticgwt/war/uploaded-logfiles/*
+synopticgwt/war/userlogfileexport/*
+synopticgwt/.gwt/*
+synopticgwt/.settings/*
+synopticgwt/gwt-unitCache/
+synopticgwt/test/**.class
+synopticgwt/test-output/*
+synopticgwt/derby/*
+
+
+#####################
+# SynopticJUNG
+#####################
+
+# Ignore directories with auto-generated files
+synopticjung/bin/*
+
+# Ignore the compiled jar file
+lib/synopticjung.jar
+
+
+#####################
+# InvariMint
+#####################
+
+# Ignore directories with auto-generated files
+InvariMint/bin/*
+InvariMint/junit/*
+InvariMint/test-output/*
+
+# Ignore the compiled jar
+lib/invarimint.jar
+
+
+#####################
+# CSight
+#####################
+
+# Ignore directories with auto-generated files
+csight/bin/*
+csight/junit/*
+csight/test-output/*
+
+# Ignore the compiled jar
+lib/csight.jar
+
+#Spin/Promela related.
+csight/pan.*
+csight/csight.pml
+csight/csight.pml.trail
+
+
+#####################
+# Daikonizer
+#####################
+
+# Ignore directories with auto-generated files
+daikonizer/bin/*
+daikonizer/daikonizer_*.dtrace
+daikonizer/daikonizer_*.inv.gz
+
+# Ignore the compiled jar
+lib/daikonizer.jar
+
+
+#####################
+# Perfume
+#####################
+
+# Ignore the compiled jar
+lib/perfume.jar
+
+#####################
+# Other
+#####################
+
+# Ignore the mcscm distribution
+mcscm-1.2/
+
+# Ignore secondary binary files (e.g., derby tools)
+bin/
+
+# Ignore vim .swp files
+.*.swp
+
+# Ignore compiled py files
+*.pyc
+
+# Ignore any files in the output dir.
+output/
+
+# Ignore .orig files
+*.orig
+
+# ignore InvariMint benchmarking traces from icse13
+traces/abstract/icse13-benchmarking-invarimint-traces/
+
+# ignore ICSE14 traces from the BEAR framework (used in Perfume eval)
+traces/FindYourHouseICSE14/
+
+# ignore reverse traceroute traces
+traces/ReverseTraceroute/
+
+# ignore compiled distributions
+distros/
