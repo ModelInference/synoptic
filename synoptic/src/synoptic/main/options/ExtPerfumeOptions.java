@@ -51,43 +51,43 @@ public class ExtPerfumeOptions extends Options {
 
     // //////////////////////////////////////////////////
     @OptionGroup("Extended Perfume Options")
+    // Execution Option
     /**
      * True to terminate when intermediate model output is generated. False to
      * block after intermediate model output and wait for external refinement
      * instructions.
      */
-    @Option(value = "-t Terminate on intermediate model output")
+    @Option(value = AbstractOptions.termOnInterdiateModelStr)
     public boolean termOnIntermediateModel = false;
 
+    // Input Options
     /**
      * The file name for an intermediate Perfume model for Extended Perfume.
      */
-    @Option(value = "The file containing the Perfume model",
-            aliases = { "model-file" })
+    @Option(value = AbstractOptions.modelFileStr, aliases = { "model-file" })
     public String modelFile = null;
 
     /**
      * The file name for refinement instructions for an intermediate Perfume
      * model for Extended Perfume.
      */
-    @Option(
-            value = "The file containing refinement instructions for the Perfume model",
+    @Option(value = AbstractOptions.refinementFileStr,
             aliases = { "refinement-file" })
     public String refinementFile = null;
 
     /**
-     * The location to output intermediate models for Extended Perfume
-     */
-    @Option(value = "The location to output intermediate models",
-            aliases = { "output-path" })
-    public String intermediateOutPath = null;
-
-    /**
      * The location for input files for Extended Perfume
      */
-    @Option(value = "The location to output intermediate models",
+    @Option(value = AbstractOptions.intermediateInPathStr,
             aliases = { "input-path" })
-    public String intermediateInPath = null;
+    public String intermediateInPath = "extended-perfume/in/";
+
+    /**
+     * The location to output intermediate models for Extended Perfume
+     */
+    @Option(value = AbstractOptions.intermediateOutPathStr,
+            aliases = { "output-path" })
+    public String intermediateOutPath = "extended-perfume/out/";
     // end option group "Extended Perfume Options"
 
     // //////////////////////////////////////////////////
@@ -498,6 +498,14 @@ public class ExtPerfumeOptions extends Options {
         absOpts.help = help;
         absOpts.allHelp = allHelp;
         absOpts.version = version;
+
+        // Extended Perfume options
+
+        absOpts.termOnIntermediateModel = termOnIntermediateModel;
+        absOpts.modelFile = modelFile;
+        absOpts.refinementFile = refinementFile;
+        absOpts.intermediateInPath = intermediateInPath;
+        absOpts.intermediateOutPath = intermediateOutPath;
 
         // Execution options
 

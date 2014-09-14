@@ -66,6 +66,10 @@ public class AbstractOptions {
     static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
     public int supportCountThreshold = 0;
 
+    // Extended Perfume option
+    static final String termOnInterdiateModelStr = "-t Terminate on intermediate model output";
+    public boolean termOnIntermediateModel = false;
+
     // ////////////////////////////
     // Parser Options
     // ////////////////////////////
@@ -115,6 +119,16 @@ public class AbstractOptions {
     static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";
     public static boolean keepOrder = false;
 
+    // Extended Perfume option
+    static final String modelFileStr = "The file containing the Perfume model";
+    public String modelFile = null;
+
+    static final String refinementFileStr = "The file containing refinement instructions for the Perfume model";
+    public String refinementFile = null;
+
+    static final String intermediateInPathStr = "The location to output intermediate models";
+    public String intermediateInPath = null;
+
     // ////////////////////////////
     // Output options
     // ////////////////////////////
@@ -144,6 +158,10 @@ public class AbstractOptions {
 
     static final String showInitialNodeStr = "Show INITIAL node in generated graphs.";
     public boolean showInitialNode = true;
+
+    // Extended Perfume option
+    static final String intermediateOutPathStr = "The location to output intermediate models";
+    public String intermediateOutPath = null;
 
     // ////////////////////////////
     // Verbosity Options
