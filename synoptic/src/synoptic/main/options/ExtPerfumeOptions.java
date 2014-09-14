@@ -24,9 +24,7 @@ import synoptic.main.AbstractMain;
  * </p>
  */
 public class ExtPerfumeOptions extends Options {
-    // TODO: fill with options for Extended Perfume
-
-    // TODO: Filter the optinos below copied from Perfume Options
+    // TODO: Filter the options below copied from Perfume Options
 
     // //////////////////////////////////////////////////
     /**
@@ -50,6 +48,47 @@ public class ExtPerfumeOptions extends Options {
     @Option(value = AbstractOptions.versionStr, aliases = { "-version" })
     public boolean version = false;
     // end option group "General Options"
+
+    // //////////////////////////////////////////////////
+    @OptionGroup("Extended Perfume Options")
+    /**
+     * True to terminate when intermediate model output is generated. False to
+     * block after intermediate model output and wait for external refinement
+     * instructions.
+     */
+    @Option(value = "-t Terminate on intermediate model output")
+    public boolean termOnIntermediateModel = false;
+
+    /**
+     * The file name for an intermediate Perfume model for Extended Perfume.
+     */
+    @Option(value = "The file containing the Perfume model",
+            aliases = { "model-file" })
+    public String modelFile = null;
+
+    /**
+     * The file name for refinement instructions for an intermediate Perfume
+     * model for Extended Perfume.
+     */
+    @Option(
+            value = "The file containing refinement instructions for the Perfume model",
+            aliases = { "refinement-file" })
+    public String refinementFile = null;
+
+    /**
+     * The location to output intermediate models for Extended Perfume
+     */
+    @Option(value = "The location to output intermediate models",
+            aliases = { "output-path" })
+    public String intermediateOutPath = null;
+
+    /**
+     * The location for input files for Extended Perfume
+     */
+    @Option(value = "The location to output intermediate models",
+            aliases = { "input-path" })
+    public String intermediateInPath = null;
+    // end option group "Extended Perfume Options"
 
     // //////////////////////////////////////////////////
     /**
@@ -402,7 +441,7 @@ public class ExtPerfumeOptions extends Options {
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    public static final String usageString = "perfume [options] <logfiles-to-analyze>";
+    public static final String usageString = "extended perfume [options] <logfiles-to-analyze>";
 
     /**
      * Use this constructor to create a blank set of options, that can then be
