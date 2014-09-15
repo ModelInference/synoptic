@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ConstrainedInvMiner;
 import synoptic.main.options.AbstractOptions;
 import synoptic.main.options.ExtPerfumeOptions;
 import synoptic.main.parser.ParseException;
@@ -78,12 +79,43 @@ public class ExtPerfumeMain extends PerfumeMain {
     @Override
     public TemporalInvariantSet mineTOInvariants(
             boolean useTransitiveClosureMining, ChainsTraceGraph traceGraph) {
+        if (useTransitiveClosureMining) {
+            logger.warning("Using transitive closure mining was requested, but this is not supported by Perfume. Continuing without transitive closure mining.");
+        }
+
+        // Mine unconstrained Synoptic invariants
+        TemporalInvariantSet unconstrainedInvs = mineTOInvariantsCommon(false,
+                traceGraph);
+
         // TODO: implement with new parsers to run with exporting intermediate
         // models. Modify Perfume so each event can be associated with multiple
         // metrics. During refinement process, allow options to output the
         // intermediate model to file and accept an input file describing the
         // refinement steps.
-        return null;
+
+        // TraceParser mine time as resource constraint. We need to change this
+        // to parse multiple resources of given name.
+        // Should we extend this or make a completely new parser???
+        // Also change ConstrainedInvMiner so that invariants can be augmented
+        // with multiple resource metrics.
+
+        // Event and EventNode also needs to be changed so resources metrics can
+        // be stored. Perhaps we need a class for storing multiple resource
+        // metrics?
+
+        // Mine performance-constrained invariants TODO above
+        long startTime = loggerInfoStart("Mining performance-constrained invariants...");
+        ConstrainedInvMiner constrainedMiner = new ConstrainedInvMiner();
+
+        // Augment unconstrained invariants with performance information. A
+        // 'false' parameter is hard-coded because Perfume does not support the
+        // multipleRelations flag.
+        TemporalInvariantSet allInvs = constrainedMiner.computeInvariants(
+                traceGraph, false, unconstrainedInvs);
+
+        loggerInfoEnd("Constrained mining took ", startTime);
+
+        return allInvs;
     }
 
     /**
