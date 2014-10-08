@@ -7,5 +7,6 @@
 	<classpathentry kind="var" path="SYNOPTIC_LIB/plume.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/automaton.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
