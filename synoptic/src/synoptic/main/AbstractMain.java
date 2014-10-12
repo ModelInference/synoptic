@@ -626,6 +626,19 @@ public abstract class AbstractMain {
             }
         }
 
+        // Removed IntrBy Invariants if necessary
+        if (options.ignoreIntrByInvs) {
+            Set<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
+
+            for (ITemporalInvariant inv : minedInvs.getSet()) {
+                if (inv.getShortName().equals("IntrBy")) {
+                    invsToRemove.add(inv);
+                }
+            }
+
+            minedInvs.removeAll(invsToRemove);
+        }
+
         if (AbstractOptions.ignoreInvsOverETypeSet != null) {
 
             // Split string options.ignoreInvsOverETypeSet by the ";" delimiter:

@@ -106,6 +106,13 @@ public class SynopticOptions extends Options {
     @Option(value = AbstractOptions.supportCountThresholdStr)
     public int supportCountThreshold = 0;
 
+    /**
+     * Disable IntrBy Invariants in Synoptic. Synoptic currently doesn't support
+     * IntrBy Invariants.
+     */
+    @Option(value = AbstractOptions.ignoreIntrByInvsStr)
+    public boolean ignoreIntrByInvs = true;
+
     // //////////////////////////////////////////////////
     /**
      * Regular expression separator string. When lines are found which match
@@ -476,6 +483,7 @@ public class SynopticOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
 
         // Parser options
 
