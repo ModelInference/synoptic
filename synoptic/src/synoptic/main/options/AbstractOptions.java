@@ -66,6 +66,9 @@ public class AbstractOptions {
     static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
     public int supportCountThreshold = 0;
 
+    static final String ignoreIntrByInvsStr = "Ignore IntrBy Invariants. Synoptic currently doesn't support IntrBy Invariants.";
+    public boolean ignoreIntrByInvs = true;
+
     // ////////////////////////////
     // Parser Options
     // ////////////////////////////
