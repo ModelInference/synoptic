@@ -1,0 +1,3 @@
+-r ^QueueAr/DataStructures/QueueAr\.(?<TYPE>)\..*$
+-s ^<init>$
+-o output/QueueAr

@@ -1,0 +1,7 @@
+-r ^(?<VTIME>)(?<TYPE>)$
+-r ^(?<VTIME>)(?<TYPE>)#.*$
+-s ^--$
+-q A:0->1;B:1->0
+-i
+-o output/req_res_simple
+--mcPath=./bin/mcscm/verify.native.osx-10.8-x86_64.dynamic

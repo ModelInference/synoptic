@@ -1,0 +1,4 @@
+-r ^(?<TIME>)(?<TYPE>)$
+-r ^(?<TIME>)(?<RELATION>)(?<TYPE>)$
+-r ^(?<TIME>)(?<RELATION*>)cl(?<TYPE>)$
+-s ^--$
