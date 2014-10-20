@@ -69,16 +69,9 @@ public class AbstractOptions {
     static final String ignoreIntrByInvsStr = "Ignore IntrBy Invariants. Synoptic currently doesn't support IntrBy Invariants.";
     public boolean ignoreIntrByInvs = true;
 
-
-
-
-
-
     // Extended Perfume option
     static final String termOnInterdiateModelStr = "-t Terminate on intermediate model output";
     public boolean termOnIntermediateModel = false;
-
-
 
     // ////////////////////////////
     // Parser Options
