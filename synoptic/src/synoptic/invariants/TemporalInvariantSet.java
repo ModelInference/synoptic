@@ -346,7 +346,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 invString += ("\tsupport count " + ((BinaryInvariant) inv)
                         .getStatistics().supportCount);
             }
-            invariantsStr.add(invString + "\n");
+            invariantsStr.add(invString);
         }
         // Sort the list of string invariants and output it to the file.
         Collections.sort(invariantsStr);
