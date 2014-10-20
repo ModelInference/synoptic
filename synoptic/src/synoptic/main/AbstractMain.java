@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -617,11 +618,25 @@ public abstract class AbstractMain {
         // Check if the support counts for all the invariants that have a count
         // is above the
         // threshold and if not then remove the invariant
-        for (ITemporalInvariant inv : minedInvs.getSet()) {
+        for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                .hasNext();) {
+            ITemporalInvariant inv = it.next();
             if (inv instanceof BinaryInvariant) {
                 if (((BinaryInvariant) inv).getStatistics() != null
                         && ((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
-                    minedInvs.remove(inv);
+                    it.remove();
+                }
+            }
+        }
+
+        // Removed IntrBy Invariants if necessary
+        if (options.ignoreIntrByInvs) {
+            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                    .hasNext();) {
+                ITemporalInvariant inv = it.next();
+
+                if (inv.getShortName().equals("IntrBy")) {
+                    it.remove();
                 }
             }
         }
@@ -635,11 +650,11 @@ public abstract class AbstractMain {
             logger.info("Ignoring invariants over event-types set: "
                     + stringEtypesToIgnore.toString());
 
-            // Find invariants matching the filtering constraint.
-            Set<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
-
             boolean removeInv;
-            for (ITemporalInvariant inv : minedInvs.getSet()) {
+            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                    .hasNext();) {
+                ITemporalInvariant inv = it.next();
+
                 // To remove an invariant inv, the event types associated with
                 // inv must all come from the list stringEtypesToIgnore, we
                 // check this here:
@@ -651,12 +666,10 @@ public abstract class AbstractMain {
                     }
                 }
                 if (removeInv) {
-                    invsToRemove.add(inv);
+                    it.remove();
                 }
             }
 
-            // Remove the invariants that matched the constraint:
-            minedInvs.removeAll(invsToRemove);
         }
 
         if (options.dumpInvariants) {
