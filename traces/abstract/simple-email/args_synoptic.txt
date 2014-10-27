@@ -1,0 +1,3 @@
+-r ^(?<TYPE>)$
+-s ^--$
+-o output/simple-email-synoptic.png

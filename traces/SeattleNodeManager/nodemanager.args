@@ -1,0 +1,17 @@
+# -r ^(?<TIME>)\..+:PID-(?<pid>):AdvertiseError occured, continuing: [(?<TYPE>.+)]$
+# -r ^(?<TIME>=1).+(?<TYPE>.+)$
+# -r ^(?<TIME>\\d+).+[:].+[:].+[:]AdvertiseError(?<TYPE>.+)$
+-r ^(?<TIME>\\d*)\.\\d*:PID-\\d*:AdvertiseError occured, continuing: \\[(?<TYPE>.+)\\]$
+-r ^(?<TIME>\\d*)\.\\d*:PID-\\d*:\\[INFO\\]: node manager is alive...$(?<TYPE=>alive)
+-r ^(?<TIME>\\d*)\.\\d*:PID-\\d*:(?<TYPE>.+)$
+-r ^(?<TIME>\\d*)\.\\d*:PID-\\d*$(?<HIDE=>true)
+#-r ^(?<TIME>):PID-(?<pid>):[INFO]: node manager is alive...$(?<TYPE=>alive)
+#-r ^(?<TIME>):PID-(?<pid>):(?<TYPE>.+)$
+
+# Map each line to the partition named by the parsed
+# "nodename-filename" combination:
+# -m \\k<pid>-\\k<FILE>
+-m \\k<FILE>
+
+# Path prefix where to generate output:
+-o output/nodemanager

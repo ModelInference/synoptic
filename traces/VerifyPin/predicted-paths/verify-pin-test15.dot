@@ -1,0 +1,17 @@
+digraph {
+  0 [label="access-denied"];
+  1 [label="enter-pin"];
+  2 [label="enter-pin"];
+  3 [label="enter-pin"];
+  4 [label="pin-blocked"];
+  5 [label="pin-blocked"];
+  6 [label="TERMINAL",shape=diamond];
+  7 [label="INITIAL",shape=box];
+0->2 [label="",];
+1->0 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"1232\", \"1233\", \"1235\" }\nKEY != pin\n",];
+2->4 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+3->5 [label="SynopticPoint:::ENTER\nKEY == \"1234\"\npin one of { \"0000\", \"1234\", \"9999\" }\n",];
+4->3 [label="",];
+5->6 [label="",];
+7->1 [label="",];
+} // digraph {

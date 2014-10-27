@@ -1,0 +1,3 @@
+-r ^(?<sender>),(?<receiver>),(?<TYPE>),(?<txId>)
+-m \\k<txId>
+-o output/twopc/twopc

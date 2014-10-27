@@ -1,0 +1,6 @@
+-r ^#(?<HIDE=>true).+$
+-r ^(?<VTIME>)(?<TYPE>)$
+-s ^--$
+-o output/abp_po_sr
+-q M:0->1;A:1->0
+--mcPath=./bin/mcscm/verify.native.osx-10.8-x86_64.dynamic
