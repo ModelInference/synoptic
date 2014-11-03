@@ -15,6 +15,7 @@ import dk.brics.automaton.Automaton;
 import dk.brics.automaton.BasicOperations;
 import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.RegExp;
+import dk.brics.automaton.SpecialOperations;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
@@ -24,7 +25,6 @@ import synoptic.model.export.GraphExporter;
 /**
  * Wrapper class for dk.brics.automaton.Automaton which provides character
  * encodings for building Automaton with EventTypes rather than characters.
- * 
  */
 public class EncodedAutomaton {
 
@@ -34,7 +34,7 @@ public class EncodedAutomaton {
     }
 
     // The Automaton wrapped with String encodings.
-    private Automaton model;
+    public Automaton model;
 
     // The encoding scheme for the Automaton.
     protected EventTypeEncodings encodings;
@@ -154,11 +154,24 @@ public class EncodedAutomaton {
         model = BasicOperations.intersection(model, other.model);
 
         // logger.info("Checking empty language");
-        // checkEmptyLanguage(errorHint);
+        checkEmptyLanguage(errorHint);
 
         /*
          * logger.info("Determinizing (NFA->DFA)"); model.determinize();
          */
+    }
+
+    /**
+     * Takes the union with the other model and sets this model to be the union.
+     * 
+     * @param other
+     */
+    public void union(EncodedAutomaton other) {
+        if (!this.encodings.equals(other.encodings)) {
+            throw new IllegalArgumentException(
+                    "Cannot intersect Automata using different encoding schemes");
+        }
+        model = BasicOperations.union(model, other.model);
     }
 
     // //////////////////////////////////////////////////////////////////////////////
@@ -173,6 +186,16 @@ public class EncodedAutomaton {
                     "DFA intersection generated the empty language"
                             + (errorHint == null ? "" : ": " + errorHint));
         }
+    }
+
+    /**
+     * Returns the set of strings accepted by this model of the given length.
+     * 
+     * @param length
+     * @return
+     */
+    public Set<String> getStrings(int length) {
+        return SpecialOperations.getStrings(this.model, length);
     }
 
     /**
@@ -272,7 +295,6 @@ public class EncodedAutomaton {
      * transitions in dk brics (two transitions are considered equal if the have
      * the same labels and destination, regardless of whether they emanate from
      * the same source.
-     * 
      */
     class StatePair {
 
