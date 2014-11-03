@@ -229,6 +229,15 @@ public class InvariMintOptions extends Options {
     public boolean compareToStandardAlg = false;
 
     /**
+     * Output the model (FSM) difference between standard- and
+     * InvariMint-derived models.
+     */
+    @Option(
+            value = "Whether to output a model difference between the InvariMint model and the standard non-InvariMint algorithm",
+            aliases = { "-outputModelDiff" })
+    public boolean outputModelDiff = false;
+
+    /**
      * Whether to export the PGraph model derived using StandardAlg.
      */
     @Option(value = "Export the PGraph model derived using StandardAlg")
