@@ -1,6 +1,18 @@
 Scripts and files for the TSE'14 InvariMint paper evaluation that
 compares declarative and procedural Synoptic algorithms.
 
+Important notes:
+================
+
+1. The InvariMint project includes a static boolean variable
+   InvariMintSynoptic.tseEval that must be set to true to output
+   procedural/declarative Synoptic comparison metric values.
+
+2. The variable strLenBound in the
+   InvariMintSynoptic.compareToStandardAlg method is by default set to
+   7. This number is crucial to computing the metric (see paper).
+
+
 Inputs/Ouputs:
 ===============
 
