@@ -1,0 +1,29 @@
+digraph merged { 
+356 [label="0"];
+257 [label="1"];
+158 [label="2"];
+059 [label="3"];
+start60 [shape=box,style=filled];
+start60 [label="4"];
+2561 [label="5"];
+start62 [label="6"];
+356 -> 356 [label="{write:125 }"]
+356 -> start62 [label="{write:75 }"]
+356 -> 059 [label="{write:100 }"]
+257 -> 356 [label="{read:125 }"]
+257 -> start62 [label="{read:25 }"]
+158 -> 356 [label="{getattr:50 }"]
+158 -> 059 [label="{getattr:25 }"]
+158 -> 257 [label="{getattr:125 }"]
+158 -> 158 [label="{getattr:25 }"]
+start60 -> 2561 [label="{lookup:100 }"]
+start60 -> start60 [label="{lookup:50 }"]
+start60 -> 059 [label="{lookup:75 }"]
+2561 -> 2561 [label="{access:825 }"]
+2561 -> start60 [label="{access:125 }"]
+2561 -> 059 [label="{access:50 }"]
+start62 -> start62 [label="{access:25 }"]
+start62 -> 059 [label="{access:25 }"]
+start62 -> 257 [label="{access:25 }"]
+start62 -> 158 [label="{access:200 }"]
+}

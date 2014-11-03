@@ -1,0 +1,21 @@
+# Loop once:
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1
+--
+# Loop twice:
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1

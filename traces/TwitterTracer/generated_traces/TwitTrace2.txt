@@ -1,0 +1,113 @@
+src : 0, dst : 1, timestamp : 1268176966750, type : /statuses/public_timeline.json, the_message : com.google.protobuf.ByteString@464266b7
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@a8b2dec2
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@e58b2677
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@1fe3ecb3
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@34a02dd7
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@db609816
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@589485aa
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@2c132290
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@a05bf0d1
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@4262fa4
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@3e272023
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@62954990
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@e553c200
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@c244557c
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@f3ad1e2b
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@4f72f668
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@919675dd
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@5d940259
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@a125c9eb
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@d679f8fa
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@a4e423c5
+
+
+src : 0, dst : 1, timestamp : 1268176968286, type : /statuses/replies.json, the_message : com.google.protobuf.ByteString@17305aa6
+
+
+src : 0, dst : 1, timestamp : 1268176968423, type : /friendships/show.json, the_message : com.google.protobuf.ByteString@5564d194
+src : 1, dst : 0, timestamp : 1268176966276, type : Relationship, the_message : com.google.protobuf.ByteString@a4d61c19
+
+
+src : 0, dst : 1, timestamp : 1268176968793, type : /statuses/update.json, the_message : com.google.protobuf.ByteString@c31bf3c1
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@10053eb1
+
+
+src : 0, dst : 1, timestamp : 1268176969582, type : /statuses/user_timeline.json, the_message : com.google.protobuf.ByteString@8fa785d9
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@10053eb1
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@bbdd8207
+
+
+src : 0, dst : 1, timestamp : 1268176969739, type : /users/show/test503p.json, the_message : com.google.protobuf.ByteString@87bd2b58
+src : 1, dst : 0, timestamp : 1268176966276, type : User, the_message : com.google.protobuf.ByteString@ffab4ee4
+
+
+src : 0, dst : 1, timestamp : 1268176969865, type : /trends.json, the_message : com.google.protobuf.ByteString@89248f51
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@d988911
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@5c2d9bd1
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@3f4af683
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@3c9e570b
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@7689131
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@9ed292b7
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@bdd2d764
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@c4bb5189
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@124e3dd9
+src : 1, dst : 0, timestamp : 1268176966276, type : Trend, the_message : com.google.protobuf.ByteString@273324f3
+
+
+src : 0, dst : 1, timestamp : 1268176970134, type : /search.json, the_message : com.google.protobuf.ByteString@a7973c60
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@bdb70f5e
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@1685f288
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@d14fbff2
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@f079d3c0
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@579b38a8
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@5c457111
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@c9317d6
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@ebd55070
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@86d3bc39
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@65bc5082
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@114438ac
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@1c706619
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@8baecbb1
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@c75273b3
+src : 1, dst : 0, timestamp : 1268176966276, type : Result, the_message : com.google.protobuf.ByteString@5b33a128
+
+
+src : 0, dst : 1, timestamp : 1268176970315, type : /account/rate_limit_status.json, the_message : com.google.protobuf.ByteString@57e45d1a
+src : 1, dst : 0, timestamp : 1268176966276, type : RateLimitStatus, the_message : com.google.protobuf.ByteString@3f200a62
+
+
+src : 0, dst : 1, timestamp : 1268176970410, type : /account/update_profile.json, the_message : com.google.protobuf.ByteString@7911d444
+src : 1, dst : 0, timestamp : 1268176966276, type : User, the_message : com.google.protobuf.ByteString@ffab4ee4
+
+
+src : 0, dst : 1, timestamp : 1268176970837, type : /notifications/leave/wired.json, the_message : com.google.protobuf.ByteString@dd7b934d
+src : 1, dst : 0, timestamp : 1268176966276, type : User, the_message : com.google.protobuf.ByteString@76e17ed1
+
+
+src : 0, dst : 1, timestamp : 1268176971346, type : /notifications/follow/wired.json, the_message : com.google.protobuf.ByteString@7aac437
+src : 1, dst : 0, timestamp : 1268176966276, type : User, the_message : com.google.protobuf.ByteString@8086cc6e
+
+
+src : 0, dst : 1, timestamp : 1268176971514, type : /statuses/friends_timeline.json, the_message : com.google.protobuf.ByteString@516eda53
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@10053eb1
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@854a2f1a
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@f1b9bd1a
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@4653e903
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@653f4c4c
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@d03a3b6
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@1606e254
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@352800e0
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@145a962a
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@7d3f1aa9
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@5a613089
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@743a22da
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@d128487c
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@124ddcf
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@a302c508
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@7a4a7e1d
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@bbdd8207
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@1bdd2a7b
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@7ddf692e
+src : 1, dst : 0, timestamp : 1268176966276, type : Status, the_message : com.google.protobuf.ByteString@3f38d407
+
+
