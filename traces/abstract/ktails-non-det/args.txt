@@ -1,0 +1,5 @@
+--invMintKTails=true
+--kTailLength=2
+-r ^(?<TYPE>)$
+-s ^--$
+-o ktails-non-det.png
