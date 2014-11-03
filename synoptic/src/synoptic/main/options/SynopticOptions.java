@@ -502,7 +502,7 @@ public class SynopticOptions extends Options {
         AbstractOptions.argsFilename = argsFilename;
 
         // Output options
-
+        absOpts.outputSupportCount = outputSupportCount;
         AbstractOptions.outputPathPrefix = outputPathPrefix;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
         absOpts.exportAsGML = exportAsGML;
