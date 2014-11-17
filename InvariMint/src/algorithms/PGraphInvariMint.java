@@ -123,26 +123,29 @@ public abstract class PGraphInvariMint {
         logger.info("L(stdAlgDFA) subsetOf L(invMintDFA): " + stdSubset);
         logger.info("L(invMintDFA) subsetOf L(stdAlgDFA): " + invSubset);
 
-        EncodedAutomaton modelDiff = null;
-        String exportDiffFname = "";
-        if (stdSubset && !invSubset) {
-            // Output traces in invMintDFA that are not in stdAlgDFA:
-            modelDiff = invMintModel.differenceWith(stdAlgDFA);
-            exportDiffFname = opts.outputPathPrefix + "." + "InvMint-Std"
-                    + ".dfa.dot";
-        } else if (!stdSubset && invSubset) {
-            // Output traces in stdAlgDFA that are not in invMintDFA:
-            modelDiff = invMintModel.differenceWith(stdAlgDFA);
-            exportDiffFname = opts.outputPathPrefix + "." + "Std-InvMint"
-                    + ".dfa.dot";
-        }
+        if (opts.outputModelDiff) {
+            logger.info("Exporting the invMintDFS and stdAlgDFA model difference");
+            EncodedAutomaton modelDiff = null;
+            String exportDiffFname = "";
+            if (stdSubset && !invSubset) {
+                // Output traces in invMintDFA that are not in stdAlgDFA:
+                modelDiff = invMintModel.differenceWith(stdAlgDFA);
+                exportDiffFname = opts.outputPathPrefix + "." + "InvMint-Std"
+                        + ".dfa.dot";
+            } else if (!stdSubset && invSubset) {
+                // Output traces in stdAlgDFA that are not in invMintDFA:
+                modelDiff = invMintModel.differenceWith(stdAlgDFA);
+                exportDiffFname = opts.outputPathPrefix + "." + "Std-InvMint"
+                        + ".dfa.dot";
+            }
 
-        if (modelDiff != null) {
-            assert (exportDiffFname != "");
-            try {
-                modelDiff.exportDotAndPng(exportDiffFname);
-            } catch (IOException e) {
-                logger.info("Unable to export model difference.");
+            if (modelDiff != null) {
+                assert (exportDiffFname != "");
+                try {
+                    modelDiff.exportDotAndPng(exportDiffFname);
+                } catch (IOException e) {
+                    logger.info("Unable to export model difference.");
+                }
             }
         }
 
@@ -179,7 +182,7 @@ public abstract class PGraphInvariMint {
      * If this hasn't been done before, convert and cache the DFA-version of the
      * partition graph inferred by the standard algorithm.
      */
-    private void stdAlgpGraphToDFA() {
+    protected void stdAlgpGraphToDFA() {
         if (stdAlgPGraph == null) {
             runStdAlg();
         }

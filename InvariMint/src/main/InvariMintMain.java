@@ -125,8 +125,12 @@ public class InvariMintMain {
         }
 
         if (opts.compareToStandardAlg) {
-            // Run the standard algorithm.
-            runAlg(true);
+            // Run the standard algorithm (only if this is a non-TSE eval of
+            // Synoptic algs):
+            if (!(invMintAlg instanceof InvariMintSynoptic)
+                    || (invMintAlg instanceof InvariMintSynoptic && !InvariMintSynoptic.tseEval)) {
+                runAlg(true);
+            }
             // Compare the two models: InvariMint model and the standard
             // algorithm model.
             equalToStdAlg = invMintAlg.compareToStandardAlg();
