@@ -1,0 +1,362 @@
+Connecting to tr_server
+Issuing traceroutes
+Connecting to controller
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+Connecting to vp_server
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+Connecting to adjacency_server
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Adjacents for .+ are
+TS adjacents left to try
+Issuing timestamps
+TS probe is non_spoofed .+ no reverse hop found
+TS adjacents left to try
+Issuing timestamps
+TS probe is non_spoofed .+ no reverse hop found
+TS adjacents left to try
+Issuing timestamps
+TS probe is non_spoofed .+ no reverse hop found
+TS adjacents left to try
+Issuing timestamps
+TS probe is non_spoofed .+ no reverse hop found
+TS adjacents left to try
+Issuing timestamps
+TS probe is non_spoofed .+ no reverse hop found
+TS adjacents left to try
+No adjacents to
+Backing off along current path
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Current hop .+ seems to be unresponsive
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+TS adjacents left to try
+No adjacents to
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+Adjacents for .+ are
+TS adjacents left to try
+Issuing timestamps
+Issuing spoofed_timestamps
+Issuing timestamps
+Issuing spoofed_timestamps
+FOUND
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+TS adjacents left to try
+No adjacents to
+Issuing traceroutes
+Rev Seg is
+FOUND
+Checking .+ for traceroutes to source
+REACHED
+

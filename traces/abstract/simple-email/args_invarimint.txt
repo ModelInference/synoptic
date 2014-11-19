@@ -1,0 +1,7 @@
+--invMintKTails=true
+--kTailLength=1
+-r ^(?<TYPE>)$
+-s ^--$
+-o output/simple-email-invarimint.png
+--minimizeIntersections=true
+

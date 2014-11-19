@@ -1,0 +1,7 @@
+short142 
+-d /usr/bin/dot 
+-o shortoutput 
+-r '(?<Id>) .+ /education/courses/cse142/11wi/images/(?<TYPE>[^\.]+).*' 
+-m '\k<Id>' 
+-f
+

@@ -1,0 +1,25 @@
+1 {locked=true, coinCount=0, entryCount=0}
+1 coin
+1 {locked=false, coinCount=1, entryCount=0}
+1 push
+1 {locked=true, coinCount=1, entryCount=1}
+1 push
+1 {locked=true, coinCount=1, entryCount=1}
+1 coin
+1 {locked=false, coinCount=2, entryCount=1}
+1 push
+1 {locked=true, coinCount=2, entryCount=2}
+2 {locked=true, coinCount=2, entryCount=2}
+2 coin
+2 {locked=false, coinCount=3, entryCount=2}
+2 coin
+2 {locked=false, coinCount=4, entryCount=2}
+2 push
+2 {locked=true, coinCount=4, entryCount=3}
+2 push
+2 {locked=true, coinCount=4, entryCount=3}
+3 {locked=false, coinCount=4, entryCount=3}
+3 push
+3 {locked=true, coinCount=4, entryCount=4}
+3 coin
+3 {locked=false, coinCount=5, entryCount=4}

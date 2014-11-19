@@ -1,0 +1,7 @@
+-r #.*(?<HIDE=>true)
+-r ^(?<TYPE>)$
+-s ^--$
+--minimizeIntersections=false
+--invMintSynoptic=true
+--compareToStandardAlg=false
+-o /tmp/

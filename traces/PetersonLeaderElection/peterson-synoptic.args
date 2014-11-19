@@ -1,0 +1,4 @@
+-r ^(?:#.*|\\s*|.*round-done.*)(?<HIDE=>true)$
+-r (?<nodename>)(?<VTIME>)(?<TYPE>)(?:(?<mtype>)(?:(?<roundId>)(?:(?<payload>)(?:(?<id>))?)?)?)?
+-m \\k<FILE>\\k<nodename>
+-o output/peterson

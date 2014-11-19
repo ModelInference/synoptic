@@ -1,0 +1,1860 @@
+Gathering traceroutes to srcs planetlab3.csail.mit.edu planetlab2.cs.uit.no planetlab3.upc.es planetlab-2.ssvl.kth.se planetlab02.cs.washington.edu planetlab2.ics.forth.gr planet3.prakinf.tu-ilmenau.de
+2010/02/28.1942.29 Connecting to tr_server druby://bouncer.cs.washington.edu:59317
+2010/02/28.1942.29 Issuing traceroutes: 2010.0228.1942.29 1
+2010/02/28.1942.29 Connecting to controller druby://128.208.2.159:39482
+2010/02/28.1942.35 Traceroutes for planetlab3.csail.mit.edu
+2010/02/28.1942.35 Traceroute to 95.43.170.113 reaches for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1942.35 Trying to find 1 hops from [0.0.0.0 212.39.91.65 77.67.66.246 89.149.186.77 4.68.110.78 4.68.16.69 4.69.134.70 4.69.140.98 4.69.140.90 4.69.132.242 4.53.48.97 18.168.0.18 18.168.1.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/28.1942.35 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.1942.35 Fwd planetlab3.csail.mit.edu to 95.43.170.113: 128.31.1.2 128.30.0.245 18.4.7.1 18.168.1.50 18.168.0.18 4.53.48.97 4.69.132.242 4.69.140.90 4.69.140.98 4.69.134.70 4.68.16.69 4.68.110.78 89.149.186.77 77.67.66.246 212.39.91.65 0.0.0.0 95.43.170.113
+2010/02/28.1942.35 Checking planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.1942.35 Initializing RR VPs in a batch for 1
+2010/02/28.1942.36 Total VPs: 222
+2010/02/28.1942.36 Total spoofers: 160 at 75 sites
+2010/02/28.1942.36 Total up spoofers: 135 at 61 sites
+2010/02/28.1942.36 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1942.36 Connecting to vp_server druby://bouncer.cs.washington.edu:38051
+2010/02/28.1942.36 Found 8 spoofers of 34 for 95.43.170.113: mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org mlab1.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab3.par01.measurement-lab.org planetlab5.cs.uiuc.edu
+2010/02/28.1942.36 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.1942.36 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.1942.37 Issuing recordroutes: 2010.0228.1942.37 1
+2010/02/28.1942.39 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.1942.39 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 using mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org
+2010/02/28.1942.39 Issuing spoofed recordroutes: 2010.0228.1942.39
+2010/02/28.1942.49 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1942.49 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.1942.49 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 using mlab1.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.1942.50 Issuing spoofed recordroutes: 2010.0228.1942.50
+2010/02/28.1943.01 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1943.01 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.1943.01 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 using mlab3.par01.measurement-lab.org planetlab5.cs.uiuc.edu
+2010/02/28.1943.01 Issuing spoofed recordroutes: 2010.0228.1943.01
+2010/02/28.1943.12 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1943.13 Connecting to adjacency_server druby://bouncer.cs.washington.edu:43430
+2010/02/28.1943.13 planetlab3.csail.mit.edu 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.1943.13 No adjacents to 95.43.170.113 left to test for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1943.13 Traceroute to 95.43.170.113 reaches for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1943.13 Trying to find 1 hops from [0.0.0.0 212.39.91.65 77.67.66.246 89.149.186.77 4.68.110.78 4.68.16.69 4.69.134.70 4.69.140.98 4.69.140.90 4.69.132.242 4.53.48.97 18.168.0.18 18.168.1.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/28.1943.13 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.1943.13 REACHED
+2010/02/28.1943.13 FOUND
+2010/02/28.1943.13 RevPath_D95.43.170.113_Splanetlab3.csail.mit.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65]_Dst_AssumeSym
+2010/02/28.1943.13 NONE
+2010/02/28.1943.13 FAILED
+2010/02/28.1943.13 --------
+2010/02/28.1943.14 Checking planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.1943.14 Checking planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1943.14 Initializing RR VPs in a batch for 2
+2010/02/28.1943.14 Total VPs: 222
+2010/02/28.1943.14 Total spoofers: 160 at 75 sites
+2010/02/28.1943.14 Total up spoofers: 135 at 61 sites
+2010/02/28.1943.14 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1943.15 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.1943.15 Found 16 spoofers of 64 for 212.39.91.65: planetlab5.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-4.hpl.hp.com mlab4.nuq01.measurement-lab.org mlab1.dfw01.measurement-lab.org planetlab3.cs.uiuc.edu mlab1.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com mlab1.par01.measurement-lab.org mlab2.lga02.measurement-lab.org planetlab-2.cs.auckland.ac.nz plnode-02.gpolab.bbn.com mlab1.lhr01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab2.ams02.measurement-lab.org
+2010/02/28.1943.15 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 17 RR VPs left to try
+2010/02/28.1943.15 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using non_spoofed
+2010/02/28.1943.15 Issuing recordroutes: 2010.0228.1943.15 1
+2010/02/28.1943.18 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 16 RR VPs left to try
+2010/02/28.1943.18 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using planetlab5.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-4.hpl.hp.com
+2010/02/28.1943.18 Issuing spoofed recordroutes: 2010.0228.1943.18
+2010/02/28.1943.29 planetlab3.csail.mit.edu received 1 total responses from planetlab5.williams.edu
+2010/02/28.1943.29 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 13 RR VPs left to try
+2010/02/28.1943.30 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using mlab4.nuq01.measurement-lab.org mlab1.dfw01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.1943.30 Issuing spoofed recordroutes: 2010.0228.1943.30
+2010/02/28.1943.42 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1943.42 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 10 RR VPs left to try
+2010/02/28.1943.42 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using mlab1.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com
+2010/02/28.1943.42 Issuing spoofed recordroutes: 2010.0228.1943.42
+2010/02/28.1943.55 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1943.55 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 7 RR VPs left to try
+2010/02/28.1943.55 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using mlab1.par01.measurement-lab.org mlab2.lga02.measurement-lab.org planetlab-2.cs.auckland.ac.nz
+2010/02/28.1943.55 Issuing spoofed recordroutes: 2010.0228.1943.55
+2010/02/28.1944.05 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1944.05 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 4 RR VPs left to try
+2010/02/28.1944.06 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using plnode-02.gpolab.bbn.com mlab1.lhr01.measurement-lab.org planetlab2.pc.cis.udel.edu
+2010/02/28.1944.06 Issuing spoofed recordroutes: 2010.0228.1944.06
+2010/02/28.1944.19 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1944.19 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 1 RR VPs left to try
+2010/02/28.1944.19 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 using mlab2.ams02.measurement-lab.org
+2010/02/28.1944.19 Issuing spoofed recordroutes: 2010.0228.1944.19
+2010/02/28.1944.33 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1944.33 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.1944.33 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.1944.33 Issuing recordroutes: 2010.0228.1944.33 1
+2010/02/28.1944.37 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.1944.37 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 using planetlab1.postel.org planetlab-01.kusa.ac.jp mlab1.lhr01.measurement-lab.org
+2010/02/28.1944.37 Issuing spoofed recordroutes: 2010.0228.1944.37
+2010/02/28.1944.47 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1944.48 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.1944.48 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 using planetlab-node3.it-sudparis.eu node2.planetlab.albany.edu pli1-pa-4.hpl.hp.com
+2010/02/28.1944.48 Issuing spoofed recordroutes: 2010.0228.1944.48
+2010/02/28.1944.58 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1944.58 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.1944.58 planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 using planetlab1.nvlab.org planetlab2.cis.upenn.edu planetlab2.sfc.wide.ad.jp
+2010/02/28.1944.58 Issuing spoofed recordroutes: 2010.0228.1944.58
+2010/02/28.1945.09 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1945.09 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1945.09 Adjacents for planetlab3.csail.mit.edu 212.39.91.65 are 213.248.92.182 212.39.87.242 212.39.91.9 212.39.91.1 212.39.91.33 212.39.91.41
+2010/02/28.1945.09 planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 6 TS adjacents left to try
+2010/02/28.1945.09 Issuing timestamps: 2010.0228.1945.09 1
+2010/02/28.1945.12 Total VPs: 222
+2010/02/28.1945.12 Total spoofers: 160 at 75 sites
+2010/02/28.1945.12 Total up spoofers: 135 at 61 sites
+2010/02/28.1945.12 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1945.12 Issuing spoofed_timestamps: 2010.0228.1945.12 5
+2010/02/28.1945.25 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/28.1945.25 Current hop 212.39.91.65 seems to be TS unresponsive for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1945.25 Backing off along current path for planetlab3.csail.mit.edu 95.43.170.113
+2010/02/28.1945.25 Trying to find 2 hops from [0.0.0.0 212.39.91.65 77.67.66.246 89.149.186.77 4.68.110.78 4.68.16.69 4.69.134.70 4.69.140.98 4.69.140.90 4.69.132.242 4.53.48.97 18.168.0.18 18.168.1.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/28.1945.25 Rev Seg is 0.0.0.0 212.39.91.65 77.67.66.246
+2010/02/28.1945.25 REACHED
+2010/02/28.1945.25 FOUND
+2010/02/28.1945.25 RevPath_D95.43.170.113_Splanetlab3.csail.mit.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 77.67.66.246]_Dst_AssumeSym
+2010/02/28.1945.26 NONE
+2010/02/28.1945.26 FAILED
+2010/02/28.1945.26 --------
+2010/02/28.1945.26 Checking planetlab3.csail.mit.edu 95.43.170.113 77.67.66.246 for traceroutes to source
+2010/02/28.1945.26 Checking planetlab3.csail.mit.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.1945.26 Checking planetlab3.csail.mit.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1945.26 Initializing RR VPs in a batch for 1
+2010/02/28.1945.26 Total VPs: 222
+2010/02/28.1945.27 Total spoofers: 160 at 75 sites
+2010/02/28.1945.27 Total up spoofers: 135 at 61 sites
+2010/02/28.1945.27 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1945.27 Found 33 spoofers of 134 for 77.67.66.246: mlab3.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab3.par01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab3.ams02.measurement-lab.org mlab1.ham01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab5.williams.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node1.planetlab.albany.edu mlab3.lga02.measurement-lab.org planetlab1.uta.edu planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp mlab1.lax01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab3.postel.org planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab2.utdallas.edu planetlab1.cis.upenn.edu mlab2.sea01.measurement-lab.org node1.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se deimos.cecalc.ula.ve planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.1945.27 planetlab3.csail.mit.edu 95.43.170.113 77.67.66.246 34 RR VPs left to try
+2010/02/28.1945.27 planetlab3.csail.mit.edu 95.43.170.113 77.67.66.246 using non_spoofed
+2010/02/28.1945.27 Issuing recordroutes: 2010.0228.1945.27 1
+2010/02/28.1945.30 planetlab3.csail.mit.edu 95.43.170.113 77.67.66.246 33 RR VPs left to try
+2010/02/28.1945.30 planetlab3.csail.mit.edu 95.43.170.113 77.67.66.246 using mlab3.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.1945.30 Issuing spoofed recordroutes: 2010.0228.1945.30
+2010/02/28.1945.40 planetlab3.csail.mit.edu received 3 total responses from pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca 38.107.216.35
+2010/02/28.1945.40 REACHED
+2010/02/28.1945.40 FOUND
+2010/02/28.1945.40 RevPath_D95.43.170.113_Splanetlab3.csail.mit.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74 213.200.87.12]_RR_SpfSrcpl1.bit.uoit.ca
+2010/02/28.1945.40 NONE
+2010/02/28.1945.40 FAILED
+2010/02/28.1945.40 --------
+2010/02/28.1945.40 Checking planetlab3.csail.mit.edu 95.43.170.113 213.200.87.12 for traceroutes to source
+2010/02/28.1945.41 Removing loopy hops 0.0.0.0 from RevSegment_[202.84.144.249 202.84.144.101 202.84.251.194 134.159.63.198 154.54.30.189 154.54.29.201 154.54.0.222 154.54.28.49 154.54.5.254 154.54.25.237 154.54.5.242 0.0.0.0 18.168.1.23 18.4.7.65 128.30.0.250 128.31.1.13]_S128.31.1.13_H203.50.13.38_TRtoSrc
+2010/02/28.1945.41 REACHED
+2010/02/28.1945.41 RevPath_D95.43.170.113_Splanetlab3.csail.mit.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74 213.200.87.12]_RR_SpfSrcpl1.bit.uoit.ca,RevSegment_[202.84.144.249 202.84.144.101 202.84.251.194 134.159.63.198 154.54.30.189 154.54.29.201 154.54.0.222 154.54.28.49 154.54.5.254 154.54.25.237 154.54.5.242 18.168.1.23 18.4.7.65 128.30.0.250 128.31.1.13]_TRtoSrc
+2010/02/28.1945.41 FOUND
+2010/02/28.1945.41 NONE
+2010/02/28.1945.41 FAILED
+2010/02/28.1945.41 --------
+2010/02/28.1945.41 Total time: 192
+2010/02/28.1945.41 Total probes: rr=4 spoof-ts=5 spoof-rr=36 tr=1 ts=1
+RevPath_D95.43.170.113_Splanetlab3.csail.mit.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74 213.200.87.12]_RR_SpfSrcpl1.bit.uoit.ca,RevSegment_[202.84.144.249 202.84.144.101 202.84.251.194 134.159.63.198 154.54.30.189 154.54.29.201 154.54.0.222 154.54.28.49 154.54.5.254 154.54.25.237 154.54.5.242 18.168.1.23 18.4.7.65 128.30.0.250 128.31.1.13]_TRtoSrc
+2010/02/28.1945.51 Issuing traceroutes: 2010.0228.1945.50 1
+2010/02/28.1945.56 Traceroutes for planetlab2.cs.uit.no
+2010/02/28.1945.56 Traceroute to 95.43.170.113 reaches for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1945.56 Trying to find 1 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61 80.91.247.147 80.91.254.182 213.248.97.93 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1945.56 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.1945.57 Fwd planetlab2.cs.uit.no to 95.43.170.113: 129.242.19.193 129.242.222.1 129.242.1.9 128.39.47.217 128.39.65.73 109.105.102.21 213.248.97.93 80.91.254.182 80.91.247.147 80.91.247.61 80.91.247.83 213.248.92.182 212.39.91.65 0.0.0.0 95.43.170.113
+2010/02/28.1945.57 Checking planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.1945.57 Initializing RR VPs in a batch for 1
+2010/02/28.1945.57 Total VPs: 222
+2010/02/28.1945.57 Total spoofers: 160 at 75 sites
+2010/02/28.1945.57 Total up spoofers: 135 at 61 sites
+2010/02/28.1945.57 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1945.57 Found 8 spoofers of 34 for 95.43.170.113: mlab4.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org mlab1.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab1.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.1945.57 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.1945.58 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.1945.58 Issuing recordroutes: 2010.0228.1945.58 1
+2010/02/28.1946.00 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.1946.00 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 using mlab4.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org
+2010/02/28.1946.00 Issuing spoofed recordroutes: 2010.0228.1946.00
+2010/02/28.1946.11 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1946.11 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.1946.11 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 using mlab1.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.1946.11 Issuing spoofed recordroutes: 2010.0228.1946.11
+2010/02/28.1946.21 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1946.21 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.1946.21 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 using mlab1.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.1946.21 Issuing spoofed recordroutes: 2010.0228.1946.21
+2010/02/28.1946.31 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1946.31 planetlab2.cs.uit.no 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.1946.31 No adjacents to 95.43.170.113 left to test for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1946.31 Traceroute to 95.43.170.113 reaches for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1946.31 Trying to find 1 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61 80.91.247.147 80.91.254.182 213.248.97.93 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1946.31 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.1946.32 REACHED
+2010/02/28.1946.32 FOUND
+2010/02/28.1946.32 RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65]_Dst_AssumeSym
+2010/02/28.1946.32 NONE
+2010/02/28.1946.32 FAILED
+2010/02/28.1946.32 --------
+2010/02/28.1946.32 Checking planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.1946.32 Checking planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1946.32 Initializing RR VPs in a batch for 2
+2010/02/28.1946.33 Total VPs: 222
+2010/02/28.1946.33 Total spoofers: 160 at 75 sites
+2010/02/28.1946.33 Total up spoofers: 135 at 61 sites
+2010/02/28.1946.33 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1946.33 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.1946.33 Found 16 spoofers of 64 for 212.39.91.65: planetlab1.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-5.hpl.hp.com mlab2.nuq01.measurement-lab.org mlab3.dfw01.measurement-lab.org planetlab1.cs.uiuc.edu mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com mlab1.par01.measurement-lab.org mlab2.lga02.measurement-lab.org planetlab-2.cs.auckland.ac.nz plnode-01.gpolab.bbn.com mlab1.lhr01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab2.ams01.measurement-lab.org
+2010/02/28.1946.33 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 17 RR VPs left to try
+2010/02/28.1946.34 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 using non_spoofed
+2010/02/28.1946.34 Issuing recordroutes: 2010.0228.1946.34 1
+2010/02/28.1946.36 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 16 RR VPs left to try
+2010/02/28.1946.36 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 using planetlab1.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-5.hpl.hp.com
+2010/02/28.1946.37 Issuing spoofed recordroutes: 2010.0228.1946.36
+2010/02/28.1946.47 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1946.47 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 13 RR VPs left to try
+2010/02/28.1946.47 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 using mlab2.nuq01.measurement-lab.org mlab3.dfw01.measurement-lab.org planetlab1.cs.uiuc.edu
+2010/02/28.1946.47 Issuing spoofed recordroutes: 2010.0228.1946.47
+2010/02/28.1947.10 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1947.10 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 10 RR VPs left to try
+2010/02/28.1947.10 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 using mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com
+2010/02/28.1947.10 Issuing spoofed recordroutes: 2010.0228.1947.10
+2010/02/28.1947.21 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1947.21 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1947.21 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.1947.21 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.1947.21 Issuing recordroutes: 2010.0228.1947.21 1
+2010/02/28.1947.24 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1947.24 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.1947.24 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 using planetlab1.iis.sinica.edu.tw planetlab1.ntu.nodes.planet-lab.org plgmu2.ite.gmu.edu
+2010/02/28.1947.24 Issuing spoofed recordroutes: 2010.0228.1947.24
+2010/02/28.1947.39 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1947.39 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1947.39 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.1947.40 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 using mlab1.lhr01.measurement-lab.org planetlab1-saopaulo.lan.redclara.net plab-2.sinp.msu.ru
+2010/02/28.1947.40 Issuing spoofed recordroutes: 2010.0228.1947.40
+2010/02/28.1947.50 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1947.50 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1947.50 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.1947.50 planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 using planetlab1.eecs.ucf.edu planetlab-2.cs.auckland.ac.nz pl1.rcc.uottawa.ca
+2010/02/28.1947.50 Issuing spoofed recordroutes: 2010.0228.1947.50
+2010/02/28.1948.01 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1948.01 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1948.01 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1948.01 Adjacents for planetlab2.cs.uit.no 212.39.91.65 are 213.248.92.182 212.39.87.242 212.39.91.9 212.39.91.1 212.39.91.33 212.39.91.41
+2010/02/28.1948.01 planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 6 TS adjacents left to try
+2010/02/28.1948.01 Issuing timestamps: 2010.0228.1948.01 1
+2010/02/28.1948.04 Total VPs: 222
+2010/02/28.1948.04 Total spoofers: 160 at 75 sites
+2010/02/28.1948.04 Total up spoofers: 135 at 61 sites
+2010/02/28.1948.04 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1948.04 Issuing spoofed_timestamps: 2010.0228.1948.04 5
+2010/02/28.1948.16 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1948.16 Current hop 212.39.91.65 seems to be TS unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1948.16 Backing off along current path for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1948.16 Trying to find 2 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61 80.91.247.147 80.91.254.182 213.248.97.93 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1948.16 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182
+2010/02/28.1948.16 REACHED
+2010/02/28.1948.16 FOUND
+2010/02/28.1948.16 RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182]_Dst_AssumeSym
+2010/02/28.1948.16 NONE
+2010/02/28.1948.16 FAILED
+2010/02/28.1948.16 --------
+2010/02/28.1948.16 Checking planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.1948.17 Checking planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.1948.17 Checking planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1948.17 Initializing RR VPs in a batch for 1
+2010/02/28.1948.17 Total VPs: 222
+2010/02/28.1948.17 Total spoofers: 160 at 75 sites
+2010/02/28.1948.17 Total up spoofers: 135 at 61 sites
+2010/02/28.1948.17 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1948.18 Found 39 spoofers of 148 for 213.248.92.182: mlab3.ham01.measurement-lab.org mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab2.ams02.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab1.williams.edu node1.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.uta.edu node2.planetlab.albany.edu mlab2.nuq01.measurement-lab.org mlab1.lax01.measurement-lab.org planetlab-2.cs.uh.edu mlab2.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.utdallas.edu planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab0.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab1.utep.edu plnode-01.gpolab.bbn.com planetlab2.postel.org planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu plgmu1.ite.gmu.edu planetlab2lannion.elibel.tm.fr mlab1.sea01.measurement-lab.org planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.1948.18 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 40 RR VPs left to try
+2010/02/28.1948.18 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using non_spoofed
+2010/02/28.1948.18 Issuing recordroutes: 2010.0228.1948.18 1
+2010/02/28.1948.20 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 39 RR VPs left to try
+2010/02/28.1948.21 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using mlab3.ham01.measurement-lab.org mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com
+2010/02/28.1948.21 Issuing spoofed recordroutes: 2010.0228.1948.21
+2010/02/28.1948.31 planetlab2.cs.uit.no received 3 total responses from pli1-pa-5.hpl.hp.com 80.239.168.214 80.239.142.227
+2010/02/28.1948.31 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 36 RR VPs left to try
+2010/02/28.1948.31 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using mlab2.ams02.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab1.williams.edu
+2010/02/28.1948.31 Issuing spoofed recordroutes: 2010.0228.1948.31
+2010/02/28.1948.41 planetlab2.cs.uit.no received 3 total responses from planetlab1.williams.edu 217.163.1.99 72.26.217.86
+2010/02/28.1948.42 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 33 RR VPs left to try
+2010/02/28.1948.42 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using node1.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg
+2010/02/28.1948.42 Issuing spoofed recordroutes: 2010.0228.1948.42
+2010/02/28.1948.52 planetlab2.cs.uit.no received 3 total responses from pl1.bit.uoit.ca node1.planet-lab.titech.ac.jp 203.30.39.238
+2010/02/28.1948.53 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 30 RR VPs left to try
+2010/02/28.1948.53 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planetlab4.singaren.net.sg planetlab1.uta.edu node2.planetlab.albany.edu
+2010/02/28.1948.53 Issuing spoofed recordroutes: 2010.0228.1948.53
+2010/02/28.1949.04 planetlab2.cs.uit.no received 3 total responses from node2.planetlab.albany.edu planetlab1.uta.edu planetlab4.singaren.net.sg
+2010/02/28.1949.05 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 27 RR VPs left to try
+2010/02/28.1949.05 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using mlab2.nuq01.measurement-lab.org mlab1.lax01.measurement-lab.org planetlab-2.cs.uh.edu
+2010/02/28.1949.05 Issuing spoofed recordroutes: 2010.0228.1949.05
+2010/02/28.1949.15 planetlab2.cs.uit.no received 2 total responses from 38.98.51.9 planetlab-2.cs.uh.edu
+2010/02/28.1949.15 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 24 RR VPs left to try
+2010/02/28.1949.15 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using mlab2.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.utdallas.edu
+2010/02/28.1949.15 Issuing spoofed recordroutes: 2010.0228.1949.15
+2010/02/28.1949.29 planetlab2.cs.uit.no received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com 38.106.70.150 planetlab1.utdallas.edu
+2010/02/28.1949.29 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 21 RR VPs left to try
+2010/02/28.1949.29 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu
+2010/02/28.1949.29 Issuing spoofed recordroutes: 2010.0228.1949.29
+2010/02/28.1949.49 planetlab2.cs.uit.no received 3 total responses from planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu
+2010/02/28.1949.49 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 18 RR VPs left to try
+2010/02/28.1949.49 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planetlab0.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org
+2010/02/28.1949.49 Issuing spoofed recordroutes: 2010.0228.1949.49
+2010/02/28.1949.59 planetlab2.cs.uit.no received 3 total responses from 38.107.216.22 4.71.210.227 planetlab0.dojima.wide.ad.jp
+2010/02/28.1950.00 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 15 RR VPs left to try
+2010/02/28.1950.00 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planetlab1.utep.edu plnode-01.gpolab.bbn.com planetlab2.postel.org
+2010/02/28.1950.00 Issuing spoofed recordroutes: 2010.0228.1950.00
+2010/02/28.1950.14 planetlab2.cs.uit.no received 3 total responses from 192.1.249.20 planetlab1.utep.edu planetlab2.postel.org
+2010/02/28.1950.14 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 12 RR VPs left to try
+2010/02/28.1950.14 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu
+2010/02/28.1950.14 Issuing spoofed recordroutes: 2010.0228.1950.14
+2010/02/28.1950.28 planetlab2.cs.uit.no received 2 total responses from planetlab-1.ssvl.kth.se planet1.ku.edu.tr
+2010/02/28.1950.28 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 9 RR VPs left to try
+2010/02/28.1950.28 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using plgmu1.ite.gmu.edu planetlab2lannion.elibel.tm.fr mlab1.sea01.measurement-lab.org
+2010/02/28.1950.28 Issuing spoofed recordroutes: 2010.0228.1950.28
+2010/02/28.1950.40 planetlab2.cs.uit.no received 3 total responses from 38.102.0.73 planetlab2lannion.elibel.tm.fr plgmu1.ite.gmu.edu
+2010/02/28.1950.41 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 6 RR VPs left to try
+2010/02/28.1950.41 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru
+2010/02/28.1950.41 Issuing spoofed recordroutes: 2010.0228.1950.41
+2010/02/28.1950.53 planetlab2.cs.uit.no received 2 total responses from 200.132.1.6 plab-1.sinp.msu.ru
+2010/02/28.1950.53 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 3 RR VPs left to try
+2010/02/28.1950.53 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 using eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.1950.54 Issuing spoofed recordroutes: 2010.0228.1950.53
+2010/02/28.1951.05 planetlab2.cs.uit.no received 2 total responses from pl1.planetlab.ics.tut.ac.jp planetlab1.eurecom.fr
+2010/02/28.1951.05 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1951.05 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1951.05 Adjacents for planetlab2.cs.uit.no 212.39.91.5 are 77.67.72.206 212.39.91.101 212.39.64.42 212.39.64.43 212.39.91.92 212.39.70.141 212.39.91.93 212.39.64.46 212.39.70.137 212.39.91.103 213.91.166.30 193.84.86.1 195.128.225.1 213.16.47.171 212.39.66.242 212.39.66.18 217.174.144.1 212.39.69.211 83.228.122.1 83.228.108.2 195.225.127.1 212.39.69.228 212.39.64.56 62.176.87.1 212.39.64.58 212.39.64.45 212.39.66.1 213.16.55.1 213.91.204.1 212.39.91.79 213.91.235.1 212.39.69.227 212.39.64.41 212.39.64.61 212.39.91.82 212.39.91.68 212.39.69.212 212.39.86.1 212.39.91.81 212.39.91.110 212.39.69.226 212.39.69.210 212.39.91.9
+2010/02/28.1951.05 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 43 TS adjacents left to try
+2010/02/28.1951.06 Issuing timestamps: 2010.0228.1951.05 1
+2010/02/28.1951.08 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13867335 77.67.72.206 0 77.67.72.206 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.08 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 42 TS adjacents left to try
+2010/02/28.1951.08 Issuing timestamps: 2010.0228.1951.08 1
+2010/02/28.1951.11 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13870006 212.39.91.101 0 212.39.91.101 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.11 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 41 TS adjacents left to try
+2010/02/28.1951.11 Issuing timestamps: 2010.0228.1951.11 1
+2010/02/28.1951.13 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13872725 212.39.64.42 0 212.39.64.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.13 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 40 TS adjacents left to try
+2010/02/28.1951.14 Issuing timestamps: 2010.0228.1951.14 1
+2010/02/28.1951.16 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13875361 212.39.64.43 0 212.39.64.43 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.16 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 39 TS adjacents left to try
+2010/02/28.1951.16 Issuing timestamps: 2010.0228.1951.16 1
+2010/02/28.1951.19 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13878305 212.39.91.92 0 212.39.91.92 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.19 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 38 TS adjacents left to try
+2010/02/28.1951.19 Issuing timestamps: 2010.0228.1951.19 1
+2010/02/28.1951.21 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13880756 212.39.70.141 0 212.39.70.141 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.21 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 37 TS adjacents left to try
+2010/02/28.1951.22 Issuing timestamps: 2010.0228.1951.22 1
+2010/02/28.1951.24 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13883413 212.39.91.93 0 212.39.91.93 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.24 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 36 TS adjacents left to try
+2010/02/28.1951.24 Issuing timestamps: 2010.0228.1951.24 1
+2010/02/28.1951.27 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13886280 212.39.64.46 0 212.39.64.46 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.27 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 35 TS adjacents left to try
+2010/02/28.1951.27 Issuing timestamps: 2010.0228.1951.27 1
+2010/02/28.1951.30 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13888941 212.39.70.137 0 212.39.70.137 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.30 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 34 TS adjacents left to try
+2010/02/28.1951.30 Issuing timestamps: 2010.0228.1951.30 1
+2010/02/28.1951.32 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13891611 212.39.91.103 0 212.39.91.103 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.32 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 33 TS adjacents left to try
+2010/02/28.1951.33 Issuing timestamps: 2010.0228.1951.32 1
+2010/02/28.1951.35 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13894274 213.91.166.30 0 213.91.166.30 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.35 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 32 TS adjacents left to try
+2010/02/28.1951.35 Issuing timestamps: 2010.0228.1951.35 1
+2010/02/28.1951.38 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13896945 193.84.86.1 0 193.84.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.38 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 31 TS adjacents left to try
+2010/02/28.1951.38 Issuing timestamps: 2010.0228.1951.38 1
+2010/02/28.1951.40 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13899615 195.128.225.1 0 195.128.225.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.40 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 30 TS adjacents left to try
+2010/02/28.1951.41 Issuing timestamps: 2010.0228.1951.40 1
+2010/02/28.1951.43 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13902310 213.16.47.171 0 213.16.47.171 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.43 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 29 TS adjacents left to try
+2010/02/28.1951.43 Issuing timestamps: 2010.0228.1951.43 1
+2010/02/28.1951.46 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13904950 212.39.66.242 0 212.39.66.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.46 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 28 TS adjacents left to try
+2010/02/28.1951.46 Issuing timestamps: 2010.0228.1951.46 1
+2010/02/28.1951.48 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13907615 212.39.66.18 0 212.39.66.18 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.48 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 27 TS adjacents left to try
+2010/02/28.1951.49 Issuing timestamps: 2010.0228.1951.48 1
+2010/02/28.1951.51 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13910354 217.174.144.1 0 217.174.144.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.51 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 26 TS adjacents left to try
+2010/02/28.1951.51 Issuing timestamps: 2010.0228.1951.51 1
+2010/02/28.1951.54 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13913320 212.39.69.211 0 212.39.69.211 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.54 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 25 TS adjacents left to try
+2010/02/28.1951.54 Issuing timestamps: 2010.0228.1951.54 1
+2010/02/28.1951.57 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13916070 83.228.122.1 0 83.228.122.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.57 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 24 TS adjacents left to try
+2010/02/28.1951.57 Issuing timestamps: 2010.0228.1951.57 1
+2010/02/28.1951.59 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13918697 83.228.108.2 0 83.228.108.2 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1951.59 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 23 TS adjacents left to try
+2010/02/28.1952.00 Issuing timestamps: 2010.0228.1951.59 1
+2010/02/28.1952.02 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13921380 195.225.127.1 0 195.225.127.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.02 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 22 TS adjacents left to try
+2010/02/28.1952.02 Issuing timestamps: 2010.0228.1952.02 1
+2010/02/28.1952.05 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13924042 212.39.69.228 0 212.39.69.228 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.05 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 21 TS adjacents left to try
+2010/02/28.1952.05 Issuing timestamps: 2010.0228.1952.05 1
+2010/02/28.1952.07 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13926814 212.39.64.56 0 212.39.64.56 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.07 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 20 TS adjacents left to try
+2010/02/28.1952.08 Issuing timestamps: 2010.0228.1952.08 1
+2010/02/28.1952.10 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13929383 62.176.87.1 0 62.176.87.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.10 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 19 TS adjacents left to try
+2010/02/28.1952.11 Issuing timestamps: 2010.0228.1952.10 1
+2010/02/28.1952.13 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13932349 212.39.64.58 0 212.39.64.58 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.13 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 18 TS adjacents left to try
+2010/02/28.1952.13 Issuing timestamps: 2010.0228.1952.13 1
+2010/02/28.1952.16 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13935043 212.39.64.45 0 212.39.64.45 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.16 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 17 TS adjacents left to try
+2010/02/28.1952.16 Issuing timestamps: 2010.0228.1952.16 1
+2010/02/28.1952.18 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13937679 212.39.66.1 0 212.39.66.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.18 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 16 TS adjacents left to try
+2010/02/28.1952.19 Issuing timestamps: 2010.0228.1952.18 1
+2010/02/28.1952.21 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13940406 213.16.55.1 0 213.16.55.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.21 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 15 TS adjacents left to try
+2010/02/28.1952.21 Issuing timestamps: 2010.0228.1952.21 1
+2010/02/28.1952.24 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13943023 213.91.204.1 0 213.91.204.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.24 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 14 TS adjacents left to try
+2010/02/28.1952.24 Issuing timestamps: 2010.0228.1952.24 1
+2010/02/28.1952.26 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13945764 212.39.91.79 0 212.39.91.79 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.26 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 13 TS adjacents left to try
+2010/02/28.1952.27 Issuing timestamps: 2010.0228.1952.27 1
+2010/02/28.1952.29 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13948386 213.91.235.1 0 213.91.235.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.29 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 12 TS adjacents left to try
+2010/02/28.1952.29 Issuing timestamps: 2010.0228.1952.29 1
+2010/02/28.1952.32 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13951128 212.39.69.227 0 212.39.69.227 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.32 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 11 TS adjacents left to try
+2010/02/28.1952.32 Issuing timestamps: 2010.0228.1952.32 1
+2010/02/28.1952.34 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13953730 212.39.64.41 0 212.39.64.41 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.34 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 10 TS adjacents left to try
+2010/02/28.1952.35 Issuing timestamps: 2010.0228.1952.35 1
+2010/02/28.1952.37 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13956421 212.39.64.61 0 212.39.64.61 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.37 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 9 TS adjacents left to try
+2010/02/28.1952.37 Issuing timestamps: 2010.0228.1952.37 1
+2010/02/28.1952.40 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13959051 212.39.91.82 0 212.39.91.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.40 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 8 TS adjacents left to try
+2010/02/28.1952.40 Issuing timestamps: 2010.0228.1952.40 1
+2010/02/28.1952.42 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13961717 212.39.91.68 0 212.39.91.68 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.42 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 7 TS adjacents left to try
+2010/02/28.1952.43 Issuing timestamps: 2010.0228.1952.43 1
+2010/02/28.1952.45 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13964413 212.39.69.212 0 212.39.69.212 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.45 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 6 TS adjacents left to try
+2010/02/28.1952.45 Issuing timestamps: 2010.0228.1952.45 1
+2010/02/28.1952.48 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13967047 212.39.86.1 0 212.39.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.48 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 5 TS adjacents left to try
+2010/02/28.1952.48 Issuing timestamps: 2010.0228.1952.48 1
+2010/02/28.1952.51 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13970162 212.39.91.81 0 212.39.91.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.51 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 4 TS adjacents left to try
+2010/02/28.1952.51 Issuing timestamps: 2010.0228.1952.51 1
+2010/02/28.1952.53 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13972855 212.39.91.110 0 212.39.91.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.54 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 3 TS adjacents left to try
+2010/02/28.1952.54 Issuing timestamps: 2010.0228.1952.54 1
+2010/02/28.1952.56 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13975511 212.39.69.226 0 212.39.69.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.56 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 2 TS adjacents left to try
+2010/02/28.1952.56 Issuing timestamps: 2010.0228.1952.56 1
+2010/02/28.1952.59 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13978215 212.39.69.210 0 212.39.69.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1952.59 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 1 TS adjacents left to try
+2010/02/28.1952.59 Issuing timestamps: 2010.0228.1952.59 1
+2010/02/28.1953.02 TS probe is non_spoofed 213.248.92.182 213.248.92.182 13980937 212.39.91.9 0 212.39.91.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1953.02 planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 0 TS adjacents left to try
+2010/02/28.1953.02 No adjacents to 213.248.92.182 left to test for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1953.02 Backing off along current path for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1953.02 Trying to find 3 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61 80.91.247.147 80.91.254.182 213.248.97.93 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1953.02 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83
+2010/02/28.1953.02 REACHED
+2010/02/28.1953.02 FOUND
+2010/02/28.1953.02 RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83]_Dst_AssumeSym
+2010/02/28.1953.02 NONE
+2010/02/28.1953.02 FAILED
+2010/02/28.1953.02 --------
+2010/02/28.1953.03 Checking planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 for traceroutes to source
+2010/02/28.1953.03 Checking planetlab2.cs.uit.no 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.1953.03 Checking planetlab2.cs.uit.no 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.1953.03 Checking planetlab2.cs.uit.no 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1953.03 Initializing RR VPs in a batch for 1
+2010/02/28.1953.03 Total VPs: 222
+2010/02/28.1953.03 Total spoofers: 160 at 75 sites
+2010/02/28.1953.04 Total up spoofers: 135 at 61 sites
+2010/02/28.1953.04 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1953.04 Found 35 spoofers of 151 for 80.91.247.83: planetlab4.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca pli1-pa-5.hpl.hp.com mlab1.lhr01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab1-saopaulo.lan.redclara.net mlab2.ams02.measurement-lab.org planetlab2-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg planetlab-01.kusa.ac.jp planetlab1-buenosaires.lan.redclara.net node2.planetlab.albany.edu planetlab1lannion.elibel.tm.fr mlab1.lax01.measurement-lab.org mlab3.dfw01.measurement-lab.org planetlab1.pc.cis.udel.edu mlab2.lga02.measurement-lab.org mlab2.mia01.measurement-lab.org planetlab1.eecs.ucf.edu planetlab2.pop-rs.rnp.br plab-2.sinp.msu.ru planetlab4.cs.uiuc.edu planetlab1.utep.edu planetlab-01.ece.uprm.edu planetlab1.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.1953.04 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 36 RR VPs left to try
+2010/02/28.1953.04 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using non_spoofed
+2010/02/28.1953.04 Issuing recordroutes: 2010.0228.1953.04 1
+2010/02/28.1953.07 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 35 RR VPs left to try
+2010/02/28.1953.07 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab4.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org
+2010/02/28.1953.07 Issuing spoofed recordroutes: 2010.0228.1953.07
+2010/02/28.1953.17 planetlab2.cs.uit.no received 2 total responses from 80.239.142.227 80.239.168.201
+2010/02/28.1953.17 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 32 RR VPs left to try
+2010/02/28.1953.17 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using pl1.bit.uoit.ca pli1-pa-5.hpl.hp.com mlab1.lhr01.measurement-lab.org
+2010/02/28.1953.18 Issuing spoofed recordroutes: 2010.0228.1953.17
+2010/02/28.1953.28 planetlab2.cs.uit.no received 3 total responses from pl1.bit.uoit.ca 217.163.1.73 pli1-pa-5.hpl.hp.com
+2010/02/28.1953.28 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 29 RR VPs left to try
+2010/02/28.1953.28 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using pnode1.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org
+2010/02/28.1953.28 Issuing spoofed recordroutes: 2010.0228.1953.28
+2010/02/28.1953.38 planetlab2.cs.uit.no received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com 64.9.225.150 203.30.39.238
+2010/02/28.1953.38 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 26 RR VPs left to try
+2010/02/28.1953.38 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab3-dsl.cs.cornell.edu planetlab1-saopaulo.lan.redclara.net mlab2.ams02.measurement-lab.org
+2010/02/28.1953.39 Issuing spoofed recordroutes: 2010.0228.1953.38
+2010/02/28.1953.59 planetlab2.cs.uit.no received 1 total responses from 72.26.217.86
+2010/02/28.1953.59 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 23 RR VPs left to try
+2010/02/28.1953.59 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab2-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.1953.59 Issuing spoofed recordroutes: 2010.0228.1953.59
+2010/02/28.1954.10 planetlab2.cs.uit.no received 2 total responses from planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.1954.10 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 20 RR VPs left to try
+2010/02/28.1954.10 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab-01.kusa.ac.jp planetlab1-buenosaires.lan.redclara.net node2.planetlab.albany.edu
+2010/02/28.1954.10 Issuing spoofed recordroutes: 2010.0228.1954.10
+2010/02/28.1954.30 planetlab2.cs.uit.no received 2 total responses from node2.planetlab.albany.edu planetlab-01.kusa.ac.jp
+2010/02/28.1954.30 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 17 RR VPs left to try
+2010/02/28.1954.30 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab1lannion.elibel.tm.fr mlab1.lax01.measurement-lab.org mlab3.dfw01.measurement-lab.org
+2010/02/28.1954.31 Issuing spoofed recordroutes: 2010.0228.1954.31
+2010/02/28.1954.41 planetlab2.cs.uit.no received 3 total responses from 38.107.216.35 38.98.51.9 planetlab1lannion.elibel.tm.fr
+2010/02/28.1954.41 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 14 RR VPs left to try
+2010/02/28.1954.41 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab1.pc.cis.udel.edu mlab2.lga02.measurement-lab.org mlab2.mia01.measurement-lab.org
+2010/02/28.1954.41 Issuing spoofed recordroutes: 2010.0228.1954.41
+2010/02/28.1954.51 planetlab2.cs.uit.no received 3 total responses from 38.106.70.150 planetlab1.pc.cis.udel.edu 4.71.210.214
+2010/02/28.1954.51 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 11 RR VPs left to try
+2010/02/28.1954.51 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab1.eecs.ucf.edu planetlab2.pop-rs.rnp.br plab-2.sinp.msu.ru
+2010/02/28.1954.52 Issuing spoofed recordroutes: 2010.0228.1954.51
+2010/02/28.1955.02 planetlab2.cs.uit.no received 2 total responses from plab-2.sinp.msu.ru 200.132.1.6
+2010/02/28.1955.02 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 8 RR VPs left to try
+2010/02/28.1955.02 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab4.cs.uiuc.edu planetlab1.utep.edu planetlab-01.ece.uprm.edu
+2010/02/28.1955.02 Issuing spoofed recordroutes: 2010.0228.1955.02
+2010/02/28.1955.16 planetlab2.cs.uit.no received 1 total responses from planetlab1.utep.edu
+2010/02/28.1955.16 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 5 RR VPs left to try
+2010/02/28.1955.16 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using planetlab1.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp
+2010/02/28.1955.16 Issuing spoofed recordroutes: 2010.0228.1955.16
+2010/02/28.1955.26 planetlab2.cs.uit.no received 3 total responses from planetlab1.uta.edu pl1.planetlab.ics.tut.ac.jp planetlab0.dojima.wide.ad.jp
+2010/02/28.1955.26 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 2 RR VPs left to try
+2010/02/28.1955.26 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 using fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.1955.27 Issuing spoofed recordroutes: 2010.0228.1955.26
+2010/02/28.1955.37 planetlab2.cs.uit.no received 2 total responses from planetlab1.utdallas.edu fobos.cecalc.ula.ve
+2010/02/28.1955.37 Current hop 212.39.91.65/212.39.91.65 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1955.37 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1955.37 planetlab2.cs.uit.no 95.43.170.113 80.91.247.83 0 TS adjacents left to try
+2010/02/28.1955.37 No adjacents to 80.91.247.83 left to test for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1955.37 Backing off along current path for planetlab2.cs.uit.no 95.43.170.113
+2010/02/28.1955.37 Trying to find 4 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61 80.91.247.147 80.91.254.182 213.248.97.93 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1955.37 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61
+2010/02/28.1955.37 REACHED
+2010/02/28.1955.38 FOUND
+2010/02/28.1955.38 RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61]_Dst_AssumeSym
+2010/02/28.1955.38 NONE
+2010/02/28.1955.38 FAILED
+2010/02/28.1955.38 --------
+2010/02/28.1955.38 Checking planetlab2.cs.uit.no 95.43.170.113 80.91.247.61 for traceroutes to source
+2010/02/28.1955.38 REACHED
+2010/02/28.1955.38 RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61]_Dst_AssumeSym,RevSegment_[80.91.248.201 80.91.247.118 213.248.65.165 213.248.66.14 213.248.97.94 109.105.102.22 128.39.65.74 128.39.47.218 129.242.1.14 129.242.222.2 129.242.19.197]_TRtoSrc
+2010/02/28.1955.38 FOUND
+2010/02/28.1955.38 NONE
+2010/02/28.1955.39 FAILED
+2010/02/28.1955.39 --------
+2010/02/28.1955.39 Total time: 589
+2010/02/28.1955.39 Total probes: rr=5 spoof-ts=5 spoof-rr=100 tr=1 ts=44
+RevPath_D95.43.170.113_Splanetlab2.cs.uit.no_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.83 80.91.247.61]_Dst_AssumeSym,RevSegment_[80.91.248.201 80.91.247.118 213.248.65.165 213.248.66.14 213.248.97.94 109.105.102.22 128.39.65.74 128.39.47.218 129.242.1.14 129.242.222.2 129.242.19.197]_TRtoSrc
+2010/02/28.1955.45 Issuing traceroutes: 2010.0228.1955.44 1
+2010/02/28.1955.50 Traceroutes for planetlab3.upc.es
+2010/02/28.1955.50 Traceroute to 95.43.170.113 reaches for planetlab3.upc.es 95.43.170.113
+2010/02/28.1955.50 Trying to find 1 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109 80.91.251.185 80.91.248.62 80.91.248.130 213.248.81.25 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.1955.50 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.1955.50 Fwd planetlab3.upc.es to 95.43.170.113: 147.83.30.130 10.10.100.13 10.10.124.50 10.10.124.14 84.88.18.17 130.206.202.29 130.206.250.25 130.206.250.2 213.248.81.25 80.91.248.130 80.91.248.62 80.91.251.185 80.91.247.109 213.248.92.182 212.39.64.54 0.0.0.0 95.43.170.113
+2010/02/28.1955.50 Checking planetlab3.upc.es 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.1955.50 Initializing RR VPs in a batch for 1
+2010/02/28.1955.51 Total VPs: 222
+2010/02/28.1955.51 Total spoofers: 160 at 75 sites
+2010/02/28.1955.51 Total up spoofers: 135 at 61 sites
+2010/02/28.1955.51 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1955.51 Found 8 spoofers of 34 for 95.43.170.113: mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab2.par01.measurement-lab.org planetlab6.cs.uiuc.edu
+2010/02/28.1955.51 planetlab3.upc.es 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.1955.51 planetlab3.upc.es 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.1955.51 Issuing recordroutes: 2010.0228.1955.51 1
+2010/02/28.1955.54 planetlab3.upc.es 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.1955.54 planetlab3.upc.es 95.43.170.113 95.43.170.113 using mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org
+2010/02/28.1955.54 Issuing spoofed recordroutes: 2010.0228.1955.54
+2010/02/28.1956.05 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1956.05 planetlab3.upc.es 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.1956.05 planetlab3.upc.es 95.43.170.113 95.43.170.113 using mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.1956.05 Issuing spoofed recordroutes: 2010.0228.1956.05
+2010/02/28.1956.16 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1956.16 planetlab3.upc.es 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.1956.16 planetlab3.upc.es 95.43.170.113 95.43.170.113 using mlab2.par01.measurement-lab.org planetlab6.cs.uiuc.edu
+2010/02/28.1956.16 Issuing spoofed recordroutes: 2010.0228.1956.16
+2010/02/28.1956.26 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1956.26 planetlab3.upc.es 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.1956.26 No adjacents to 95.43.170.113 left to test for planetlab3.upc.es 95.43.170.113
+2010/02/28.1956.26 Traceroute to 95.43.170.113 reaches for planetlab3.upc.es 95.43.170.113
+2010/02/28.1956.26 Trying to find 1 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109 80.91.251.185 80.91.248.62 80.91.248.130 213.248.81.25 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.1956.27 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.1956.27 REACHED
+2010/02/28.1956.27 FOUND
+2010/02/28.1956.27 RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54]_Dst_AssumeSym
+2010/02/28.1956.27 NONE
+2010/02/28.1956.27 FAILED
+2010/02/28.1956.27 --------
+2010/02/28.1956.27 Checking planetlab3.upc.es 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.1956.27 Checking planetlab3.upc.es 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1956.28 Initializing RR VPs in a batch for 2
+2010/02/28.1956.28 Total VPs: 222
+2010/02/28.1956.28 Total spoofers: 160 at 75 sites
+2010/02/28.1956.28 Total up spoofers: 135 at 61 sites
+2010/02/28.1956.28 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1956.28 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.1956.28 Found 1 spoofers of 4 for 212.39.64.54: planetlab5.williams.edu
+2010/02/28.1956.29 planetlab3.upc.es 95.43.170.113 212.39.64.54 2 RR VPs left to try
+2010/02/28.1956.29 planetlab3.upc.es 95.43.170.113 212.39.64.54 using non_spoofed
+2010/02/28.1956.29 Issuing recordroutes: 2010.0228.1956.29 1
+2010/02/28.1956.31 planetlab3.upc.es 95.43.170.113 212.39.64.54 1 RR VPs left to try
+2010/02/28.1956.31 planetlab3.upc.es 95.43.170.113 212.39.64.54 using planetlab5.williams.edu
+2010/02/28.1956.32 Issuing spoofed recordroutes: 2010.0228.1956.31
+2010/02/28.1956.42 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1956.42 planetlab3.upc.es 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.1956.42 planetlab3.upc.es 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.1956.43 Issuing recordroutes: 2010.0228.1956.43 1
+2010/02/28.1956.45 planetlab3.upc.es 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.1956.45 planetlab3.upc.es 95.43.170.113 0.0.0.0 using deimos.cecalc.ula.ve planetlab-2.cs.uh.edu planetlab2lannion.elibel.tm.fr
+2010/02/28.1956.45 Issuing spoofed recordroutes: 2010.0228.1956.45
+2010/02/28.1956.56 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1956.56 planetlab3.upc.es 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.1956.56 planetlab3.upc.es 95.43.170.113 0.0.0.0 using planetlab2.pc.cis.udel.edu planetlab-2.cs.auckland.ac.nz planetlab2.sfc.wide.ad.jp
+2010/02/28.1956.56 Issuing spoofed recordroutes: 2010.0228.1956.56
+2010/02/28.1957.10 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1957.10 planetlab3.upc.es 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.1957.10 planetlab3.upc.es 95.43.170.113 0.0.0.0 using planetlab3-dsl.cs.cornell.edu planetlab2.cis.upenn.edu mlab3.lhr01.measurement-lab.org
+2010/02/28.1957.11 Issuing spoofed recordroutes: 2010.0228.1957.11
+2010/02/28.1957.31 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1957.31 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab3.upc.es 95.43.170.113
+2010/02/28.1957.31 Adjacents for planetlab3.upc.es 212.39.64.54 are 212.39.87.232 213.248.92.182 149.6.112.106 212.39.87.242 212.39.91.9 212.39.91.41 212.39.91.1 212.39.91.33 128.208.4.146 212.39.87.240
+2010/02/28.1957.31 planetlab3.upc.es 95.43.170.113 212.39.64.54 10 TS adjacents left to try
+2010/02/28.1957.31 Issuing timestamps: 2010.0228.1957.31 1
+2010/02/28.1957.33 Total VPs: 222
+2010/02/28.1957.33 Total spoofers: 160 at 75 sites
+2010/02/28.1957.34 Total up spoofers: 135 at 61 sites
+2010/02/28.1957.34 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1957.34 Issuing spoofed_timestamps: 2010.0228.1957.34 5
+2010/02/28.1957.44 planetlab3.upc.es received 0 total responses from 
+2010/02/28.1957.44 Current hop 212.39.64.54 seems to be TS unresponsive for planetlab3.upc.es 95.43.170.113
+2010/02/28.1957.44 Backing off along current path for planetlab3.upc.es 95.43.170.113
+2010/02/28.1957.44 Trying to find 2 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109 80.91.251.185 80.91.248.62 80.91.248.130 213.248.81.25 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.1957.44 Rev Seg is 0.0.0.0 212.39.64.54 213.248.92.182
+2010/02/28.1957.45 REACHED
+2010/02/28.1957.45 FOUND
+2010/02/28.1957.45 RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182]_Dst_AssumeSym
+2010/02/28.1957.45 NONE
+2010/02/28.1957.45 FAILED
+2010/02/28.1957.45 --------
+2010/02/28.1957.45 Checking planetlab3.upc.es 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.1957.45 Checking planetlab3.upc.es 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.1957.45 Checking planetlab3.upc.es 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.1957.46 Initializing RR VPs in a batch for 1
+2010/02/28.1957.46 Total VPs: 222
+2010/02/28.1957.46 Total spoofers: 160 at 75 sites
+2010/02/28.1957.46 Total up spoofers: 135 at 61 sites
+2010/02/28.1957.46 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1957.46 Found 39 spoofers of 148 for 213.248.92.182: mlab3.ham01.measurement-lab.org mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab2.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab2.williams.edu node1.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.uta.edu node1.planetlab.albany.edu mlab2.nuq01.measurement-lab.org mlab3.lax01.measurement-lab.org planetlab-1.cs.uh.edu mlab1.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.utdallas.edu planetlab1.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab2.utep.edu plnode-01.gpolab.bbn.com planetlab3.postel.org planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-02.ece.uprm.edu plgmu3.ite.gmu.edu planetlab2lannion.elibel.tm.fr mlab1.sea01.measurement-lab.org planetlab1.pop-rs.rnp.br planetlab2.ntu.nodes.planet-lab.org plab-2.sinp.msu.ru eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.1957.46 planetlab3.upc.es 95.43.170.113 213.248.92.182 40 RR VPs left to try
+2010/02/28.1957.46 planetlab3.upc.es 95.43.170.113 213.248.92.182 using non_spoofed
+2010/02/28.1957.46 Issuing recordroutes: 2010.0228.1957.46 1
+2010/02/28.1957.49 planetlab3.upc.es 95.43.170.113 213.248.92.182 39 RR VPs left to try
+2010/02/28.1957.49 planetlab3.upc.es 95.43.170.113 213.248.92.182 using mlab3.ham01.measurement-lab.org mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com
+2010/02/28.1957.49 Issuing spoofed recordroutes: 2010.0228.1957.49
+2010/02/28.1957.59 planetlab3.upc.es received 3 total responses from pli1-pa-5.hpl.hp.com 80.239.142.227 80.239.168.214
+2010/02/28.1957.59 planetlab3.upc.es 95.43.170.113 213.248.92.182 36 RR VPs left to try
+2010/02/28.1958.00 planetlab3.upc.es 95.43.170.113 213.248.92.182 using mlab2.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab2.williams.edu
+2010/02/28.1958.00 Issuing spoofed recordroutes: 2010.0228.1958.00
+2010/02/28.1958.10 planetlab3.upc.es received 2 total responses from 217.163.1.73 213.244.128.150
+2010/02/28.1958.10 planetlab3.upc.es 95.43.170.113 213.248.92.182 33 RR VPs left to try
+2010/02/28.1958.10 planetlab3.upc.es 95.43.170.113 213.248.92.182 using node1.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg
+2010/02/28.1958.10 Issuing spoofed recordroutes: 2010.0228.1958.10
+2010/02/28.1958.21 planetlab3.upc.es received 3 total responses from pl1.bit.uoit.ca node1.planet-lab.titech.ac.jp 203.30.39.238
+2010/02/28.1958.21 planetlab3.upc.es 95.43.170.113 213.248.92.182 30 RR VPs left to try
+2010/02/28.1958.21 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planetlab4.singaren.net.sg planetlab1.uta.edu node1.planetlab.albany.edu
+2010/02/28.1958.21 Issuing spoofed recordroutes: 2010.0228.1958.21
+2010/02/28.1958.32 planetlab3.upc.es received 3 total responses from node1.planetlab.albany.edu planetlab1.uta.edu planetlab4.singaren.net.sg
+2010/02/28.1958.32 planetlab3.upc.es 95.43.170.113 213.248.92.182 27 RR VPs left to try
+2010/02/28.1958.32 planetlab3.upc.es 95.43.170.113 213.248.92.182 using mlab2.nuq01.measurement-lab.org mlab3.lax01.measurement-lab.org planetlab-1.cs.uh.edu
+2010/02/28.1958.32 Issuing spoofed recordroutes: 2010.0228.1958.32
+2010/02/28.1958.42 planetlab3.upc.es received 2 total responses from planetlab-1.cs.uh.edu 38.98.51.35
+2010/02/28.1958.42 planetlab3.upc.es 95.43.170.113 213.248.92.182 24 RR VPs left to try
+2010/02/28.1958.42 planetlab3.upc.es 95.43.170.113 213.248.92.182 using mlab1.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.utdallas.edu
+2010/02/28.1958.42 Issuing spoofed recordroutes: 2010.0228.1958.42
+2010/02/28.1958.53 planetlab3.upc.es received 3 total responses from planetlab1.utdallas.edu 75-130-96-13.static.oxfr.ma.charter.com 38.106.70.137
+2010/02/28.1958.53 planetlab3.upc.es 95.43.170.113 213.248.92.182 21 RR VPs left to try
+2010/02/28.1958.53 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planetlab1.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu
+2010/02/28.1958.53 Issuing spoofed recordroutes: 2010.0228.1958.53
+2010/02/28.1959.10 planetlab3.upc.es received 3 total responses from planetlab1.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu
+2010/02/28.1959.10 planetlab3.upc.es 95.43.170.113 213.248.92.182 18 RR VPs left to try
+2010/02/28.1959.10 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planetlab1.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org
+2010/02/28.1959.10 Issuing spoofed recordroutes: 2010.0228.1959.10
+2010/02/28.1959.20 planetlab3.upc.es received 3 total responses from 4.71.210.227 38.107.216.22 planetlab1.dojima.wide.ad.jp
+2010/02/28.1959.20 planetlab3.upc.es 95.43.170.113 213.248.92.182 15 RR VPs left to try
+2010/02/28.1959.20 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planetlab2.utep.edu plnode-01.gpolab.bbn.com planetlab3.postel.org
+2010/02/28.1959.21 Issuing spoofed recordroutes: 2010.0228.1959.20
+2010/02/28.1959.31 planetlab3.upc.es received 3 total responses from 192.1.249.20 planetlab3.postel.org planetlab2.utep.edu
+2010/02/28.1959.31 planetlab3.upc.es 95.43.170.113 213.248.92.182 12 RR VPs left to try
+2010/02/28.1959.31 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-02.ece.uprm.edu
+2010/02/28.1959.31 Issuing spoofed recordroutes: 2010.0228.1959.31
+2010/02/28.1959.47 planetlab3.upc.es received 2 total responses from planetlab-1.ssvl.kth.se planet1.ku.edu.tr
+2010/02/28.1959.47 planetlab3.upc.es 95.43.170.113 213.248.92.182 9 RR VPs left to try
+2010/02/28.1959.47 planetlab3.upc.es 95.43.170.113 213.248.92.182 using plgmu3.ite.gmu.edu planetlab2lannion.elibel.tm.fr mlab1.sea01.measurement-lab.org
+2010/02/28.1959.47 Issuing spoofed recordroutes: 2010.0228.1959.47
+2010/02/28.1959.57 planetlab3.upc.es received 3 total responses from 38.102.0.73 planetlab2lannion.elibel.tm.fr plgmu3.ite.gmu.edu
+2010/02/28.1959.57 planetlab3.upc.es 95.43.170.113 213.248.92.182 6 RR VPs left to try
+2010/02/28.1959.58 planetlab3.upc.es 95.43.170.113 213.248.92.182 using planetlab1.pop-rs.rnp.br planetlab2.ntu.nodes.planet-lab.org plab-2.sinp.msu.ru
+2010/02/28.1959.58 Issuing spoofed recordroutes: 2010.0228.1959.58
+2010/02/28.2000.18 planetlab3.upc.es received 2 total responses from plab-2.sinp.msu.ru 200.132.1.4
+2010/02/28.2000.18 planetlab3.upc.es 95.43.170.113 213.248.92.182 3 RR VPs left to try
+2010/02/28.2000.18 planetlab3.upc.es 95.43.170.113 213.248.92.182 using eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2000.18 Issuing spoofed recordroutes: 2010.0228.2000.18
+2010/02/28.2000.30 planetlab3.upc.es received 2 total responses from pl1.planetlab.ics.tut.ac.jp planetlab1.eurecom.fr
+2010/02/28.2000.30 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab3.upc.es 95.43.170.113
+2010/02/28.2000.30 Adjacents for planetlab3.upc.es 212.39.91.5 are 77.67.72.206 212.39.91.101 212.39.64.42 212.39.64.43 212.39.91.92 212.39.70.141 212.39.91.93 212.39.64.46 212.39.70.137 212.39.91.103 213.91.166.30 193.84.86.1 195.128.225.1 213.16.47.171 212.39.66.242 212.39.66.18 217.174.144.1 212.39.69.211 83.228.122.1 83.228.108.2 195.225.127.1 212.39.69.228 212.39.64.56 62.176.87.1 212.39.64.58 212.39.64.45 212.39.66.1 213.16.55.1 213.91.204.1 212.39.91.79 213.91.235.1 212.39.69.227 212.39.64.41 212.39.64.61 212.39.91.82 212.39.91.68 212.39.69.212 212.39.86.1 212.39.91.81 212.39.91.110 212.39.69.226 212.39.69.210 212.39.91.9
+2010/02/28.2000.31 planetlab3.upc.es 95.43.170.113 213.248.92.182 43 TS adjacents left to try
+2010/02/28.2000.31 Issuing timestamps: 2010.0228.2000.31 1
+2010/02/28.2000.33 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14432522 77.67.72.206 0 77.67.72.206 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.33 planetlab3.upc.es 95.43.170.113 213.248.92.182 42 TS adjacents left to try
+2010/02/28.2000.33 Issuing timestamps: 2010.0228.2000.33 1
+2010/02/28.2000.36 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14435224 212.39.91.101 0 212.39.91.101 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.36 planetlab3.upc.es 95.43.170.113 213.248.92.182 41 TS adjacents left to try
+2010/02/28.2000.36 Issuing timestamps: 2010.0228.2000.36 1
+2010/02/28.2000.39 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14437926 212.39.64.42 0 212.39.64.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.39 planetlab3.upc.es 95.43.170.113 213.248.92.182 40 TS adjacents left to try
+2010/02/28.2000.39 Issuing timestamps: 2010.0228.2000.39 1
+2010/02/28.2000.41 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14440638 212.39.64.43 0 212.39.64.43 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.41 planetlab3.upc.es 95.43.170.113 213.248.92.182 39 TS adjacents left to try
+2010/02/28.2000.41 Issuing timestamps: 2010.0228.2000.41 1
+2010/02/28.2000.44 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14443273 212.39.91.92 0 212.39.91.92 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.44 planetlab3.upc.es 95.43.170.113 213.248.92.182 38 TS adjacents left to try
+2010/02/28.2000.44 Issuing timestamps: 2010.0228.2000.44 1
+2010/02/28.2000.47 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14446492 212.39.70.141 0 212.39.70.141 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.47 planetlab3.upc.es 95.43.170.113 213.248.92.182 37 TS adjacents left to try
+2010/02/28.2000.47 Issuing timestamps: 2010.0228.2000.47 1
+2010/02/28.2000.50 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14449192 212.39.91.93 0 212.39.91.93 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.50 planetlab3.upc.es 95.43.170.113 213.248.92.182 36 TS adjacents left to try
+2010/02/28.2000.50 Issuing timestamps: 2010.0228.2000.50 1
+2010/02/28.2000.53 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14451892 212.39.64.46 0 212.39.64.46 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.53 planetlab3.upc.es 95.43.170.113 213.248.92.182 35 TS adjacents left to try
+2010/02/28.2000.53 Issuing timestamps: 2010.0228.2000.53 1
+2010/02/28.2000.55 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14454599 212.39.70.137 0 212.39.70.137 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.55 planetlab3.upc.es 95.43.170.113 213.248.92.182 34 TS adjacents left to try
+2010/02/28.2000.55 Issuing timestamps: 2010.0228.2000.55 1
+2010/02/28.2000.58 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14457292 212.39.91.103 0 212.39.91.103 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2000.58 planetlab3.upc.es 95.43.170.113 213.248.92.182 33 TS adjacents left to try
+2010/02/28.2000.58 Issuing timestamps: 2010.0228.2000.58 1
+2010/02/28.2001.01 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14459993 213.91.166.30 0 213.91.166.30 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.01 planetlab3.upc.es 95.43.170.113 213.248.92.182 32 TS adjacents left to try
+2010/02/28.2001.01 Issuing timestamps: 2010.0228.2001.01 1
+2010/02/28.2001.03 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14462642 193.84.86.1 0 193.84.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.03 planetlab3.upc.es 95.43.170.113 213.248.92.182 31 TS adjacents left to try
+2010/02/28.2001.04 Issuing timestamps: 2010.0228.2001.03 1
+2010/02/28.2001.06 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14465331 195.128.225.1 0 195.128.225.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.06 planetlab3.upc.es 95.43.170.113 213.248.92.182 30 TS adjacents left to try
+2010/02/28.2001.06 Issuing timestamps: 2010.0228.2001.06 1
+2010/02/28.2001.09 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14468188 213.16.47.171 0 213.16.47.171 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.09 planetlab3.upc.es 95.43.170.113 213.248.92.182 29 TS adjacents left to try
+2010/02/28.2001.09 Issuing timestamps: 2010.0228.2001.09 1
+2010/02/28.2001.11 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14470792 212.39.66.242 0 212.39.66.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.11 planetlab3.upc.es 95.43.170.113 213.248.92.182 28 TS adjacents left to try
+2010/02/28.2001.12 Issuing timestamps: 2010.0228.2001.12 1
+2010/02/28.2001.14 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14473405 212.39.66.18 0 212.39.66.18 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.14 planetlab3.upc.es 95.43.170.113 213.248.92.182 27 TS adjacents left to try
+2010/02/28.2001.14 Issuing timestamps: 2010.0228.2001.14 1
+2010/02/28.2001.17 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14476122 217.174.144.1 0 217.174.144.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.17 planetlab3.upc.es 95.43.170.113 213.248.92.182 26 TS adjacents left to try
+2010/02/28.2001.17 Issuing timestamps: 2010.0228.2001.17 1
+2010/02/28.2001.19 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14478836 212.39.69.211 0 212.39.69.211 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.20 planetlab3.upc.es 95.43.170.113 213.248.92.182 25 TS adjacents left to try
+2010/02/28.2001.20 Issuing timestamps: 2010.0228.2001.20 1
+2010/02/28.2001.22 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14481480 83.228.122.1 0 83.228.122.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.22 planetlab3.upc.es 95.43.170.113 213.248.92.182 24 TS adjacents left to try
+2010/02/28.2001.22 Issuing timestamps: 2010.0228.2001.22 1
+2010/02/28.2001.25 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14484249 83.228.108.2 0 83.228.108.2 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.25 planetlab3.upc.es 95.43.170.113 213.248.92.182 23 TS adjacents left to try
+2010/02/28.2001.25 Issuing timestamps: 2010.0228.2001.25 1
+2010/02/28.2001.27 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14486919 195.225.127.1 0 195.225.127.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.28 planetlab3.upc.es 95.43.170.113 213.248.92.182 22 TS adjacents left to try
+2010/02/28.2001.28 Issuing timestamps: 2010.0228.2001.28 1
+2010/02/28.2001.31 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14489932 212.39.69.228 0 212.39.69.228 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.31 planetlab3.upc.es 95.43.170.113 213.248.92.182 21 TS adjacents left to try
+2010/02/28.2001.31 Issuing timestamps: 2010.0228.2001.31 1
+2010/02/28.2001.33 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14492742 212.39.64.56 0 212.39.64.56 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.33 planetlab3.upc.es 95.43.170.113 213.248.92.182 20 TS adjacents left to try
+2010/02/28.2001.34 Issuing timestamps: 2010.0228.2001.33 1
+2010/02/28.2001.36 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14495295 62.176.87.1 0 62.176.87.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.36 planetlab3.upc.es 95.43.170.113 213.248.92.182 19 TS adjacents left to try
+2010/02/28.2001.36 Issuing timestamps: 2010.0228.2001.36 1
+2010/02/28.2001.39 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14498068 212.39.64.58 0 212.39.64.58 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.39 planetlab3.upc.es 95.43.170.113 213.248.92.182 18 TS adjacents left to try
+2010/02/28.2001.39 Issuing timestamps: 2010.0228.2001.39 1
+2010/02/28.2001.41 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14500755 212.39.64.45 0 212.39.64.45 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.42 planetlab3.upc.es 95.43.170.113 213.248.92.182 17 TS adjacents left to try
+2010/02/28.2001.42 Issuing timestamps: 2010.0228.2001.42 1
+2010/02/28.2001.44 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14503468 212.39.66.1 0 212.39.66.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.44 planetlab3.upc.es 95.43.170.113 213.248.92.182 16 TS adjacents left to try
+2010/02/28.2001.44 Issuing timestamps: 2010.0228.2001.44 1
+2010/02/28.2001.47 planetlab3.upc.es 95.43.170.113 213.248.92.182 15 TS adjacents left to try
+2010/02/28.2001.47 Issuing timestamps: 2010.0228.2001.47 1
+2010/02/28.2001.49 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14508776 213.91.204.1 0 213.91.204.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.49 planetlab3.upc.es 95.43.170.113 213.248.92.182 14 TS adjacents left to try
+2010/02/28.2001.50 Issuing timestamps: 2010.0228.2001.50 1
+2010/02/28.2001.52 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14511440 212.39.91.79 0 212.39.91.79 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.52 planetlab3.upc.es 95.43.170.113 213.248.92.182 13 TS adjacents left to try
+2010/02/28.2001.52 Issuing timestamps: 2010.0228.2001.52 1
+2010/02/28.2001.55 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14514135 213.91.235.1 0 213.91.235.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.55 planetlab3.upc.es 95.43.170.113 213.248.92.182 12 TS adjacents left to try
+2010/02/28.2001.55 Issuing timestamps: 2010.0228.2001.55 1
+2010/02/28.2001.57 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14516827 212.39.69.227 0 212.39.69.227 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2001.58 planetlab3.upc.es 95.43.170.113 213.248.92.182 11 TS adjacents left to try
+2010/02/28.2001.58 Issuing timestamps: 2010.0228.2001.58 1
+2010/02/28.2002.00 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14519640 212.39.64.41 0 212.39.64.41 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.00 planetlab3.upc.es 95.43.170.113 213.248.92.182 10 TS adjacents left to try
+2010/02/28.2002.00 Issuing timestamps: 2010.0228.2002.00 1
+2010/02/28.2002.03 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14522205 212.39.64.61 0 212.39.64.61 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.03 planetlab3.upc.es 95.43.170.113 213.248.92.182 9 TS adjacents left to try
+2010/02/28.2002.03 Issuing timestamps: 2010.0228.2002.03 1
+2010/02/28.2002.06 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14524886 212.39.91.82 0 212.39.91.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.06 planetlab3.upc.es 95.43.170.113 213.248.92.182 8 TS adjacents left to try
+2010/02/28.2002.06 Issuing timestamps: 2010.0228.2002.06 1
+2010/02/28.2002.08 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14527753 212.39.91.68 0 212.39.91.68 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.08 planetlab3.upc.es 95.43.170.113 213.248.92.182 7 TS adjacents left to try
+2010/02/28.2002.08 Issuing timestamps: 2010.0228.2002.08 1
+2010/02/28.2002.11 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14530254 212.39.69.212 0 212.39.69.212 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.11 planetlab3.upc.es 95.43.170.113 213.248.92.182 6 TS adjacents left to try
+2010/02/28.2002.11 Issuing timestamps: 2010.0228.2002.11 1
+2010/02/28.2002.14 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14532955 212.39.86.1 0 212.39.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.14 planetlab3.upc.es 95.43.170.113 213.248.92.182 5 TS adjacents left to try
+2010/02/28.2002.14 Issuing timestamps: 2010.0228.2002.14 1
+2010/02/28.2002.16 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14535630 212.39.91.81 0 212.39.91.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.16 planetlab3.upc.es 95.43.170.113 213.248.92.182 4 TS adjacents left to try
+2010/02/28.2002.17 Issuing timestamps: 2010.0228.2002.16 1
+2010/02/28.2002.19 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14538334 212.39.91.110 0 212.39.91.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.19 planetlab3.upc.es 95.43.170.113 213.248.92.182 3 TS adjacents left to try
+2010/02/28.2002.19 Issuing timestamps: 2010.0228.2002.19 1
+2010/02/28.2002.22 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14541009 212.39.69.226 0 212.39.69.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.22 planetlab3.upc.es 95.43.170.113 213.248.92.182 2 TS adjacents left to try
+2010/02/28.2002.22 Issuing timestamps: 2010.0228.2002.22 1
+2010/02/28.2002.24 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14543708 212.39.69.210 0 212.39.69.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.24 planetlab3.upc.es 95.43.170.113 213.248.92.182 1 TS adjacents left to try
+2010/02/28.2002.25 Issuing timestamps: 2010.0228.2002.25 1
+2010/02/28.2002.27 TS probe is non_spoofed 213.248.92.182 213.248.92.182 14546393 212.39.91.9 0 212.39.91.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2002.27 planetlab3.upc.es 95.43.170.113 213.248.92.182 0 TS adjacents left to try
+2010/02/28.2002.27 No adjacents to 213.248.92.182 left to test for planetlab3.upc.es 95.43.170.113
+2010/02/28.2002.27 Backing off along current path for planetlab3.upc.es 95.43.170.113
+2010/02/28.2002.27 Trying to find 3 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109 80.91.251.185 80.91.248.62 80.91.248.130 213.248.81.25 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.2002.27 Rev Seg is 0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109
+2010/02/28.2002.28 REACHED
+2010/02/28.2002.28 FOUND
+2010/02/28.2002.28 RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109]_Dst_AssumeSym
+2010/02/28.2002.28 NONE
+2010/02/28.2002.28 FAILED
+2010/02/28.2002.28 --------
+2010/02/28.2002.28 Checking planetlab3.upc.es 95.43.170.113 80.91.247.109 for traceroutes to source
+2010/02/28.2002.28 Checking planetlab3.upc.es 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2002.28 Checking planetlab3.upc.es 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2002.29 Checking planetlab3.upc.es 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2002.29 Initializing RR VPs in a batch for 1
+2010/02/28.2002.29 Total VPs: 222
+2010/02/28.2002.29 Total spoofers: 160 at 75 sites
+2010/02/28.2002.29 Total up spoofers: 135 at 61 sites
+2010/02/28.2002.29 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2002.29 Found 35 spoofers of 151 for 80.91.247.109: planetlab2.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab2-saopaulo.lan.redclara.net mlab3.ams02.measurement-lab.org planetlab2-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg planetlab-01.kusa.ac.jp planetlab1-buenosaires.lan.redclara.net node1.planetlab.albany.edu planetlab2lannion.elibel.tm.fr mlab3.lax01.measurement-lab.org mlab1.dfw01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab1.lga01.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab1.eecs.ucf.edu planetlab1.pop-rs.rnp.br plab-2.sinp.msu.ru planetlab6.cs.uiuc.edu planetlab2.utep.edu planetlab-02.ece.uprm.edu planetlab1.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.2002.29 planetlab3.upc.es 95.43.170.113 80.91.247.109 36 RR VPs left to try
+2010/02/28.2002.30 planetlab3.upc.es 95.43.170.113 80.91.247.109 using non_spoofed
+2010/02/28.2002.30 Issuing recordroutes: 2010.0228.2002.30 1
+2010/02/28.2002.32 planetlab3.upc.es 95.43.170.113 80.91.247.109 35 RR VPs left to try
+2010/02/28.2002.32 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab2.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org
+2010/02/28.2002.33 Issuing spoofed recordroutes: 2010.0228.2002.32
+2010/02/28.2002.43 planetlab3.upc.es received 3 total responses from 80.239.168.201 80.239.142.227 planetlab2.williams.edu
+2010/02/28.2002.43 planetlab3.upc.es 95.43.170.113 80.91.247.109 32 RR VPs left to try
+2010/02/28.2002.43 planetlab3.upc.es 95.43.170.113 80.91.247.109 using pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org
+2010/02/28.2002.43 Issuing spoofed recordroutes: 2010.0228.2002.43
+2010/02/28.2002.54 planetlab3.upc.es received 3 total responses from 217.163.1.73 pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.2002.54 planetlab3.upc.es 95.43.170.113 80.91.247.109 29 RR VPs left to try
+2010/02/28.2002.54 planetlab3.upc.es 95.43.170.113 80.91.247.109 using pnode2.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org
+2010/02/28.2002.54 Issuing spoofed recordroutes: 2010.0228.2002.54
+2010/02/28.2003.04 planetlab3.upc.es received 3 total responses from 64.9.225.150 75-130-96-13.static.oxfr.ma.charter.com 203.30.39.239
+2010/02/28.2003.04 planetlab3.upc.es 95.43.170.113 80.91.247.109 26 RR VPs left to try
+2010/02/28.2003.04 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab3-dsl.cs.cornell.edu planetlab2-saopaulo.lan.redclara.net mlab3.ams02.measurement-lab.org
+2010/02/28.2003.05 Issuing spoofed recordroutes: 2010.0228.2003.05
+2010/02/28.2003.15 planetlab3.upc.es received 2 total responses from 72.26.217.99 planetlab3-dsl.cs.cornell.edu
+2010/02/28.2003.15 planetlab3.upc.es 95.43.170.113 80.91.247.109 23 RR VPs left to try
+2010/02/28.2003.15 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab2-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.2003.15 Issuing spoofed recordroutes: 2010.0228.2003.15
+2010/02/28.2003.26 planetlab3.upc.es received 2 total responses from planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.2003.26 planetlab3.upc.es 95.43.170.113 80.91.247.109 20 RR VPs left to try
+2010/02/28.2003.26 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab-01.kusa.ac.jp planetlab1-buenosaires.lan.redclara.net node1.planetlab.albany.edu
+2010/02/28.2003.26 Issuing spoofed recordroutes: 2010.0228.2003.26
+2010/02/28.2003.46 planetlab3.upc.es received 2 total responses from node1.planetlab.albany.edu planetlab-01.kusa.ac.jp
+2010/02/28.2003.47 planetlab3.upc.es 95.43.170.113 80.91.247.109 17 RR VPs left to try
+2010/02/28.2003.47 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab2lannion.elibel.tm.fr mlab3.lax01.measurement-lab.org mlab1.dfw01.measurement-lab.org
+2010/02/28.2003.47 Issuing spoofed recordroutes: 2010.0228.2003.47
+2010/02/28.2003.57 planetlab3.upc.es received 3 total responses from 38.98.51.35 38.107.216.9 planetlab2lannion.elibel.tm.fr
+2010/02/28.2003.57 planetlab3.upc.es 95.43.170.113 80.91.247.109 14 RR VPs left to try
+2010/02/28.2003.58 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab2.pc.cis.udel.edu mlab1.lga01.measurement-lab.org mlab3.mia01.measurement-lab.org
+2010/02/28.2003.58 Issuing spoofed recordroutes: 2010.0228.2003.58
+2010/02/28.2004.10 planetlab3.upc.es received 3 total responses from 4.71.210.227 74.63.50.9 planetlab2.pc.cis.udel.edu
+2010/02/28.2004.10 planetlab3.upc.es 95.43.170.113 80.91.247.109 11 RR VPs left to try
+2010/02/28.2004.10 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab1.eecs.ucf.edu planetlab1.pop-rs.rnp.br plab-2.sinp.msu.ru
+2010/02/28.2004.10 Issuing spoofed recordroutes: 2010.0228.2004.10
+2010/02/28.2004.20 planetlab3.upc.es received 2 total responses from plab-2.sinp.msu.ru 200.132.1.4
+2010/02/28.2004.20 planetlab3.upc.es 95.43.170.113 80.91.247.109 8 RR VPs left to try
+2010/02/28.2004.20 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab6.cs.uiuc.edu planetlab2.utep.edu planetlab-02.ece.uprm.edu
+2010/02/28.2004.21 Issuing spoofed recordroutes: 2010.0228.2004.21
+2010/02/28.2004.31 planetlab3.upc.es received 1 total responses from planetlab2.utep.edu
+2010/02/28.2004.31 planetlab3.upc.es 95.43.170.113 80.91.247.109 5 RR VPs left to try
+2010/02/28.2004.31 planetlab3.upc.es 95.43.170.113 80.91.247.109 using planetlab1.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2004.31 Issuing spoofed recordroutes: 2010.0228.2004.31
+2010/02/28.2004.42 planetlab3.upc.es received 3 total responses from planetlab1.uta.edu pl1.planetlab.ics.tut.ac.jp planetlab0.dojima.wide.ad.jp
+2010/02/28.2004.42 planetlab3.upc.es 95.43.170.113 80.91.247.109 2 RR VPs left to try
+2010/02/28.2004.42 planetlab3.upc.es 95.43.170.113 80.91.247.109 using fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.2004.42 Issuing spoofed recordroutes: 2010.0228.2004.42
+2010/02/28.2004.53 planetlab3.upc.es received 2 total responses from planetlab1.utdallas.edu fobos.cecalc.ula.ve
+2010/02/28.2004.53 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab3.upc.es 95.43.170.113
+2010/02/28.2004.53 Adjacents for planetlab3.upc.es 80.91.247.109 are 213.248.89.126 80.91.251.181 80.91.247.55 80.91.251.185 80.91.250.124 80.239.160.34
+2010/02/28.2004.53 planetlab3.upc.es 95.43.170.113 80.91.247.109 6 TS adjacents left to try
+2010/02/28.2004.53 Issuing timestamps: 2010.0228.2004.53 1
+2010/02/28.2004.56 TS probe is non_spoofed 80.91.247.109 80.91.247.109 14694066 213.248.89.126 0 213.248.89.126 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2004.56 planetlab3.upc.es 95.43.170.113 80.91.247.109 5 TS adjacents left to try
+2010/02/28.2004.56 Issuing timestamps: 2010.0228.2004.56 1
+2010/02/28.2004.59 TS probe is non_spoofed 80.91.247.109 80.91.247.109 14697218 80.91.251.181 0 80.91.251.181 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2004.59 planetlab3.upc.es 95.43.170.113 80.91.247.109 4 TS adjacents left to try
+2010/02/28.2004.59 Issuing timestamps: 2010.0228.2004.59 1
+2010/02/28.2005.02 TS probe is non_spoofed 80.91.247.109 80.91.247.109 14699925 80.91.247.55 0 80.91.247.55 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2005.02 planetlab3.upc.es 95.43.170.113 80.91.247.109 3 TS adjacents left to try
+2010/02/28.2005.02 Issuing timestamps: 2010.0228.2005.02 1
+2010/02/28.2005.04 TS probe is non_spoofed 80.91.247.109 80.91.247.109 14702664 80.91.251.185 0 80.91.251.185 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2005.04 planetlab3.upc.es 95.43.170.113 80.91.247.109 2 TS adjacents left to try
+2010/02/28.2005.05 Issuing timestamps: 2010.0228.2005.04 1
+2010/02/28.2005.07 TS probe is non_spoofed 80.91.247.109 80.91.247.109 14705442 80.91.250.124 4242719800 80.91.250.124 0 128.208.3.77 0: reverse hop!
+2010/02/28.2005.07 REACHED
+2010/02/28.2005.07 FOUND
+2010/02/28.2005.07 RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109]_Dst_AssumeSym,RevSegment_[80.91.250.124]_TSAdj
+2010/02/28.2005.07 NONE
+2010/02/28.2005.07 FAILED
+2010/02/28.2005.08 --------
+2010/02/28.2005.08 Checking planetlab3.upc.es 95.43.170.113 80.91.250.124 for traceroutes to source
+2010/02/28.2005.08 Removing loopy hops 0.0.0.0 from RevSegment_[203.181.248.154 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 62.40.125.17 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164]_S147.83.30.164_H202.169.174.149_TRtoSrc
+2010/02/28.2005.08 REACHED
+2010/02/28.2005.08 RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109]_Dst_AssumeSym,RevSegment_[80.91.250.124]_TSAdj,RevSegment_[203.181.248.154 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 62.40.125.17 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 147.83.30.164]_TRtoSrc
+2010/02/28.2005.08 FOUND
+2010/02/28.2005.08 NONE
+2010/02/28.2005.08 FAILED
+2010/02/28.2005.08 --------
+2010/02/28.2005.09 Total time: 564
+2010/02/28.2005.09 Total probes: rr=5 spoof-ts=5 spoof-rr=92 tr=1 ts=49
+RevPath_D95.43.170.113_Splanetlab3.upc.es_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.109]_Dst_AssumeSym,RevSegment_[80.91.250.124]_TSAdj,RevSegment_[203.181.248.154 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 62.40.125.17 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 147.83.30.164]_TRtoSrc
+2010/02/28.2005.17 Issuing traceroutes: 2010.0228.2005.17 1
+2010/02/28.2005.21 Total time: 4
+2010/02/28.2005.21 Total probes: tr=1
+2010/02/28.2005.22 Issuing traceroutes: 2010.0228.2005.22 1
+2010/02/28.2005.28 Traceroutes for planetlab02.cs.washington.edu
+2010/02/28.2005.29 Traceroute to 95.43.170.113 reaches for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2005.29 Trying to find 1 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55 80.91.249.46 80.91.251.246 80.91.248.205 213.248.68.169 4.68.18.81 4.69.134.214 4.69.132.49 4.68.105.30 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.2005.29 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.2005.29 Fwd planetlab02.cs.washington.edu to 95.43.170.113: 128.208.4.102 205.175.109.21 205.175.102.157 205.175.102.2 209.124.188.134 209.247.84.38 209.247.84.37 4.68.105.30 4.69.132.49 4.69.134.214 4.68.18.81 213.248.68.169 80.91.248.205 80.91.251.246 80.91.249.46 80.91.247.55 80.91.247.109 213.248.92.182 212.39.91.65 0.0.0.0 95.43.170.113
+2010/02/28.2005.29 Checking planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.2005.29 Initializing RR VPs in a batch for 1
+2010/02/28.2005.29 Total VPs: 222
+2010/02/28.2005.29 Total spoofers: 160 at 75 sites
+2010/02/28.2005.29 Total up spoofers: 135 at 61 sites
+2010/02/28.2005.29 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2005.30 Found 8 spoofers of 34 for 95.43.170.113: mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab3.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.2005.30 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.2005.30 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.2005.30 Issuing recordroutes: 2010.0228.2005.30 1
+2010/02/28.2005.32 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.2005.32 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 using mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org
+2010/02/28.2005.33 Issuing spoofed recordroutes: 2010.0228.2005.33
+2010/02/28.2005.42 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2005.42 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.2005.42 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 using mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.2005.42 Issuing spoofed recordroutes: 2010.0228.2005.42
+2010/02/28.2005.52 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2005.52 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.2005.52 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 using mlab3.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.2005.52 Issuing spoofed recordroutes: 2010.0228.2005.52
+2010/02/28.2006.05 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2006.05 planetlab02.cs.washington.edu 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.2006.05 No adjacents to 95.43.170.113 left to test for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2006.05 Traceroute to 95.43.170.113 reaches for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2006.05 Trying to find 1 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55 80.91.249.46 80.91.251.246 80.91.248.205 213.248.68.169 4.68.18.81 4.69.134.214 4.69.132.49 4.68.105.30 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.2006.05 Rev Seg is 0.0.0.0 212.39.91.65
+2010/02/28.2006.05 REACHED
+2010/02/28.2006.05 FOUND
+2010/02/28.2006.05 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65]_Dst_AssumeSym
+2010/02/28.2006.05 NONE
+2010/02/28.2006.05 FAILED
+2010/02/28.2006.06 --------
+2010/02/28.2006.06 Checking planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.2006.06 Checking planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2006.06 Initializing RR VPs in a batch for 2
+2010/02/28.2006.06 Total VPs: 222
+2010/02/28.2006.06 Total spoofers: 160 at 75 sites
+2010/02/28.2006.07 Total up spoofers: 135 at 61 sites
+2010/02/28.2006.07 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2006.07 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.2006.07 Found 16 spoofers of 64 for 212.39.91.65: planetlab5.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-4.hpl.hp.com mlab2.nuq01.measurement-lab.org mlab2.dfw01.measurement-lab.org planetlab1.cs.uiuc.edu mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com mlab3.par01.measurement-lab.org mlab2.lga02.measurement-lab.org planetlab-2.cs.auckland.ac.nz plnode-01.gpolab.bbn.com mlab1.lhr01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab1.ams01.measurement-lab.org
+2010/02/28.2006.07 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 17 RR VPs left to try
+2010/02/28.2006.07 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using non_spoofed
+2010/02/28.2006.08 Issuing recordroutes: 2010.0228.2006.08 1
+2010/02/28.2006.10 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 16 RR VPs left to try
+2010/02/28.2006.10 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using planetlab5.williams.edu 75-130-96-13.static.oxfr.ma.charter.com pli1-pa-4.hpl.hp.com
+2010/02/28.2006.10 Issuing spoofed recordroutes: 2010.0228.2006.10
+2010/02/28.2006.20 planetlab02.cs.washington.edu received 1 total responses from planetlab5.williams.edu
+2010/02/28.2006.20 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 13 RR VPs left to try
+2010/02/28.2006.20 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using mlab2.nuq01.measurement-lab.org mlab2.dfw01.measurement-lab.org planetlab1.cs.uiuc.edu
+2010/02/28.2006.20 Issuing spoofed recordroutes: 2010.0228.2006.20
+2010/02/28.2006.35 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2006.35 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 10 RR VPs left to try
+2010/02/28.2006.35 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com
+2010/02/28.2006.35 Issuing spoofed recordroutes: 2010.0228.2006.35
+2010/02/28.2006.46 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2006.46 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 7 RR VPs left to try
+2010/02/28.2006.46 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using mlab3.par01.measurement-lab.org mlab2.lga02.measurement-lab.org planetlab-2.cs.auckland.ac.nz
+2010/02/28.2006.46 Issuing spoofed recordroutes: 2010.0228.2006.46
+2010/02/28.2006.56 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2006.56 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 4 RR VPs left to try
+2010/02/28.2006.56 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using plnode-01.gpolab.bbn.com mlab1.lhr01.measurement-lab.org planetlab2.pc.cis.udel.edu
+2010/02/28.2006.56 Issuing spoofed recordroutes: 2010.0228.2006.56
+2010/02/28.2007.05 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2007.05 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 1 RR VPs left to try
+2010/02/28.2007.06 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 using mlab1.ams01.measurement-lab.org
+2010/02/28.2007.06 Issuing spoofed recordroutes: 2010.0228.2007.06
+2010/02/28.2007.15 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2007.15 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.2007.15 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.2007.16 Issuing recordroutes: 2010.0228.2007.16 1
+2010/02/28.2007.18 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.2007.18 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 using planetlab-02.ece.uprm.edu pli1-pa-4.hpl.hp.com plgmu4.ite.gmu.edu
+2010/02/28.2007.18 Issuing spoofed recordroutes: 2010.0228.2007.18
+2010/02/28.2007.28 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2007.28 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.2007.28 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 using planetlab3.postel.org planetlab1.eecs.ucf.edu mlab3.sea01.measurement-lab.org
+2010/02/28.2007.28 Issuing spoofed recordroutes: 2010.0228.2007.28
+2010/02/28.2007.38 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2007.38 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.2007.38 planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 using ent1.cs.nccu.edu.tw planetlab2.utep.edu planetlab2.utdallas.edu
+2010/02/28.2007.38 Issuing spoofed recordroutes: 2010.0228.2007.38
+2010/02/28.2007.53 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2007.53 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2007.53 Adjacents for planetlab02.cs.washington.edu 212.39.91.65 are 213.248.92.182 212.39.87.242 212.39.91.9 212.39.91.1 212.39.91.33 212.39.91.41
+2010/02/28.2007.53 planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 6 TS adjacents left to try
+2010/02/28.2007.53 Issuing timestamps: 2010.0228.2007.53 1
+2010/02/28.2007.55 Total VPs: 222
+2010/02/28.2007.55 Total spoofers: 160 at 75 sites
+2010/02/28.2007.55 Total up spoofers: 135 at 61 sites
+2010/02/28.2007.55 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2007.56 Issuing spoofed_timestamps: 2010.0228.2007.56 5
+2010/02/28.2008.05 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/28.2008.05 Current hop 212.39.91.65 seems to be TS unresponsive for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2008.05 Backing off along current path for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2008.05 Trying to find 2 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55 80.91.249.46 80.91.251.246 80.91.248.205 213.248.68.169 4.68.18.81 4.69.134.214 4.69.132.49 4.68.105.30 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.2008.05 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182
+2010/02/28.2008.06 REACHED
+2010/02/28.2008.06 FOUND
+2010/02/28.2008.06 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182]_Dst_AssumeSym
+2010/02/28.2008.06 NONE
+2010/02/28.2008.06 FAILED
+2010/02/28.2008.06 --------
+2010/02/28.2008.06 Checking planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2008.06 Checking planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.2008.06 Checking planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2008.07 Initializing RR VPs in a batch for 1
+2010/02/28.2008.07 Total VPs: 222
+2010/02/28.2008.07 Total spoofers: 160 at 75 sites
+2010/02/28.2008.07 Total up spoofers: 135 at 61 sites
+2010/02/28.2008.07 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2008.07 Found 39 spoofers of 148 for 213.248.92.182: mlab1.ham01.measurement-lab.org mlab1.par01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab3.ams02.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab2.williams.edu node3.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab2.uta.edu node1.planetlab.albany.edu mlab4.nuq01.measurement-lab.org mlab3.lax01.measurement-lab.org planetlab-1.cs.uh.edu mlab2.lga01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab2.utep.edu plnode-02.gpolab.bbn.com planetlab2.postel.org planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-02.ece.uprm.edu plgmu2.ite.gmu.edu planetlab1lannion.elibel.tm.fr mlab2.sea01.measurement-lab.org planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru eve.ee.ntu.edu.tw planetlab2.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2008.07 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 40 RR VPs left to try
+2010/02/28.2008.07 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using non_spoofed
+2010/02/28.2008.08 Issuing recordroutes: 2010.0228.2008.07 1
+2010/02/28.2008.10 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 39 RR VPs left to try
+2010/02/28.2008.10 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using mlab1.ham01.measurement-lab.org mlab1.par01.measurement-lab.org pli1-pa-4.hpl.hp.com
+2010/02/28.2008.10 Issuing spoofed recordroutes: 2010.0228.2008.10
+2010/02/28.2008.20 planetlab02.cs.washington.edu received 3 total responses from pli1-pa-4.hpl.hp.com 80.239.168.201 80.239.142.201
+2010/02/28.2008.20 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 36 RR VPs left to try
+2010/02/28.2008.20 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using mlab3.ams02.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab2.williams.edu
+2010/02/28.2008.20 Issuing spoofed recordroutes: 2010.0228.2008.20
+2010/02/28.2008.30 planetlab02.cs.washington.edu received 3 total responses from 217.163.1.99 planetlab2.williams.edu 72.26.217.99
+2010/02/28.2008.30 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 33 RR VPs left to try
+2010/02/28.2008.30 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using node3.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode2.pdcc-ntu.singaren.net.sg
+2010/02/28.2008.30 Issuing spoofed recordroutes: 2010.0228.2008.30
+2010/02/28.2008.42 planetlab02.cs.washington.edu received 3 total responses from pl1.bit.uoit.ca node3.planet-lab.titech.ac.jp 203.30.39.239
+2010/02/28.2008.42 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 30 RR VPs left to try
+2010/02/28.2008.42 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planetlab4.singaren.net.sg planetlab2.uta.edu node1.planetlab.albany.edu
+2010/02/28.2008.42 Issuing spoofed recordroutes: 2010.0228.2008.42
+2010/02/28.2008.54 planetlab02.cs.washington.edu received 3 total responses from planetlab2.uta.edu node1.planetlab.albany.edu planetlab4.singaren.net.sg
+2010/02/28.2008.54 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 27 RR VPs left to try
+2010/02/28.2008.54 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using mlab4.nuq01.measurement-lab.org mlab3.lax01.measurement-lab.org planetlab-1.cs.uh.edu
+2010/02/28.2008.54 Issuing spoofed recordroutes: 2010.0228.2008.54
+2010/02/28.2009.05 planetlab02.cs.washington.edu received 2 total responses from 38.98.51.35 planetlab-1.cs.uh.edu
+2010/02/28.2009.05 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 24 RR VPs left to try
+2010/02/28.2009.06 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using mlab2.lga01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu
+2010/02/28.2009.06 Issuing spoofed recordroutes: 2010.0228.2009.06
+2010/02/28.2009.15 planetlab02.cs.washington.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu 74.63.50.22
+2010/02/28.2009.15 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 21 RR VPs left to try
+2010/02/28.2009.15 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu
+2010/02/28.2009.16 Issuing spoofed recordroutes: 2010.0228.2009.15
+2010/02/28.2009.26 planetlab02.cs.washington.edu received 3 total responses from planetlab2.pc.cis.udel.edu planetlab3-dsl.cs.cornell.edu planetlab-01.kusa.ac.jp
+2010/02/28.2009.26 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 18 RR VPs left to try
+2010/02/28.2009.26 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planetlab1.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org
+2010/02/28.2009.26 Issuing spoofed recordroutes: 2010.0228.2009.26
+2010/02/28.2009.36 planetlab02.cs.washington.edu received 3 total responses from 38.107.216.22 4.71.210.227 planetlab1.dojima.wide.ad.jp
+2010/02/28.2009.36 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 15 RR VPs left to try
+2010/02/28.2009.36 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planetlab2.utep.edu plnode-02.gpolab.bbn.com planetlab2.postel.org
+2010/02/28.2009.36 Issuing spoofed recordroutes: 2010.0228.2009.36
+2010/02/28.2009.46 planetlab02.cs.washington.edu received 3 total responses from planetlab2.postel.org 192.1.249.21 planetlab2.utep.edu
+2010/02/28.2009.46 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 12 RR VPs left to try
+2010/02/28.2009.46 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-02.ece.uprm.edu
+2010/02/28.2009.46 Issuing spoofed recordroutes: 2010.0228.2009.46
+2010/02/28.2010.05 planetlab02.cs.washington.edu received 1 total responses from planetlab-1.ssvl.kth.se
+2010/02/28.2010.05 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 9 RR VPs left to try
+2010/02/28.2010.05 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using plgmu2.ite.gmu.edu planetlab1lannion.elibel.tm.fr mlab2.sea01.measurement-lab.org
+2010/02/28.2010.06 Issuing spoofed recordroutes: 2010.0228.2010.05
+2010/02/28.2010.15 planetlab02.cs.washington.edu received 4 total responses from 38.102.0.86 plgmu2.ite.gmu.edu planetlab1lannion.elibel.tm.fr planet1.ku.edu.tr
+2010/02/28.2010.15 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 6 RR VPs left to try
+2010/02/28.2010.15 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru
+2010/02/28.2010.16 Issuing spoofed recordroutes: 2010.0228.2010.16
+2010/02/28.2010.27 planetlab02.cs.washington.edu received 2 total responses from plab-1.sinp.msu.ru 200.132.1.6
+2010/02/28.2010.27 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 3 RR VPs left to try
+2010/02/28.2010.27 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 using eve.ee.ntu.edu.tw planetlab2.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2010.27 Issuing spoofed recordroutes: 2010.0228.2010.27
+2010/02/28.2010.44 planetlab02.cs.washington.edu received 2 total responses from planetlab2.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2010.44 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2010.44 Adjacents for planetlab02.cs.washington.edu 212.39.91.5 are 77.67.72.206 212.39.91.101 212.39.64.42 212.39.64.43 212.39.91.92 212.39.70.141 212.39.91.93 212.39.64.46 212.39.70.137 212.39.91.103 213.91.166.30 193.84.86.1 195.128.225.1 213.16.47.171 212.39.66.242 212.39.66.18 217.174.144.1 212.39.69.211 83.228.122.1 83.228.108.2 195.225.127.1 212.39.69.228 212.39.64.56 62.176.87.1 212.39.64.58 212.39.64.45 212.39.66.1 213.16.55.1 213.91.204.1 212.39.91.79 213.91.235.1 212.39.69.227 212.39.64.41 212.39.64.61 212.39.91.82 212.39.91.68 212.39.69.212 212.39.86.1 212.39.91.81 212.39.91.110 212.39.69.226 212.39.69.210 212.39.91.9
+2010/02/28.2010.44 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 43 TS adjacents left to try
+2010/02/28.2010.44 Issuing timestamps: 2010.0228.2010.44 1
+2010/02/28.2010.47 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15046225 77.67.72.206 0 77.67.72.206 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2010.47 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 42 TS adjacents left to try
+2010/02/28.2010.47 Issuing timestamps: 2010.0228.2010.47 1
+2010/02/28.2010.49 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15048885 212.39.91.101 0 212.39.91.101 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2010.49 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 41 TS adjacents left to try
+2010/02/28.2010.49 Issuing timestamps: 2010.0228.2010.49 1
+2010/02/28.2010.52 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15051589 212.39.64.42 0 212.39.64.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2010.52 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 40 TS adjacents left to try
+2010/02/28.2010.52 Issuing timestamps: 2010.0228.2010.52 1
+2010/02/28.2010.55 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15054080 212.39.64.43 0 212.39.64.43 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2010.55 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 39 TS adjacents left to try
+2010/02/28.2010.55 Issuing timestamps: 2010.0228.2010.55 1
+2010/02/28.2010.57 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15056594 212.39.91.92 0 212.39.91.92 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2010.57 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 38 TS adjacents left to try
+2010/02/28.2010.57 Issuing timestamps: 2010.0228.2010.57 1
+2010/02/28.2011.00 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15059084 212.39.70.141 0 212.39.70.141 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.00 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 37 TS adjacents left to try
+2010/02/28.2011.00 Issuing timestamps: 2010.0228.2011.00 1
+2010/02/28.2011.02 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15061729 212.39.91.93 0 212.39.91.93 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.02 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 36 TS adjacents left to try
+2010/02/28.2011.02 Issuing timestamps: 2010.0228.2011.02 1
+2010/02/28.2011.06 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15065114 212.39.64.46 0 212.39.64.46 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.06 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 35 TS adjacents left to try
+2010/02/28.2011.06 Issuing timestamps: 2010.0228.2011.06 1
+2010/02/28.2011.08 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15067773 212.39.70.137 0 212.39.70.137 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.08 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 34 TS adjacents left to try
+2010/02/28.2011.08 Issuing timestamps: 2010.0228.2011.08 1
+2010/02/28.2011.11 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15070082 212.39.91.103 0 212.39.91.103 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.11 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 33 TS adjacents left to try
+2010/02/28.2011.11 Issuing timestamps: 2010.0228.2011.11 1
+2010/02/28.2011.13 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15072627 213.91.166.30 0 213.91.166.30 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.13 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 32 TS adjacents left to try
+2010/02/28.2011.13 Issuing timestamps: 2010.0228.2011.13 1
+2010/02/28.2011.16 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15075186 193.84.86.1 0 193.84.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.16 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 31 TS adjacents left to try
+2010/02/28.2011.16 Issuing timestamps: 2010.0228.2011.16 1
+2010/02/28.2011.18 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15077632 195.128.225.1 0 195.128.225.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.18 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 30 TS adjacents left to try
+2010/02/28.2011.18 Issuing timestamps: 2010.0228.2011.18 1
+2010/02/28.2011.21 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15080206 213.16.47.171 0 213.16.47.171 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.21 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 29 TS adjacents left to try
+2010/02/28.2011.21 Issuing timestamps: 2010.0228.2011.21 1
+2010/02/28.2011.23 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15082817 212.39.66.242 0 212.39.66.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.23 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 28 TS adjacents left to try
+2010/02/28.2011.23 Issuing timestamps: 2010.0228.2011.23 1
+2010/02/28.2011.26 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15085210 212.39.66.18 0 212.39.66.18 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.26 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 27 TS adjacents left to try
+2010/02/28.2011.26 Issuing timestamps: 2010.0228.2011.26 1
+2010/02/28.2011.29 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15088117 217.174.144.1 0 217.174.144.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.29 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 26 TS adjacents left to try
+2010/02/28.2011.29 Issuing timestamps: 2010.0228.2011.29 1
+2010/02/28.2011.31 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15090621 212.39.69.211 0 212.39.69.211 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.31 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 25 TS adjacents left to try
+2010/02/28.2011.31 Issuing timestamps: 2010.0228.2011.31 1
+2010/02/28.2011.34 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15093206 83.228.122.1 0 83.228.122.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.34 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 24 TS adjacents left to try
+2010/02/28.2011.34 Issuing timestamps: 2010.0228.2011.34 1
+2010/02/28.2011.36 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15095733 83.228.108.2 0 83.228.108.2 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.36 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 23 TS adjacents left to try
+2010/02/28.2011.36 Issuing timestamps: 2010.0228.2011.36 1
+2010/02/28.2011.39 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15098099 195.225.127.1 0 195.225.127.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.39 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 22 TS adjacents left to try
+2010/02/28.2011.39 Issuing timestamps: 2010.0228.2011.39 1
+2010/02/28.2011.41 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15100590 212.39.69.228 0 212.39.69.228 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.41 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 21 TS adjacents left to try
+2010/02/28.2011.41 Issuing timestamps: 2010.0228.2011.41 1
+2010/02/28.2011.44 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15103093 212.39.64.56 0 212.39.64.56 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.44 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 20 TS adjacents left to try
+2010/02/28.2011.44 Issuing timestamps: 2010.0228.2011.44 1
+2010/02/28.2011.46 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15105557 62.176.87.1 0 62.176.87.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.46 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 19 TS adjacents left to try
+2010/02/28.2011.46 Issuing timestamps: 2010.0228.2011.46 1
+2010/02/28.2011.49 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15108259 212.39.64.58 0 212.39.64.58 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.49 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 18 TS adjacents left to try
+2010/02/28.2011.49 Issuing timestamps: 2010.0228.2011.49 1
+2010/02/28.2011.51 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15110702 212.39.64.45 0 212.39.64.45 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.51 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 17 TS adjacents left to try
+2010/02/28.2011.51 Issuing timestamps: 2010.0228.2011.51 1
+2010/02/28.2011.54 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15113188 212.39.66.1 0 212.39.66.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.54 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 16 TS adjacents left to try
+2010/02/28.2011.54 Issuing timestamps: 2010.0228.2011.54 1
+2010/02/28.2011.56 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15115636 213.16.55.1 0 213.16.55.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.56 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 15 TS adjacents left to try
+2010/02/28.2011.56 Issuing timestamps: 2010.0228.2011.56 1
+2010/02/28.2011.59 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15118153 213.91.204.1 0 213.91.204.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2011.59 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 14 TS adjacents left to try
+2010/02/28.2011.59 Issuing timestamps: 2010.0228.2011.59 1
+2010/02/28.2012.01 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15120797 212.39.91.79 0 212.39.91.79 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.01 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 13 TS adjacents left to try
+2010/02/28.2012.02 Issuing timestamps: 2010.0228.2012.02 1
+2010/02/28.2012.04 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15123392 213.91.235.1 0 213.91.235.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.04 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 12 TS adjacents left to try
+2010/02/28.2012.04 Issuing timestamps: 2010.0228.2012.04 1
+2010/02/28.2012.06 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15126149 212.39.69.227 0 212.39.69.227 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.06 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 11 TS adjacents left to try
+2010/02/28.2012.07 Issuing timestamps: 2010.0228.2012.06 1
+2010/02/28.2012.09 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15128322 212.39.64.41 0 212.39.64.41 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.09 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 10 TS adjacents left to try
+2010/02/28.2012.09 Issuing timestamps: 2010.0228.2012.09 1
+2010/02/28.2012.11 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15130752 212.39.64.61 0 212.39.64.61 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.11 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 9 TS adjacents left to try
+2010/02/28.2012.11 Issuing timestamps: 2010.0228.2012.11 1
+2010/02/28.2012.14 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15133336 212.39.91.82 0 212.39.91.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.14 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 8 TS adjacents left to try
+2010/02/28.2012.14 Issuing timestamps: 2010.0228.2012.14 1
+2010/02/28.2012.16 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15135759 212.39.91.68 0 212.39.91.68 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.16 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 7 TS adjacents left to try
+2010/02/28.2012.16 Issuing timestamps: 2010.0228.2012.16 1
+2010/02/28.2012.19 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15138355 212.39.69.212 0 212.39.69.212 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.19 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 6 TS adjacents left to try
+2010/02/28.2012.19 Issuing timestamps: 2010.0228.2012.19 1
+2010/02/28.2012.21 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15140661 212.39.86.1 0 212.39.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.21 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 5 TS adjacents left to try
+2010/02/28.2012.21 Issuing timestamps: 2010.0228.2012.21 1
+2010/02/28.2012.24 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15143139 212.39.91.81 0 212.39.91.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.24 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 4 TS adjacents left to try
+2010/02/28.2012.24 Issuing timestamps: 2010.0228.2012.24 1
+2010/02/28.2012.26 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15145636 212.39.91.110 0 212.39.91.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.26 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 3 TS adjacents left to try
+2010/02/28.2012.26 Issuing timestamps: 2010.0228.2012.26 1
+2010/02/28.2012.29 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15148087 212.39.69.226 0 212.39.69.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.29 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 2 TS adjacents left to try
+2010/02/28.2012.29 Issuing timestamps: 2010.0228.2012.29 1
+2010/02/28.2012.31 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15150534 212.39.69.210 0 212.39.69.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.31 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 1 TS adjacents left to try
+2010/02/28.2012.31 Issuing timestamps: 2010.0228.2012.31 1
+2010/02/28.2012.34 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15153038 212.39.91.9 0 212.39.91.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2012.34 planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 0 TS adjacents left to try
+2010/02/28.2012.34 No adjacents to 213.248.92.182 left to test for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2012.34 Backing off along current path for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2012.34 Trying to find 3 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55 80.91.249.46 80.91.251.246 80.91.248.205 213.248.68.169 4.68.18.81 4.69.134.214 4.69.132.49 4.68.105.30 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.2012.34 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109
+2010/02/28.2012.34 REACHED
+2010/02/28.2012.34 FOUND
+2010/02/28.2012.34 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109]_Dst_AssumeSym
+2010/02/28.2012.34 NONE
+2010/02/28.2012.34 FAILED
+2010/02/28.2012.34 --------
+2010/02/28.2012.35 Checking planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 for traceroutes to source
+2010/02/28.2012.35 Checking planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2012.35 Checking planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.2012.35 Checking planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2012.35 Initializing RR VPs in a batch for 1
+2010/02/28.2012.35 Total VPs: 222
+2010/02/28.2012.35 Total spoofers: 160 at 75 sites
+2010/02/28.2012.36 Total up spoofers: 135 at 61 sites
+2010/02/28.2012.36 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2012.37 Found 35 spoofers of 151 for 80.91.247.109: planetlab2.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab1-saopaulo.lan.redclara.net mlab1.ams01.measurement-lab.org planetlab1-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg planetlab-02.kusa.ac.jp planetlab2-buenosaires.lan.redclara.net node1.planetlab.albany.edu planetlab1lannion.elibel.tm.fr mlab3.lax01.measurement-lab.org mlab2.dfw01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab3.lga01.measurement-lab.org mlab2.mia01.measurement-lab.org planetlab1.eecs.ucf.edu planetlab2.pop-rs.rnp.br plab-2.sinp.msu.ru planetlab6.cs.uiuc.edu planetlab1.utep.edu planetlab-02.ece.uprm.edu planetlab2.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.2012.37 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 36 RR VPs left to try
+2010/02/28.2012.37 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using non_spoofed
+2010/02/28.2012.37 Issuing recordroutes: 2010.0228.2012.37 1
+2010/02/28.2012.40 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 35 RR VPs left to try
+2010/02/28.2012.40 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab2.williams.edu mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org
+2010/02/28.2012.40 Issuing spoofed recordroutes: 2010.0228.2012.40
+2010/02/28.2012.51 planetlab02.cs.washington.edu received 3 total responses from 80.239.142.227 planetlab2.williams.edu 80.239.168.201
+2010/02/28.2012.51 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 32 RR VPs left to try
+2010/02/28.2012.51 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org
+2010/02/28.2012.52 Issuing spoofed recordroutes: 2010.0228.2012.52
+2010/02/28.2013.01 planetlab02.cs.washington.edu received 3 total responses from pl1.bit.uoit.ca 217.163.1.73 pli1-pa-4.hpl.hp.com
+2010/02/28.2013.01 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 29 RR VPs left to try
+2010/02/28.2013.01 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using pnode1.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org
+2010/02/28.2013.02 Issuing spoofed recordroutes: 2010.0228.2013.02
+2010/02/28.2013.12 planetlab02.cs.washington.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com 64.9.225.150 203.30.39.238
+2010/02/28.2013.12 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 26 RR VPs left to try
+2010/02/28.2013.13 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab3-dsl.cs.cornell.edu planetlab1-saopaulo.lan.redclara.net mlab1.ams01.measurement-lab.org
+2010/02/28.2013.13 Issuing spoofed recordroutes: 2010.0228.2013.13
+2010/02/28.2013.23 planetlab02.cs.washington.edu received 2 total responses from planetlab3-dsl.cs.cornell.edu 213.244.128.137
+2010/02/28.2013.23 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 23 RR VPs left to try
+2010/02/28.2013.23 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab1-tijuana.lan.redclara.net planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.2013.23 Issuing spoofed recordroutes: 2010.0228.2013.23
+2010/02/28.2013.33 planetlab02.cs.washington.edu received 2 total responses from planetlab-1.cs.uh.edu planetlab4.singaren.net.sg
+2010/02/28.2013.34 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 20 RR VPs left to try
+2010/02/28.2013.34 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab-02.kusa.ac.jp planetlab2-buenosaires.lan.redclara.net node1.planetlab.albany.edu
+2010/02/28.2013.34 Issuing spoofed recordroutes: 2010.0228.2013.34
+2010/02/28.2013.53 planetlab02.cs.washington.edu received 2 total responses from node1.planetlab.albany.edu planetlab-02.kusa.ac.jp
+2010/02/28.2013.53 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 17 RR VPs left to try
+2010/02/28.2013.53 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab1lannion.elibel.tm.fr mlab3.lax01.measurement-lab.org mlab2.dfw01.measurement-lab.org
+2010/02/28.2013.53 Issuing spoofed recordroutes: 2010.0228.2013.53
+2010/02/28.2014.03 planetlab02.cs.washington.edu received 3 total responses from 38.98.51.35 38.107.216.22 planetlab1lannion.elibel.tm.fr
+2010/02/28.2014.03 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 14 RR VPs left to try
+2010/02/28.2014.04 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab2.pc.cis.udel.edu mlab3.lga01.measurement-lab.org mlab2.mia01.measurement-lab.org
+2010/02/28.2014.04 Issuing spoofed recordroutes: 2010.0228.2014.04
+2010/02/28.2014.15 planetlab02.cs.washington.edu received 3 total responses from 4.71.210.214 74.63.50.35 planetlab2.pc.cis.udel.edu
+2010/02/28.2014.15 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 11 RR VPs left to try
+2010/02/28.2014.15 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab1.eecs.ucf.edu planetlab2.pop-rs.rnp.br plab-2.sinp.msu.ru
+2010/02/28.2014.15 Issuing spoofed recordroutes: 2010.0228.2014.15
+2010/02/28.2014.25 planetlab02.cs.washington.edu received 2 total responses from plab-2.sinp.msu.ru 200.132.1.6
+2010/02/28.2014.25 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 8 RR VPs left to try
+2010/02/28.2014.25 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab6.cs.uiuc.edu planetlab1.utep.edu planetlab-02.ece.uprm.edu
+2010/02/28.2014.25 Issuing spoofed recordroutes: 2010.0228.2014.25
+2010/02/28.2014.35 planetlab02.cs.washington.edu received 1 total responses from planetlab1.utep.edu
+2010/02/28.2014.35 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 5 RR VPs left to try
+2010/02/28.2014.35 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using planetlab2.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2014.35 Issuing spoofed recordroutes: 2010.0228.2014.35
+2010/02/28.2014.45 planetlab02.cs.washington.edu received 3 total responses from planetlab2.uta.edu pl1.planetlab.ics.tut.ac.jp planetlab0.dojima.wide.ad.jp
+2010/02/28.2014.45 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 2 RR VPs left to try
+2010/02/28.2014.45 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 using fobos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.2014.45 Issuing spoofed recordroutes: 2010.0228.2014.45
+2010/02/28.2014.55 planetlab02.cs.washington.edu received 2 total responses from planetlab1.utdallas.edu fobos.cecalc.ula.ve
+2010/02/28.2014.55 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2014.55 Adjacents for planetlab02.cs.washington.edu 80.91.247.109 are 213.248.89.126 80.91.251.181 80.91.247.55 80.91.251.185 80.91.250.124 80.239.160.34
+2010/02/28.2014.55 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 6 TS adjacents left to try
+2010/02/28.2014.56 Issuing timestamps: 2010.0228.2014.55 1
+2010/02/28.2014.58 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15296352 213.248.89.126 0 213.248.89.126 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2014.58 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 5 TS adjacents left to try
+2010/02/28.2014.59 Issuing timestamps: 2010.0228.2014.58 1
+2010/02/28.2015.02 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15299361 80.91.251.181 0 80.91.251.181 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2015.02 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 4 TS adjacents left to try
+2010/02/28.2015.02 Issuing timestamps: 2010.0228.2015.02 1
+2010/02/28.2015.07 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15305942 80.91.247.55 0 80.91.247.55 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2015.07 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 3 TS adjacents left to try
+2010/02/28.2015.08 Issuing timestamps: 2010.0228.2015.08 1
+2010/02/28.2015.10 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15308828 80.91.251.185 0 80.91.251.185 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2015.10 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 2 TS adjacents left to try
+2010/02/28.2015.11 Issuing timestamps: 2010.0228.2015.10 1
+2010/02/28.2015.13 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15311313 80.91.250.124 0 80.91.250.124 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2015.13 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 1 TS adjacents left to try
+2010/02/28.2015.13 Issuing timestamps: 2010.0228.2015.13 1
+2010/02/28.2015.15 TS probe is non_spoofed 80.91.247.109 80.91.247.109 15313778 80.239.160.34 0 80.239.160.34 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2015.15 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 0 TS adjacents left to try
+2010/02/28.2015.15 No adjacents to 80.91.247.109 left to test for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2015.15 Backing off along current path for planetlab02.cs.washington.edu 95.43.170.113
+2010/02/28.2015.16 Trying to find 4 hops from [0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55 80.91.249.46 80.91.251.246 80.91.248.205 213.248.68.169 4.68.18.81 4.69.134.214 4.69.132.49 4.68.105.30 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.2015.16 Rev Seg is 0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55
+2010/02/28.2015.16 REACHED
+2010/02/28.2015.16 FOUND
+2010/02/28.2015.16 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55]_Dst_AssumeSym
+2010/02/28.2015.16 NONE
+2010/02/28.2015.16 FAILED
+2010/02/28.2015.16 --------
+2010/02/28.2015.16 Checking planetlab02.cs.washington.edu 95.43.170.113 80.91.247.55 for traceroutes to source
+2010/02/28.2015.16 Checking planetlab02.cs.washington.edu 95.43.170.113 80.91.247.109 for traceroutes to source
+2010/02/28.2015.17 Checking planetlab02.cs.washington.edu 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2015.17 Checking planetlab02.cs.washington.edu 95.43.170.113 212.39.91.65 for traceroutes to source
+2010/02/28.2015.17 Checking planetlab02.cs.washington.edu 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2015.17 Initializing RR VPs in a batch for 1
+2010/02/28.2015.17 Total VPs: 222
+2010/02/28.2015.17 Total spoofers: 160 at 75 sites
+2010/02/28.2015.17 Total up spoofers: 135 at 61 sites
+2010/02/28.2015.18 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2015.18 Found 35 spoofers of 151 for 80.91.247.55: mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg planetlab2.williams.edu mlab1.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab4.nuq01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab2-saopaulo.lan.redclara.net mlab2.ams01.measurement-lab.org planetlab2-tijuana.lan.redclara.net planetlab-2.cs.uh.edu planetlab4.singaren.net.sg planetlab-02.kusa.ac.jp planetlab1-buenosaires.lan.redclara.net node2.planetlab.albany.edu planetlab2lannion.elibel.tm.fr mlab3.lax01.measurement-lab.org mlab3.dfw01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab2.lga02.measurement-lab.org mlab2.mia01.measurement-lab.org planetlab2.eecs.ucf.edu planetlab1.pop-rs.rnp.br plab-2.sinp.msu.ru planetlab4.cs.uiuc.edu planetlab2.utep.edu planetlab-02.ece.uprm.edu planetlab2.uta.edu planetlab0.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp deimos.cecalc.ula.ve planetlab2.utdallas.edu
+2010/02/28.2015.18 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.55 36 RR VPs left to try
+2010/02/28.2015.18 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.55 using non_spoofed
+2010/02/28.2015.18 Issuing recordroutes: 2010.0228.2015.18 1
+2010/02/28.2015.20 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.55 35 RR VPs left to try
+2010/02/28.2015.20 planetlab02.cs.washington.edu 95.43.170.113 80.91.247.55 using mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-4.hpl.hp.com
+2010/02/28.2015.21 Issuing spoofed recordroutes: 2010.0228.2015.20
+2010/02/28.2015.30 planetlab02.cs.washington.edu received 3 total responses from pli1-pa-4.hpl.hp.com 217.163.1.99 80.239.142.201
+2010/02/28.2015.30 REACHED
+2010/02/28.2015.30 FOUND
+2010/02/28.2015.30 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55]_Dst_AssumeSym,RevSegment_[80.91.253.250]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.2015.30 NONE
+2010/02/28.2015.31 FAILED
+2010/02/28.2015.31 --------
+2010/02/28.2015.31 Checking planetlab02.cs.washington.edu 95.43.170.113 80.91.253.250 for traceroutes to source
+2010/02/28.2015.31 REACHED
+2010/02/28.2015.31 RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55]_Dst_AssumeSym,RevSegment_[80.91.253.250]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[80.91.251.154 80.91.248.82 80.91.252.40 80.91.253.182 213.244.165.249 4.69.139.129 4.69.133.90 4.69.141.149 4.69.132.138 4.69.137.62 4.69.132.69 4.69.132.113 4.69.132.61 4.69.132.53 4.68.105.35 209.247.84.38 209.124.188.134 209.124.188.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198]_TRtoSrc
+2010/02/28.2015.31 FOUND
+2010/02/28.2015.31 NONE
+2010/02/28.2015.31 FAILED
+2010/02/28.2015.31 --------
+2010/02/28.2015.31 Total time: 609
+2010/02/28.2015.32 Total probes: rr=6 spoof-ts=5 spoof-rr=110 tr=1 ts=50
+RevPath_D95.43.170.113_Splanetlab02.cs.washington.edu_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.91.65 213.248.92.182 80.91.247.109 80.91.247.55]_Dst_AssumeSym,RevSegment_[80.91.253.250]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[80.91.251.154 80.91.248.82 80.91.252.40 80.91.253.182 213.244.165.249 4.69.139.129 4.69.133.90 4.69.141.149 4.69.132.138 4.69.137.62 4.69.132.69 4.69.132.113 4.69.132.61 4.69.132.53 4.68.105.35 209.247.84.38 209.124.188.134 209.124.188.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198]_TRtoSrc
+2010/02/28.2015.40 Issuing traceroutes: 2010.0228.2015.40 1
+2010/02/28.2015.47 Traceroutes for planetlab2.ics.forth.gr
+2010/02/28.2015.47 Traceroute to 95.43.170.113 reaches for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2015.47 Trying to find 1 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83 80.239.134.1 62.40.112.202 62.40.112.197 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.2015.47 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.2015.47 Fwd planetlab2.ics.forth.gr to 95.43.170.113: 139.91.90.253 139.91.34.85 195.251.24.173 195.251.27.54 62.40.124.89 62.40.112.197 62.40.112.202 80.239.134.1 80.91.247.83 213.248.92.182 212.39.64.54 0.0.0.0 95.43.170.113
+2010/02/28.2015.47 Checking planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.2015.48 Initializing RR VPs in a batch for 1
+2010/02/28.2015.48 Total VPs: 222
+2010/02/28.2015.48 Total spoofers: 160 at 75 sites
+2010/02/28.2015.48 Total up spoofers: 135 at 61 sites
+2010/02/28.2015.48 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2015.48 Found 8 spoofers of 34 for 95.43.170.113: mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org mlab2.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab2.par01.measurement-lab.org planetlab6.cs.uiuc.edu
+2010/02/28.2015.48 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.2015.48 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.2015.49 Issuing recordroutes: 2010.0228.2015.48 1
+2010/02/28.2015.51 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.2015.51 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 using mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org
+2010/02/28.2015.51 Issuing spoofed recordroutes: 2010.0228.2015.51
+2010/02/28.2016.01 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2016.02 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.2016.02 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 using mlab2.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.2016.02 Issuing spoofed recordroutes: 2010.0228.2016.02
+2010/02/28.2016.12 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2016.12 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.2016.12 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 using mlab2.par01.measurement-lab.org planetlab6.cs.uiuc.edu
+2010/02/28.2016.12 Issuing spoofed recordroutes: 2010.0228.2016.12
+2010/02/28.2016.22 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2016.22 planetlab2.ics.forth.gr 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.2016.23 No adjacents to 95.43.170.113 left to test for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2016.23 Traceroute to 95.43.170.113 reaches for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2016.23 Trying to find 1 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83 80.239.134.1 62.40.112.202 62.40.112.197 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.2016.23 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.2016.23 REACHED
+2010/02/28.2016.23 FOUND
+2010/02/28.2016.23 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54]_Dst_AssumeSym
+2010/02/28.2016.23 NONE
+2010/02/28.2016.23 FAILED
+2010/02/28.2016.23 --------
+2010/02/28.2016.23 Checking planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2016.24 Checking planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2016.24 Initializing RR VPs in a batch for 2
+2010/02/28.2016.24 Total VPs: 222
+2010/02/28.2016.24 Total spoofers: 160 at 75 sites
+2010/02/28.2016.24 Total up spoofers: 135 at 61 sites
+2010/02/28.2016.24 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2016.25 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.2016.25 Found 1 spoofers of 4 for 212.39.64.54: planetlab3.williams.edu
+2010/02/28.2016.25 planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 2 RR VPs left to try
+2010/02/28.2016.25 planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 using non_spoofed
+2010/02/28.2016.25 Issuing recordroutes: 2010.0228.2016.25 1
+2010/02/28.2016.28 planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 1 RR VPs left to try
+2010/02/28.2016.28 planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 using planetlab3.williams.edu
+2010/02/28.2016.28 Issuing spoofed recordroutes: 2010.0228.2016.28
+2010/02/28.2016.38 planetlab2.ics.forth.gr received 1 total responses from planetlab3.williams.edu
+2010/02/28.2016.38 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.2016.38 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.2016.38 Issuing recordroutes: 2010.0228.2016.38 1
+2010/02/28.2016.41 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.2016.41 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 using planetlab2.cs.colorado.edu planetlab2.eurecom.fr pl1.rcc.uottawa.ca
+2010/02/28.2016.41 Issuing spoofed recordroutes: 2010.0228.2016.41
+2010/02/28.2016.52 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2016.52 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.2016.52 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 using planetlab1-buenosaires.lan.redclara.net planetlab1.pc.cis.udel.edu planetlab1.sfc.wide.ad.jp
+2010/02/28.2016.52 Issuing spoofed recordroutes: 2010.0228.2016.52
+2010/02/28.2017.12 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2017.12 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.2017.12 planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 using planetlab-node4.it-sudparis.eu planetlab4.cs.uiuc.edu planetlab2.eecs.ucf.edu
+2010/02/28.2017.12 Issuing spoofed recordroutes: 2010.0228.2017.12
+2010/02/28.2017.25 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2017.25 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2017.25 Adjacents for planetlab2.ics.forth.gr 212.39.64.54 are 212.39.87.232 213.248.92.182 149.6.112.106 212.39.87.242 212.39.91.9 212.39.91.41 212.39.91.1 212.39.91.33 128.208.4.146 212.39.87.240
+2010/02/28.2017.25 planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 10 TS adjacents left to try
+2010/02/28.2017.25 Issuing timestamps: 2010.0228.2017.25 1
+2010/02/28.2017.28 Total VPs: 222
+2010/02/28.2017.28 Total spoofers: 160 at 75 sites
+2010/02/28.2017.28 Total up spoofers: 135 at 61 sites
+2010/02/28.2017.28 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2017.28 Issuing spoofed_timestamps: 2010.0228.2017.28 5
+2010/02/28.2017.40 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/28.2017.40 Current hop 212.39.64.54 seems to be TS unresponsive for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2017.40 Backing off along current path for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2017.40 Trying to find 2 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83 80.239.134.1 62.40.112.202 62.40.112.197 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.2017.40 Rev Seg is 0.0.0.0 212.39.64.54 213.248.92.182
+2010/02/28.2017.40 REACHED
+2010/02/28.2017.40 FOUND
+2010/02/28.2017.40 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182]_Dst_AssumeSym
+2010/02/28.2017.40 NONE
+2010/02/28.2017.40 FAILED
+2010/02/28.2017.40 --------
+2010/02/28.2017.41 Checking planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2017.41 Checking planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2017.41 Checking planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2017.41 Initializing RR VPs in a batch for 1
+2010/02/28.2017.41 Total VPs: 222
+2010/02/28.2017.41 Total spoofers: 160 at 75 sites
+2010/02/28.2017.41 Total up spoofers: 135 at 61 sites
+2010/02/28.2017.41 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2017.42 Found 39 spoofers of 148 for 213.248.92.182: mlab2.ham01.measurement-lab.org mlab3.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab1.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab3.williams.edu node4.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.uta.edu node1.planetlab.albany.edu mlab2.nuq01.measurement-lab.org mlab2.lax01.measurement-lab.org planetlab-1.cs.uh.edu mlab1.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab0.dojima.wide.ad.jp mlab3.dfw01.measurement-lab.org mlab2.mia01.measurement-lab.org planetlab1.utep.edu plnode-01.gpolab.bbn.com planetlab4.postel.org planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu plgmu4.ite.gmu.edu planetlab1lannion.elibel.tm.fr mlab2.sea01.measurement-lab.org planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2017.42 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 40 RR VPs left to try
+2010/02/28.2017.42 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using non_spoofed
+2010/02/28.2017.42 Issuing recordroutes: 2010.0228.2017.42 1
+2010/02/28.2017.44 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 39 RR VPs left to try
+2010/02/28.2017.44 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using mlab2.ham01.measurement-lab.org mlab3.par01.measurement-lab.org pli1-pa-5.hpl.hp.com
+2010/02/28.2017.45 Issuing spoofed recordroutes: 2010.0228.2017.45
+2010/02/28.2017.55 planetlab2.ics.forth.gr received 3 total responses from pli1-pa-5.hpl.hp.com 80.239.168.227 80.239.142.214
+2010/02/28.2017.55 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 36 RR VPs left to try
+2010/02/28.2017.55 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using mlab1.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab3.williams.edu
+2010/02/28.2017.55 Issuing spoofed recordroutes: 2010.0228.2017.55
+2010/02/28.2018.07 planetlab2.ics.forth.gr received 3 total responses from 213.244.128.137 217.163.1.73 planetlab3.williams.edu
+2010/02/28.2018.07 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 33 RR VPs left to try
+2010/02/28.2018.07 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using node4.planet-lab.titech.ac.jp pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg
+2010/02/28.2018.07 Issuing spoofed recordroutes: 2010.0228.2018.07
+2010/02/28.2018.17 planetlab2.ics.forth.gr received 3 total responses from pl1.bit.uoit.ca node4.planet-lab.titech.ac.jp 203.30.39.238
+2010/02/28.2018.17 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 30 RR VPs left to try
+2010/02/28.2018.17 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planetlab4.singaren.net.sg planetlab1.uta.edu node1.planetlab.albany.edu
+2010/02/28.2018.18 Issuing spoofed recordroutes: 2010.0228.2018.17
+2010/02/28.2018.28 planetlab2.ics.forth.gr received 3 total responses from planetlab1.uta.edu node1.planetlab.albany.edu planetlab4.singaren.net.sg
+2010/02/28.2018.28 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 27 RR VPs left to try
+2010/02/28.2018.28 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using mlab2.nuq01.measurement-lab.org mlab2.lax01.measurement-lab.org planetlab-1.cs.uh.edu
+2010/02/28.2018.28 Issuing spoofed recordroutes: 2010.0228.2018.28
+2010/02/28.2018.38 planetlab2.ics.forth.gr received 2 total responses from 38.98.51.22 planetlab-1.cs.uh.edu
+2010/02/28.2018.38 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 24 RR VPs left to try
+2010/02/28.2018.39 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using mlab1.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu
+2010/02/28.2018.39 Issuing spoofed recordroutes: 2010.0228.2018.39
+2010/02/28.2018.49 planetlab2.ics.forth.gr received 3 total responses from planetlab2.utdallas.edu 75-130-96-13.static.oxfr.ma.charter.com 38.106.70.137
+2010/02/28.2018.49 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 21 RR VPs left to try
+2010/02/28.2018.49 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu
+2010/02/28.2018.49 Issuing spoofed recordroutes: 2010.0228.2018.49
+2010/02/28.2019.09 planetlab2.ics.forth.gr received 3 total responses from planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu
+2010/02/28.2019.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 18 RR VPs left to try
+2010/02/28.2019.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planetlab0.dojima.wide.ad.jp mlab3.dfw01.measurement-lab.org mlab2.mia01.measurement-lab.org
+2010/02/28.2019.09 Issuing spoofed recordroutes: 2010.0228.2019.09
+2010/02/28.2019.20 planetlab2.ics.forth.gr received 3 total responses from 4.71.210.214 38.107.216.35 planetlab0.dojima.wide.ad.jp
+2010/02/28.2019.20 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 15 RR VPs left to try
+2010/02/28.2019.20 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planetlab1.utep.edu plnode-01.gpolab.bbn.com planetlab4.postel.org
+2010/02/28.2019.20 Issuing spoofed recordroutes: 2010.0228.2019.20
+2010/02/28.2019.30 planetlab2.ics.forth.gr received 3 total responses from planetlab4.postel.org 192.1.249.20 planetlab1.utep.edu
+2010/02/28.2019.30 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 12 RR VPs left to try
+2010/02/28.2019.30 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planet1.ku.edu.tr planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu
+2010/02/28.2019.31 Issuing spoofed recordroutes: 2010.0228.2019.31
+2010/02/28.2019.41 planetlab2.ics.forth.gr received 2 total responses from planet1.ku.edu.tr planetlab-1.ssvl.kth.se
+2010/02/28.2019.41 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 9 RR VPs left to try
+2010/02/28.2019.42 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using plgmu4.ite.gmu.edu planetlab1lannion.elibel.tm.fr mlab2.sea01.measurement-lab.org
+2010/02/28.2019.42 Issuing spoofed recordroutes: 2010.0228.2019.42
+2010/02/28.2019.52 planetlab2.ics.forth.gr received 3 total responses from 38.102.0.86 planetlab1lannion.elibel.tm.fr plgmu4.ite.gmu.edu
+2010/02/28.2019.52 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 6 RR VPs left to try
+2010/02/28.2019.52 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru
+2010/02/28.2019.52 Issuing spoofed recordroutes: 2010.0228.2019.52
+2010/02/28.2020.09 planetlab2.ics.forth.gr received 2 total responses from 200.132.1.6 plab-1.sinp.msu.ru
+2010/02/28.2020.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 3 RR VPs left to try
+2010/02/28.2020.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 using eve.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2020.09 Issuing spoofed recordroutes: 2010.0228.2020.09
+2010/02/28.2020.20 planetlab2.ics.forth.gr received 2 total responses from pl1.planetlab.ics.tut.ac.jp planetlab1.eurecom.fr
+2010/02/28.2020.21 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2020.21 Adjacents for planetlab2.ics.forth.gr 212.39.91.5 are 77.67.72.206 212.39.91.101 212.39.64.42 212.39.64.43 212.39.91.92 212.39.70.141 212.39.91.93 212.39.64.46 212.39.70.137 212.39.91.103 213.91.166.30 193.84.86.1 195.128.225.1 213.16.47.171 212.39.66.242 212.39.66.18 217.174.144.1 212.39.69.211 83.228.122.1 83.228.108.2 195.225.127.1 212.39.69.228 212.39.64.56 62.176.87.1 212.39.64.58 212.39.64.45 212.39.66.1 213.16.55.1 213.91.204.1 212.39.91.79 213.91.235.1 212.39.69.227 212.39.64.41 212.39.64.61 212.39.91.82 212.39.91.68 212.39.69.212 212.39.86.1 212.39.91.81 212.39.91.110 212.39.69.226 212.39.69.210 212.39.91.9
+2010/02/28.2020.21 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 43 TS adjacents left to try
+2010/02/28.2020.21 Issuing timestamps: 2010.0228.2020.21 1
+2010/02/28.2020.23 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15622676 77.67.72.206 0 77.67.72.206 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.23 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 42 TS adjacents left to try
+2010/02/28.2020.24 Issuing timestamps: 2010.0228.2020.23 1
+2010/02/28.2020.26 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15625380 212.39.91.101 0 212.39.91.101 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.26 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 41 TS adjacents left to try
+2010/02/28.2020.26 Issuing timestamps: 2010.0228.2020.26 1
+2010/02/28.2020.29 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15628078 212.39.64.42 0 212.39.64.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.29 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 40 TS adjacents left to try
+2010/02/28.2020.29 Issuing timestamps: 2010.0228.2020.29 1
+2010/02/28.2020.31 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15630782 212.39.64.43 0 212.39.64.43 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.32 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 39 TS adjacents left to try
+2010/02/28.2020.32 Issuing timestamps: 2010.0228.2020.32 1
+2010/02/28.2020.34 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15633490 212.39.91.92 0 212.39.91.92 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.34 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 38 TS adjacents left to try
+2010/02/28.2020.34 Issuing timestamps: 2010.0228.2020.34 1
+2010/02/28.2020.37 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15636175 212.39.70.141 0 212.39.70.141 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.37 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 37 TS adjacents left to try
+2010/02/28.2020.37 Issuing timestamps: 2010.0228.2020.37 1
+2010/02/28.2020.40 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15638869 212.39.91.93 0 212.39.91.93 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.40 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 36 TS adjacents left to try
+2010/02/28.2020.40 Issuing timestamps: 2010.0228.2020.40 1
+2010/02/28.2020.42 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15641568 212.39.64.46 0 212.39.64.46 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.42 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 35 TS adjacents left to try
+2010/02/28.2020.42 Issuing timestamps: 2010.0228.2020.42 1
+2010/02/28.2020.45 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15644268 212.39.70.137 0 212.39.70.137 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.45 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 34 TS adjacents left to try
+2010/02/28.2020.45 Issuing timestamps: 2010.0228.2020.45 1
+2010/02/28.2020.48 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15646995 212.39.91.103 0 212.39.91.103 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.48 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 33 TS adjacents left to try
+2010/02/28.2020.48 Issuing timestamps: 2010.0228.2020.48 1
+2010/02/28.2020.50 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15649806 213.91.166.30 0 213.91.166.30 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.50 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 32 TS adjacents left to try
+2010/02/28.2020.51 Issuing timestamps: 2010.0228.2020.51 1
+2010/02/28.2020.53 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15652402 193.84.86.1 0 193.84.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.53 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 31 TS adjacents left to try
+2010/02/28.2020.53 Issuing timestamps: 2010.0228.2020.53 1
+2010/02/28.2020.56 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15655115 195.128.225.1 0 195.128.225.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.56 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 30 TS adjacents left to try
+2010/02/28.2020.56 Issuing timestamps: 2010.0228.2020.56 1
+2010/02/28.2020.58 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15657762 213.16.47.171 0 213.16.47.171 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2020.59 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 29 TS adjacents left to try
+2010/02/28.2020.59 Issuing timestamps: 2010.0228.2020.59 1
+2010/02/28.2021.01 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15660474 212.39.66.242 0 212.39.66.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.01 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 28 TS adjacents left to try
+2010/02/28.2021.01 Issuing timestamps: 2010.0228.2021.01 1
+2010/02/28.2021.04 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15663166 212.39.66.18 0 212.39.66.18 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.04 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 27 TS adjacents left to try
+2010/02/28.2021.04 Issuing timestamps: 2010.0228.2021.04 1
+2010/02/28.2021.07 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15665877 217.174.144.1 0 217.174.144.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.07 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 26 TS adjacents left to try
+2010/02/28.2021.07 Issuing timestamps: 2010.0228.2021.07 1
+2010/02/28.2021.09 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15668571 212.39.69.211 0 212.39.69.211 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 25 TS adjacents left to try
+2010/02/28.2021.09 Issuing timestamps: 2010.0228.2021.09 1
+2010/02/28.2021.12 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15671271 83.228.122.1 0 83.228.122.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.12 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 24 TS adjacents left to try
+2010/02/28.2021.12 Issuing timestamps: 2010.0228.2021.12 1
+2010/02/28.2021.15 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15673981 83.228.108.2 0 83.228.108.2 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.15 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 23 TS adjacents left to try
+2010/02/28.2021.15 Issuing timestamps: 2010.0228.2021.15 1
+2010/02/28.2021.17 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15676658 195.225.127.1 0 195.225.127.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.17 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 22 TS adjacents left to try
+2010/02/28.2021.18 Issuing timestamps: 2010.0228.2021.17 1
+2010/02/28.2021.20 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15679353 212.39.69.228 0 212.39.69.228 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.20 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 21 TS adjacents left to try
+2010/02/28.2021.20 Issuing timestamps: 2010.0228.2021.20 1
+2010/02/28.2021.23 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15682058 212.39.64.56 0 212.39.64.56 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.23 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 20 TS adjacents left to try
+2010/02/28.2021.23 Issuing timestamps: 2010.0228.2021.23 1
+2010/02/28.2021.25 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15684757 62.176.87.1 0 62.176.87.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.26 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 19 TS adjacents left to try
+2010/02/28.2021.26 Issuing timestamps: 2010.0228.2021.26 1
+2010/02/28.2021.28 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15687505 212.39.64.58 0 212.39.64.58 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.28 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 18 TS adjacents left to try
+2010/02/28.2021.28 Issuing timestamps: 2010.0228.2021.28 1
+2010/02/28.2021.31 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15690179 212.39.64.45 0 212.39.64.45 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.31 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 17 TS adjacents left to try
+2010/02/28.2021.31 Issuing timestamps: 2010.0228.2021.31 1
+2010/02/28.2021.34 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15692861 212.39.66.1 0 212.39.66.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.34 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 16 TS adjacents left to try
+2010/02/28.2021.34 Issuing timestamps: 2010.0228.2021.34 1
+2010/02/28.2021.36 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15695558 213.16.55.1 0 213.16.55.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.36 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 15 TS adjacents left to try
+2010/02/28.2021.36 Issuing timestamps: 2010.0228.2021.36 1
+2010/02/28.2021.39 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15698240 213.91.204.1 0 213.91.204.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.39 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 14 TS adjacents left to try
+2010/02/28.2021.39 Issuing timestamps: 2010.0228.2021.39 1
+2010/02/28.2021.42 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15700940 212.39.91.79 0 212.39.91.79 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.42 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 13 TS adjacents left to try
+2010/02/28.2021.42 Issuing timestamps: 2010.0228.2021.42 1
+2010/02/28.2021.44 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15703815 213.91.235.1 0 213.91.235.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.44 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 12 TS adjacents left to try
+2010/02/28.2021.45 Issuing timestamps: 2010.0228.2021.44 1
+2010/02/28.2021.47 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15706369 212.39.69.227 0 212.39.69.227 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.47 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 11 TS adjacents left to try
+2010/02/28.2021.47 Issuing timestamps: 2010.0228.2021.47 1
+2010/02/28.2021.50 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15709024 212.39.64.41 0 212.39.64.41 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.50 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 10 TS adjacents left to try
+2010/02/28.2021.50 Issuing timestamps: 2010.0228.2021.50 1
+2010/02/28.2021.52 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15711726 212.39.64.61 0 212.39.64.61 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.52 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 9 TS adjacents left to try
+2010/02/28.2021.53 Issuing timestamps: 2010.0228.2021.53 1
+2010/02/28.2021.55 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15714450 212.39.91.82 0 212.39.91.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.55 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 8 TS adjacents left to try
+2010/02/28.2021.55 Issuing timestamps: 2010.0228.2021.55 1
+2010/02/28.2021.58 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15717154 212.39.91.68 0 212.39.91.68 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2021.58 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 7 TS adjacents left to try
+2010/02/28.2021.58 Issuing timestamps: 2010.0228.2021.58 1
+2010/02/28.2022.00 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15719811 212.39.69.212 0 212.39.69.212 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.01 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 6 TS adjacents left to try
+2010/02/28.2022.01 Issuing timestamps: 2010.0228.2022.01 1
+2010/02/28.2022.04 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15723195 212.39.86.1 0 212.39.86.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.04 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 5 TS adjacents left to try
+2010/02/28.2022.04 Issuing timestamps: 2010.0228.2022.04 1
+2010/02/28.2022.07 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15725909 212.39.91.81 0 212.39.91.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.07 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 4 TS adjacents left to try
+2010/02/28.2022.07 Issuing timestamps: 2010.0228.2022.07 1
+2010/02/28.2022.09 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15728595 212.39.91.110 0 212.39.91.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.09 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 3 TS adjacents left to try
+2010/02/28.2022.09 Issuing timestamps: 2010.0228.2022.09 1
+2010/02/28.2022.12 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15731295 212.39.69.226 0 212.39.69.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.12 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 2 TS adjacents left to try
+2010/02/28.2022.12 Issuing timestamps: 2010.0228.2022.12 1
+2010/02/28.2022.15 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15733954 212.39.69.210 0 212.39.69.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.15 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 1 TS adjacents left to try
+2010/02/28.2022.15 Issuing timestamps: 2010.0228.2022.15 1
+2010/02/28.2022.18 TS probe is non_spoofed 213.248.92.182 213.248.92.182 15737113 212.39.91.9 0 212.39.91.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.2022.18 planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 0 TS adjacents left to try
+2010/02/28.2022.18 No adjacents to 213.248.92.182 left to test for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2022.18 Backing off along current path for planetlab2.ics.forth.gr 95.43.170.113
+2010/02/28.2022.18 Trying to find 3 hops from [0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83 80.239.134.1 62.40.112.202 62.40.112.197 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.2022.18 Rev Seg is 0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83
+2010/02/28.2022.18 REACHED
+2010/02/28.2022.18 FOUND
+2010/02/28.2022.18 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83]_Dst_AssumeSym
+2010/02/28.2022.19 NONE
+2010/02/28.2022.19 FAILED
+2010/02/28.2022.19 --------
+2010/02/28.2022.19 Checking planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 for traceroutes to source
+2010/02/28.2022.19 Checking planetlab2.ics.forth.gr 95.43.170.113 213.248.92.182 for traceroutes to source
+2010/02/28.2022.19 Checking planetlab2.ics.forth.gr 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2022.19 Checking planetlab2.ics.forth.gr 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2022.20 Initializing RR VPs in a batch for 1
+2010/02/28.2022.20 Total VPs: 222
+2010/02/28.2022.20 Total spoofers: 160 at 75 sites
+2010/02/28.2022.20 Total up spoofers: 135 at 61 sites
+2010/02/28.2022.20 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2022.20 Found 35 spoofers of 151 for 80.91.247.83: planetlab5.williams.edu mlab2.par01.measurement-lab.org mlab1.ham01.measurement-lab.org pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com mlab2.nuq01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab2-saopaulo.lan.redclara.net mlab1.ams01.measurement-lab.org planetlab1-tijuana.lan.redclara.net planetlab-2.cs.uh.edu planetlab4.singaren.net.sg planetlab-02.kusa.ac.jp planetlab2-buenosaires.lan.redclara.net node2.planetlab.albany.edu planetlab1lannion.elibel.tm.fr mlab2.lax01.measurement-lab.org mlab1.dfw01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab1.lga02.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab2.eecs.ucf.edu planetlab1.pop-rs.rnp.br plab-2.sinp.msu.ru planetlab3.cs.uiuc.edu planetlab2.utep.edu planetlab-02.ece.uprm.edu planetlab1.uta.edu planetlab1.dojima.wide.ad.jp pl1.planetlab.ics.tut.ac.jp deimos.cecalc.ula.ve planetlab1.utdallas.edu
+2010/02/28.2022.20 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 36 RR VPs left to try
+2010/02/28.2022.20 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 using non_spoofed
+2010/02/28.2022.20 Issuing recordroutes: 2010.0228.2022.20 1
+2010/02/28.2022.23 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 35 RR VPs left to try
+2010/02/28.2022.23 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 using planetlab5.williams.edu mlab2.par01.measurement-lab.org mlab1.ham01.measurement-lab.org
+2010/02/28.2022.23 Issuing spoofed recordroutes: 2010.0228.2022.23
+2010/02/28.2022.34 planetlab2.ics.forth.gr received 3 total responses from 80.239.168.214 80.239.142.201 planetlab5.williams.edu
+2010/02/28.2022.34 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 32 RR VPs left to try
+2010/02/28.2022.34 planetlab2.ics.forth.gr 95.43.170.113 80.91.247.83 using pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com mlab1.lhr01.measurement-lab.org
+2010/02/28.2022.34 Issuing spoofed recordroutes: 2010.0228.2022.34
+2010/02/28.2022.44 planetlab2.ics.forth.gr received 3 total responses from pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca 217.163.1.73
+2010/02/28.2022.44 REACHED
+2010/02/28.2022.44 FOUND
+2010/02/28.2022.45 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83]_Dst_AssumeSym,RevSegment_[80.91.255.123]_RR_SpfSrcpl1.bit.uoit.ca
+2010/02/28.2022.45 NONE
+2010/02/28.2022.45 FAILED
+2010/02/28.2022.45 --------
+2010/02/28.2022.45 Checking planetlab2.ics.forth.gr 95.43.170.113 80.91.255.123 for traceroutes to source
+2010/02/28.2022.45 Initializing RR VPs in a batch for 1
+2010/02/28.2022.45 Total VPs: 222
+2010/02/28.2022.45 Total spoofers: 160 at 75 sites
+2010/02/28.2022.45 Total up spoofers: 135 at 61 sites
+2010/02/28.2022.45 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2022.46 Found 38 spoofers of 141 for 80.91.255.123: mlab1.par01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu node2.planetlab.albany.edu mlab2.nuq01.measurement-lab.org mlab2.lga01.measurement-lab.org planetlab5.williams.edu mlab3.ham01.measurement-lab.org planetlab1.uta.edu mlab1.lax01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu mlab3.mia01.measurement-lab.org planetlab-2.cs.uh.edu planetlab2.utdallas.edu planetlab1.dojima.wide.ad.jp planetlab-01.kusa.ac.jp mlab3.dfw01.measurement-lab.org plgmu3.ite.gmu.edu planetlab2.utep.edu planet1.ku.edu.tr plnode-01.gpolab.bbn.com node3.planet-lab.titech.ac.jp planetlab2lannion.elibel.tm.fr planetlab2.postel.org planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu planetlabnode-1.docomolabs-usa.com planetlab1.ntu.nodes.planet-lab.org plab-2.sinp.msu.ru planetlab2.pop-rs.rnp.br pl1.planetlab.ics.tut.ac.jp mlab1.sea01.measurement-lab.org
+2010/02/28.2022.46 planetlab2.ics.forth.gr 95.43.170.113 80.91.255.123 39 RR VPs left to try
+2010/02/28.2022.46 planetlab2.ics.forth.gr 95.43.170.113 80.91.255.123 using non_spoofed
+2010/02/28.2022.46 Issuing recordroutes: 2010.0228.2022.46 1
+2010/02/28.2022.48 REACHED
+2010/02/28.2022.49 FOUND
+2010/02/28.2022.49 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83]_Dst_AssumeSym,RevSegment_[80.91.255.123]_RR_SpfSrcpl1.bit.uoit.ca,RevSegment_[62.40.114.19]_RR
+2010/02/28.2022.49 NONE
+2010/02/28.2022.49 FAILED
+2010/02/28.2022.49 --------
+2010/02/28.2022.49 Checking planetlab2.ics.forth.gr 95.43.170.113 62.40.114.19 for traceroutes to source
+2010/02/28.2022.49 REACHED
+2010/02/28.2022.49 RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83]_Dst_AssumeSym,RevSegment_[80.91.255.123]_RR_SpfSrcpl1.bit.uoit.ca,RevSegment_[62.40.114.19]_RR,RevSegment_[62.40.112.201 62.40.112.198 62.40.124.90 195.251.27.53 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.2022.49 FOUND
+2010/02/28.2022.49 NONE
+2010/02/28.2022.49 FAILED
+2010/02/28.2022.50 --------
+2010/02/28.2022.50 Total time: 430
+2010/02/28.2022.50 Total probes: rr=6 spoof-ts=5 spoof-rr=63 tr=1 ts=44
+RevPath_D95.43.170.113_Splanetlab2.ics.forth.gr_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 213.248.92.182 80.91.247.83]_Dst_AssumeSym,RevSegment_[80.91.255.123]_RR_SpfSrcpl1.bit.uoit.ca,RevSegment_[62.40.114.19]_RR,RevSegment_[62.40.112.201 62.40.112.198 62.40.124.90 195.251.27.53 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.2022.56 Issuing traceroutes: 2010.0228.2022.56 1
+2010/02/28.2023.01 Traceroutes for planet3.prakinf.tu-ilmenau.de
+2010/02/28.2023.01 Traceroute to 95.43.170.113 reaches for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2023.01 Trying to find 1 hops from [0.0.0.0 212.39.64.54 77.67.66.246 89.149.186.77 188.1.232.114 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.2023.01 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.2023.01 Fwd planet3.prakinf.tu-ilmenau.de to 95.43.170.113: 141.24.35.253 188.1.238.1 188.1.144.198 188.1.145.198 188.1.232.114 89.149.186.77 77.67.66.246 212.39.64.54 0.0.0.0 95.43.170.113
+2010/02/28.2023.01 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 for traceroutes to source
+2010/02/28.2023.02 Initializing RR VPs in a batch for 1
+2010/02/28.2023.02 Total VPs: 222
+2010/02/28.2023.02 Total spoofers: 160 at 75 sites
+2010/02/28.2023.02 Total up spoofers: 135 at 61 sites
+2010/02/28.2023.02 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2023.02 Found 8 spoofers of 34 for 95.43.170.113: mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab3.ham01.measurement-lab.org mlab2.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab2.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.2023.02 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 9 RR VPs left to try
+2010/02/28.2023.02 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 using non_spoofed
+2010/02/28.2023.03 Issuing recordroutes: 2010.0228.2023.03 1
+2010/02/28.2023.05 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 8 RR VPs left to try
+2010/02/28.2023.05 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 using mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab3.ham01.measurement-lab.org
+2010/02/28.2023.06 Issuing spoofed recordroutes: 2010.0228.2023.05
+2010/02/28.2023.16 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2023.16 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 5 RR VPs left to try
+2010/02/28.2023.17 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 using mlab2.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca
+2010/02/28.2023.17 Issuing spoofed recordroutes: 2010.0228.2023.17
+2010/02/28.2023.27 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2023.27 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 2 RR VPs left to try
+2010/02/28.2023.27 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 using mlab2.par01.measurement-lab.org planetlab3.cs.uiuc.edu
+2010/02/28.2023.27 Issuing spoofed recordroutes: 2010.0228.2023.27
+2010/02/28.2023.37 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2023.37 planet3.prakinf.tu-ilmenau.de 95.43.170.113 95.43.170.113 0 TS adjacents left to try
+2010/02/28.2023.38 No adjacents to 95.43.170.113 left to test for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2023.38 Traceroute to 95.43.170.113 reaches for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2023.38 Trying to find 1 hops from [0.0.0.0 212.39.64.54 77.67.66.246 89.149.186.77 188.1.232.114 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.2023.38 Rev Seg is 0.0.0.0 212.39.64.54
+2010/02/28.2023.38 REACHED
+2010/02/28.2023.38 FOUND
+2010/02/28.2023.38 RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54]_Dst_AssumeSym
+2010/02/28.2023.38 NONE
+2010/02/28.2023.38 FAILED
+2010/02/28.2023.38 --------
+2010/02/28.2023.38 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2023.39 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2023.39 Initializing RR VPs in a batch for 2
+2010/02/28.2023.39 Total VPs: 222
+2010/02/28.2023.39 Total spoofers: 160 at 75 sites
+2010/02/28.2023.39 Total up spoofers: 135 at 61 sites
+2010/02/28.2023.39 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2023.40 Resorting to all 61 spoofers for 0.0.0.0
+2010/02/28.2023.40 Found 1 spoofers of 4 for 212.39.64.54: planetlab2.williams.edu
+2010/02/28.2023.40 planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 2 RR VPs left to try
+2010/02/28.2023.40 planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 using non_spoofed
+2010/02/28.2023.40 Issuing recordroutes: 2010.0228.2023.40 1
+2010/02/28.2023.43 planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 1 RR VPs left to try
+2010/02/28.2023.43 planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 using planetlab2.williams.edu
+2010/02/28.2023.43 Issuing spoofed recordroutes: 2010.0228.2023.43
+2010/02/28.2023.52 planet3.prakinf.tu-ilmenau.de received 1 total responses from planetlab2.williams.edu
+2010/02/28.2023.53 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 62 RR VPs left to try
+2010/02/28.2023.53 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 using non_spoofed
+2010/02/28.2023.53 Issuing recordroutes: 2010.0228.2023.53 1
+2010/02/28.2023.55 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 61 RR VPs left to try
+2010/02/28.2023.55 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 using planetlab2.williams.edu planetlab1.sfc.wide.ad.jp planetlab2-tijuana.lan.redclara.net
+2010/02/28.2023.55 Issuing spoofed recordroutes: 2010.0228.2023.55
+2010/02/28.2024.06 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2024.06 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 58 RR VPs left to try
+2010/02/28.2024.06 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 using planetlab-1.ssvl.kth.se planetlab1.nvlab.org pl1.bit.uoit.ca
+2010/02/28.2024.06 Issuing spoofed recordroutes: 2010.0228.2024.06
+2010/02/28.2024.18 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2024.18 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 55 RR VPs left to try
+2010/02/28.2024.18 planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 using ple1.ait.ac.th planetlab1.utdallas.edu planetlab1.cs.colorado.edu
+2010/02/28.2024.18 Issuing spoofed recordroutes: 2010.0228.2024.18
+2010/02/28.2024.29 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2024.29 Current hop 0.0.0.0/0.0.0.0 seems to be unresponsive for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2024.29 Adjacents for planet3.prakinf.tu-ilmenau.de 212.39.64.54 are 212.39.87.232 213.248.92.182 149.6.112.106 212.39.87.242 212.39.91.9 212.39.91.41 212.39.91.1 212.39.91.33 128.208.4.146 212.39.87.240
+2010/02/28.2024.29 planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 10 TS adjacents left to try
+2010/02/28.2024.29 Issuing timestamps: 2010.0228.2024.29 1
+2010/02/28.2024.31 Total VPs: 222
+2010/02/28.2024.32 Total spoofers: 160 at 75 sites
+2010/02/28.2024.32 Total up spoofers: 135 at 61 sites
+2010/02/28.2024.32 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2024.32 Issuing spoofed_timestamps: 2010.0228.2024.32 5
+2010/02/28.2024.43 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.2024.44 Current hop 212.39.64.54 seems to be TS unresponsive for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2024.44 Backing off along current path for planet3.prakinf.tu-ilmenau.de 95.43.170.113
+2010/02/28.2024.44 Trying to find 2 hops from [0.0.0.0 212.39.64.54 77.67.66.246 89.149.186.77 188.1.232.114 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.2024.44 Rev Seg is 0.0.0.0 212.39.64.54 77.67.66.246
+2010/02/28.2024.44 REACHED
+2010/02/28.2024.44 FOUND
+2010/02/28.2024.44 RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 77.67.66.246]_Dst_AssumeSym
+2010/02/28.2024.44 NONE
+2010/02/28.2024.44 FAILED
+2010/02/28.2024.44 --------
+2010/02/28.2024.44 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 77.67.66.246 for traceroutes to source
+2010/02/28.2024.45 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 212.39.64.54 for traceroutes to source
+2010/02/28.2024.45 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 0.0.0.0 for traceroutes to source
+2010/02/28.2024.45 Initializing RR VPs in a batch for 1
+2010/02/28.2024.45 Total VPs: 222
+2010/02/28.2024.45 Total spoofers: 160 at 75 sites
+2010/02/28.2024.45 Total up spoofers: 135 at 61 sites
+2010/02/28.2024.45 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2024.46 Found 33 spoofers of 134 for 77.67.66.246: mlab1.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab3.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab2.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab5.williams.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node2.planetlab.albany.edu mlab2.lga01.measurement-lab.org planetlab1.uta.edu planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp mlab1.lax01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab4.postel.org planetlab0.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab2.utdallas.edu planetlab1.cis.upenn.edu mlab2.sea01.measurement-lab.org node1.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se fobos.cecalc.ula.ve planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2024.46 planet3.prakinf.tu-ilmenau.de 95.43.170.113 77.67.66.246 34 RR VPs left to try
+2010/02/28.2024.46 planet3.prakinf.tu-ilmenau.de 95.43.170.113 77.67.66.246 using non_spoofed
+2010/02/28.2024.46 Issuing recordroutes: 2010.0228.2024.46 1
+2010/02/28.2024.48 REACHED
+2010/02/28.2024.48 FOUND
+2010/02/28.2024.49 RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74]_RR
+2010/02/28.2024.49 NONE
+2010/02/28.2024.49 FAILED
+2010/02/28.2024.49 --------
+2010/02/28.2024.49 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 213.200.87.74 for traceroutes to source
+2010/02/28.2024.49 Initializing RR VPs in a batch for 1
+2010/02/28.2024.49 Total VPs: 222
+2010/02/28.2024.49 Total spoofers: 160 at 75 sites
+2010/02/28.2024.49 Total up spoofers: 135 at 61 sites
+2010/02/28.2024.49 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.2024.50 Found 30 spoofers of 128 for 213.200.87.74: planetlab4.williams.edu pli1-pa-5.hpl.hp.com mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lhr01.measurement-lab.org mlab2.par01.measurement-lab.org mlab1.ams01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab3.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab1.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1lannion.elibel.tm.fr plnode-01.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org planetlab0.dojima.wide.ad.jp planetlab1.cis.upenn.edu planetlab2.utdallas.edu mlab2.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.2024.50 planet3.prakinf.tu-ilmenau.de 95.43.170.113 213.200.87.74 31 RR VPs left to try
+2010/02/28.2024.50 planet3.prakinf.tu-ilmenau.de 95.43.170.113 213.200.87.74 using non_spoofed
+2010/02/28.2024.50 Issuing recordroutes: 2010.0228.2024.50 1
+2010/02/28.2024.52 REACHED
+2010/02/28.2024.53 FOUND
+2010/02/28.2024.53 RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74]_RR,RevSegment_[213.200.87.102 188.1.232.113]_RR
+2010/02/28.2024.53 NONE
+2010/02/28.2024.53 FAILED
+2010/02/28.2024.53 --------
+2010/02/28.2024.53 Checking planet3.prakinf.tu-ilmenau.de 95.43.170.113 188.1.232.113 for traceroutes to source
+2010/02/28.2024.53 REACHED
+2010/02/28.2024.53 RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74]_RR,RevSegment_[213.200.87.102 188.1.232.113]_RR,RevSegment_[80.81.192.222 188.1.145.197 188.1.238.2 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/28.2024.53 FOUND
+2010/02/28.2024.53 NONE
+2010/02/28.2024.54 FAILED
+2010/02/28.2024.54 --------
+2010/02/28.2024.54 Total time: 119
+2010/02/28.2024.54 Total probes: rr=5 spoof-ts=5 spoof-rr=18 tr=1 ts=1
+RevPath_D95.43.170.113_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[95.43.170.113]_Dst,RevSegment_[0.0.0.0 212.39.64.54 77.67.66.246]_Dst_AssumeSym,RevSegment_[213.200.87.74]_RR,RevSegment_[213.200.87.102 188.1.232.113]_RR,RevSegment_[80.81.192.222 188.1.145.197 188.1.238.2 188.1.238.2 141.24.33.192]_TRtoSrc
