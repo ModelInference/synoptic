@@ -201,6 +201,12 @@ public class PerfumeOptions extends Options {
     public String outputPathPrefix = null;
 
     /**
+     * Whether or not to output support counts along with mined invariants
+     */
+    @Option(AbstractOptions.outputSupportCountsStr)
+    public boolean outputSupportCount = false;
+
+    /**
      * Whether or not to output the list of invariants to a file, with one
      * invariant per line.
      */
@@ -491,6 +497,7 @@ public class PerfumeOptions extends Options {
         // Output options
 
         AbstractOptions.outputPathPrefix = outputPathPrefix;
+        absOpts.outputSupportCount = outputSupportCount;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
