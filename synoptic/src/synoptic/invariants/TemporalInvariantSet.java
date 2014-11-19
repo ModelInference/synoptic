@@ -106,8 +106,11 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         String ret = "";
         for (ITemporalInvariant inv : invariants) {
             if (inv instanceof BinaryInvariant) {
-                ret += (inv.toString() + "\n Invariant support count: "
-                        + ((BinaryInvariant) inv).getStatistics().supportCount + "\n");
+                // TODO: Remove ternary null check when Issue391 is fixed
+                ret += (inv.toString()
+                        + "\n Invariant support count: "
+                        + (((BinaryInvariant) inv).getStatistics() != null ? ((BinaryInvariant) inv)
+                                .getStatistics().supportCount : "null") + "\n");
             } else {
                 ret += (inv.toString() + "\n No associated support count for this invariant");
             }
