@@ -483,6 +483,7 @@ public class SynopticOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.supportCountThreshold = supportCountThreshold;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
 
         // Parser options
@@ -504,6 +505,7 @@ public class SynopticOptions extends Options {
         // Output options
 
         AbstractOptions.outputPathPrefix = outputPathPrefix;
+        absOpts.outputSupportCount = outputSupportCount;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
