@@ -68,6 +68,21 @@ public class ExtPerfumeMain extends PerfumeMain {
     }
 
     /**
+     * Uses the values of static variables in Main to (1) read and parse the
+     * input log files, (2) to mine invariants from the parsed files, and (3)
+     * construct an initial partition graph model of the parsed files.
+     * 
+     * @return The initial partition graph built from the parsed files or null.
+     *         Returns null when the arguments passed to Main require an early
+     *         termination.
+     * @throws Exception
+     */
+    public PartitionGraph createInitialPartitionGraph() throws Exception {
+        // TODO modify to use multi resource parsing
+        return null;
+    }
+
+    /**
      * Mines and returns the totally ordered invariants from the trace graph of
      * the input log. Extended Perfume will mine multiple performance metrics
      * per event.
