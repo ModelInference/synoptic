@@ -1,13 +1,18 @@
 package synoptic.main.parser.extperfume;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.EventNode;
 import synoptic.util.InternalSynopticException;
@@ -16,6 +21,8 @@ public class MultiResourceParser {
 
     private static Logger logger = Logger.getLogger("Parser Logger");
 
+    private ArrayList<String> lineFormat;
+
     // TODO: log parser that takes in one file as a trace with first line
     // specifying "event,<resource name>..." and the rest of lines as the events
     // with resource values following format of first line. Each resource for
@@ -23,7 +30,7 @@ public class MultiResourceParser {
     // first line can be specified as options?)
 
     public MultiResourceParser() {
-
+        lineFormat = new ArrayList<String>();
     }
 
     /**
@@ -91,10 +98,75 @@ public class MultiResourceParser {
         }
     }
 
-    private ArrayList<EventNode> parseTrace(StringReader stringReader,
+    private ArrayList<EventNode> parseTrace(Reader traceReader,
             String traceName, int linesToRead) throws ParseException,
             IOException, InternalSynopticException {
         // TODO Auto-generated method stub
+        BufferedReader br = new BufferedReader(traceReader);
+        String firstLine = br.readLine();
+        if (firstLine == null) {
+            throw new ParseException("Unsupported log format: "
+                    + "First line must specify the event resource format");
+        }
+
+        String[] formatParts = firstLine.split(",");
+        for (String part : formatParts) {
+            lineFormat.add(part.trim());
+        }
+
+        ArrayList<EventNode> results = new ArrayList<EventNode>();
+        String strLine = null;
+
+        String tName = traceName;
+        if (AbstractMain.getInstance().options.internCommonStrings) {
+            tName = tName.intern();
+        }
+
+        int lineNum = 0;
+        // Process each line in sequence.
+        while ((strLine = br.readLine()) != null) {
+            if (results.size() == linesToRead) {
+                break;
+            }
+            lineNum++;
+            EventNode node = parseLine(strLine, tName, lineNum);
+            if (node == null) {
+                continue;
+            }
+            results.add(node);
+        }
+        br.close();
+
+        return null;
+
+    }
+
+    /**
+     * Parse an individual line.
+     */
+    private EventNode parseLine(String line, String fileName, int lineNum)
+            throws ParseException, InternalSynopticException {
+        // TODO
+        String[] parts = line.split(",");
+        String event = null;
+        Map<String, Integer> resources = new HashMap<String, Integer>();
+
+        for (int i = 0; i < lineFormat.size(); i++) {
+            if (lineFormat.get(i).equals("EVENT")) {
+                if (event != null) {
+                    throw new ParseException("Unsupported log format: "
+                            + "Cannot have multiple events in one line");
+                }
+                event = parts[i];
+            } else {
+                if (resources.containsKey(lineFormat.get(i))) {
+                    throw new ParseException("Unsupported log format: "
+                            + "Cannot have multiple resources of same name");
+                }
+                resources.put(lineFormat.get(i), Integer.parseInt(parts[i]));
+            }
+        }
         return null;
     }
+
 }
