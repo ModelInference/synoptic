@@ -1,0 +1,9 @@
+digraph {
+  0 [label="coin"];
+  1 [label="push"];
+  2 [label="TERMINAL",shape=diamond];
+  3 [label="INITIAL",shape=box];
+0->1 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount one of { 1, 2, 4 }\nentryCount one of { 0, 1, 2 }\n",];
+1->2 [label="SynopticPoint:::ENTER\nlocked == true\ncoinCount one of { 2, 4 }\nentryCount one of { 2, 3 }\n",];
+3->0 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount one of { 0, 2 }\n",];
+} // digraph {

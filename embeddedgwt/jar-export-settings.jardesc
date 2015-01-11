@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="MacRoman" standalone="no"?>
+<jardesc>
+    <jar path="/Users/ivan/synoptic/trunk/embeddedgwt.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/EmbeddedGwt/jar-export-settings.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" manifestLocation="/EmbeddedGwt/MANIFEST.MF" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=EmbeddedGwt/src"/>
+        <file path="/EmbeddedGwt/.project"/>
+        <folder path="/EmbeddedGwt/apps"/>
+        <file path="/EmbeddedGwt/.classpath"/>
+    </selectedElements>
+</jardesc>
