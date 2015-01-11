@@ -133,6 +133,9 @@ public class AbstractOptions {
     static final String exportAsGMLStr = "Export models as GML and not DOT files";
     public boolean exportAsGML = false;
 
+    static final String outputLTSStr = "Output the final model in the LTS format";
+    public boolean outputLTS = false;
+
     static final String dotExecutablePathStr = "-d Path to the Graphviz dot command executable to use";
     public static String dotExecutablePath = null;
 

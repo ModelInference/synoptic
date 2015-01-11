@@ -50,6 +50,7 @@ import synoptic.model.export.GmlExportFormatter;
 import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.export.JsonExporter;
+import synoptic.model.export.LtsExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.IRelationPath;
@@ -872,6 +873,18 @@ public abstract class AbstractMain {
                     pGraph);
 
             logger.info("Exporting JSON object took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
+        }
+
+        // Export in LTS format if requested
+        if (options.outputLTS) {
+            logger.info("Exporting final graph in LTS format...");
+            startTime = System.currentTimeMillis();
+
+            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph,
+                    "Synoptic");
+
+            logger.info("Exporting in LTS format took "
                     + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
