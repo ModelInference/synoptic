@@ -11,6 +11,9 @@ import algorithms.InvariMintSynoptic;
 import algorithms.PGraphInvariMint;
 
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
+import synoptic.main.options.AbstractOptions;
+import synoptic.model.PartitionGraph;
+import synoptic.model.export.LtsExporter;
 
 /**
  * InvariMint accepts a log file and regular expression arguments and constructs
@@ -134,6 +137,21 @@ public class InvariMintMain {
             // Compare the two models: InvariMint model and the standard
             // algorithm model.
             equalToStdAlg = invMintAlg.compareToStandardAlg();
+        }
+
+        // Export in LTS format if requested
+        if (opts.outputLTS) {
+            logger.info("Exporting final graph in LTS format...");
+            long startTime = System.currentTimeMillis();
+
+            // TODO: Remove this fake var and deal with actual Invarimint
+            // partition graph
+            PartitionGraph pGraph = null;
+            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph,
+                    "Synoptic");
+
+            logger.info("Exporting in LTS format took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
 
