@@ -233,7 +233,8 @@ public class SynopticOptions extends Options {
     public boolean exportAsGML = false;
 
     /**
-     * 
+     * Output the LTS representation of the final model to the output prefix
+     * specified by -o or -output-prefix.
      */
     @Option(value = AbstractOptions.outputLTSStr, aliases = { "-lts" })
     public boolean outputLTS = false;
