@@ -12,7 +12,8 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
 /**
- *
+ * Export the Synoptic final model in Labeled Transition System (LTS) format.
+ * The main entry method is exportLts(...).
  */
 public class LtsExporter {
     /**
@@ -45,12 +46,21 @@ public class LtsExporter {
         }
     }
 
+    /**
+     * From a given state, whether ALL, only SOME, or NONE of the outgoing
+     * transitions go to terminal.
+     */
     enum TransitionsOut {
         AllToTerminal, SomeToTerminal, NoneToTerminal
     }
 
     /**
+     * Build the actual LTS output and return as a string.
      * 
+     * @param pGraph
+     *            The partition graph to output
+     * @param systemName
+     *            The name of the system that made the model, e.g., Synoptic
      */
     private static String buildLTS(PartitionGraph pGraph, String systemName) {
         // Will eventually contain fully-built LTS
@@ -59,7 +69,8 @@ public class LtsExporter {
         // Holds a unique state ID for each partition
         HashMap<Partition, Integer> partIDs = new HashMap<>();
 
-        //
+        // For each partition, whether ALL, only SOME, or NONE of its outgoing
+        // transitions go to terminal
         HashMap<Partition, TransitionsOut> goesToTerminal = new HashMap<>();
 
         int nextID = 1;
@@ -73,7 +84,8 @@ public class LtsExporter {
                 continue;
             }
 
-            //
+            // Check if this partition has any transitions TO and/or any NOT TO
+            // terminal
             boolean anyToTerminal = false;
             boolean anyNotToTerminal = false;
             for (Partition nextPart : part.getAllSuccessors()) {
@@ -84,7 +96,8 @@ public class LtsExporter {
                 }
             }
 
-            //
+            // Mark if this partition has ALL, only SOME, or NONE of its
+            // outgoing transitions going to terminal
             if (anyToTerminal) {
                 if (anyNotToTerminal) {
                     goesToTerminal.put(part, TransitionsOut.SomeToTerminal);
@@ -103,44 +116,54 @@ public class LtsExporter {
             }
         }
 
-        // Print entry to INITIAL
+        // Print entry to initial state
         String init = String.format("%s = S%d,", systemName,
                 partIDs.get(initialPart));
         ltsContent.append(init);
 
-        //
-        LinkedBlockingQueue<Partition> bfsQueue = new LinkedBlockingQueue<>();
-        bfsQueue.add(initialPart);
+        // Initialize fields for BFT (breadth-first traversal) over all
+        // partitions
+        LinkedBlockingQueue<Partition> bftQueue = new LinkedBlockingQueue<>();
+        bftQueue.add(initialPart);
         HashSet<Partition> visited = new HashSet<>();
 
-        //
-        while (!bfsQueue.isEmpty()) {
+        // Perform a BFT over all partitions, along the way converting
+        // Synoptic's internal event-based graph into a state-based one and
+        // storing each state in the LTS representation
+        while (!bftQueue.isEmpty()) {
             // Get a partition
-            Partition part = bfsQueue.poll();
+            Partition part = bftQueue.poll();
 
             // Skip TERMINAL
             if (part.isTerminal()) {
                 continue;
             }
 
-            //
+            // Temp LTS representation for the current state, which is only
+            // committed if it has any non-terminal transitions
             StringBuilder tmpLtsContent = new StringBuilder();
 
             tmpLtsContent
                     .append(String.format("\n\nS%d = (", partIDs.get(part)));
 
+            // Loop over all outgoing transitions
             boolean transitionAdded = false;
             for (Partition nextPart : part.getAllSuccessors()) {
-                // Skip transitions to TERMINAL
+                // Skip transitions to terminal
                 if (nextPart.isTerminal()) {
                     continue;
                 }
 
                 String eventType = nextPart.getEType().toString();
 
-                //
+                // Retrieve whether outgoing transitions of this "next"
+                // partition go to terminal
                 TransitionsOut nextPartTransitions = goesToTerminal
                         .get(nextPart);
+
+                // If some outgoing transitions of "next" (in event-based world)
+                // go to terminal, then this state should transition to terminal
+                // as well
                 if (nextPartTransitions == TransitionsOut.AllToTerminal
                         || nextPartTransitions == TransitionsOut.SomeToTerminal) {
                     //
@@ -152,6 +175,11 @@ public class LtsExporter {
                     //
                     tmpLtsContent.append(eventType).append("? -> S0");
                 }
+
+                // If any outgoing transitions of "next" (in event-based world)
+                // DON'T go to terminal, add transition to the "next" state
+                // because it's a real state (in state-based world) that doesn't
+                // ONLY go to terminal
                 if (nextPartTransitions == TransitionsOut.SomeToTerminal
                         || nextPartTransitions == TransitionsOut.NoneToTerminal) {
                     //
@@ -165,14 +193,14 @@ public class LtsExporter {
                             .append(partIDs.get(nextPart));
                 }
 
-                //
+                // Standard BFT: ensure partitions are visited exactly once
                 if (!visited.contains(nextPart)) {
                     visited.add(nextPart);
-                    bfsQueue.add(nextPart);
+                    bftQueue.add(nextPart);
                 }
             }
 
-            // Commit if there were any non-TERMINAL transitions
+            // Commit if there were any non-terminal transitions
             if (transitionAdded) {
                 ltsContent.append(tmpLtsContent).append("),");
             }
@@ -181,7 +209,7 @@ public class LtsExporter {
         // Write terminal state (always S0)
         ltsContent.append("\n\nS0 = STOP.");
 
-        //
+        // Write concluding line
         ltsContent.append(String.format("\n\n||MTS_%s = (%s).\n", systemName,
                 systemName));
 
