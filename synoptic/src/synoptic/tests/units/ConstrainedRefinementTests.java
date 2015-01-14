@@ -475,9 +475,9 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
             EventType evType = part.getEType();
 
-            // Partition x should be split
+            // Partition x shouldn't be split
             if (evType.equals(new StringEventType("x"))) {
-                assertTrue(part.size() < totalXs);
+                assertTrue(part.size() == totalXs);
             }
 
             // Partitions z should be split
@@ -548,16 +548,16 @@ public class ConstrainedRefinementTests extends PynopticTest {
         Bisimulation.splitUntilAllInvsSatisfied(graph);
         exportTestGraph(graph, 1);
 
-        // z-partition split once, two x-partitions and INIT/TERM should remain
+        // z-partition split once, one x-partition and INIT/TERM should remain
         int xparts = 0, zparts = 0;
 
         for (Partition part : graph.getNodes()) {
             EventType evType = part.getEType();
 
-            // x shouldnt be split
+            // x shouldn't be split
             if (evType.equals(new StringEventType("x"))) {
                 xparts++;
-                assertTrue(part.size() == 4);
+                assertTrue(part.size() == 8);
             }
 
             // z should be split
@@ -573,11 +573,11 @@ public class ConstrainedRefinementTests extends PynopticTest {
             }
         }
 
-        assertTrue(xparts == 2 && zparts == 2);
+        assertTrue(xparts == 1 && zparts == 2);
     }
 
     /**
-     * Verifies that refinement successfully resolves all IntrByLower
+     * Verifies that refinement successfully resolves all IntrBy{Lower,Upper}
      * counterexamples and does not hang
      */
     @Test
@@ -587,20 +587,6 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         // Generate partition graph and run refinement
         graph = genConstrainedPartitionGraph(events, TracingSet.IntrByLower);
-        Bisimulation.splitUntilAllInvsSatisfied(graph);
-    }
-
-    /**
-     * Verifies that refinement successfully resolves all IntrByUpper
-     * counterexamples and does not hang
-     */
-    @Test
-    public void IntrByUpperSimpleRefinementTest() throws Exception {
-        String[] events = { "login 0", "logout 6", "login 7", "action 8",
-                "logout 13" };
-
-        // Generate partition graph and run refinement
-        graph = genConstrainedPartitionGraph(events, TracingSet.IntrByUpper);
         Bisimulation.splitUntilAllInvsSatisfied(graph);
     }
 }
