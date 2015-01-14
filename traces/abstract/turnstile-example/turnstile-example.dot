@@ -1,0 +1,17 @@
+digraph {
+  0 [label="coin"];
+  1 [label="coin"];
+  2 [label="push"];
+  3 [label="push"];
+  4 [label="TERMINAL",shape=diamond];
+  5 [label="INITIAL",shape=box];
+0->4 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount == 5\nentryCount == 4\n",];
+1->1 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount == 3\nentryCount == 2\n",];
+1->3 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount one of { 1, 2, 4 }\nentryCount one of { 0, 1, 2 }\n",];
+2->0 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount == 4\n",];
+3->1 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount == 1\n",];
+3->3 [label="SynopticPoint:::ENTER\nlocked == true\ncoinCount one of { 1, 4 }\nentryCount one of { 1, 3 }\n",];
+3->4 [label="SynopticPoint:::ENTER\nlocked == true\ncoinCount one of { 2, 4 }\nentryCount one of { 2, 3 }\n",];
+5->1 [label="SynopticPoint:::ENTER\ncoinCount == entryCount\nlocked == true\ncoinCount one of { 0, 2 }\n",];
+5->2 [label="SynopticPoint:::ENTER\nlocked == false\ncoinCount == 4\nentryCount == 3\n",];
+} // digraph {

@@ -1,0 +1,7 @@
+-r ^(?<VTIME>)(?<TYPE>)$
+-s ^--$
+-i
+--onlyMineInvariants=true
+--noRefinement=true
+--dumpInitialGraphDotFile=false
+

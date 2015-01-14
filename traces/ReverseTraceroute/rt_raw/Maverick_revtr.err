@@ -1,0 +1,1323 @@
+Gathering traceroutes to srcs planetlab2.cs.uit.no planetlab02.cs.washington.edu planet1.scs.stanford.edu planet3.prakinf.tu-ilmenau.de planetlab3.csail.mit.edu planetlab2.sfc.wide.ad.jp planetlab2.ics.forth.gr planetlab2.uta.edu planetlab3.upc.es planetlab-2.ssvl.kth.se
+2010/02/28.0049.28 Connecting to tr_server druby://bouncer.cs.washington.edu:59317
+2010/02/28.0049.29 Issuing traceroutes: 2010.0228.0049.29 1
+2010/02/28.0049.29 Connecting to controller druby://128.208.2.159:49174
+2010/02/28.0049.30 Traceroutes for planetlab2.cs.uit.no
+2010/02/28.0049.30 Traceroute to 194.116.252.1 reaches for planetlab2.cs.uit.no 194.116.252.1
+2010/02/28.0049.30 Trying to find 1 hops from [193.111.37.118 195.69.145.146 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.0049.30 Rev Seg is 193.111.37.118
+2010/02/28.0049.30 Fwd planetlab2.cs.uit.no to 194.116.252.1: 129.242.19.193 129.242.222.1 129.242.1.9 128.39.47.217 128.39.65.73 109.105.102.21 109.105.97.10 109.105.97.25 195.69.145.146 193.111.37.118 194.116.252.1
+2010/02/28.0049.30 Checking planetlab2.cs.uit.no 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0049.31 Initializing RR VPs in a batch for 1
+2010/02/28.0049.31 Total VPs: 216
+2010/02/28.0049.31 Total spoofers: 160 at 75 sites
+2010/02/28.0049.31 Total up spoofers: 129 at 58 sites
+2010/02/28.0049.31 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0049.31 Connecting to vp_server druby://bouncer.cs.washington.edu:38051
+2010/02/28.0049.31 Found 17 spoofers of 71 for 194.116.252.1: planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-5.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab1.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0049.31 planetlab2.cs.uit.no 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0049.31 planetlab2.cs.uit.no 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0049.32 Issuing recordroutes: 2010.0228.0049.31 1
+2010/02/28.0049.34 planetlab2.cs.uit.no 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0049.34 planetlab2.cs.uit.no 194.116.252.1 194.116.252.1 using planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org
+2010/02/28.0049.34 Issuing spoofed recordroutes: 2010.0228.0049.34
+2010/02/28.0049.46 planetlab2.cs.uit.no received 2 total responses from 38.107.216.22 plab-1.sinp.msu.ru
+2010/02/28.0049.46 REACHED
+2010/02/28.0049.46 FOUND
+2010/02/28.0049.46 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0049.46 NONE
+2010/02/28.0049.46 FAILED
+2010/02/28.0049.46 --------
+2010/02/28.0049.46 Checking planetlab2.cs.uit.no 194.116.252.1 193.111.37.118 for traceroutes to source
+2010/02/28.0049.47 Initializing RR VPs in a batch for 1
+2010/02/28.0049.47 Total VPs: 216
+2010/02/28.0049.47 Total spoofers: 160 at 75 sites
+2010/02/28.0049.47 Total up spoofers: 129 at 58 sites
+2010/02/28.0049.47 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0049.47 Found 10 spoofers of 80 for 193.111.37.118: plab-2.sinp.msu.ru planetlabnode-1.docomolabs-usa.com planetlab1.uta.edu planetlab6.cs.uiuc.edu mlab3.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab2.ham01.measurement-lab.org planetlab1lannion.elibel.tm.fr planetlab2.utdallas.edu planetlab1.williams.edu
+2010/02/28.0049.47 planetlab2.cs.uit.no 194.116.252.1 193.111.37.118 11 RR VPs left to try
+2010/02/28.0049.47 planetlab2.cs.uit.no 194.116.252.1 193.111.37.118 using non_spoofed
+2010/02/28.0049.47 Issuing recordroutes: 2010.0228.0049.47 1
+2010/02/28.0049.50 planetlab2.cs.uit.no 194.116.252.1 193.111.37.118 10 RR VPs left to try
+2010/02/28.0049.50 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0049.50 planetlab2.cs.uit.no 194.116.252.1 193.111.37.118 using plab-1.sinp.msu.ru plab-2.sinp.msu.ru planetlabnode-1.docomolabs-usa.com
+2010/02/28.0049.50 Issuing spoofed recordroutes: 2010.0228.0049.50
+2010/02/28.0050.05 planetlab2.cs.uit.no received 3 total responses from plab-2.sinp.msu.ru planetlabnode-1.docomolabs-usa.com plab-1.sinp.msu.ru
+2010/02/28.0050.05 REACHED
+2010/02/28.0050.06 FOUND
+2010/02/28.0050.06 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0050.06 NONE
+2010/02/28.0050.06 FAILED
+2010/02/28.0050.06 --------
+2010/02/28.0050.06 Checking planetlab2.cs.uit.no 194.116.252.1 109.105.97.25 for traceroutes to source
+2010/02/28.0050.06 Checking planetlab2.cs.uit.no 194.116.252.1 195.69.145.146 for traceroutes to source
+2010/02/28.0050.06 Initializing RR VPs in a batch for 2
+2010/02/28.0050.06 Total VPs: 216
+2010/02/28.0050.06 Total spoofers: 160 at 75 sites
+2010/02/28.0050.07 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.07 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.07 Resorting to all 58 spoofers for 109.105.97.25
+2010/02/28.0050.07 Found 14 spoofers of 44 for 195.69.145.146: pli1-pa-5.hpl.hp.com planetlab2.pc.cis.udel.edu mlab3.lga01.measurement-lab.org plnode-01.gpolab.bbn.com planetlab2.ntu.nodes.planet-lab.org plab-2.sinp.msu.ru mlab2.ams02.measurement-lab.org pl1.bit.uoit.ca mlab3.ham01.measurement-lab.org mlab2.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab0.dojima.wide.ad.jp planetlab-02.kusa.ac.jp planetlab1.sfc.wide.ad.jp
+2010/02/28.0050.07 planetlab2.cs.uit.no 194.116.252.1 109.105.97.25 59 RR VPs left to try
+2010/02/28.0050.07 planetlab2.cs.uit.no 194.116.252.1 109.105.97.25 using non_spoofed
+2010/02/28.0050.08 Issuing recordroutes: 2010.0228.0050.07 1
+2010/02/28.0050.10 REACHED
+2010/02/28.0050.11 FOUND
+2010/02/28.0050.11 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[109.105.102.25]_RR
+2010/02/28.0050.11 NONE
+2010/02/28.0050.11 FAILED
+2010/02/28.0050.11 --------
+2010/02/28.0050.11 Checking planetlab2.cs.uit.no 194.116.252.1 109.105.102.25 for traceroutes to source
+2010/02/28.0050.11 Initializing RR VPs in a batch for 1
+2010/02/28.0050.11 Total VPs: 216
+2010/02/28.0050.11 Total spoofers: 160 at 75 sites
+2010/02/28.0050.11 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.12 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.12 Resorting to all 58 spoofers for 109.105.102.25
+2010/02/28.0050.12 planetlab2.cs.uit.no 194.116.252.1 109.105.102.25 59 RR VPs left to try
+2010/02/28.0050.12 planetlab2.cs.uit.no 194.116.252.1 109.105.102.25 using non_spoofed
+2010/02/28.0050.12 Issuing recordroutes: 2010.0228.0050.12 1
+2010/02/28.0050.15 REACHED
+2010/02/28.0050.15 FOUND
+2010/02/28.0050.15 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR
+2010/02/28.0050.15 NONE
+2010/02/28.0050.15 FAILED
+2010/02/28.0050.15 --------
+2010/02/28.0050.15 Checking planetlab2.cs.uit.no 194.116.252.1 128.39.3.1 for traceroutes to source
+2010/02/28.0050.15 Checking planetlab2.cs.uit.no 194.116.252.1 128.39.65.22 for traceroutes to source
+2010/02/28.0050.16 Initializing RR VPs in a batch for 2
+2010/02/28.0050.16 Total VPs: 216
+2010/02/28.0050.16 Total spoofers: 160 at 75 sites
+2010/02/28.0050.16 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.16 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.16 Found 9 spoofers of 41 for 128.39.3.1: mlab2.ham01.measurement-lab.org mlab2.par01.measurement-lab.org planetlab-1.ssvl.kth.se pl1.bit.uoit.ca mlab2.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com node1.planet-lab.titech.ac.jp planetlab1-saopaulo.lan.redclara.net
+2010/02/28.0050.16 Found 9 spoofers of 41 for 128.39.65.22: mlab2.ham01.measurement-lab.org mlab2.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab-1.ssvl.kth.se planetlab1-saopaulo.lan.redclara.net pl1.bit.uoit.ca mlab2.ams01.measurement-lab.org mlab1.lhr01.measurement-lab.org node1.planet-lab.titech.ac.jp
+2010/02/28.0050.16 planetlab2.cs.uit.no 194.116.252.1 128.39.3.1 10 RR VPs left to try
+2010/02/28.0050.17 planetlab2.cs.uit.no 194.116.252.1 128.39.3.1 using non_spoofed
+2010/02/28.0050.17 Issuing recordroutes: 2010.0228.0050.17 1
+2010/02/28.0050.19 REACHED
+2010/02/28.0050.19 FOUND
+2010/02/28.0050.19 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR
+2010/02/28.0050.19 NONE
+2010/02/28.0050.19 FAILED
+2010/02/28.0050.20 --------
+2010/02/28.0050.20 Checking planetlab2.cs.uit.no 194.116.252.1 129.242.19.193 for traceroutes to source
+2010/02/28.0050.20 REACHED
+2010/02/28.0050.20 RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR,RevSegment_[129.242.19.197 129.242.19.197 129.242.19.197]_TRtoSrc
+2010/02/28.0050.20 FOUND
+2010/02/28.0050.20 NONE
+2010/02/28.0050.20 FAILED
+2010/02/28.0050.20 --------
+2010/02/28.0050.20 Total time: 51
+2010/02/28.0050.21 Total probes: rr=5 spoof-rr=6 tr=1
+RevPath_D194.116.252.1_Splanetlab2.cs.uit.no_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.69.145.146 109.105.97.25]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR,RevSegment_[129.242.19.197 129.242.19.197 129.242.19.197]_TRtoSrc
+2010/02/28.0050.27 Issuing traceroutes: 2010.0228.0050.27 1
+2010/02/28.0050.28 Traceroutes for planetlab02.cs.washington.edu
+2010/02/28.0050.28 Traceroute to 194.116.252.1 reaches for planetlab02.cs.washington.edu 194.116.252.1
+2010/02/28.0050.28 Trying to find 1 hops from [77.242.225.6 77.67.75.150 89.149.185.22 206.223.116.19 129.250.2.97 129.250.4.141 129.250.2.206 198.104.203.85 129.250.10.193 209.124.188.134 205.175.101.2 205.175.101.117 205.175.108.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.0050.28 Rev Seg is 77.242.225.6
+2010/02/28.0050.28 Fwd planetlab02.cs.washington.edu to 194.116.252.1: 128.208.4.102 205.175.108.21 205.175.101.117 205.175.101.2 209.124.188.134 129.250.10.193 198.104.203.85 129.250.2.206 129.250.4.141 129.250.2.97 206.223.116.19 89.149.185.22 77.67.75.150 77.242.225.6 194.116.252.1
+2010/02/28.0050.28 Checking planetlab02.cs.washington.edu 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0050.28 Initializing RR VPs in a batch for 1
+2010/02/28.0050.28 Total VPs: 216
+2010/02/28.0050.28 Total spoofers: 160 at 75 sites
+2010/02/28.0050.29 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.29 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.29 Found 17 spoofers of 71 for 194.116.252.1: planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab3.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0050.29 planetlab02.cs.washington.edu 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0050.29 planetlab02.cs.washington.edu 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0050.29 Issuing recordroutes: 2010.0228.0050.29 1
+2010/02/28.0050.31 planetlab02.cs.washington.edu 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0050.32 planetlab02.cs.washington.edu 194.116.252.1 194.116.252.1 using planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org
+2010/02/28.0050.32 Issuing spoofed recordroutes: 2010.0228.0050.32
+2010/02/28.0050.41 planetlab02.cs.washington.edu received 2 total responses from plab-1.sinp.msu.ru 38.107.216.22
+2010/02/28.0050.42 REACHED
+2010/02/28.0050.42 FOUND
+2010/02/28.0050.42 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0050.42 NONE
+2010/02/28.0050.42 FAILED
+2010/02/28.0050.42 --------
+2010/02/28.0050.42 Checking planetlab02.cs.washington.edu 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0050.42 Initializing RR VPs in a batch for 1
+2010/02/28.0050.42 Total VPs: 216
+2010/02/28.0050.42 Total spoofers: 160 at 75 sites
+2010/02/28.0050.43 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.43 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.43 Found 17 spoofers of 71 for 194.116.253.241: plab-1.sinp.msu.ru planetlab1.eecs.ucf.edu mlab3.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab1.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab1.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0050.43 planetlab02.cs.washington.edu 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0050.43 planetlab02.cs.washington.edu 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0050.43 Issuing recordroutes: 2010.0228.0050.43 1
+2010/02/28.0050.45 planetlab02.cs.washington.edu 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0050.46 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0050.46 planetlab02.cs.washington.edu 194.116.252.1 194.116.253.241 using plab-1.sinp.msu.ru planetlab1.eecs.ucf.edu mlab3.dfw01.measurement-lab.org
+2010/02/28.0050.46 Issuing spoofed recordroutes: 2010.0228.0050.46
+2010/02/28.0050.56 planetlab02.cs.washington.edu received 2 total responses from plab-1.sinp.msu.ru 38.107.216.35
+2010/02/28.0050.56 REACHED
+2010/02/28.0050.56 FOUND
+2010/02/28.0050.56 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0050.56 NONE
+2010/02/28.0050.56 FAILED
+2010/02/28.0050.56 --------
+2010/02/28.0050.56 Checking planetlab02.cs.washington.edu 194.116.252.1 77.67.65.30 for traceroutes to source
+2010/02/28.0050.56 Checking planetlab02.cs.washington.edu 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0050.57 Initializing RR VPs in a batch for 2
+2010/02/28.0050.57 Total VPs: 216
+2010/02/28.0050.57 Total spoofers: 160 at 75 sites
+2010/02/28.0050.57 Total up spoofers: 129 at 58 sites
+2010/02/28.0050.57 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0050.57 Found 32 spoofers of 134 for 77.67.65.30: mlab1.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab1.williams.edu planetlab4.singaren.net.sg mlab3.ham01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab1.uta.edu node1.planetlab.albany.edu mlab3.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com plnode-02.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab1lannion.elibel.tm.fr planetlab2.utdallas.edu planetlab1.postel.org planetlab0.dojima.wide.ad.jp planetlab-01.kusa.ac.jp mlab2.lax01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab2.ams02.measurement-lab.org planetlab1.cis.upenn.edu mlab3.sea01.measurement-lab.org node4.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0050.57 Found 28 spoofers of 90 for 77.242.225.6: mlab2.ams02.measurement-lab.org mlab1.dfw01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab1.williams.edu planetlab4.singaren.net.sg planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab1.uta.edu node1.planetlab.albany.edu mlab3.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab2.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab0.dojima.wide.ad.jp planetlab1.postel.org plab-2.sinp.msu.ru planetlab1lannion.elibel.tm.fr planetlab-01.kusa.ac.jp plnode-02.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0050.57 planetlab02.cs.washington.edu 194.116.252.1 77.67.65.30 33 RR VPs left to try
+2010/02/28.0050.57 planetlab02.cs.washington.edu 194.116.252.1 77.67.65.30 using non_spoofed
+2010/02/28.0050.58 Issuing recordroutes: 2010.0228.0050.58 1
+2010/02/28.0051.00 planetlab02.cs.washington.edu 194.116.252.1 77.67.65.30 32 RR VPs left to try
+2010/02/28.0051.00 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0051.00 planetlab02.cs.washington.edu 194.116.252.1 77.67.65.30 using plab-1.sinp.msu.ru mlab1.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com
+2010/02/28.0051.00 Issuing spoofed recordroutes: 2010.0228.0051.00
+2010/02/28.0051.10 planetlab02.cs.washington.edu received 2 total responses from plab-1.sinp.msu.ru pli1-pa-5.hpl.hp.com
+2010/02/28.0051.10 REACHED
+2010/02/28.0051.10 FOUND
+2010/02/28.0051.10 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.91 4.68.186.82]_RR_SpfSrcpli1-pa-5.hpl.hp.com
+2010/02/28.0051.11 NONE
+2010/02/28.0051.11 FAILED
+2010/02/28.0051.11 --------
+2010/02/28.0051.11 Checking planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 for traceroutes to source
+2010/02/28.0051.11 Checking planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 for traceroutes to source
+2010/02/28.0051.11 Checking planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 for traceroutes to source
+2010/02/28.0051.11 Initializing RR VPs in a batch for 3
+2010/02/28.0051.11 Total VPs: 216
+2010/02/28.0051.11 Total spoofers: 160 at 75 sites
+2010/02/28.0051.12 Total up spoofers: 129 at 58 sites
+2010/02/28.0051.12 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0051.12 Found 41 spoofers of 165 for 4.68.186.82: planetlab5.williams.edu mlab2.dfw01.measurement-lab.org mlab1.lhr01.measurement-lab.org pl1.bit.uoit.ca pli1-pa-5.hpl.hp.com mlab1.ham01.measurement-lab.org planetlab2.eecs.ucf.edu mlab2.lax01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab2.pop-rs.rnp.br mlab3.lga01.measurement-lab.org planetlab0.dojima.wide.ad.jp planetlab2.uta.edu planetlab-02.kusa.ac.jp mlab2.ams01.measurement-lab.org planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu mlab2.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org planetlab2.postel.org planetlab2.cis.upenn.edu pl1.planetlab.ics.tut.ac.jp mlab2.mia01.measurement-lab.org planetlab-02.ece.uprm.edu node4.planet-lab.titech.ac.jp pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.utep.edu planetlab2.utdallas.edu 75-130-96-13.static.oxfr.ma.charter.com node1.planetlab.albany.edu planetlab2.ntu.nodes.planet-lab.org planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab1lannion.elibel.tm.fr plgmu3.ite.gmu.edu eve.ee.ntu.edu.tw plab-2.sinp.msu.ru mlab3.sea01.measurement-lab.org planetlab-2.cs.auckland.ac.nz planetlab1.eurecom.fr
+2010/02/28.0051.12 Found 30 spoofers of 129 for 213.200.87.64: mlab1.ham01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab5.williams.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab2.dfw01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-02.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab2.utdallas.edu mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0051.12 Found 30 spoofers of 128 for 213.200.87.91: planetlab5.williams.edu pli1-pa-5.hpl.hp.com mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lhr01.measurement-lab.org mlab2.par01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab1.ham01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1lannion.elibel.tm.fr plnode-02.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab2.utdallas.edu mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0051.12 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 42 RR VPs left to try
+2010/02/28.0051.13 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using non_spoofed
+2010/02/28.0051.13 Issuing recordroutes: 2010.0228.0051.13 1
+2010/02/28.0051.15 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 41 RR VPs left to try
+2010/02/28.0051.15 FOUND RECENT SPOOFER TO USE pli1-pa-5.hpl.hp.com
+2010/02/28.0051.15 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using pli1-pa-5.hpl.hp.com planetlab5.williams.edu mlab2.dfw01.measurement-lab.org
+2010/02/28.0051.15 Issuing spoofed recordroutes: 2010.0228.0051.15
+2010/02/28.0051.25 planetlab02.cs.washington.edu received 2 total responses from 38.107.216.22 planetlab5.williams.edu
+2010/02/28.0051.26 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 38 RR VPs left to try
+2010/02/28.0051.26 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using mlab1.lhr01.measurement-lab.org pl1.bit.uoit.ca mlab1.ham01.measurement-lab.org
+2010/02/28.0051.26 Issuing spoofed recordroutes: 2010.0228.0051.26
+2010/02/28.0051.36 planetlab02.cs.washington.edu received 1 total responses from 217.163.1.73
+2010/02/28.0051.36 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 35 RR VPs left to try
+2010/02/28.0051.36 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab2.eecs.ucf.edu mlab2.lax01.measurement-lab.org planetlab3-dsl.cs.cornell.edu
+2010/02/28.0051.36 Issuing spoofed recordroutes: 2010.0228.0051.36
+2010/02/28.0051.47 planetlab02.cs.washington.edu received 2 total responses from 38.98.51.22 planetlab3-dsl.cs.cornell.edu
+2010/02/28.0051.47 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 32 RR VPs left to try
+2010/02/28.0051.47 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab2.pop-rs.rnp.br mlab3.lga01.measurement-lab.org planetlab0.dojima.wide.ad.jp
+2010/02/28.0051.47 Issuing spoofed recordroutes: 2010.0228.0051.47
+2010/02/28.0051.57 planetlab02.cs.washington.edu received 2 total responses from planetlab0.dojima.wide.ad.jp 200.132.1.6
+2010/02/28.0051.58 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 29 RR VPs left to try
+2010/02/28.0051.58 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab2.uta.edu planetlab-02.kusa.ac.jp mlab2.ams01.measurement-lab.org
+2010/02/28.0051.58 Issuing spoofed recordroutes: 2010.0228.0051.58
+2010/02/28.0052.11 planetlab02.cs.washington.edu received 2 total responses from planetlab2.uta.edu planetlab-02.kusa.ac.jp
+2010/02/28.0052.11 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 26 RR VPs left to try
+2010/02/28.0052.11 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu mlab2.nuq01.measurement-lab.org
+2010/02/28.0052.11 Issuing spoofed recordroutes: 2010.0228.0052.11
+2010/02/28.0052.21 planetlab02.cs.washington.edu received 2 total responses from planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu
+2010/02/28.0052.21 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 23 RR VPs left to try
+2010/02/28.0052.21 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using mlab2.par01.measurement-lab.org planetlab2.postel.org planetlab2.cis.upenn.edu
+2010/02/28.0052.21 Issuing spoofed recordroutes: 2010.0228.0052.21
+2010/02/28.0052.31 planetlab02.cs.washington.edu received 2 total responses from planetlab2.cis.upenn.edu planetlab2.postel.org
+2010/02/28.0052.31 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 20 RR VPs left to try
+2010/02/28.0052.31 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using pl1.planetlab.ics.tut.ac.jp mlab2.mia01.measurement-lab.org planetlab-02.ece.uprm.edu
+2010/02/28.0052.31 Issuing spoofed recordroutes: 2010.0228.0052.31
+2010/02/28.0052.41 planetlab02.cs.washington.edu received 2 total responses from 4.71.210.214 pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0052.41 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 17 RR VPs left to try
+2010/02/28.0052.41 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using node4.planet-lab.titech.ac.jp pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg
+2010/02/28.0052.41 Issuing spoofed recordroutes: 2010.0228.0052.41
+2010/02/28.0052.51 planetlab02.cs.washington.edu received 1 total responses from node4.planet-lab.titech.ac.jp
+2010/02/28.0052.51 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 14 RR VPs left to try
+2010/02/28.0052.51 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab1.utep.edu planetlab2.utdallas.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0052.52 Issuing spoofed recordroutes: 2010.0228.0052.51
+2010/02/28.0053.01 planetlab02.cs.washington.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu planetlab1.utep.edu
+2010/02/28.0053.01 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 11 RR VPs left to try
+2010/02/28.0053.02 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using node1.planetlab.albany.edu planetlab2.ntu.nodes.planet-lab.org planetlabnode-1.docomolabs-usa.com
+2010/02/28.0053.02 Issuing spoofed recordroutes: 2010.0228.0053.02
+2010/02/28.0053.13 planetlab02.cs.washington.edu received 3 total responses from node1.planetlab.albany.edu planetlabnode-1.docomolabs-usa.com planetlab2.ntu.nodes.planet-lab.org
+2010/02/28.0053.13 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 8 RR VPs left to try
+2010/02/28.0053.13 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using plnode-02.gpolab.bbn.com planetlab1lannion.elibel.tm.fr plgmu3.ite.gmu.edu
+2010/02/28.0053.13 Issuing spoofed recordroutes: 2010.0228.0053.13
+2010/02/28.0053.23 planetlab02.cs.washington.edu received 2 total responses from 192.1.249.21 planetlab1lannion.elibel.tm.fr
+2010/02/28.0053.24 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 5 RR VPs left to try
+2010/02/28.0053.24 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using eve.ee.ntu.edu.tw plab-2.sinp.msu.ru mlab3.sea01.measurement-lab.org
+2010/02/28.0053.24 Issuing spoofed recordroutes: 2010.0228.0053.24
+2010/02/28.0053.34 planetlab02.cs.washington.edu received 3 total responses from 38.102.0.99 plab-2.sinp.msu.ru eve.ee.ntu.edu.tw
+2010/02/28.0053.34 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 2 RR VPs left to try
+2010/02/28.0053.34 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 using planetlab-2.cs.auckland.ac.nz planetlab1.eurecom.fr
+2010/02/28.0053.34 Issuing spoofed recordroutes: 2010.0228.0053.34
+2010/02/28.0053.44 planetlab02.cs.washington.edu received 2 total responses from planetlab-2.cs.auckland.ac.nz planetlab1.eurecom.fr
+2010/02/28.0053.44 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 31 RR VPs left to try
+2010/02/28.0053.45 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using non_spoofed
+2010/02/28.0053.45 Issuing recordroutes: 2010.0228.0053.45 1
+2010/02/28.0053.47 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 30 RR VPs left to try
+2010/02/28.0053.47 FOUND RECENT SPOOFER TO USE pli1-pa-5.hpl.hp.com
+2010/02/28.0053.47 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using pli1-pa-5.hpl.hp.com planetlab5.williams.edu mlab2.dfw01.measurement-lab.org
+2010/02/28.0053.47 Issuing spoofed recordroutes: 2010.0228.0053.47
+2010/02/28.0053.57 planetlab02.cs.washington.edu received 3 total responses from pli1-pa-5.hpl.hp.com 38.107.216.22 planetlab5.williams.edu
+2010/02/28.0053.57 Removing loopy hops 4.68.186.82 from RevSegment_[4.68.186.82]_Splanetlab02.cs.washington.edu_H213.200.87.91_RR_SpfSrcpli1-pa-5.hpl.hp.com
+2010/02/28.0053.57 Skipping loop-causing segment RevSegment_[]_Splanetlab02.cs.washington.edu_H213.200.87.91_RR_SpfSrcpli1-pa-5.hpl.hp.com
+2010/02/28.0053.57 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 27 RR VPs left to try
+2010/02/28.0053.57 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using pl1.bit.uoit.ca mlab1.lhr01.measurement-lab.org mlab2.par01.measurement-lab.org
+2010/02/28.0053.58 Issuing spoofed recordroutes: 2010.0228.0053.58
+2010/02/28.0054.07 planetlab02.cs.washington.edu received 2 total responses from 80.239.168.214 pl1.bit.uoit.ca
+2010/02/28.0054.07 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 24 RR VPs left to try
+2010/02/28.0054.07 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using mlab2.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab1.ham01.measurement-lab.org
+2010/02/28.0054.07 Issuing spoofed recordroutes: 2010.0228.0054.07
+2010/02/28.0054.18 planetlab02.cs.washington.edu received 1 total responses from 64.9.225.150
+2010/02/28.0054.18 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 21 RR VPs left to try
+2010/02/28.0054.18 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0054.18 Issuing spoofed recordroutes: 2010.0228.0054.18
+2010/02/28.0054.28 planetlab02.cs.washington.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com 203.30.39.238 planetlab4.singaren.net.sg
+2010/02/28.0054.28 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 18 RR VPs left to try
+2010/02/28.0054.28 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using planetlab-2.cs.uh.edu mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu
+2010/02/28.0054.28 Issuing spoofed recordroutes: 2010.0228.0054.28
+2010/02/28.0054.38 planetlab02.cs.washington.edu received 3 total responses from 74.63.50.35 planetlab-2.cs.uh.edu node1.planetlab.albany.edu
+2010/02/28.0054.38 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 15 RR VPs left to try
+2010/02/28.0054.38 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp
+2010/02/28.0054.38 Issuing spoofed recordroutes: 2010.0228.0054.38
+2010/02/28.0054.48 planetlab02.cs.washington.edu received 3 total responses from planetlab2.pc.cis.udel.edu planetlab2.uta.edu planetlab-02.kusa.ac.jp
+2010/02/28.0054.48 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 12 RR VPs left to try
+2010/02/28.0054.48 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using planetlab3-dsl.cs.cornell.edu planetlab1lannion.elibel.tm.fr plnode-02.gpolab.bbn.com
+2010/02/28.0054.48 Issuing spoofed recordroutes: 2010.0228.0054.48
+2010/02/28.0054.58 planetlab02.cs.washington.edu received 3 total responses from 192.1.249.21 planetlab1lannion.elibel.tm.fr planetlab3-dsl.cs.cornell.edu
+2010/02/28.0054.58 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 9 RR VPs left to try
+2010/02/28.0054.58 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org
+2010/02/28.0054.58 Issuing spoofed recordroutes: 2010.0228.0054.58
+2010/02/28.0055.08 planetlab02.cs.washington.edu received 3 total responses from planetlabnode-1.docomolabs-usa.com 38.98.51.22 planetlab2.postel.org
+2010/02/28.0055.08 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 6 RR VPs left to try
+2010/02/28.0055.08 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab2.utdallas.edu
+2010/02/28.0055.08 Issuing spoofed recordroutes: 2010.0228.0055.08
+2010/02/28.0055.18 planetlab02.cs.washington.edu received 2 total responses from planetlab2.utdallas.edu planetlab0.dojima.wide.ad.jp
+2010/02/28.0055.18 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 3 RR VPs left to try
+2010/02/28.0055.18 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.91 using mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0055.18 Issuing spoofed recordroutes: 2010.0228.0055.18
+2010/02/28.0055.28 planetlab02.cs.washington.edu received 3 total responses from 38.102.0.99 pl1.planetlab.ics.tut.ac.jp planetlab2.ntu.nodes.planet-lab.org
+2010/02/28.0055.29 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 31 RR VPs left to try
+2010/02/28.0055.29 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using non_spoofed
+2010/02/28.0055.29 Issuing recordroutes: 2010.0228.0055.29 1
+2010/02/28.0055.32 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 30 RR VPs left to try
+2010/02/28.0055.32 FOUND RECENT SPOOFER TO USE pli1-pa-5.hpl.hp.com
+2010/02/28.0055.32 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using pli1-pa-5.hpl.hp.com mlab1.ham01.measurement-lab.org mlab1.lhr01.measurement-lab.org
+2010/02/28.0055.32 Issuing spoofed recordroutes: 2010.0228.0055.32
+2010/02/28.0055.42 planetlab02.cs.washington.edu received 2 total responses from pli1-pa-5.hpl.hp.com 217.163.1.73
+2010/02/28.0055.42 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 27 RR VPs left to try
+2010/02/28.0055.42 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using planetlab5.williams.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca
+2010/02/28.0055.42 Issuing spoofed recordroutes: 2010.0228.0055.42
+2010/02/28.0055.52 planetlab02.cs.washington.edu received 2 total responses from planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca
+2010/02/28.0055.52 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 24 RR VPs left to try
+2010/02/28.0055.52 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using mlab2.par01.measurement-lab.org mlab2.dfw01.measurement-lab.org mlab2.ams01.measurement-lab.org
+2010/02/28.0055.52 Issuing spoofed recordroutes: 2010.0228.0055.52
+2010/02/28.0056.02 planetlab02.cs.washington.edu received 2 total responses from 38.107.216.22 80.239.168.214
+2010/02/28.0056.02 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 21 RR VPs left to try
+2010/02/28.0056.02 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using mlab2.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg
+2010/02/28.0056.02 Issuing spoofed recordroutes: 2010.0228.0056.02
+2010/02/28.0056.12 planetlab02.cs.washington.edu received 3 total responses from 64.9.225.150 203.30.39.238 planetlab4.singaren.net.sg
+2010/02/28.0056.12 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 18 RR VPs left to try
+2010/02/28.0056.12 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab3.lga01.measurement-lab.org
+2010/02/28.0056.12 Issuing spoofed recordroutes: 2010.0228.0056.12
+2010/02/28.0056.23 planetlab02.cs.washington.edu received 3 total responses from planetlab-2.cs.uh.edu 74.63.50.35 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0056.23 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 15 RR VPs left to try
+2010/02/28.0056.24 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using node1.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu
+2010/02/28.0056.24 Issuing spoofed recordroutes: 2010.0228.0056.24
+2010/02/28.0056.33 planetlab02.cs.washington.edu received 3 total responses from planetlab2.uta.edu node1.planetlab.albany.edu planetlab2.pc.cis.udel.edu
+2010/02/28.0056.33 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 12 RR VPs left to try
+2010/02/28.0056.33 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-02.gpolab.bbn.com
+2010/02/28.0056.34 Issuing spoofed recordroutes: 2010.0228.0056.34
+2010/02/28.0056.43 planetlab02.cs.washington.edu received 3 total responses from 192.1.249.21 planetlab3-dsl.cs.cornell.edu planetlab-02.kusa.ac.jp
+2010/02/28.0056.43 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 9 RR VPs left to try
+2010/02/28.0056.44 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org
+2010/02/28.0056.44 Issuing spoofed recordroutes: 2010.0228.0056.44
+2010/02/28.0056.54 planetlab02.cs.washington.edu received 3 total responses from 38.98.51.22 planetlabnode-1.docomolabs-usa.com planetlab2.postel.org
+2010/02/28.0056.54 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 6 RR VPs left to try
+2010/02/28.0056.54 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab2.utdallas.edu
+2010/02/28.0056.54 Issuing spoofed recordroutes: 2010.0228.0056.54
+2010/02/28.0057.04 planetlab02.cs.washington.edu received 2 total responses from planetlab2.utdallas.edu planetlab0.dojima.wide.ad.jp
+2010/02/28.0057.04 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 3 RR VPs left to try
+2010/02/28.0057.04 planetlab02.cs.washington.edu 194.116.252.1 213.200.87.64 using mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0057.05 Issuing spoofed recordroutes: 2010.0228.0057.05
+2010/02/28.0057.14 planetlab02.cs.washington.edu received 3 total responses from 38.102.0.99 planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0057.15 Connecting to adjacency_server druby://bouncer.cs.washington.edu:43430
+2010/02/28.0057.15 planetlab02.cs.washington.edu 194.116.252.1 4.68.186.82 0 TS adjacents left to try
+2010/02/28.0057.15 No adjacents to 4.68.186.82 left to test for planetlab02.cs.washington.edu 194.116.252.1
+2010/02/28.0057.15 Issuing traceroutes: 2010.0228.0057.15 1
+2010/02/28.0057.16 Traceroutes for planetlab02.cs.washington.edu
+2010/02/28.0057.16 Traceroute to 4.68.186.82 reaches for planetlab02.cs.washington.edu 194.116.252.1
+2010/02/28.0057.16 Trying to find 1 hops from [4.68.128.169 4.68.105.1 209.247.84.37 209.247.84.38 209.124.188.134 205.175.102.2 205.175.102.157 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.0057.16 Rev Seg is 4.68.128.169
+2010/02/28.0057.16 REACHED
+2010/02/28.0057.16 FOUND
+2010/02/28.0057.16 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.91 4.68.186.82]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[4.68.128.169]_Dst_AssumeSym
+2010/02/28.0057.16 NONE
+2010/02/28.0057.16 FAILED
+2010/02/28.0057.16 --------
+2010/02/28.0057.16 Checking planetlab02.cs.washington.edu 194.116.252.1 4.68.128.169 for traceroutes to source
+2010/02/28.0057.17 Initializing RR VPs in a batch for 1
+2010/02/28.0057.17 Total VPs: 216
+2010/02/28.0057.17 Total spoofers: 160 at 75 sites
+2010/02/28.0057.17 Total up spoofers: 129 at 58 sites
+2010/02/28.0057.17 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0057.17 Found 41 spoofers of 165 for 4.68.128.169: mlab3.ham01.measurement-lab.org pli1-pa-4.hpl.hp.com pnode2.pdcc-ntu.singaren.net.sg planetlab2.williams.edu planetlab4.singaren.net.sg node1.planetlab.albany.edu mlab3.lga02.measurement-lab.org mlab3.lax01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab3.dfw01.measurement-lab.org mlab3.lhr01.measurement-lab.org pl1.bit.uoit.ca planetlab2.eecs.ucf.edu planetlab3-dsl.cs.cornell.edu planetlab1.pop-rs.rnp.br planetlab1.dojima.wide.ad.jp planetlab2.uta.edu planetlab-02.kusa.ac.jp mlab2.ams02.measurement-lab.org planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu mlab4.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org planetlab3.postel.org planetlab1.cis.upenn.edu pl1.planetlab.ics.tut.ac.jp mlab2.mia01.measurement-lab.org planetlab-01.ece.uprm.edu node1.planet-lab.titech.ac.jp planetlab2.utep.edu planetlab1.utdallas.edu planetlab2.ntu.nodes.planet-lab.org planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab1lannion.elibel.tm.fr plgmu1.ite.gmu.edu eve.ee.ntu.edu.tw plab-2.sinp.msu.ru mlab1.sea01.measurement-lab.org planetlab-2.cs.auckland.ac.nz planetlab1.eurecom.fr
+2010/02/28.0057.17 planetlab02.cs.washington.edu 194.116.252.1 4.68.128.169 42 RR VPs left to try
+2010/02/28.0057.17 planetlab02.cs.washington.edu 194.116.252.1 4.68.128.169 using non_spoofed
+2010/02/28.0057.18 Issuing recordroutes: 2010.0228.0057.17 1
+2010/02/28.0057.20 planetlab02.cs.washington.edu 194.116.252.1 4.68.128.169 41 RR VPs left to try
+2010/02/28.0057.20 planetlab02.cs.washington.edu 194.116.252.1 4.68.128.169 using mlab3.ham01.measurement-lab.org pli1-pa-4.hpl.hp.com pnode2.pdcc-ntu.singaren.net.sg
+2010/02/28.0057.20 Issuing spoofed recordroutes: 2010.0228.0057.20
+2010/02/28.0057.30 planetlab02.cs.washington.edu received 3 total responses from 80.239.142.227 pli1-pa-4.hpl.hp.com 203.30.39.239
+2010/02/28.0057.30 REACHED
+2010/02/28.0057.30 FOUND
+2010/02/28.0057.30 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.91 4.68.186.82]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[4.68.128.169]_Dst_AssumeSym,RevSegment_[209.247.11.249 4.79.106.73]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0057.30 NONE
+2010/02/28.0057.30 FAILED
+2010/02/28.0057.31 --------
+2010/02/28.0057.31 Checking planetlab02.cs.washington.edu 194.116.252.1 4.79.106.73 for traceroutes to source
+2010/02/28.0057.31 REACHED
+2010/02/28.0057.31 RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.91 4.68.186.82]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[4.68.128.169]_Dst_AssumeSym,RevSegment_[209.247.11.249 4.79.106.73]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[4.79.106.74 209.124.188.134 209.124.188.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198 205.175.102.158 205.175.109.22 128.208.4.198 128.208.4.198]_TRtoSrc
+2010/02/28.0057.31 FOUND
+2010/02/28.0057.31 NONE
+2010/02/28.0057.31 FAILED
+2010/02/28.0057.31 --------
+2010/02/28.0057.31 Total time: 425
+2010/02/28.0057.31 Total probes: rr=7 spoof-rr=113 tr=2
+RevPath_D194.116.252.1_Splanetlab02.cs.washington.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.91 4.68.186.82]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[4.68.128.169]_Dst_AssumeSym,RevSegment_[209.247.11.249 4.79.106.73]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[4.79.106.74 209.124.188.134 209.124.188.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198 205.175.102.158 205.175.109.22 128.208.4.198 128.208.4.198]_TRtoSrc
+2010/02/28.0057.39 Issuing traceroutes: 2010.0228.0057.39 1
+2010/02/28.0057.42 Traceroutes for planet1.scs.stanford.edu
+2010/02/28.0057.42 Traceroute to 194.116.252.1 reaches for planet1.scs.stanford.edu 194.116.252.1
+2010/02/28.0057.42 Trying to find 1 hops from [194.116.253.241 212.73.253.234 4.69.134.17 4.69.133.145 4.69.141.150 4.69.132.137 4.69.137.57 4.69.134.153 4.69.134.186 4.69.132.93 4.69.134.77 4.69.134.126 4.69.135.186 4.69.134.253 4.68.18.254 4.53.16.185 137.164.23.45 171.67.255.134 171.66.3.2 planet1.scs.stanford.edu]
+2010/02/28.0057.42 Rev Seg is 194.116.253.241
+2010/02/28.0057.42 Fwd planet1.scs.stanford.edu to 194.116.252.1: 171.66.3.2 171.67.255.134 137.164.23.45 4.53.16.185 4.68.18.254 4.69.134.253 4.69.135.186 4.69.134.126 4.69.134.77 4.69.132.93 4.69.134.186 4.69.134.153 4.69.137.57 4.69.132.137 4.69.141.150 4.69.133.145 4.69.134.17 212.73.253.234 194.116.253.241 194.116.252.1
+2010/02/28.0057.42 Checking planet1.scs.stanford.edu 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0057.42 Initializing RR VPs in a batch for 1
+2010/02/28.0057.43 Total VPs: 216
+2010/02/28.0057.43 Total spoofers: 160 at 75 sites
+2010/02/28.0057.43 Total up spoofers: 129 at 58 sites
+2010/02/28.0057.43 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0057.43 Found 17 spoofers of 71 for 194.116.252.1: planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab2.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-5.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab2.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab1.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0057.43 planet1.scs.stanford.edu 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0057.43 planet1.scs.stanford.edu 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0057.43 Issuing recordroutes: 2010.0228.0057.43 1
+2010/02/28.0057.47 planet1.scs.stanford.edu 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0057.47 planet1.scs.stanford.edu 194.116.252.1 194.116.252.1 using planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab2.dfw01.measurement-lab.org
+2010/02/28.0057.47 Issuing spoofed recordroutes: 2010.0228.0057.47
+2010/02/28.0057.58 planet1.scs.stanford.edu received 2 total responses from 38.107.216.22 plab-2.sinp.msu.ru
+2010/02/28.0057.58 REACHED
+2010/02/28.0057.58 FOUND
+2010/02/28.0057.58 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0057.58 NONE
+2010/02/28.0057.58 FAILED
+2010/02/28.0057.59 --------
+2010/02/28.0057.59 Checking planet1.scs.stanford.edu 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0057.59 Initializing RR VPs in a batch for 1
+2010/02/28.0057.59 Total VPs: 216
+2010/02/28.0057.59 Total spoofers: 160 at 75 sites
+2010/02/28.0057.59 Total up spoofers: 129 at 58 sites
+2010/02/28.0057.59 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0057.59 Found 17 spoofers of 71 for 194.116.253.241: plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu mlab2.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab1.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab2.ham01.measurement-lab.org mlab3.lga01.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0057.59 planet1.scs.stanford.edu 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0057.59 planet1.scs.stanford.edu 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0058.00 Issuing recordroutes: 2010.0228.0058.00 1
+2010/02/28.0058.03 planet1.scs.stanford.edu 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0058.03 FOUND RECENT SPOOFER TO USE plab-2.sinp.msu.ru
+2010/02/28.0058.03 planet1.scs.stanford.edu 194.116.252.1 194.116.253.241 using plab-2.sinp.msu.ru plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu
+2010/02/28.0058.03 Issuing spoofed recordroutes: 2010.0228.0058.03
+2010/02/28.0058.14 planet1.scs.stanford.edu received 2 total responses from plab-2.sinp.msu.ru plab-1.sinp.msu.ru
+2010/02/28.0058.14 REACHED
+2010/02/28.0058.14 FOUND
+2010/02/28.0058.15 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0058.15 NONE
+2010/02/28.0058.15 FAILED
+2010/02/28.0058.15 --------
+2010/02/28.0058.15 Checking planet1.scs.stanford.edu 194.116.252.1 77.67.75.150 for traceroutes to source
+2010/02/28.0058.15 Checking planet1.scs.stanford.edu 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0058.15 Initializing RR VPs in a batch for 2
+2010/02/28.0058.15 Total VPs: 216
+2010/02/28.0058.15 Total spoofers: 160 at 75 sites
+2010/02/28.0058.16 Total up spoofers: 129 at 58 sites
+2010/02/28.0058.16 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0058.16 Found 32 spoofers of 134 for 77.67.75.150: mlab3.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab2.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab1.ams01.measurement-lab.org mlab1.ham01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab2.williams.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node1.planetlab.albany.edu mlab3.lga01.measurement-lab.org planetlab2.uta.edu planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp mlab2.lax01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab3.postel.org planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab2.utdallas.edu planetlab1.cis.upenn.edu mlab3.sea01.measurement-lab.org node4.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0058.16 Found 28 spoofers of 90 for 77.242.225.6: mlab1.ams01.measurement-lab.org mlab3.dfw01.measurement-lab.org mlab1.lhr01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab2.williams.edu planetlab4.singaren.net.sg planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu planetlab2.uta.edu node1.planetlab.albany.edu mlab3.lga01.measurement-lab.org mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab2.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab1.dojima.wide.ad.jp planetlab3.postel.org plab-2.sinp.msu.ru planetlab2lannion.elibel.tm.fr planetlab-02.kusa.ac.jp plnode-02.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0058.16 planet1.scs.stanford.edu 194.116.252.1 77.67.75.150 33 RR VPs left to try
+2010/02/28.0058.16 planet1.scs.stanford.edu 194.116.252.1 77.67.75.150 using non_spoofed
+2010/02/28.0058.16 Issuing recordroutes: 2010.0228.0058.16 1
+2010/02/28.0058.19 REACHED
+2010/02/28.0058.19 FOUND
+2010/02/28.0058.19 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR
+2010/02/28.0058.19 NONE
+2010/02/28.0058.19 FAILED
+2010/02/28.0058.19 --------
+2010/02/28.0058.19 Checking planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 for traceroutes to source
+2010/02/28.0058.20 Initializing RR VPs in a batch for 1
+2010/02/28.0058.20 Total VPs: 216
+2010/02/28.0058.20 Total spoofers: 160 at 75 sites
+2010/02/28.0058.20 Total up spoofers: 129 at 58 sites
+2010/02/28.0058.20 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0058.20 Found 30 spoofers of 129 for 213.200.87.64: mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab5.williams.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab3.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab1.dfw01.measurement-lab.org mlab1.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-1.cs.uh.edu mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-02.gpolab.bbn.com mlab3.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab1.postel.org planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab1.utdallas.edu mlab2.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0058.20 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 31 RR VPs left to try
+2010/02/28.0058.20 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using non_spoofed
+2010/02/28.0058.20 Issuing recordroutes: 2010.0228.0058.20 1
+2010/02/28.0058.23 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 30 RR VPs left to try
+2010/02/28.0058.23 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab5.williams.edu
+2010/02/28.0058.23 Issuing spoofed recordroutes: 2010.0228.0058.23
+2010/02/28.0058.35 planet1.scs.stanford.edu received 3 total responses from 217.163.1.99 planetlab5.williams.edu 80.239.142.201
+2010/02/28.0058.35 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 27 RR VPs left to try
+2010/02/28.0058.35 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab3.par01.measurement-lab.org
+2010/02/28.0058.35 Issuing spoofed recordroutes: 2010.0228.0058.35
+2010/02/28.0058.47 planet1.scs.stanford.edu received 3 total responses from pl1.bit.uoit.ca 80.239.168.227 planetlab1lannion.elibel.tm.fr
+2010/02/28.0058.47 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 24 RR VPs left to try
+2010/02/28.0058.47 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using pli1-pa-5.hpl.hp.com mlab1.dfw01.measurement-lab.org mlab1.ams01.measurement-lab.org
+2010/02/28.0058.47 Issuing spoofed recordroutes: 2010.0228.0058.47
+2010/02/28.0058.57 planet1.scs.stanford.edu received 3 total responses from pli1-pa-5.hpl.hp.com 38.107.216.9 213.244.128.137
+2010/02/28.0058.57 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 21 RR VPs left to try
+2010/02/28.0058.58 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using mlab2.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg
+2010/02/28.0058.58 Issuing spoofed recordroutes: 2010.0228.0058.58
+2010/02/28.0059.08 planet1.scs.stanford.edu received 3 total responses from 64.9.225.150 planetlab4.singaren.net.sg 203.30.39.238
+2010/02/28.0059.08 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 18 RR VPs left to try
+2010/02/28.0059.09 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using 75-130-96-13.static.oxfr.ma.charter.com planetlab-1.cs.uh.edu mlab3.lga01.measurement-lab.org
+2010/02/28.0059.09 Issuing spoofed recordroutes: 2010.0228.0059.09
+2010/02/28.0059.19 planet1.scs.stanford.edu received 3 total responses from planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com 74.63.50.35
+2010/02/28.0059.19 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 15 RR VPs left to try
+2010/02/28.0059.19 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using node1.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu
+2010/02/28.0059.20 Issuing spoofed recordroutes: 2010.0228.0059.19
+2010/02/28.0059.31 planet1.scs.stanford.edu received 3 total responses from planetlab1.uta.edu node1.planetlab.albany.edu planetlab2.pc.cis.udel.edu
+2010/02/28.0059.31 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 12 RR VPs left to try
+2010/02/28.0059.31 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-02.gpolab.bbn.com
+2010/02/28.0059.31 Issuing spoofed recordroutes: 2010.0228.0059.31
+2010/02/28.0059.41 planet1.scs.stanford.edu received 3 total responses from 192.1.249.21 planetlab3-dsl.cs.cornell.edu planetlab-01.kusa.ac.jp
+2010/02/28.0059.41 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 9 RR VPs left to try
+2010/02/28.0059.41 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using mlab3.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab1.postel.org
+2010/02/28.0059.42 Issuing spoofed recordroutes: 2010.0228.0059.41
+2010/02/28.0059.53 planet1.scs.stanford.edu received 3 total responses from 38.98.51.35 planetlabnode-1.docomolabs-usa.com planetlab1.postel.org
+2010/02/28.0059.53 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 6 RR VPs left to try
+2010/02/28.0059.53 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using planetlab0.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab1.utdallas.edu
+2010/02/28.0059.53 Issuing spoofed recordroutes: 2010.0228.0059.53
+2010/02/28.0100.05 planet1.scs.stanford.edu received 3 total responses from planetlab1.utdallas.edu planetlab2.cis.upenn.edu planetlab0.dojima.wide.ad.jp
+2010/02/28.0100.05 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 3 RR VPs left to try
+2010/02/28.0100.05 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 using mlab2.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0100.05 Issuing spoofed recordroutes: 2010.0228.0100.05
+2010/02/28.0100.16 planet1.scs.stanford.edu received 3 total responses from 38.102.0.86 pl1.planetlab.ics.tut.ac.jp planetlab2.ntu.nodes.planet-lab.org
+2010/02/28.0100.16 Adjacents for planet1.scs.stanford.edu 213.200.69.230 are 213.200.81.142 89.149.186.194 89.149.187.14
+2010/02/28.0100.16 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 3 TS adjacents left to try
+2010/02/28.0100.16 Issuing timestamps: 2010.0228.0100.16 1
+2010/02/28.0100.19 TS probe is non_spoofed 213.200.87.64 213.200.87.64 32417496 213.200.81.142 0 213.200.81.142 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0100.19 planet1.scs.stanford.edu 194.116.252.1 213.200.87.64 2 TS adjacents left to try
+2010/02/28.0100.19 Issuing timestamps: 2010.0228.0100.19 1
+2010/02/28.0100.22 TS probe is non_spoofed 213.200.87.64 213.200.87.64 32420092 89.149.186.194 32420092 89.149.186.194 32420092 128.208.3.77 0: reverse hop!
+2010/02/28.0100.22 REACHED
+2010/02/28.0100.22 FOUND
+2010/02/28.0100.22 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR,RevSegment_[89.149.186.194]_TSAdj
+2010/02/28.0100.22 NONE
+2010/02/28.0100.22 FAILED
+2010/02/28.0100.22 --------
+2010/02/28.0100.22 Checking planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 for traceroutes to source
+2010/02/28.0100.22 Initializing RR VPs in a batch for 1
+2010/02/28.0100.22 Total VPs: 216
+2010/02/28.0100.23 Total spoofers: 160 at 75 sites
+2010/02/28.0100.23 Total up spoofers: 129 at 58 sites
+2010/02/28.0100.23 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0100.23 Found 32 spoofers of 130 for 89.149.186.194: mlab2.ham01.measurement-lab.org mlab3.ams02.measurement-lab.org planetlab4.williams.edu mlab4.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab2.par01.measurement-lab.org mlab3.lga01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.lhr01.measurement-lab.org mlab2.dfw01.measurement-lab.org node1.planetlab.albany.edu planetlab3-dsl.cs.cornell.edu planetlab-1.cs.uh.edu planetlab1.uta.edu plnode-01.gpolab.bbn.com planetlab1.dojima.wide.ad.jp planetlab-01.kusa.ac.jp mlab2.lax01.measurement-lab.org planetlab3.postel.org planetlabnode-1.docomolabs-usa.com planetlab2.cis.upenn.edu planetlab2.utdallas.edu mlab1.sea01.measurement-lab.org planetlab-1.ssvl.kth.se pl1.planetlab.ics.tut.ac.jp planetlab2.ntu.nodes.planet-lab.org node3.planet-lab.titech.ac.jp
+2010/02/28.0100.23 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 33 RR VPs left to try
+2010/02/28.0100.23 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using non_spoofed
+2010/02/28.0100.23 Issuing recordroutes: 2010.0228.0100.23 1
+2010/02/28.0100.26 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 32 RR VPs left to try
+2010/02/28.0100.26 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using mlab2.ham01.measurement-lab.org mlab3.ams02.measurement-lab.org planetlab4.williams.edu
+2010/02/28.0100.26 Issuing spoofed recordroutes: 2010.0228.0100.26
+2010/02/28.0100.37 planet1.scs.stanford.edu received 3 total responses from planetlab4.williams.edu 80.239.142.214 72.26.217.99
+2010/02/28.0100.37 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 29 RR VPs left to try
+2010/02/28.0100.37 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using mlab4.nuq01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com
+2010/02/28.0100.38 Issuing spoofed recordroutes: 2010.0228.0100.37
+2010/02/28.0100.53 planet1.scs.stanford.edu received 3 total responses from pli1-pa-4.hpl.hp.com 64.9.225.176 203.30.39.238
+2010/02/28.0100.53 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 26 RR VPs left to try
+2010/02/28.0100.53 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu planetlab1lannion.elibel.tm.fr
+2010/02/28.0100.54 Issuing spoofed recordroutes: 2010.0228.0100.53
+2010/02/28.0101.06 planet1.scs.stanford.edu received 3 total responses from planetlab1lannion.elibel.tm.fr planetlab1.pc.cis.udel.edu planetlab4.singaren.net.sg
+2010/02/28.0101.06 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 23 RR VPs left to try
+2010/02/28.0101.06 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using pl1.bit.uoit.ca mlab2.par01.measurement-lab.org mlab3.lga01.measurement-lab.org
+2010/02/28.0101.06 Issuing spoofed recordroutes: 2010.0228.0101.06
+2010/02/28.0101.17 planet1.scs.stanford.edu received 3 total responses from 74.63.50.35 80.239.168.214 pl1.bit.uoit.ca
+2010/02/28.0101.17 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 20 RR VPs left to try
+2010/02/28.0101.17 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using 75-130-96-13.static.oxfr.ma.charter.com mlab1.lhr01.measurement-lab.org mlab2.dfw01.measurement-lab.org
+2010/02/28.0101.17 Issuing spoofed recordroutes: 2010.0228.0101.17
+2010/02/28.0101.29 planet1.scs.stanford.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com 38.107.216.22 217.163.1.73
+2010/02/28.0101.29 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 17 RR VPs left to try
+2010/02/28.0101.29 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using node1.planetlab.albany.edu planetlab3-dsl.cs.cornell.edu planetlab-1.cs.uh.edu
+2010/02/28.0101.29 Issuing spoofed recordroutes: 2010.0228.0101.29
+2010/02/28.0101.39 planet1.scs.stanford.edu received 3 total responses from planetlab-1.cs.uh.edu planetlab3-dsl.cs.cornell.edu node1.planetlab.albany.edu
+2010/02/28.0101.39 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 14 RR VPs left to try
+2010/02/28.0101.40 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using planetlab1.uta.edu plnode-01.gpolab.bbn.com planetlab1.dojima.wide.ad.jp
+2010/02/28.0101.40 Issuing spoofed recordroutes: 2010.0228.0101.40
+2010/02/28.0101.53 planet1.scs.stanford.edu received 3 total responses from 192.1.249.20 planetlab1.dojima.wide.ad.jp planetlab1.uta.edu
+2010/02/28.0101.53 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 11 RR VPs left to try
+2010/02/28.0101.53 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using planetlab-01.kusa.ac.jp mlab2.lax01.measurement-lab.org planetlab3.postel.org
+2010/02/28.0101.53 Issuing spoofed recordroutes: 2010.0228.0101.53
+2010/02/28.0102.05 planet1.scs.stanford.edu received 3 total responses from 38.98.51.22 planetlab3.postel.org planetlab-01.kusa.ac.jp
+2010/02/28.0102.05 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 8 RR VPs left to try
+2010/02/28.0102.05 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using planetlabnode-1.docomolabs-usa.com planetlab2.cis.upenn.edu planetlab2.utdallas.edu
+2010/02/28.0102.05 Issuing spoofed recordroutes: 2010.0228.0102.05
+2010/02/28.0102.15 planet1.scs.stanford.edu received 3 total responses from planetlab2.cis.upenn.edu planetlab2.utdallas.edu planetlabnode-1.docomolabs-usa.com
+2010/02/28.0102.16 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 5 RR VPs left to try
+2010/02/28.0102.16 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using mlab1.sea01.measurement-lab.org planetlab-1.ssvl.kth.se pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0102.16 Issuing spoofed recordroutes: 2010.0228.0102.16
+2010/02/28.0102.27 planet1.scs.stanford.edu received 3 total responses from 38.102.0.73 pl1.planetlab.ics.tut.ac.jp planetlab-1.ssvl.kth.se
+2010/02/28.0102.27 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 2 RR VPs left to try
+2010/02/28.0102.27 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 using planetlab2.ntu.nodes.planet-lab.org node3.planet-lab.titech.ac.jp
+2010/02/28.0102.28 Issuing spoofed recordroutes: 2010.0228.0102.28
+2010/02/28.0102.38 planet1.scs.stanford.edu received 2 total responses from node3.planet-lab.titech.ac.jp planetlab2.ntu.nodes.planet-lab.org
+2010/02/28.0102.38 Adjacents for planet1.scs.stanford.edu 89.149.187.14 are 77.67.65.150 154.54.10.90 77.67.74.82 213.200.66.233 4.68.110.78 213.200.69.254 77.67.65.30 213.200.70.37 77.67.66.202 144.223.37.150 144.223.28.230 144.223.128.198 144.223.128.182 213.200.65.145 213.200.65.221 213.200.64.53 193.111.37.62 77.67.67.150 77.67.67.30 77.67.67.34 77.67.67.26 77.67.73.26 77.67.73.206 77.67.73.18 194.56.211.1 213.200.69.230 77.242.226.1 77.67.64.94 188.1.232.114 77.67.73.2 213.161.100.1 213.200.66.205 213.200.84.37 144.223.246.30 77.67.66.94 77.67.64.210 213.248.84.158 164.128.33.210 77.67.71.101 144.223.246.194 213.248.103.146 193.251.254.22 144.223.246.74 4.68.110.122 213.200.65.149 193.251.254.70 144.223.246.98 194.25.211.134 213.192.64.118 77.67.71.97 66.192.251.27 213.200.76.105 63.146.26.18 213.200.84.145 208.51.134.42 77.67.74.13 194.169.227.1 192.205.36.138 4.68.62.2 195.114.1.1 77.67.73.10
+2010/02/28.0102.38 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 61 TS adjacents left to try
+2010/02/28.0102.38 Issuing timestamps: 2010.0228.0102.38 1
+2010/02/28.0102.41 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32559307 77.67.65.150 0 77.67.65.150 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.41 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 60 TS adjacents left to try
+2010/02/28.0102.41 Issuing timestamps: 2010.0228.0102.41 1
+2010/02/28.0102.43 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32561772 154.54.10.90 0 154.54.10.90 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.43 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 59 TS adjacents left to try
+2010/02/28.0102.44 Issuing timestamps: 2010.0228.0102.43 1
+2010/02/28.0102.46 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32564406 77.67.74.82 0 77.67.74.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.46 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 58 TS adjacents left to try
+2010/02/28.0102.47 Issuing timestamps: 2010.0228.0102.46 1
+2010/02/28.0102.49 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32567600 213.200.66.233 0 213.200.66.233 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.49 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 57 TS adjacents left to try
+2010/02/28.0102.49 Issuing timestamps: 2010.0228.0102.49 1
+2010/02/28.0102.52 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32570159 4.68.110.78 0 4.68.110.78 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.52 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 56 TS adjacents left to try
+2010/02/28.0102.52 Issuing timestamps: 2010.0228.0102.52 1
+2010/02/28.0102.54 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32572712 213.200.69.254 0 213.200.69.254 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.54 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 55 TS adjacents left to try
+2010/02/28.0102.54 Issuing timestamps: 2010.0228.0102.54 1
+2010/02/28.0102.57 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32575318 77.67.65.30 0 77.67.65.30 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0102.57 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 54 TS adjacents left to try
+2010/02/28.0102.57 Issuing timestamps: 2010.0228.0102.57 1
+2010/02/28.0103.00 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32577996 213.200.70.37 0 213.200.70.37 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.00 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 53 TS adjacents left to try
+2010/02/28.0103.00 Issuing timestamps: 2010.0228.0103.00 1
+2010/02/28.0103.02 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32580649 77.67.66.202 0 77.67.66.202 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.02 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 52 TS adjacents left to try
+2010/02/28.0103.02 Issuing timestamps: 2010.0228.0103.02 1
+2010/02/28.0103.05 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32583293 144.223.37.150 0 144.223.37.150 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.05 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 51 TS adjacents left to try
+2010/02/28.0103.05 Issuing timestamps: 2010.0228.0103.05 1
+2010/02/28.0103.08 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32586117 144.223.28.230 0 144.223.28.230 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.08 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 50 TS adjacents left to try
+2010/02/28.0103.08 Issuing timestamps: 2010.0228.0103.08 1
+2010/02/28.0103.10 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32588631 144.223.128.198 0 144.223.128.198 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.10 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 49 TS adjacents left to try
+2010/02/28.0103.10 Issuing timestamps: 2010.0228.0103.10 1
+2010/02/28.0103.13 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32591171 144.223.128.182 0 144.223.128.182 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.13 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 48 TS adjacents left to try
+2010/02/28.0103.13 Issuing timestamps: 2010.0228.0103.13 1
+2010/02/28.0103.17 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32595234 213.200.65.145 0 213.200.65.145 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.17 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 47 TS adjacents left to try
+2010/02/28.0103.17 Issuing timestamps: 2010.0228.0103.17 1
+2010/02/28.0103.20 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32597886 213.200.65.221 0 213.200.65.221 0 128.208.3.77 0: no reverse hop found
+2010/02/28.0103.20 planet1.scs.stanford.edu 194.116.252.1 89.149.186.194 46 TS adjacents left to try
+2010/02/28.0103.20 Issuing timestamps: 2010.0228.0103.20 1
+2010/02/28.0103.22 TS probe is non_spoofed 89.149.186.194 89.149.186.194 32601024 213.200.64.53 32601038 213.200.64.53 32601038 128.208.3.77 0: reverse hop!
+2010/02/28.0103.23 REACHED
+2010/02/28.0103.23 FOUND
+2010/02/28.0103.23 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR,RevSegment_[89.149.186.194]_TSAdj,RevSegment_[213.200.64.53]_TSAdj
+2010/02/28.0103.23 NONE
+2010/02/28.0103.23 FAILED
+2010/02/28.0103.23 --------
+2010/02/28.0103.23 Checking planet1.scs.stanford.edu 194.116.252.1 213.200.64.53 for traceroutes to source
+2010/02/28.0103.23 Initializing RR VPs in a batch for 1
+2010/02/28.0103.23 Total VPs: 216
+2010/02/28.0103.23 Total spoofers: 160 at 75 sites
+2010/02/28.0103.24 Total up spoofers: 129 at 58 sites
+2010/02/28.0103.24 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0103.24 Found 30 spoofers of 129 for 213.200.64.53: mlab2.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com planetlab4.williams.edu pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg mlab3.ham01.measurement-lab.org planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu node2.planetlab.albany.edu mlab2.lga01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com plnode-02.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab3-dsl.cs.cornell.edu planetlab2lannion.elibel.tm.fr planetlab1.utdallas.edu planetlab2.postel.org planetlab0.dojima.wide.ad.jp planetlab-02.kusa.ac.jp mlab3.lax01.measurement-lab.org mlab3.sea01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab2.ams02.measurement-lab.org planetlab2.uta.edu planetlab2.cis.upenn.edu planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0103.24 planet1.scs.stanford.edu 194.116.252.1 213.200.64.53 31 RR VPs left to try
+2010/02/28.0103.24 planet1.scs.stanford.edu 194.116.252.1 213.200.64.53 using non_spoofed
+2010/02/28.0103.24 Issuing recordroutes: 2010.0228.0103.24 1
+2010/02/28.0103.27 REACHED
+2010/02/28.0103.27 FOUND
+2010/02/28.0103.27 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR,RevSegment_[89.149.186.194]_TSAdj,RevSegment_[213.200.64.53]_TSAdj,RevSegment_[154.54.28.94 154.54.30.233]_RR
+2010/02/28.0103.27 NONE
+2010/02/28.0103.27 FAILED
+2010/02/28.0103.27 --------
+2010/02/28.0103.27 Checking planet1.scs.stanford.edu 194.116.252.1 154.54.30.233 for traceroutes to source
+2010/02/28.0103.27 Checking planet1.scs.stanford.edu 194.116.252.1 154.54.28.94 for traceroutes to source
+2010/02/28.0103.27 REACHED
+2010/02/28.0103.27 RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR,RevSegment_[89.149.186.194]_TSAdj,RevSegment_[213.200.64.53]_TSAdj,RevSegment_[154.54.28.94 154.54.30.233]_RR,RevSegment_[130.117.1.202 130.117.50.218 130.117.3.166 130.117.49.53 130.117.50.26 154.54.30.85 154.54.25.137 154.54.24.33 154.54.29.149 154.54.6.158 154.54.6.161 154.54.0.178 66.250.7.138 68.65.168.40 171.66.3.181]_TRtoSrc
+2010/02/28.0103.28 FOUND
+2010/02/28.0103.28 NONE
+2010/02/28.0103.28 FAILED
+2010/02/28.0103.28 --------
+2010/02/28.0103.28 Total time: 349
+2010/02/28.0103.28 Total probes: rr=6 spoof-rr=68 tr=1 ts=18
+RevPath_D194.116.252.1_Splanet1.scs.stanford.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64]_RR,RevSegment_[89.149.186.194]_TSAdj,RevSegment_[213.200.64.53]_TSAdj,RevSegment_[154.54.28.94 154.54.30.233]_RR,RevSegment_[130.117.1.202 130.117.50.218 130.117.3.166 130.117.49.53 130.117.50.26 154.54.30.85 154.54.25.137 154.54.24.33 154.54.29.149 154.54.6.158 154.54.6.161 154.54.0.178 66.250.7.138 68.65.168.40 171.66.3.181]_TRtoSrc
+2010/02/28.0103.35 Issuing traceroutes: 2010.0228.0103.35 1
+2010/02/28.0103.36 Traceroutes for planet3.prakinf.tu-ilmenau.de
+2010/02/28.0103.36 Traceroute to 194.116.252.1 reaches for planet3.prakinf.tu-ilmenau.de 194.116.252.1
+2010/02/28.0103.36 Trying to find 1 hops from [77.242.225.6 77.67.75.150 89.149.186.194 188.1.232.114 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.0103.36 Rev Seg is 77.242.225.6
+2010/02/28.0103.36 Fwd planet3.prakinf.tu-ilmenau.de to 194.116.252.1: 141.24.35.253 188.1.238.1 188.1.144.198 188.1.145.198 188.1.232.114 89.149.186.194 77.67.75.150 77.242.225.6 194.116.252.1
+2010/02/28.0103.36 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0103.36 Initializing RR VPs in a batch for 1
+2010/02/28.0103.36 Total VPs: 216
+2010/02/28.0103.37 Total spoofers: 160 at 75 sites
+2010/02/28.0103.37 Total up spoofers: 129 at 58 sites
+2010/02/28.0103.37 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0103.37 Found 17 spoofers of 71 for 194.116.252.1: planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab3.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab1.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0103.37 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0103.37 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0103.37 Issuing recordroutes: 2010.0228.0103.37 1
+2010/02/28.0103.40 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0103.40 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.252.1 using planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab3.dfw01.measurement-lab.org
+2010/02/28.0103.40 Issuing spoofed recordroutes: 2010.0228.0103.40
+2010/02/28.0103.50 planet3.prakinf.tu-ilmenau.de received 2 total responses from 38.107.216.35 plab-2.sinp.msu.ru
+2010/02/28.0103.50 REACHED
+2010/02/28.0103.50 FOUND
+2010/02/28.0103.51 RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0103.51 NONE
+2010/02/28.0103.51 FAILED
+2010/02/28.0103.51 --------
+2010/02/28.0103.51 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0103.51 Initializing RR VPs in a batch for 1
+2010/02/28.0103.51 Total VPs: 216
+2010/02/28.0103.51 Total spoofers: 160 at 75 sites
+2010/02/28.0103.51 Total up spoofers: 129 at 58 sites
+2010/02/28.0103.51 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0103.52 Found 17 spoofers of 71 for 194.116.253.241: plab-2.sinp.msu.ru planetlab1.eecs.ucf.edu mlab3.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab3.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0103.52 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0103.52 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0103.52 Issuing recordroutes: 2010.0228.0103.52 1
+2010/02/28.0103.54 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0103.55 FOUND RECENT SPOOFER TO USE plab-2.sinp.msu.ru
+2010/02/28.0103.55 planet3.prakinf.tu-ilmenau.de 194.116.252.1 194.116.253.241 using plab-2.sinp.msu.ru planetlab1.eecs.ucf.edu mlab3.dfw01.measurement-lab.org
+2010/02/28.0103.55 Issuing spoofed recordroutes: 2010.0228.0103.55
+2010/02/28.0104.05 planet3.prakinf.tu-ilmenau.de received 2 total responses from 38.107.216.35 plab-2.sinp.msu.ru
+2010/02/28.0104.05 REACHED
+2010/02/28.0104.05 FOUND
+2010/02/28.0104.05 RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0104.05 NONE
+2010/02/28.0104.05 FAILED
+2010/02/28.0104.05 --------
+2010/02/28.0104.05 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 77.67.75.150 for traceroutes to source
+2010/02/28.0104.06 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0104.06 Initializing RR VPs in a batch for 2
+2010/02/28.0104.06 Total VPs: 216
+2010/02/28.0104.06 Total spoofers: 160 at 75 sites
+2010/02/28.0104.06 Total up spoofers: 129 at 58 sites
+2010/02/28.0104.06 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0104.07 Found 32 spoofers of 134 for 77.67.75.150: mlab2.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab1.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab3.ams02.measurement-lab.org mlab3.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab1.williams.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node1.planetlab.albany.edu mlab2.lga02.measurement-lab.org planetlab2.uta.edu planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp mlab1.lax01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab1.postel.org planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-01.gpolab.bbn.com planetlab1.utdallas.edu planetlab1.cis.upenn.edu mlab1.sea01.measurement-lab.org node3.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0104.07 Found 28 spoofers of 90 for 77.242.225.6: mlab3.ams02.measurement-lab.org mlab2.dfw01.measurement-lab.org mlab1.lhr01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab1.williams.edu planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab2.uta.edu node1.planetlab.albany.edu mlab2.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab1.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab1.dojima.wide.ad.jp planetlab1.postel.org plab-2.sinp.msu.ru planetlab2lannion.elibel.tm.fr planetlab-02.kusa.ac.jp plnode-01.gpolab.bbn.com mlab1.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0104.07 planet3.prakinf.tu-ilmenau.de 194.116.252.1 77.67.75.150 33 RR VPs left to try
+2010/02/28.0104.07 planet3.prakinf.tu-ilmenau.de 194.116.252.1 77.67.75.150 using non_spoofed
+2010/02/28.0104.07 Issuing recordroutes: 2010.0228.0104.07 1
+2010/02/28.0104.09 REACHED
+2010/02/28.0104.09 FOUND
+2010/02/28.0104.10 RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.102]_RR
+2010/02/28.0104.10 NONE
+2010/02/28.0104.10 FAILED
+2010/02/28.0104.10 --------
+2010/02/28.0104.10 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 213.200.87.102 for traceroutes to source
+2010/02/28.0104.10 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 213.200.87.64 for traceroutes to source
+2010/02/28.0104.10 Initializing RR VPs in a batch for 2
+2010/02/28.0104.10 Total VPs: 216
+2010/02/28.0104.10 Total spoofers: 160 at 75 sites
+2010/02/28.0104.11 Total up spoofers: 129 at 58 sites
+2010/02/28.0104.11 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0104.11 Found 30 spoofers of 129 for 213.200.87.64: mlab2.ham01.measurement-lab.org mlab1.lhr01.measurement-lab.org planetlab5.williams.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab1.par01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab3.dfw01.measurement-lab.org mlab1.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-1.cs.uh.edu mlab2.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-01.gpolab.bbn.com mlab1.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab1.postel.org planetlab1.dojima.wide.ad.jp planetlab2.cis.upenn.edu planetlab2.utdallas.edu mlab2.sea01.measurement-lab.org planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0104.11 Found 30 spoofers of 128 for 213.200.87.102: mlab2.ham01.measurement-lab.org planetlab1lannion.elibel.tm.fr mlab1.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab2.pc.cis.udel.edu pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab3.dfw01.measurement-lab.org mlab2.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com plnode-01.gpolab.bbn.com planetlab4.singaren.net.sg planetlab2.cis.upenn.edu node2.planetlab.albany.edu planetlab5.williams.edu mlab1.lhr01.measurement-lab.org mlab1.ams01.measurement-lab.org planetlab-1.cs.uh.edu planetlab1.uta.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu mlab1.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab1.postel.org planetlab1.dojima.wide.ad.jp planetlab2.utdallas.edu mlab2.sea01.measurement-lab.org planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0104.11 planet3.prakinf.tu-ilmenau.de 194.116.252.1 213.200.87.102 31 RR VPs left to try
+2010/02/28.0104.11 planet3.prakinf.tu-ilmenau.de 194.116.252.1 213.200.87.102 using non_spoofed
+2010/02/28.0104.11 Issuing recordroutes: 2010.0228.0104.11 1
+2010/02/28.0104.14 REACHED
+2010/02/28.0104.14 FOUND
+2010/02/28.0104.14 RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.102]_RR,RevSegment_[188.1.232.113 188.1.145.142 188.1.238.1 141.24.35.253]_RR
+2010/02/28.0104.14 NONE
+2010/02/28.0104.14 FAILED
+2010/02/28.0104.14 --------
+2010/02/28.0104.14 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 141.24.35.253 for traceroutes to source
+2010/02/28.0104.14 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 188.1.238.1 for traceroutes to source
+2010/02/28.0104.15 Checking planet3.prakinf.tu-ilmenau.de 194.116.252.1 188.1.145.142 for traceroutes to source
+2010/02/28.0104.15 Removing loopy hops 188.1.145.142 from RevSegment_[188.1.145.49 188.1.145.142 188.1.144.197 188.1.238.2 141.24.33.192]_S141.24.33.192_H188.1.145.101_TRtoSrc
+2010/02/28.0104.15 REACHED
+2010/02/28.0104.15 RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.102]_RR,RevSegment_[188.1.232.113 188.1.145.142 188.1.238.1 141.24.35.253]_RR,RevSegment_[188.1.145.49 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/28.0104.15 FOUND
+2010/02/28.0104.15 NONE
+2010/02/28.0104.16 FAILED
+2010/02/28.0104.16 --------
+2010/02/28.0104.16 Total time: 41
+2010/02/28.0104.16 Total probes: rr=4 spoof-rr=6 tr=1
+RevPath_D194.116.252.1_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.102]_RR,RevSegment_[188.1.232.113 188.1.145.142 188.1.238.1 141.24.35.253]_RR,RevSegment_[188.1.145.49 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/28.0104.21 Issuing traceroutes: 2010.0228.0104.21 1
+2010/02/28.0104.22 Traceroutes for planetlab3.csail.mit.edu
+2010/02/28.0104.22 Traceroute to 194.116.252.1 reaches for planetlab3.csail.mit.edu 194.116.252.1
+2010/02/28.0104.22 Trying to find 1 hops from [77.242.225.6 77.67.65.30 89.149.187.14 154.54.10.90 154.54.7.30 154.54.5.241 38.104.186.185 18.168.1.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/28.0104.23 Rev Seg is 77.242.225.6
+2010/02/28.0104.23 Fwd planetlab3.csail.mit.edu to 194.116.252.1: 128.31.1.2 128.30.0.245 18.4.7.1 18.168.1.50 38.104.186.185 154.54.5.241 154.54.7.30 154.54.10.90 89.149.187.14 77.67.65.30 77.242.225.6 194.116.252.1
+2010/02/28.0104.23 Checking planetlab3.csail.mit.edu 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0104.23 Initializing RR VPs in a batch for 1
+2010/02/28.0104.23 Total VPs: 216
+2010/02/28.0104.23 Total spoofers: 160 at 75 sites
+2010/02/28.0104.23 Total up spoofers: 129 at 58 sites
+2010/02/28.0104.23 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0104.23 Found 17 spoofers of 71 for 194.116.252.1: planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab3.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab1.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab3.lga01.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0104.24 planetlab3.csail.mit.edu 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0104.24 planetlab3.csail.mit.edu 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0104.24 Issuing recordroutes: 2010.0228.0104.24 1
+2010/02/28.0104.26 planetlab3.csail.mit.edu 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0104.26 planetlab3.csail.mit.edu 194.116.252.1 194.116.252.1 using planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab3.dfw01.measurement-lab.org
+2010/02/28.0104.26 Issuing spoofed recordroutes: 2010.0228.0104.26
+2010/02/28.0104.37 planetlab3.csail.mit.edu received 2 total responses from 38.107.216.35 plab-1.sinp.msu.ru
+2010/02/28.0104.37 REACHED
+2010/02/28.0104.37 FOUND
+2010/02/28.0104.37 RevPath_D194.116.252.1_Splanetlab3.csail.mit.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0104.37 NONE
+2010/02/28.0104.37 FAILED
+2010/02/28.0104.38 --------
+2010/02/28.0104.38 Checking planetlab3.csail.mit.edu 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0104.38 Initializing RR VPs in a batch for 1
+2010/02/28.0104.38 Total VPs: 216
+2010/02/28.0104.38 Total spoofers: 160 at 75 sites
+2010/02/28.0104.38 Total up spoofers: 129 at 58 sites
+2010/02/28.0104.38 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0104.38 Found 17 spoofers of 71 for 194.116.253.241: plab-2.sinp.msu.ru planetlab1.eecs.ucf.edu mlab3.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-5.hpl.hp.com planetlab3.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0104.38 planetlab3.csail.mit.edu 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0104.39 planetlab3.csail.mit.edu 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0104.39 Issuing recordroutes: 2010.0228.0104.39 1
+2010/02/28.0104.46 planetlab3.csail.mit.edu 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0104.46 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0104.46 planetlab3.csail.mit.edu 194.116.252.1 194.116.253.241 using plab-1.sinp.msu.ru plab-2.sinp.msu.ru planetlab1.eecs.ucf.edu
+2010/02/28.0104.46 Issuing spoofed recordroutes: 2010.0228.0104.46
+2010/02/28.0104.56 planetlab3.csail.mit.edu received 2 total responses from plab-2.sinp.msu.ru plab-1.sinp.msu.ru
+2010/02/28.0104.56 REACHED
+2010/02/28.0104.56 FOUND
+2010/02/28.0104.57 RevPath_D194.116.252.1_Splanetlab3.csail.mit.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0104.57 NONE
+2010/02/28.0104.57 FAILED
+2010/02/28.0104.57 --------
+2010/02/28.0104.57 Checking planetlab3.csail.mit.edu 194.116.252.1 77.67.75.150 for traceroutes to source
+2010/02/28.0104.57 Checking planetlab3.csail.mit.edu 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0104.57 Initializing RR VPs in a batch for 2
+2010/02/28.0104.57 Total VPs: 216
+2010/02/28.0104.57 Total spoofers: 160 at 75 sites
+2010/02/28.0104.58 Total up spoofers: 129 at 58 sites
+2010/02/28.0104.58 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0104.58 Found 32 spoofers of 134 for 77.67.75.150: mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab2.par01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab3.ams02.measurement-lab.org mlab2.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab5.williams.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node2.planetlab.albany.edu mlab3.lga02.measurement-lab.org planetlab1.uta.edu planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu planetlab-01.kusa.ac.jp mlab3.lax01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab3.postel.org planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab1.utdallas.edu planetlab1.cis.upenn.edu mlab1.sea01.measurement-lab.org node1.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0104.58 Found 28 spoofers of 90 for 77.242.225.6: mlab3.ams02.measurement-lab.org mlab3.dfw01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab5.williams.edu planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu planetlab1.uta.edu node2.planetlab.albany.edu mlab3.lga02.measurement-lab.org mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab1.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab1.dojima.wide.ad.jp planetlab3.postel.org plab-1.sinp.msu.ru planetlab2lannion.elibel.tm.fr planetlab-01.kusa.ac.jp plnode-02.gpolab.bbn.com mlab3.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0104.58 planetlab3.csail.mit.edu 194.116.252.1 77.67.75.150 33 RR VPs left to try
+2010/02/28.0104.58 planetlab3.csail.mit.edu 194.116.252.1 77.67.75.150 using non_spoofed
+2010/02/28.0104.58 Issuing recordroutes: 2010.0228.0104.58 1
+2010/02/28.0105.01 planetlab3.csail.mit.edu 194.116.252.1 77.67.75.150 32 RR VPs left to try
+2010/02/28.0105.01 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0105.01 planetlab3.csail.mit.edu 194.116.252.1 77.67.75.150 using plab-1.sinp.msu.ru mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com
+2010/02/28.0105.01 Issuing spoofed recordroutes: 2010.0228.0105.01
+2010/02/28.0105.11 planetlab3.csail.mit.edu received 3 total responses from pli1-pa-4.hpl.hp.com 38.107.216.35 plab-1.sinp.msu.ru
+2010/02/28.0105.11 REACHED
+2010/02/28.0105.11 FOUND
+2010/02/28.0105.11 RevPath_D194.116.252.1_Splanetlab3.csail.mit.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.12 154.54.28.94]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0105.11 NONE
+2010/02/28.0105.11 FAILED
+2010/02/28.0105.11 --------
+2010/02/28.0105.12 Checking planetlab3.csail.mit.edu 194.116.252.1 154.54.28.94 for traceroutes to source
+2010/02/28.0105.12 REACHED
+2010/02/28.0105.12 RevPath_D194.116.252.1_Splanetlab3.csail.mit.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.12 154.54.28.94]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[130.117.1.202 130.117.50.218 130.117.3.166 130.117.49.53 130.117.50.26 154.54.30.85 154.54.25.137 154.54.24.33 154.54.5.242 38.104.186.186 18.168.0.23 18.4.7.65 128.30.0.250 128.31.1.13]_TRtoSrc
+2010/02/28.0105.12 FOUND
+2010/02/28.0105.12 NONE
+2010/02/28.0105.12 FAILED
+2010/02/28.0105.12 --------
+2010/02/28.0105.12 Total time: 51
+2010/02/28.0105.12 Total probes: rr=3 spoof-rr=9 tr=1
+RevPath_D194.116.252.1_Splanetlab3.csail.mit.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.12 154.54.28.94]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[130.117.1.202 130.117.50.218 130.117.3.166 130.117.49.53 130.117.50.26 154.54.30.85 154.54.25.137 154.54.24.33 154.54.5.242 38.104.186.186 18.168.0.23 18.4.7.65 128.30.0.250 128.31.1.13]_TRtoSrc
+2010/02/28.0105.18 Issuing traceroutes: 2010.0228.0105.18 1
+2010/02/28.0105.20 Traceroutes for planetlab2.sfc.wide.ad.jp
+2010/02/28.0105.20 Traceroute to 194.116.252.1 reaches for planetlab2.sfc.wide.ad.jp 194.116.252.1
+2010/02/28.0105.20 Trying to find 1 hops from [77.242.225.6 77.67.65.30 89.149.185.50 206.223.116.19 129.250.5.81 203.105.72.157 203.105.72.17 203.178.141.142 203.178.136.65 203.178.136.73 203.178.136.93 203.178.137.75 203.178.143.1 planetlab2.sfc.wide.ad.jp]
+2010/02/28.0105.20 Rev Seg is 77.242.225.6
+2010/02/28.0105.21 Fwd planetlab2.sfc.wide.ad.jp to 194.116.252.1: 203.178.143.1 203.178.137.75 203.178.136.93 203.178.136.73 203.178.136.65 203.178.141.142 203.105.72.17 203.105.72.157 129.250.5.81 206.223.116.19 89.149.185.50 77.67.65.30 77.242.225.6 194.116.252.1
+2010/02/28.0105.21 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0105.21 Initializing RR VPs in a batch for 1
+2010/02/28.0105.21 Total VPs: 216
+2010/02/28.0105.21 Total spoofers: 160 at 75 sites
+2010/02/28.0105.21 Total up spoofers: 129 at 58 sites
+2010/02/28.0105.21 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0105.21 Found 17 spoofers of 71 for 194.116.252.1: planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab1.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-5.hpl.hp.com planetlab3.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab3.lga02.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0105.21 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0105.21 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0105.22 Issuing recordroutes: 2010.0228.0105.22 1
+2010/02/28.0105.24 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0105.24 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.252.1 using planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab1.dfw01.measurement-lab.org
+2010/02/28.0105.24 Issuing spoofed recordroutes: 2010.0228.0105.24
+2010/02/28.0105.35 planetlab2.sfc.wide.ad.jp received 2 total responses from plab-2.sinp.msu.ru 38.107.216.9
+2010/02/28.0105.35 REACHED
+2010/02/28.0105.35 FOUND
+2010/02/28.0105.35 RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0105.35 NONE
+2010/02/28.0105.35 FAILED
+2010/02/28.0105.35 --------
+2010/02/28.0105.36 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0105.36 Initializing RR VPs in a batch for 1
+2010/02/28.0105.36 Total VPs: 216
+2010/02/28.0105.36 Total spoofers: 160 at 75 sites
+2010/02/28.0105.36 Total up spoofers: 129 at 58 sites
+2010/02/28.0105.36 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0105.36 Found 17 spoofers of 71 for 194.116.253.241: plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu mlab1.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab3.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0105.36 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0105.36 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0105.37 Issuing recordroutes: 2010.0228.0105.37 1
+2010/02/28.0105.39 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0105.39 FOUND RECENT SPOOFER TO USE plab-2.sinp.msu.ru
+2010/02/28.0105.39 planetlab2.sfc.wide.ad.jp 194.116.252.1 194.116.253.241 using plab-2.sinp.msu.ru plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu
+2010/02/28.0105.39 Issuing spoofed recordroutes: 2010.0228.0105.39
+2010/02/28.0105.50 planetlab2.sfc.wide.ad.jp received 2 total responses from plab-1.sinp.msu.ru plab-2.sinp.msu.ru
+2010/02/28.0105.50 REACHED
+2010/02/28.0105.50 FOUND
+2010/02/28.0105.50 RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0105.50 NONE
+2010/02/28.0105.50 FAILED
+2010/02/28.0105.50 --------
+2010/02/28.0105.50 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 77.67.75.150 for traceroutes to source
+2010/02/28.0105.51 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0105.51 Initializing RR VPs in a batch for 2
+2010/02/28.0105.51 Total VPs: 216
+2010/02/28.0105.51 Total spoofers: 160 at 75 sites
+2010/02/28.0105.51 Total up spoofers: 129 at 58 sites
+2010/02/28.0105.51 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0105.51 Found 32 spoofers of 134 for 77.67.75.150: mlab1.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab1.par01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab1.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg planetlab5.williams.edu planetlab-1.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com node1.planetlab.albany.edu mlab3.lga01.measurement-lab.org planetlab2.uta.edu planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp mlab3.lax01.measurement-lab.org planetlab1lannion.elibel.tm.fr planetlab3.postel.org planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-01.gpolab.bbn.com planetlab2.utdallas.edu planetlab1.cis.upenn.edu mlab2.sea01.measurement-lab.org node3.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0105.52 Found 28 spoofers of 90 for 77.242.225.6: mlab2.ams01.measurement-lab.org mlab1.dfw01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab5.williams.edu planetlab4.singaren.net.sg planetlab2.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab2.uta.edu node1.planetlab.albany.edu mlab3.lga01.measurement-lab.org mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab2.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab1.dojima.wide.ad.jp planetlab3.postel.org plab-2.sinp.msu.ru planetlab1lannion.elibel.tm.fr planetlab-02.kusa.ac.jp plnode-01.gpolab.bbn.com mlab3.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0105.52 planetlab2.sfc.wide.ad.jp 194.116.252.1 77.67.75.150 33 RR VPs left to try
+2010/02/28.0105.52 planetlab2.sfc.wide.ad.jp 194.116.252.1 77.67.75.150 using non_spoofed
+2010/02/28.0105.52 Issuing recordroutes: 2010.0228.0105.52 1
+2010/02/28.0105.55 planetlab2.sfc.wide.ad.jp 194.116.252.1 77.67.75.150 32 RR VPs left to try
+2010/02/28.0105.55 FOUND RECENT SPOOFER TO USE plab-2.sinp.msu.ru
+2010/02/28.0105.55 planetlab2.sfc.wide.ad.jp 194.116.252.1 77.67.75.150 using plab-2.sinp.msu.ru mlab1.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com
+2010/02/28.0105.55 Issuing spoofed recordroutes: 2010.0228.0105.55
+2010/02/28.0106.05 planetlab2.sfc.wide.ad.jp received 3 total responses from pli1-pa-5.hpl.hp.com plab-2.sinp.msu.ru 38.107.216.9
+2010/02/28.0106.05 REACHED
+2010/02/28.0106.05 FOUND
+2010/02/28.0106.06 RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.40 129.250.0.79]_RR_SpfSrcpli1-pa-5.hpl.hp.com
+2010/02/28.0106.06 NONE
+2010/02/28.0106.06 FAILED
+2010/02/28.0106.06 --------
+2010/02/28.0106.06 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 129.250.0.79 for traceroutes to source
+2010/02/28.0106.06 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 213.200.87.40 for traceroutes to source
+2010/02/28.0106.06 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 213.200.87.64 for traceroutes to source
+2010/02/28.0106.06 Initializing RR VPs in a batch for 3
+2010/02/28.0106.06 Total VPs: 216
+2010/02/28.0106.07 Total spoofers: 160 at 75 sites
+2010/02/28.0106.07 Total up spoofers: 129 at 58 sites
+2010/02/28.0106.07 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0106.07 Found 35 spoofers of 124 for 129.250.0.79: pli1-pa-4.hpl.hp.com node1.planetlab.albany.edu mlab1.dfw01.measurement-lab.org planetlab-2.cs.uh.edu planetlab3.postel.org pl1.bit.uoit.ca mlab2.par01.measurement-lab.org mlab2.lga01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org plnode-02.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab3-dsl.cs.cornell.edu planetlab2.uta.edu planetlab1.iis.sinica.edu.tw mlab3.sea01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab1.lax01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab2.ams02.measurement-lab.org planetlab5.williams.edu mlab2.mia01.measurement-lab.org planetlab1.pc.cis.udel.edu planetlab1lannion.elibel.tm.fr planetlab2.utdallas.edu planetlab-2.cs.auckland.ac.nz planetlab-02.kusa.ac.jp planetlab0.dojima.wide.ad.jp plgmu2.ite.gmu.edu planetlab1.nvlab.org node4.planet-lab.titech.ac.jp pnode2.pdcc-ntu.singaren.net.sg planetlab2.sfc.wide.ad.jp planetlab4.singaren.net.sg planetlab-02.ece.uprm.edu
+2010/02/28.0106.07 Found 30 spoofers of 128 for 213.200.87.40: pl1.bit.uoit.ca pli1-pa-4.hpl.hp.com node1.planetlab.albany.edu mlab2.nuq01.measurement-lab.org mlab1.dfw01.measurement-lab.org mlab2.par01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg mlab2.lga01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com plnode-02.gpolab.bbn.com planetlab1.cis.upenn.edu planetlabnode-1.docomolabs-usa.com planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu planetlab2.uta.edu planetlab3.postel.org planetlab0.dojima.wide.ad.jp planetlab-02.kusa.ac.jp mlab1.ham01.measurement-lab.org mlab1.lax01.measurement-lab.org planetlab5.williams.edu mlab3.lhr01.measurement-lab.org mlab2.ams02.measurement-lab.org planetlab1lannion.elibel.tm.fr planetlab2.utdallas.edu mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0106.07 Found 30 spoofers of 129 for 213.200.87.64: mlab1.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab5.williams.edu planetlab1lannion.elibel.tm.fr pl1.bit.uoit.ca mlab2.par01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab1.dfw01.measurement-lab.org mlab2.ams02.measurement-lab.org mlab2.nuq01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab2.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-02.gpolab.bbn.com mlab1.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab3.postel.org planetlab0.dojima.wide.ad.jp planetlab1.cis.upenn.edu planetlab2.utdallas.edu mlab3.sea01.measurement-lab.org planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0106.07 planetlab2.sfc.wide.ad.jp 194.116.252.1 129.250.0.79 35 RR VPs left to try
+2010/02/28.0106.07 planetlab2.sfc.wide.ad.jp 194.116.252.1 129.250.0.79 using non_spoofed
+2010/02/28.0106.08 Issuing recordroutes: 2010.0228.0106.08 1
+2010/02/28.0106.10 planetlab2.sfc.wide.ad.jp 194.116.252.1 129.250.0.79 34 RR VPs left to try
+2010/02/28.0106.10 FOUND RECENT SPOOFER TO USE pli1-pa-5.hpl.hp.com
+2010/02/28.0106.10 planetlab2.sfc.wide.ad.jp 194.116.252.1 129.250.0.79 using pli1-pa-5.hpl.hp.com pli1-pa-4.hpl.hp.com node1.planetlab.albany.edu
+2010/02/28.0106.10 Issuing spoofed recordroutes: 2010.0228.0106.10
+2010/02/28.0106.21 planetlab2.sfc.wide.ad.jp received 3 total responses from node1.planetlab.albany.edu pli1-pa-5.hpl.hp.com pli1-pa-4.hpl.hp.com
+2010/02/28.0106.21 REACHED
+2010/02/28.0106.21 FOUND
+2010/02/28.0106.21 RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.40 129.250.0.79]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[129.250.0.124 203.105.72.17 203.178.141.142]_RR_SpfSrcnode1.planetlab.albany.edu
+2010/02/28.0106.21 NONE
+2010/02/28.0106.21 FAILED
+2010/02/28.0106.21 --------
+2010/02/28.0106.21 Checking planetlab2.sfc.wide.ad.jp 194.116.252.1 203.178.141.142 for traceroutes to source
+2010/02/28.0106.22 REACHED
+2010/02/28.0106.22 RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.40 129.250.0.79]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[129.250.0.124 203.105.72.17 203.178.141.142]_RR_SpfSrcnode1.planetlab.albany.edu,RevSegment_[203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28 203.178.143.28 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/28.0106.22 FOUND
+2010/02/28.0106.22 NONE
+2010/02/28.0106.22 FAILED
+2010/02/28.0106.22 --------
+2010/02/28.0106.22 Total time: 64
+2010/02/28.0106.22 Total probes: rr=4 spoof-rr=12 tr=1
+RevPath_D194.116.252.1_Splanetlab2.sfc.wide.ad.jp_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.75.150]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.40 129.250.0.79]_RR_SpfSrcpli1-pa-5.hpl.hp.com,RevSegment_[129.250.0.124 203.105.72.17 203.178.141.142]_RR_SpfSrcnode1.planetlab.albany.edu,RevSegment_[203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28 203.178.143.28 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/28.0106.28 Issuing traceroutes: 2010.0228.0106.28 1
+2010/02/28.0106.29 Traceroutes for planetlab2.ics.forth.gr
+2010/02/28.0106.29 Traceroute to 194.116.252.1 reaches for planetlab2.ics.forth.gr 194.116.252.1
+2010/02/28.0106.29 Trying to find 1 hops from [77.242.225.6 77.67.75.150 89.149.185.50 64.208.110.166 64.214.145.145 62.40.112.165 62.40.124.89 195.251.27.46 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.0106.30 Rev Seg is 77.242.225.6
+2010/02/28.0106.30 Fwd planetlab2.ics.forth.gr to 194.116.252.1: 139.91.90.253 139.91.34.85 195.251.24.173 195.251.27.46 62.40.124.89 62.40.112.165 64.214.145.145 64.208.110.166 89.149.185.50 77.67.75.150 77.242.225.6 194.116.252.1
+2010/02/28.0106.30 Checking planetlab2.ics.forth.gr 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0106.30 Initializing RR VPs in a batch for 1
+2010/02/28.0106.30 Total VPs: 216
+2010/02/28.0106.30 Total spoofers: 160 at 75 sites
+2010/02/28.0106.30 Total up spoofers: 129 at 58 sites
+2010/02/28.0106.30 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0106.30 Found 17 spoofers of 71 for 194.116.252.1: planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab1.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab1.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0106.31 planetlab2.ics.forth.gr 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0106.31 planetlab2.ics.forth.gr 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0106.31 Issuing recordroutes: 2010.0228.0106.31 1
+2010/02/28.0106.33 planetlab2.ics.forth.gr 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0106.33 planetlab2.ics.forth.gr 194.116.252.1 194.116.252.1 using planetlab1.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org
+2010/02/28.0106.34 Issuing spoofed recordroutes: 2010.0228.0106.33
+2010/02/28.0106.46 planetlab2.ics.forth.gr received 2 total responses from 38.107.216.22 plab-1.sinp.msu.ru
+2010/02/28.0106.46 REACHED
+2010/02/28.0106.46 FOUND
+2010/02/28.0106.46 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0106.46 NONE
+2010/02/28.0106.46 FAILED
+2010/02/28.0106.46 --------
+2010/02/28.0106.46 Checking planetlab2.ics.forth.gr 194.116.252.1 194.116.253.241 for traceroutes to source
+2010/02/28.0106.47 Initializing RR VPs in a batch for 1
+2010/02/28.0106.47 Total VPs: 216
+2010/02/28.0106.47 Total spoofers: 160 at 75 sites
+2010/02/28.0106.47 Total up spoofers: 129 at 58 sites
+2010/02/28.0106.47 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0106.47 Found 17 spoofers of 71 for 194.116.253.241: plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu mlab1.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab4.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab2.par01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab3.lga01.measurement-lab.org node1.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0106.47 planetlab2.ics.forth.gr 194.116.252.1 194.116.253.241 18 RR VPs left to try
+2010/02/28.0106.47 planetlab2.ics.forth.gr 194.116.252.1 194.116.253.241 using non_spoofed
+2010/02/28.0106.48 Issuing recordroutes: 2010.0228.0106.47 1
+2010/02/28.0106.50 planetlab2.ics.forth.gr 194.116.252.1 194.116.253.241 17 RR VPs left to try
+2010/02/28.0106.50 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0106.50 planetlab2.ics.forth.gr 194.116.252.1 194.116.253.241 using plab-1.sinp.msu.ru planetlab2.eecs.ucf.edu mlab1.dfw01.measurement-lab.org
+2010/02/28.0106.50 Issuing spoofed recordroutes: 2010.0228.0106.50
+2010/02/28.0107.01 planetlab2.ics.forth.gr received 2 total responses from plab-1.sinp.msu.ru 38.107.216.9
+2010/02/28.0107.01 REACHED
+2010/02/28.0107.01 FOUND
+2010/02/28.0107.01 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0107.01 NONE
+2010/02/28.0107.01 FAILED
+2010/02/28.0107.01 --------
+2010/02/28.0107.01 Checking planetlab2.ics.forth.gr 194.116.252.1 77.67.65.30 for traceroutes to source
+2010/02/28.0107.02 Checking planetlab2.ics.forth.gr 194.116.252.1 77.242.225.6 for traceroutes to source
+2010/02/28.0107.02 Initializing RR VPs in a batch for 2
+2010/02/28.0107.02 Total VPs: 216
+2010/02/28.0107.02 Total spoofers: 160 at 75 sites
+2010/02/28.0107.02 Total up spoofers: 129 at 58 sites
+2010/02/28.0107.02 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0107.02 Found 32 spoofers of 134 for 77.67.65.30: mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab5.williams.edu planetlab4.singaren.net.sg mlab3.ham01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab2.uta.edu node1.planetlab.albany.edu mlab2.lga02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com plnode-02.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab2lannion.elibel.tm.fr planetlab1.utdallas.edu planetlab3.postel.org planetlab0.dojima.wide.ad.jp planetlab-01.kusa.ac.jp mlab3.lax01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab3.ams02.measurement-lab.org planetlab1.cis.upenn.edu mlab3.sea01.measurement-lab.org node1.planet-lab.titech.ac.jp planetlab-1.ssvl.kth.se planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0107.02 Found 28 spoofers of 90 for 77.242.225.6: mlab3.ams02.measurement-lab.org mlab3.dfw01.measurement-lab.org mlab3.lhr01.measurement-lab.org pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab5.williams.edu planetlab4.singaren.net.sg planetlab1.pc.cis.udel.edu planetlab-1.cs.uh.edu planetlab2.uta.edu node1.planetlab.albany.edu mlab2.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab1.utdallas.edu planetlabnode-1.docomolabs-usa.com planetlab0.dojima.wide.ad.jp planetlab3.postel.org plab-2.sinp.msu.ru planetlab2lannion.elibel.tm.fr planetlab-01.kusa.ac.jp plnode-02.gpolab.bbn.com mlab3.lax01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.0107.03 planetlab2.ics.forth.gr 194.116.252.1 77.67.65.30 33 RR VPs left to try
+2010/02/28.0107.03 planetlab2.ics.forth.gr 194.116.252.1 77.67.65.30 using non_spoofed
+2010/02/28.0107.03 Issuing recordroutes: 2010.0228.0107.03 1
+2010/02/28.0107.05 planetlab2.ics.forth.gr 194.116.252.1 77.67.65.30 32 RR VPs left to try
+2010/02/28.0107.05 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0107.05 planetlab2.ics.forth.gr 194.116.252.1 77.67.65.30 using plab-1.sinp.msu.ru mlab3.dfw01.measurement-lab.org pli1-pa-4.hpl.hp.com
+2010/02/28.0107.06 Issuing spoofed recordroutes: 2010.0228.0107.06
+2010/02/28.0107.16 planetlab2.ics.forth.gr received 3 total responses from pli1-pa-4.hpl.hp.com plab-1.sinp.msu.ru 38.107.216.35
+2010/02/28.0107.16 REACHED
+2010/02/28.0107.16 FOUND
+2010/02/28.0107.16 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.100 80.91.255.103]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0107.16 NONE
+2010/02/28.0107.16 FAILED
+2010/02/28.0107.17 --------
+2010/02/28.0107.17 Checking planetlab2.ics.forth.gr 194.116.252.1 80.91.255.103 for traceroutes to source
+2010/02/28.0107.17 Checking planetlab2.ics.forth.gr 194.116.252.1 213.200.87.100 for traceroutes to source
+2010/02/28.0107.17 Checking planetlab2.ics.forth.gr 194.116.252.1 213.200.87.64 for traceroutes to source
+2010/02/28.0107.17 Initializing RR VPs in a batch for 3
+2010/02/28.0107.17 Total VPs: 216
+2010/02/28.0107.17 Total spoofers: 160 at 75 sites
+2010/02/28.0107.17 Total up spoofers: 129 at 58 sites
+2010/02/28.0107.17 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0107.18 Found 30 spoofers of 129 for 213.200.87.64: mlab2.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org planetlab2.williams.edu planetlab2lannion.elibel.tm.fr pl1.bit.uoit.ca mlab1.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab3.dfw01.measurement-lab.org mlab2.ams02.measurement-lab.org mlab4.nuq01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab1.lga02.measurement-lab.org node1.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu plnode-01.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org planetlab1.dojima.wide.ad.jp planetlab1.cis.upenn.edu planetlab1.utdallas.edu mlab2.sea01.measurement-lab.org planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0107.18 Found 37 spoofers of 141 for 80.91.255.103: planetlab2.williams.edu mlab2.ham01.measurement-lab.org mlab1.par01.measurement-lab.org mlab3.lhr01.measurement-lab.org pl1.bit.uoit.ca mlab2.ams02.measurement-lab.org pli1-pa-5.hpl.hp.com planetlab4.singaren.net.sg pnode2.pdcc-ntu.singaren.net.sg node1.planetlab.albany.edu mlab4.nuq01.measurement-lab.org planetlab1.uta.edu mlab1.lga02.measurement-lab.org mlab2.lax01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu mlab2.mia01.measurement-lab.org planetlab-2.cs.uh.edu planetlab1.utdallas.edu planetlab1.dojima.wide.ad.jp planetlab-02.kusa.ac.jp mlab3.dfw01.measurement-lab.org plgmu4.ite.gmu.edu planetlab2.utep.edu plnode-01.gpolab.bbn.com node1.planet-lab.titech.ac.jp planetlab2lannion.elibel.tm.fr planetlab2.postel.org planetlab-1.ssvl.kth.se planetlab-01.ece.uprm.edu planetlabnode-1.docomolabs-usa.com planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru planetlab2.pop-rs.rnp.br pl1.planetlab.ics.tut.ac.jp mlab2.sea01.measurement-lab.org
+2010/02/28.0107.18 Found 30 spoofers of 128 for 213.200.87.100: planetlab2.williams.edu pli1-pa-5.hpl.hp.com mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.lhr01.measurement-lab.org mlab1.par01.measurement-lab.org mlab2.ams02.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab2.ham01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg planetlab4.singaren.net.sg 75-130-96-13.static.oxfr.ma.charter.com planetlab-2.cs.uh.edu mlab1.lga02.measurement-lab.org node1.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-02.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab2lannion.elibel.tm.fr plnode-01.gpolab.bbn.com mlab2.lax01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab2.postel.org planetlab1.dojima.wide.ad.jp planetlab1.cis.upenn.edu planetlab1.utdallas.edu mlab2.sea01.measurement-lab.org planetlab1.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0107.18 planetlab2.ics.forth.gr 194.116.252.1 80.91.255.103 38 RR VPs left to try
+2010/02/28.0107.18 planetlab2.ics.forth.gr 194.116.252.1 80.91.255.103 using non_spoofed
+2010/02/28.0107.19 Issuing recordroutes: 2010.0228.0107.19 1
+2010/02/28.0107.21 planetlab2.ics.forth.gr 194.116.252.1 80.91.255.103 37 RR VPs left to try
+2010/02/28.0107.21 FOUND RECENT SPOOFER TO USE pli1-pa-4.hpl.hp.com
+2010/02/28.0107.21 planetlab2.ics.forth.gr 194.116.252.1 80.91.255.103 using pli1-pa-4.hpl.hp.com planetlab2.williams.edu mlab2.ham01.measurement-lab.org
+2010/02/28.0107.21 Issuing spoofed recordroutes: 2010.0228.0107.21
+2010/02/28.0107.32 planetlab2.ics.forth.gr received 3 total responses from pli1-pa-4.hpl.hp.com planetlab2.williams.edu 80.239.142.214
+2010/02/28.0107.32 REACHED
+2010/02/28.0107.32 FOUND
+2010/02/28.0107.32 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.100 80.91.255.103]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[213.248.64.225]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0107.32 NONE
+2010/02/28.0107.32 FAILED
+2010/02/28.0107.32 --------
+2010/02/28.0107.32 Checking planetlab2.ics.forth.gr 194.116.252.1 213.248.64.225 for traceroutes to source
+2010/02/28.0107.33 Initializing RR VPs in a batch for 1
+2010/02/28.0107.33 Total VPs: 216
+2010/02/28.0107.33 Total spoofers: 160 at 75 sites
+2010/02/28.0107.33 Total up spoofers: 129 at 58 sites
+2010/02/28.0107.33 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0107.33 Found 38 spoofers of 149 for 213.248.64.225: mlab3.par01.measurement-lab.org mlab2.ham01.measurement-lab.org pl1.bit.uoit.ca pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab4.singaren.net.sg node1.planetlab.albany.edu mlab2.nuq01.measurement-lab.org planetlab2.uta.edu mlab3.lga01.measurement-lab.org mlab3.lax01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab3.ams02.measurement-lab.org planetlab1.williams.edu mlab3.lhr01.measurement-lab.org node4.planet-lab.titech.ac.jp planetlab-2.cs.uh.edu planetlab1.utdallas.edu planetlab1.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab3-dsl.cs.cornell.edu planetlab1.dojima.wide.ad.jp mlab2.dfw01.measurement-lab.org mlab3.mia01.measurement-lab.org planetlab1.utep.edu plnode-02.gpolab.bbn.com planetlab4.postel.org planetlab-1.ssvl.kth.se planetlab-02.ece.uprm.edu plgmu2.ite.gmu.edu planetlab1lannion.elibel.tm.fr mlab3.sea01.measurement-lab.org planetlab2.pop-rs.rnp.br planetlab1.ntu.nodes.planet-lab.org plab-1.sinp.msu.ru adam.ee.ntu.edu.tw planetlab1.eurecom.fr pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0107.33 planetlab2.ics.forth.gr 194.116.252.1 213.248.64.225 39 RR VPs left to try
+2010/02/28.0107.33 planetlab2.ics.forth.gr 194.116.252.1 213.248.64.225 using non_spoofed
+2010/02/28.0107.33 Issuing recordroutes: 2010.0228.0107.33 1
+2010/02/28.0107.36 planetlab2.ics.forth.gr 194.116.252.1 213.248.64.225 38 RR VPs left to try
+2010/02/28.0107.36 FOUND RECENT SPOOFER TO USE pli1-pa-4.hpl.hp.com
+2010/02/28.0107.36 planetlab2.ics.forth.gr 194.116.252.1 213.248.64.225 using pli1-pa-4.hpl.hp.com mlab3.par01.measurement-lab.org mlab2.ham01.measurement-lab.org
+2010/02/28.0107.36 Issuing spoofed recordroutes: 2010.0228.0107.36
+2010/02/28.0107.47 planetlab2.ics.forth.gr received 3 total responses from pli1-pa-4.hpl.hp.com 80.239.142.214 80.239.168.227
+2010/02/28.0107.47 REACHED
+2010/02/28.0107.47 FOUND
+2010/02/28.0107.47 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.100 80.91.255.103]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[213.248.64.225]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[80.91.250.66 80.91.255.123]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0107.47 NONE
+2010/02/28.0107.47 FAILED
+2010/02/28.0107.47 --------
+2010/02/28.0107.47 Checking planetlab2.ics.forth.gr 194.116.252.1 80.91.255.123 for traceroutes to source
+2010/02/28.0107.47 Checking planetlab2.ics.forth.gr 194.116.252.1 80.91.250.66 for traceroutes to source
+2010/02/28.0107.48 REACHED
+2010/02/28.0107.48 RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.100 80.91.255.103]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[213.248.64.225]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[80.91.250.66 80.91.255.123]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[203.181.248.154 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 62.40.125.17 62.40.112.37 62.40.112.5 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.0107.48 FOUND
+2010/02/28.0107.48 NONE
+2010/02/28.0107.48 FAILED
+2010/02/28.0107.48 --------
+2010/02/28.0107.48 Total time: 80
+2010/02/28.0107.48 Total probes: rr=5 spoof-rr=15 tr=1
+RevPath_D194.116.252.1_Splanetlab2.ics.forth.gr_RevSegment_[194.116.252.1]_Dst,RevSegment_[194.116.253.241]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[77.242.225.6 77.67.65.30]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[213.200.87.64 213.200.87.100 80.91.255.103]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[213.248.64.225]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[80.91.250.66 80.91.255.123]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[203.181.248.154 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 62.40.125.17 62.40.112.37 62.40.112.5 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.0107.56 Issuing traceroutes: 2010.0228.0107.56 1
+2010/02/28.0107.58 Traceroutes for planetlab2.uta.edu
+2010/02/28.0107.58 Traceroute to 194.116.252.1 reaches for planetlab2.uta.edu 194.116.252.1
+2010/02/28.0107.58 Trying to find 1 hops from [194.116.253.244 77.67.75.150 89.149.185.50 154.54.10.130 154.54.7.46 154.54.27.101 38.104.34.125 129.107.35.49 129.107.35.129 planetlab2.uta.edu]
+2010/02/28.0107.58 Rev Seg is 194.116.253.244
+2010/02/28.0107.58 Fwd planetlab2.uta.edu to 194.116.252.1: 129.107.35.129 129.107.35.49 38.104.34.125 154.54.27.101 154.54.7.46 154.54.10.130 89.149.185.50 77.67.75.150 194.116.253.244 194.116.252.1
+2010/02/28.0107.58 Checking planetlab2.uta.edu 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0107.58 Initializing RR VPs in a batch for 1
+2010/02/28.0107.58 Total VPs: 216
+2010/02/28.0107.58 Total spoofers: 160 at 75 sites
+2010/02/28.0107.58 Total up spoofers: 129 at 58 sites
+2010/02/28.0107.59 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0107.59 Found 17 spoofers of 71 for 194.116.252.1: planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab1.dfw01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg pli1-pa-5.hpl.hp.com planetlab5.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab2.nuq01.measurement-lab.org mlab3.par01.measurement-lab.org mlab2.ham01.measurement-lab.org mlab1.lga02.measurement-lab.org node2.planetlab.albany.edu planetlab1.uta.edu planetlab2.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0107.59 planetlab2.uta.edu 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0107.59 planetlab2.uta.edu 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0107.59 Issuing recordroutes: 2010.0228.0107.59 1
+2010/02/28.0108.01 planetlab2.uta.edu 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0108.02 planetlab2.uta.edu 194.116.252.1 194.116.252.1 using planetlab2.eecs.ucf.edu plab-2.sinp.msu.ru mlab1.dfw01.measurement-lab.org
+2010/02/28.0108.02 Issuing spoofed recordroutes: 2010.0228.0108.02
+2010/02/28.0108.12 planetlab2.uta.edu received 2 total responses from 38.107.216.9 plab-2.sinp.msu.ru
+2010/02/28.0108.12 REACHED
+2010/02/28.0108.12 FOUND
+2010/02/28.0108.12 RevPath_D194.116.252.1_Splanetlab2.uta.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.0108.13 NONE
+2010/02/28.0108.13 FAILED
+2010/02/28.0108.13 --------
+2010/02/28.0108.13 Checking planetlab2.uta.edu 194.116.252.1 193.111.37.118 for traceroutes to source
+2010/02/28.0108.13 Initializing RR VPs in a batch for 1
+2010/02/28.0108.13 Total VPs: 216
+2010/02/28.0108.13 Total spoofers: 160 at 75 sites
+2010/02/28.0108.13 Total up spoofers: 129 at 58 sites
+2010/02/28.0108.13 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0108.14 Found 10 spoofers of 80 for 193.111.37.118: plab-1.sinp.msu.ru planetlabnode-1.docomolabs-usa.com planetlab1.uta.edu planetlab6.cs.uiuc.edu mlab3.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.ham01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab1.utdallas.edu planetlab4.williams.edu
+2010/02/28.0108.14 planetlab2.uta.edu 194.116.252.1 193.111.37.118 11 RR VPs left to try
+2010/02/28.0108.14 planetlab2.uta.edu 194.116.252.1 193.111.37.118 using non_spoofed
+2010/02/28.0108.14 Issuing recordroutes: 2010.0228.0108.14 1
+2010/02/28.0108.17 planetlab2.uta.edu 194.116.252.1 193.111.37.118 10 RR VPs left to try
+2010/02/28.0108.17 FOUND RECENT SPOOFER TO USE plab-2.sinp.msu.ru
+2010/02/28.0108.17 planetlab2.uta.edu 194.116.252.1 193.111.37.118 using plab-2.sinp.msu.ru plab-1.sinp.msu.ru planetlabnode-1.docomolabs-usa.com
+2010/02/28.0108.17 Issuing spoofed recordroutes: 2010.0228.0108.17
+2010/02/28.0108.28 planetlab2.uta.edu received 3 total responses from plab-2.sinp.msu.ru plab-1.sinp.msu.ru planetlabnode-1.docomolabs-usa.com
+2010/02/28.0108.28 REACHED
+2010/02/28.0108.28 FOUND
+2010/02/28.0108.28 RevPath_D194.116.252.1_Splanetlab2.uta.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[80.81.192.227 72.52.92.90]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0108.28 NONE
+2010/02/28.0108.28 FAILED
+2010/02/28.0108.28 --------
+2010/02/28.0108.28 Checking planetlab2.uta.edu 194.116.252.1 72.52.92.90 for traceroutes to source
+2010/02/28.0108.29 Checking planetlab2.uta.edu 194.116.252.1 80.81.192.227 for traceroutes to source
+2010/02/28.0108.29 Initializing RR VPs in a batch for 2
+2010/02/28.0108.29 Total VPs: 216
+2010/02/28.0108.29 Total spoofers: 160 at 75 sites
+2010/02/28.0108.29 Total up spoofers: 129 at 58 sites
+2010/02/28.0108.29 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0108.29 Found 28 spoofers of 114 for 80.81.192.227: planetlab4.williams.edu pnode2.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab5.cs.uiuc.edu plnode-01.gpolab.bbn.com planetlab2lannion.elibel.tm.fr planetlab2.postel.org node1.planetlab.albany.edu mlab3.dfw01.measurement-lab.org planetlabnode-1.docomolabs-usa.com planetlab-2.cs.uh.edu planetlab-2.cs.auckland.ac.nz mlab3.lax01.measurement-lab.org planetlab2.pc.cis.udel.edu mlab3.lga02.measurement-lab.org pl1.bit.uoit.ca 75-130-96-13.static.oxfr.ma.charter.com mlab2.ham01.measurement-lab.org mlab2.par01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab4.singaren.net.sg mlab2.ams01.measurement-lab.org planetlab3-dsl.cs.cornell.edu planetlab1.dojima.wide.ad.jp planetlab-02.kusa.ac.jp planetlab1.eecs.ucf.edu planetlab1.sfc.wide.ad.jp planetlab2.uta.edu
+2010/02/28.0108.30 Found 28 spoofers of 89 for 72.52.92.90: 75-130-96-13.static.oxfr.ma.charter.com planetlab1.eecs.ucf.edu pli1-pa-4.hpl.hp.com planetlab2.uta.edu planetlabnode-1.docomolabs-usa.com pnode2.pdcc-ntu.singaren.net.sg planetlab2.iis.sinica.edu.tw planetlab2.utdallas.edu planetlab4.singaren.net.sg mlab3.lhr01.measurement-lab.org mlab2.sea01.measurement-lab.org mlab2.par01.measurement-lab.org mlab2.nuq01.measurement-lab.org mlab2.ham01.measurement-lab.org planetlab2.postel.org planetlab-1.ssvl.kth.se planetlab3-dsl.cs.cornell.edu planetlab2.ntu.nodes.planet-lab.org mlab3.lax01.measurement-lab.org planetlab5.cs.uiuc.edu node1.planetlab.albany.edu planetlab2.pc.cis.udel.edu ent2.cs.nccu.edu.tw planetlab-2.cs.auckland.ac.nz planetlab-2.cs.uh.edu mlab2.ams01.measurement-lab.org mlab3.lga02.measurement-lab.org adam.ee.ntu.edu.tw
+2010/02/28.0108.30 planetlab2.uta.edu 194.116.252.1 72.52.92.90 28 RR VPs left to try
+2010/02/28.0108.30 planetlab2.uta.edu 194.116.252.1 72.52.92.90 using non_spoofed
+2010/02/28.0108.30 Issuing recordroutes: 2010.0228.0108.30 1
+2010/02/28.0108.32 planetlab2.uta.edu 194.116.252.1 72.52.92.90 27 RR VPs left to try
+2010/02/28.0108.32 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0108.32 planetlab2.uta.edu 194.116.252.1 72.52.92.90 using plab-1.sinp.msu.ru 75-130-96-13.static.oxfr.ma.charter.com planetlab1.eecs.ucf.edu
+2010/02/28.0108.33 Issuing spoofed recordroutes: 2010.0228.0108.32
+2010/02/28.0108.43 planetlab2.uta.edu received 0 total responses from 
+2010/02/28.0108.43 planetlab2.uta.edu 194.116.252.1 72.52.92.90 25 RR VPs left to try
+2010/02/28.0108.43 planetlab2.uta.edu 194.116.252.1 72.52.92.90 using pli1-pa-4.hpl.hp.com planetlabnode-1.docomolabs-usa.com pnode2.pdcc-ntu.singaren.net.sg
+2010/02/28.0108.43 Issuing spoofed recordroutes: 2010.0228.0108.43
+2010/02/28.0108.54 planetlab2.uta.edu received 0 total responses from 
+2010/02/28.0108.54 planetlab2.uta.edu 194.116.252.1 72.52.92.90 22 RR VPs left to try
+2010/02/28.0108.54 planetlab2.uta.edu 194.116.252.1 72.52.92.90 using planetlab2.iis.sinica.edu.tw planetlab2.utdallas.edu planetlab4.singaren.net.sg
+2010/02/28.0108.54 Issuing spoofed recordroutes: 2010.0228.0108.54
+2010/02/28.0109.04 planetlab2.uta.edu received 0 total responses from 
+2010/02/28.0109.04 Current hop 72.52.92.90/72.52.92.90 seems to be unresponsive for planetlab2.uta.edu 194.116.252.1
+2010/02/28.0109.04 planetlab2.uta.edu 194.116.252.1 80.81.192.227 28 RR VPs left to try
+2010/02/28.0109.04 planetlab2.uta.edu 194.116.252.1 80.81.192.227 using non_spoofed
+2010/02/28.0109.05 Issuing recordroutes: 2010.0228.0109.04 1
+2010/02/28.0109.07 Current hop 72.52.92.90/72.52.92.90 seems to be unresponsive for planetlab2.uta.edu 194.116.252.1
+2010/02/28.0109.07 planetlab2.uta.edu 194.116.252.1 80.81.192.227 27 RR VPs left to try
+2010/02/28.0109.07 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0109.07 planetlab2.uta.edu 194.116.252.1 80.81.192.227 using plab-1.sinp.msu.ru planetlab4.williams.edu pnode2.pdcc-ntu.singaren.net.sg
+2010/02/28.0109.07 Issuing spoofed recordroutes: 2010.0228.0109.07
+2010/02/28.0109.17 planetlab2.uta.edu received 1 total responses from plab-1.sinp.msu.ru
+2010/02/28.0109.17 Current hop 72.52.92.90/72.52.92.90 seems to be unresponsive for planetlab2.uta.edu 194.116.252.1
+2010/02/28.0109.17 planetlab2.uta.edu 194.116.252.1 80.81.192.227 25 RR VPs left to try
+2010/02/28.0109.17 planetlab2.uta.edu 194.116.252.1 80.81.192.227 using pli1-pa-4.hpl.hp.com planetlab5.cs.uiuc.edu plnode-01.gpolab.bbn.com
+2010/02/28.0109.17 Issuing spoofed recordroutes: 2010.0228.0109.17
+2010/02/28.0109.27 planetlab2.uta.edu received 3 total responses from pli1-pa-4.hpl.hp.com 72.36.112.78 192.1.249.20
+2010/02/28.0109.27 Removing loopy hops 72.52.92.90 from RevSegment_[72.52.92.90]_Splanetlab2.uta.edu_H80.81.192.227_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0109.27 Skipping loop-causing segment RevSegment_[]_Splanetlab2.uta.edu_H80.81.192.227_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0109.27 Removing loopy hops 72.52.92.90 from RevSegment_[72.52.92.90 72.52.92.34]_Splanetlab2.uta.edu_H80.81.192.227_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0109.28 Removing loopy hops 72.52.92.90 from RevSegment_[72.52.92.90 72.52.92.34 72.52.92.242]_Splanetlab2.uta.edu_H80.81.192.227_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0109.28 REACHED
+2010/02/28.0109.28 FOUND
+2010/02/28.0109.28 RevPath_D194.116.252.1_Splanetlab2.uta.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[80.81.192.227 72.52.92.90]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[72.52.92.34 72.52.92.242]_RR_SpfSrcpli1-pa-4.hpl.hp.com
+2010/02/28.0109.28 NONE
+2010/02/28.0109.28 FAILED
+2010/02/28.0109.28 --------
+2010/02/28.0109.28 Checking planetlab2.uta.edu 194.116.252.1 72.52.92.242 for traceroutes to source
+2010/02/28.0109.28 REACHED
+2010/02/28.0109.28 RevPath_D194.116.252.1_Splanetlab2.uta.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[80.81.192.227 72.52.92.90]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[72.52.92.34 72.52.92.242]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[72.52.92.77 72.52.92.86 72.52.92.61 216.66.73.226 208.76.224.237 129.107.35.50 129.107.35.132]_TRtoSrc
+2010/02/28.0109.29 FOUND
+2010/02/28.0109.29 NONE
+2010/02/28.0109.29 FAILED
+2010/02/28.0109.29 --------
+2010/02/28.0109.29 Total time: 93
+2010/02/28.0109.29 Total probes: rr=4 spoof-rr=21 tr=1
+RevPath_D194.116.252.1_Splanetlab2.uta.edu_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[80.81.192.227 72.52.92.90]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[72.52.92.34 72.52.92.242]_RR_SpfSrcpli1-pa-4.hpl.hp.com,RevSegment_[72.52.92.77 72.52.92.86 72.52.92.61 216.66.73.226 208.76.224.237 129.107.35.50 129.107.35.132]_TRtoSrc
+2010/02/28.0109.35 Issuing traceroutes: 2010.0228.0109.34 1
+2010/02/28.0109.36 Traceroutes for planetlab3.upc.es
+2010/02/28.0109.36 Traceroute to 194.116.252.1 reaches for planetlab3.upc.es 194.116.252.1
+2010/02/28.0109.36 Trying to find 1 hops from [193.111.37.118 193.111.37.150 195.81.72.162 84.233.213.41 84.233.138.209 212.23.42.30 212.23.42.26 89.202.161.22 193.149.1.42 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.0109.36 Rev Seg is 193.111.37.118
+2010/02/28.0109.36 Fwd planetlab3.upc.es to 194.116.252.1: 147.83.30.130 10.10.100.13 10.10.124.50 10.10.124.14 84.88.18.17 130.206.202.29 130.206.250.25 193.149.1.42 89.202.161.22 212.23.42.26 212.23.42.30 84.233.138.209 84.233.213.41 195.81.72.162 193.111.37.150 193.111.37.118 194.116.252.1
+2010/02/28.0109.36 Checking planetlab3.upc.es 194.116.252.1 194.116.252.1 for traceroutes to source
+2010/02/28.0109.37 Initializing RR VPs in a batch for 1
+2010/02/28.0109.37 Total VPs: 216
+2010/02/28.0109.37 Total spoofers: 160 at 75 sites
+2010/02/28.0109.37 Total up spoofers: 129 at 58 sites
+2010/02/28.0109.37 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0109.37 Found 17 spoofers of 71 for 194.116.252.1: planetlab2.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg pli1-pa-4.hpl.hp.com planetlab4.williams.edu planetlab4.singaren.net.sg pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab1.ham01.measurement-lab.org mlab2.lga01.measurement-lab.org node2.planetlab.albany.edu planetlab2.uta.edu planetlab1.pc.cis.udel.edu planetlab-2.cs.uh.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.0109.37 planetlab3.upc.es 194.116.252.1 194.116.252.1 18 RR VPs left to try
+2010/02/28.0109.37 planetlab3.upc.es 194.116.252.1 194.116.252.1 using non_spoofed
+2010/02/28.0109.37 Issuing recordroutes: 2010.0228.0109.37 1
+2010/02/28.0109.40 planetlab3.upc.es 194.116.252.1 194.116.252.1 17 RR VPs left to try
+2010/02/28.0109.40 planetlab3.upc.es 194.116.252.1 194.116.252.1 using planetlab2.eecs.ucf.edu plab-1.sinp.msu.ru mlab2.dfw01.measurement-lab.org
+2010/02/28.0109.40 Issuing spoofed recordroutes: 2010.0228.0109.40
+2010/02/28.0109.50 planetlab3.upc.es received 2 total responses from 38.107.216.22 plab-1.sinp.msu.ru
+2010/02/28.0109.50 REACHED
+2010/02/28.0109.51 FOUND
+2010/02/28.0109.51 RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0109.51 NONE
+2010/02/28.0109.51 FAILED
+2010/02/28.0109.51 --------
+2010/02/28.0109.51 Checking planetlab3.upc.es 194.116.252.1 193.111.37.118 for traceroutes to source
+2010/02/28.0109.51 Initializing RR VPs in a batch for 1
+2010/02/28.0109.51 Total VPs: 216
+2010/02/28.0109.51 Total spoofers: 160 at 75 sites
+2010/02/28.0109.51 Total up spoofers: 129 at 58 sites
+2010/02/28.0109.51 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0109.52 Found 10 spoofers of 80 for 193.111.37.118: plab-1.sinp.msu.ru planetlabnode-1.docomolabs-usa.com planetlab2.uta.edu planetlab4.cs.uiuc.edu mlab1.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab2.ham01.measurement-lab.org planetlab2lannion.elibel.tm.fr planetlab1.utdallas.edu planetlab5.williams.edu
+2010/02/28.0109.52 planetlab3.upc.es 194.116.252.1 193.111.37.118 11 RR VPs left to try
+2010/02/28.0109.52 planetlab3.upc.es 194.116.252.1 193.111.37.118 using non_spoofed
+2010/02/28.0109.52 Issuing recordroutes: 2010.0228.0109.52 1
+2010/02/28.0109.55 planetlab3.upc.es 194.116.252.1 193.111.37.118 10 RR VPs left to try
+2010/02/28.0109.55 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0109.55 planetlab3.upc.es 194.116.252.1 193.111.37.118 using plab-1.sinp.msu.ru planetlabnode-1.docomolabs-usa.com planetlab2.uta.edu
+2010/02/28.0109.55 Issuing spoofed recordroutes: 2010.0228.0109.55
+2010/02/28.0110.06 planetlab3.upc.es received 3 total responses from planetlab2.uta.edu planetlabnode-1.docomolabs-usa.com plab-1.sinp.msu.ru
+2010/02/28.0110.06 REACHED
+2010/02/28.0110.06 FOUND
+2010/02/28.0110.06 RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.81.72.166 84.233.213.2]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.0110.06 NONE
+2010/02/28.0110.06 FAILED
+2010/02/28.0110.06 --------
+2010/02/28.0110.06 Checking planetlab3.upc.es 194.116.252.1 84.233.213.2 for traceroutes to source
+2010/02/28.0110.07 Checking planetlab3.upc.es 194.116.252.1 195.81.72.166 for traceroutes to source
+2010/02/28.0110.07 Initializing RR VPs in a batch for 2
+2010/02/28.0110.07 Total VPs: 216
+2010/02/28.0110.07 Total spoofers: 160 at 75 sites
+2010/02/28.0110.07 Total up spoofers: 129 at 58 sites
+2010/02/28.0110.07 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0110.08 Found 13 spoofers of 77 for 195.81.72.166: mlab1.lhr01.measurement-lab.org mlab2.ams01.measurement-lab.org mlab3.ham01.measurement-lab.org planetlab2lannion.elibel.tm.fr mlab3.par01.measurement-lab.org mlab2.dfw01.measurement-lab.org planetlab-1.cs.uh.edu pli1-pa-4.hpl.hp.com planetlab2.williams.edu planetlab-1.ssvl.kth.se plab-2.sinp.msu.ru planetlab2.uta.edu pl1.bit.uoit.ca
+2010/02/28.0110.08 Found 24 spoofers of 99 for 84.233.213.2: planetlab2lannion.elibel.tm.fr mlab2.ams01.measurement-lab.org mlab3.ham01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab3.par01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab2.dfw01.measurement-lab.org planetlab2.uta.edu planetlab-1.ssvl.kth.se planetlab-1.cs.uh.edu planetlab1.utdallas.edu pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com node2.planetlab.albany.edu planetlab1.pc.cis.udel.edu pl1.planetlab.ics.tut.ac.jp planetlab4.singaren.net.sg pnode1.pdcc-ntu.singaren.net.sg mlab3.lga01.measurement-lab.org planetlab2.williams.edu 75-130-96-13.static.oxfr.ma.charter.com planetlab-node3.it-sudparis.eu plab-2.sinp.msu.ru planetlab2.eurecom.fr
+2010/02/28.0110.08 planetlab3.upc.es 194.116.252.1 84.233.213.2 25 RR VPs left to try
+2010/02/28.0110.08 planetlab3.upc.es 194.116.252.1 84.233.213.2 using non_spoofed
+2010/02/28.0110.08 Issuing recordroutes: 2010.0228.0110.08 1
+2010/02/28.0110.10 planetlab3.upc.es 194.116.252.1 84.233.213.2 24 RR VPs left to try
+2010/02/28.0110.10 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0110.11 planetlab3.upc.es 194.116.252.1 84.233.213.2 using plab-1.sinp.msu.ru planetlab2lannion.elibel.tm.fr mlab2.ams01.measurement-lab.org
+2010/02/28.0110.11 Issuing spoofed recordroutes: 2010.0228.0110.11
+2010/02/28.0110.22 planetlab3.upc.es received 3 total responses from plab-1.sinp.msu.ru planetlab2lannion.elibel.tm.fr 213.244.128.150
+2010/02/28.0110.22 planetlab3.upc.es 194.116.252.1 84.233.213.2 22 RR VPs left to try
+2010/02/28.0110.22 planetlab3.upc.es 194.116.252.1 84.233.213.2 using mlab3.ham01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab3.par01.measurement-lab.org
+2010/02/28.0110.22 Issuing spoofed recordroutes: 2010.0228.0110.22
+2010/02/28.0110.33 planetlab3.upc.es received 3 total responses from 80.239.168.227 217.163.1.73 80.239.142.227
+2010/02/28.0110.33 planetlab3.upc.es 194.116.252.1 84.233.213.2 19 RR VPs left to try
+2010/02/28.0110.33 planetlab3.upc.es 194.116.252.1 84.233.213.2 using pli1-pa-4.hpl.hp.com mlab2.dfw01.measurement-lab.org planetlab2.uta.edu
+2010/02/28.0110.34 Issuing spoofed recordroutes: 2010.0228.0110.34
+2010/02/28.0110.44 planetlab3.upc.es received 2 total responses from planetlab2.uta.edu 38.107.216.22
+2010/02/28.0110.44 planetlab3.upc.es 194.116.252.1 84.233.213.2 16 RR VPs left to try
+2010/02/28.0110.44 planetlab3.upc.es 194.116.252.1 84.233.213.2 using planetlab-1.ssvl.kth.se planetlab-1.cs.uh.edu planetlab1.utdallas.edu
+2010/02/28.0110.44 Issuing spoofed recordroutes: 2010.0228.0110.44
+2010/02/28.0110.55 planetlab3.upc.es received 3 total responses from planetlab-1.cs.uh.edu planetlab-1.ssvl.kth.se planetlab1.utdallas.edu
+2010/02/28.0110.55 planetlab3.upc.es 194.116.252.1 84.233.213.2 13 RR VPs left to try
+2010/02/28.0110.55 planetlab3.upc.es 194.116.252.1 84.233.213.2 using pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com node2.planetlab.albany.edu
+2010/02/28.0110.55 Issuing spoofed recordroutes: 2010.0228.0110.55
+2010/02/28.0111.05 planetlab3.upc.es received 3 total responses from node2.planetlab.albany.edu pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com
+2010/02/28.0111.05 planetlab3.upc.es 194.116.252.1 84.233.213.2 10 RR VPs left to try
+2010/02/28.0111.05 planetlab3.upc.es 194.116.252.1 84.233.213.2 using planetlab1.pc.cis.udel.edu pl1.planetlab.ics.tut.ac.jp planetlab4.singaren.net.sg
+2010/02/28.0111.05 Issuing spoofed recordroutes: 2010.0228.0111.05
+2010/02/28.0111.16 planetlab3.upc.es received 3 total responses from planetlab1.pc.cis.udel.edu planetlab4.singaren.net.sg pl1.planetlab.ics.tut.ac.jp
+2010/02/28.0111.16 planetlab3.upc.es 194.116.252.1 84.233.213.2 7 RR VPs left to try
+2010/02/28.0111.16 planetlab3.upc.es 194.116.252.1 84.233.213.2 using pnode1.pdcc-ntu.singaren.net.sg mlab3.lga01.measurement-lab.org planetlab2.williams.edu
+2010/02/28.0111.16 Issuing spoofed recordroutes: 2010.0228.0111.16
+2010/02/28.0111.27 planetlab3.upc.es received 2 total responses from 74.63.50.35 203.30.39.238
+2010/02/28.0111.27 planetlab3.upc.es 194.116.252.1 84.233.213.2 4 RR VPs left to try
+2010/02/28.0111.27 planetlab3.upc.es 194.116.252.1 84.233.213.2 using 75-130-96-13.static.oxfr.ma.charter.com planetlab-node3.it-sudparis.eu plab-2.sinp.msu.ru
+2010/02/28.0111.27 Issuing spoofed recordroutes: 2010.0228.0111.27
+2010/02/28.0111.38 planetlab3.upc.es received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com planetlab-node3.it-sudparis.eu plab-2.sinp.msu.ru
+2010/02/28.0111.38 planetlab3.upc.es 194.116.252.1 84.233.213.2 1 RR VPs left to try
+2010/02/28.0111.38 planetlab3.upc.es 194.116.252.1 84.233.213.2 using planetlab2.eurecom.fr
+2010/02/28.0111.38 Issuing spoofed recordroutes: 2010.0228.0111.38
+2010/02/28.0111.48 planetlab3.upc.es received 1 total responses from planetlab2.eurecom.fr
+2010/02/28.0111.48 planetlab3.upc.es 194.116.252.1 195.81.72.166 14 RR VPs left to try
+2010/02/28.0111.48 planetlab3.upc.es 194.116.252.1 195.81.72.166 using non_spoofed
+2010/02/28.0111.48 Issuing recordroutes: 2010.0228.0111.48 1
+2010/02/28.0111.51 Removing loopy hops 84.233.213.2 from RevSegment_[84.233.213.2]_Splanetlab3.upc.es_H195.81.72.166_RR
+2010/02/28.0111.51 Skipping loop-causing segment RevSegment_[]_Splanetlab3.upc.es_H195.81.72.166_RR
+2010/02/28.0111.51 planetlab3.upc.es 194.116.252.1 195.81.72.166 13 RR VPs left to try
+2010/02/28.0111.51 FOUND RECENT SPOOFER TO USE plab-1.sinp.msu.ru
+2010/02/28.0111.51 planetlab3.upc.es 194.116.252.1 195.81.72.166 using plab-1.sinp.msu.ru mlab1.lhr01.measurement-lab.org mlab2.ams01.measurement-lab.org
+2010/02/28.0111.51 Issuing spoofed recordroutes: 2010.0228.0111.51
+2010/02/28.0112.02 planetlab3.upc.es received 3 total responses from 217.163.1.73 213.244.128.150 plab-1.sinp.msu.ru
+2010/02/28.0112.02 planetlab3.upc.es 194.116.252.1 195.81.72.166 11 RR VPs left to try
+2010/02/28.0112.02 planetlab3.upc.es 194.116.252.1 195.81.72.166 using mlab3.ham01.measurement-lab.org planetlab2lannion.elibel.tm.fr mlab3.par01.measurement-lab.org
+2010/02/28.0112.02 Issuing spoofed recordroutes: 2010.0228.0112.02
+2010/02/28.0112.13 planetlab3.upc.es received 3 total responses from planetlab2lannion.elibel.tm.fr 80.239.142.227 80.239.168.227
+2010/02/28.0112.13 Removing loopy hops 84.233.213.2 from RevSegment_[84.233.213.2]_Splanetlab3.upc.es_H195.81.72.166_RR_SpfSrcplanetlab2lannion.elibel.tm.fr
+2010/02/28.0112.13 Skipping loop-causing segment RevSegment_[]_Splanetlab3.upc.es_H195.81.72.166_RR_SpfSrcplanetlab2lannion.elibel.tm.fr
+2010/02/28.0112.13 Removing loopy hops 84.233.213.2 from RevSegment_[84.233.213.2 84.233.213.29]_Splanetlab3.upc.es_H195.81.72.166_RR_SpfSrcplanetlab2lannion.elibel.tm.fr
+2010/02/28.0112.13 Removing loopy hops 84.233.213.2 from RevSegment_[84.233.213.2 84.233.213.29 212.23.38.220]_Splanetlab3.upc.es_H195.81.72.166_RR_SpfSrcplanetlab2lannion.elibel.tm.fr
+2010/02/28.0112.13 REACHED
+2010/02/28.0112.13 FOUND
+2010/02/28.0112.14 RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.81.72.166 84.233.213.2]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[84.233.213.29 212.23.38.220]_RR_SpfSrcplanetlab2lannion.elibel.tm.fr
+2010/02/28.0112.15 NONE
+2010/02/28.0112.15 FAILED
+2010/02/28.0112.15 --------
+2010/02/28.0112.15 Checking planetlab3.upc.es 194.116.252.1 212.23.38.220 for traceroutes to source
+2010/02/28.0112.15 Checking planetlab3.upc.es 194.116.252.1 84.233.213.29 for traceroutes to source
+2010/02/28.0112.15 Initializing RR VPs in a batch for 2
+2010/02/28.0112.15 Total VPs: 216
+2010/02/28.0112.15 Total spoofers: 160 at 75 sites
+2010/02/28.0112.16 Total up spoofers: 129 at 58 sites
+2010/02/28.0112.16 Final total spoofers to use: 1 each at 58 sites
+2010/02/28.0112.16 Found 26 spoofers of 112 for 212.23.38.220: planetlab1lannion.elibel.tm.fr mlab2.ams01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab2.par01.measurement-lab.org mlab2.dfw01.measurement-lab.org pli1-pa-5.hpl.hp.com pl1.bit.uoit.ca planetlab-1.ssvl.kth.se node1.planetlab.albany.edu planetlab1.uta.edu planetlab4.singaren.net.sg planetlab-2.cs.uh.edu pnode1.pdcc-ntu.singaren.net.sg planetlab1.pc.cis.udel.edu planetlabnode-1.docomolabs-usa.com plab-1.sinp.msu.ru 75-130-96-13.static.oxfr.ma.charter.com planetlab2.utdallas.edu mlab2.lga01.measurement-lab.org planetlab4.williams.edu pl1.planetlab.ics.tut.ac.jp planetlab-node3.it-sudparis.eu planetlab1.dojima.wide.ad.jp planetlab2.eurecom.fr mlab1.lax01.measurement-lab.org plnode-01.gpolab.bbn.com
+2010/02/28.0112.16 Found 24 spoofers of 99 for 84.233.213.29: planetlab1lannion.elibel.tm.fr mlab2.ams01.measurement-lab.org mlab2.ham01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab2.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab2.dfw01.measurement-lab.org planetlab1.uta.edu planetlab-1.ssvl.kth.se planetlab-2.cs.uh.edu planetlab2.utdallas.edu pl1.bit.uoit.ca planetlabnode-1.docomolabs-usa.com node1.planetlab.albany.edu planetlab1.pc.cis.udel.edu pl1.planetlab.ics.tut.ac.jp planetlab4.singaren.net.sg pnode1.pdcc-ntu.singaren.net.sg mlab2.lga01.measurement-lab.org planetlab4.williams.edu 75-130-96-13.static.oxfr.ma.charter.com planetlab-node3.it-sudparis.eu plab-1.sinp.msu.ru planetlab2.eurecom.fr
+2010/02/28.0112.16 planetlab3.upc.es 194.116.252.1 212.23.38.220 27 RR VPs left to try
+2010/02/28.0112.16 planetlab3.upc.es 194.116.252.1 212.23.38.220 using non_spoofed
+2010/02/28.0112.16 Issuing recordroutes: 2010.0228.0112.16 1
+2010/02/28.0112.19 planetlab3.upc.es 194.116.252.1 212.23.38.220 26 RR VPs left to try
+2010/02/28.0112.19 FOUND RECENT SPOOFER TO USE planetlab2lannion.elibel.tm.fr
+2010/02/28.0112.19 planetlab3.upc.es 194.116.252.1 212.23.38.220 using planetlab2lannion.elibel.tm.fr planetlab1lannion.elibel.tm.fr mlab2.ams01.measurement-lab.org
+2010/02/28.0112.19 Issuing spoofed recordroutes: 2010.0228.0112.19
+2010/02/28.0112.30 planetlab3.upc.es received 3 total responses from 213.244.128.150 planetlab2lannion.elibel.tm.fr planetlab1lannion.elibel.tm.fr
+2010/02/28.0112.30 REACHED
+2010/02/28.0112.30 FOUND
+2010/02/28.0112.30 RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.81.72.166 84.233.213.2]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[84.233.213.29 212.23.38.220]_RR_SpfSrcplanetlab2lannion.elibel.tm.fr,RevSegment_[193.149.1.42 130.206.206.247]_RR_SpfSrcplanetlab1lannion.elibel.tm.fr
+2010/02/28.0112.30 NONE
+2010/02/28.0112.30 FAILED
+2010/02/28.0112.30 --------
+2010/02/28.0112.30 Checking planetlab3.upc.es 194.116.252.1 130.206.206.247 for traceroutes to source
+2010/02/28.0112.31 REACHED
+2010/02/28.0112.31 RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.81.72.166 84.233.213.2]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[84.233.213.29 212.23.38.220]_RR_SpfSrcplanetlab2lannion.elibel.tm.fr,RevSegment_[193.149.1.42 130.206.206.247]_RR_SpfSrcplanetlab1lannion.elibel.tm.fr,RevSegment_[130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164 147.83.30.164 0.0.0.0 147.83.30.164]_TRtoSrc
+2010/02/28.0112.31 FOUND
+2010/02/28.0112.31 NONE
+2010/02/28.0112.31 FAILED
+2010/02/28.0112.31 --------
+2010/02/28.0112.31 Total time: 177
+2010/02/28.0112.31 Total probes: rr=5 spoof-rr=40 tr=1
+RevPath_D194.116.252.1_Splanetlab3.upc.es_RevSegment_[194.116.252.1]_Dst,RevSegment_[193.111.37.118]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[195.81.72.166 84.233.213.2]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[84.233.213.29 212.23.38.220]_RR_SpfSrcplanetlab2lannion.elibel.tm.fr,RevSegment_[193.149.1.42 130.206.206.247]_RR_SpfSrcplanetlab1lannion.elibel.tm.fr,RevSegment_[130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164 147.83.30.164 0.0.0.0 147.83.30.164]_TRtoSrc
+2010/02/28.0112.38 Issuing traceroutes: 2010.0228.0112.38 1
+2010/02/28.0112.40 Total time: 2
+2010/02/28.0112.40 Total probes: tr=1
