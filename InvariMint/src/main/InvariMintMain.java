@@ -138,21 +138,6 @@ public class InvariMintMain {
             // algorithm model.
             equalToStdAlg = invMintAlg.compareToStandardAlg();
         }
-
-        // Export in LTS format if requested
-        if (opts.outputLTS) {
-            logger.info("Exporting final graph in LTS format...");
-            long startTime = System.currentTimeMillis();
-
-            // TODO: Remove this fake var and deal with actual Invarimint
-            // partition graph
-            PartitionGraph pGraph = null;
-            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph,
-                    "Synoptic");
-
-            logger.info("Exporting in LTS format took "
-                    + (System.currentTimeMillis() - startTime) + "ms");
-        }
     }
 
     public InvsModel getInvariMintModel() {
@@ -309,6 +294,21 @@ public class InvariMintMain {
                 invID++;
 
             }
+        }
+
+        // Export in LTS format if requested
+        if (opts.outputLTS) {
+            logger.info("Exporting final graph in LTS format...");
+            startTime = System.currentTimeMillis();
+
+            // TODO: Remove this fake var and deal with actual Invarimint
+            // partition graph
+            PartitionGraph pGraph = null;
+            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph,
+                    "Synoptic");
+
+            logger.info("Exporting in LTS format took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
 }
