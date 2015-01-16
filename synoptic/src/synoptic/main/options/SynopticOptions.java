@@ -233,6 +233,13 @@ public class SynopticOptions extends Options {
     public boolean exportAsGML = false;
 
     /**
+     * Output the LTS representation of the final model to the output prefix
+     * specified by -o or -output-prefix.
+     */
+    @Option(value = AbstractOptions.outputLTSStr, aliases = { "-lts" })
+    public boolean outputLTS = false;
+
+    /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
@@ -508,6 +515,7 @@ public class SynopticOptions extends Options {
         absOpts.outputSupportCount = outputSupportCount;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
         absOpts.exportAsGML = exportAsGML;
+        absOpts.outputLTS = outputLTS;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputEdgeLabels = outputEdgeLabels;
         absOpts.showTerminalNode = showTerminalNode;
