@@ -266,16 +266,7 @@ public class Bisimulation {
 
         // Constrained invariant
         if (counterexampleTrace.invariant instanceof TempConstrainedInvariant<?>) {
-
-            // Find splits for the unconstrained version of the invariant first,
-            // then find constrained splits if necessary
-            List<PartitionSplit> unconstrainedSplits = getSplitsUnconstrained(
-                    counterexampleTrace, pGraph);
-
-            if (unconstrainedSplits == null || unconstrainedSplits.isEmpty()) {
-                return getSplitsConstrained(counterexampleTrace, pGraph);
-            }
-            return unconstrainedSplits;
+            return getSplitsConstrained(counterexampleTrace, pGraph);
         }
 
         // Unconstrained invariant
