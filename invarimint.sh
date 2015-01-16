@@ -3,4 +3,4 @@
 # Runs InvariMint from the compiled class files, passing all command
 # line argument directly to main().
 
-java -ea -cp ./lib/junit-4.9b2.jar:./lib/automaton.jar:./lib/plume.jar:./synoptic/bin/:./InvariMint/bin/ main.InvariMintMain $*
+java -ea -cp "./synoptic/bin/:./InvariMint/bin/:./daikonizer/bin/:./lib/*" main.InvariMintMain $*
