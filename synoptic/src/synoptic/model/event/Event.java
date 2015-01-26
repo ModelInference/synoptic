@@ -1,8 +1,10 @@
 package synoptic.model.event;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import synoptic.model.resource.Resource;
 import synoptic.util.time.ITime;
 
 /**
@@ -36,6 +38,11 @@ public class Event {
     private ITime time;
 
     /**
+     * The resources associated with this event
+     */
+    private final HashMap<String, Resource<?>> resources;
+
+    /**
      * The complete log line corresponding to this event.
      */
     private final String logLine;
@@ -66,6 +73,7 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
+        this.resources = new HashMap<String, Resource<?>>();
     }
 
     /**
@@ -207,6 +215,14 @@ public class Event {
      */
     public ITime getTime() {
         return time;
+    }
+
+    public Resource<?> getResource(String type) {
+        return resources.get(time);
+    }
+
+    public void addResource(String type, Resource<?> res) {
+        resources.put(type, res);
     }
 
     public String getLine() {
