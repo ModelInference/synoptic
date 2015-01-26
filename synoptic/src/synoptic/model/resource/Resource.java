@@ -23,8 +23,12 @@ public class Resource<E extends Number & Comparable<E>> implements
         resourceVal = val;
     }
 
+    /**
+     * Compares two resources of the same type based on the resource value.
+     */
     @Override
     public int compareTo(Resource<E> o) {
+        assert (resourceType.equals(o.resourceType));
         return resourceVal.compareTo(o.resourceVal);
     }
 
