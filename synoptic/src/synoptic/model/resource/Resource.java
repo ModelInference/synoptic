@@ -1,42 +1,33 @@
 package synoptic.model.resource;
 
 /**
- * Represents a mined resource with the resource type and resource value for
- * Perfume. A resource is a key identifying the resource, and a number (any of
- * int, float, double etc)
+ * A non-time resource with its type and value
  */
-public class Resource<E extends Number & Comparable<E>> implements
-        Comparable<Resource<E>> {
+public class Resource<E extends Number & Comparable<E>> implements IResource<E> {
 
-    /**
-     * The resource type used to identify this resource
-     */
     private String resourceType;
-
-    /**
-     * The value of this resource
-     */
     private E resourceVal;
 
-    public Resource(String type, E val) {
+    public Resource(String type, E value) {
         resourceType = type;
-        resourceVal = val;
+        resourceVal = value;
     }
 
-    /**
-     * Compares two resources of the same type based on the resource value.
-     */
     @Override
-    public int compareTo(Resource<E> o) {
-        assert (resourceType.equals(o.resourceType));
-        return resourceVal.compareTo(o.resourceVal);
+    public int compareTo(IResource<E> o) {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
+    @Override
     public String getResourceType() {
         return resourceType;
     }
 
+    @Override
     public E getResourceVal() {
         return resourceVal;
     }
+    //
+
 }
