@@ -14,9 +14,15 @@ public class Resource<E extends Number & Comparable<E>> implements IResource<E> 
     }
 
     @Override
-    public int compareTo(IResource<E> o) {
-        // TODO Auto-generated method stub
-        return 0;
+    public int compareTo(IResource<E> res) {
+        if (!(res instanceof Resource<?>)) {
+            throw new NonComparableResourceException(this, res);
+        }
+        Resource<E> resource = (Resource<E>) res;
+        if (!(resourceType.equals(resource.resourceType))) {
+            throw new NonComparableResourceException(this, res);
+        }
+        return resourceVal.compareTo(resource.resourceVal);
     }
 
     @Override
