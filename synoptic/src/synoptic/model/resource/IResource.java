@@ -9,7 +9,8 @@ public interface IResource<E extends Comparable<E>> extends
         Comparable<IResource<E>> {
 
     /**
-     * Compares two resources of the same type based on the resource value.
+     * Compares two resources of the same resource type based on the resource
+     * value.
      * 
      * @return
      */

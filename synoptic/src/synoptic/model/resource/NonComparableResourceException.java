@@ -1,5 +1,9 @@
 package synoptic.model.resource;
 
+/**
+ * Exception representing a mismatch in resource type when trying to compare to
+ * resources
+ */
 public class NonComparableResourceException extends RuntimeException {
 
     /**
