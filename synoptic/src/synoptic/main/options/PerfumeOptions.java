@@ -208,6 +208,12 @@ public class PerfumeOptions extends Options {
     public boolean outputInvariantsToFile = false;
 
     /**
+     * Do not output the final model unless a format is explicitly requested.
+     */
+    @Option(AbstractOptions.noModelOutputStr)
+    public boolean noModelOutput = false;
+
+    /**
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
@@ -492,6 +498,7 @@ public class PerfumeOptions extends Options {
 
         AbstractOptions.outputPathPrefix = outputPathPrefix;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
+        absOpts.noModelOutput = noModelOutput;
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputEdgeLabels = outputEdgeLabels;
