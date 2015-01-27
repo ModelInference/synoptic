@@ -881,8 +881,7 @@ public abstract class AbstractMain {
             logger.info("Exporting final graph in LTS format...");
             startTime = System.currentTimeMillis();
 
-            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph,
-                    "Synoptic");
+            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph);
 
             logger.info("Exporting in LTS format took "
                     + (System.currentTimeMillis() - startTime) + "ms");
