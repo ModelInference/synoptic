@@ -28,6 +28,5 @@ public class Resource<E extends Number & Comparable<E>> implements IResource<E> 
     public E getResourceVal() {
         return resourceVal;
     }
-    //
 
 }
