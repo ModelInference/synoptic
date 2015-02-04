@@ -312,6 +312,11 @@ public abstract class AbstractMain {
     private <T extends INode<T>> void exportGraph(String baseFilename,
             IGraph<T> g, boolean outputEdgeLabelsCondition,
             boolean imageGenCondition) {
+        // Check for a request not to output the model
+        if (options.noModelOutput && !options.exportAsGML) {
+            logger.info("Not outputting model due to flag --noModelOutput");
+            return;
+        }
 
         if (AbstractOptions.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
