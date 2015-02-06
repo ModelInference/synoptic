@@ -12,7 +12,7 @@ import synoptic.model.EventNode;
  * system is distributed, then a process is a host. Therefore, the vector
  * represents a point in time in a multiprocess (or distributed) execution.
  */
-public class VectorTime implements ITime {
+public class VectorTime extends AbstractResource {
     ArrayList<Integer> vector = new ArrayList<Integer>();
 
     /**
@@ -25,7 +25,7 @@ public class VectorTime implements ITime {
         EventNode earliestEvent = null;
 
         for (EventNode e : events) {
-            ITime etime = e.getEvent().getTime();
+            AbstractResource etime = e.getEvent().getTime();
             if (!(etime instanceof VectorTime)) {
                 throw new WrongTimeTypeException();
             }
@@ -64,7 +64,7 @@ public class VectorTime implements ITime {
         }
         LinkedList<List<EventNode>> map = new LinkedList<List<EventNode>>();
 
-        ITime e0time = events.get(0).getEvent().getTime();
+        AbstractResource e0time = events.get(0).getEvent().getTime();
         if (!(e0time instanceof VectorTime)) {
             throw new WrongTimeTypeException();
         }
@@ -131,7 +131,7 @@ public class VectorTime implements ITime {
      * @see synoptic.util.ITime#lessThan(synoptic.util.VectorTime)
      */
     @Override
-    public boolean lessThan(ITime t) {
+    public boolean lessThan(AbstractResource t) {
         if (!(t instanceof VectorTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -262,7 +262,7 @@ public class VectorTime implements ITime {
      * compareTo can be used to topologically sort a set of VectorTimes.
      */
     @Override
-    public int compareTo(ITime t) {
+    public int compareTo(AbstractResource t) {
         if (!(t instanceof VectorTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -280,27 +280,27 @@ public class VectorTime implements ITime {
      * timestamps.
      */
     @Override
-    public ITime computeDelta(ITime other) {
+    public AbstractResource computeDelta(AbstractResource other) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ITime incrBy(ITime other) {
+    public AbstractResource incrBy(AbstractResource other) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ITime divBy(int divisor) {
+    public AbstractResource divBy(int divisor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ITime normalize(ITime relativeTime) {
+    public AbstractResource normalize(AbstractResource relativeTime) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ITime getZeroTime() {
+    public AbstractResource getZeroTime() {
         return new VectorTime("0");
     }
 }

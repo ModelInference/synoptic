@@ -21,7 +21,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.Pair;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * <p>
@@ -223,8 +223,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
     private Pair<IThresholdConstraint, IThresholdConstraint> computeUpperLowerConstraints(
             EventType a, EventType b, boolean betweenFirstAndFirstPredicate) {
 
-        ITime lowerBound = null;
-        ITime upperBound = null;
+        AbstractResource lowerBound = null;
+        AbstractResource upperBound = null;
 
         // For each relationPath.
         // Go through each node in path.
@@ -255,7 +255,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
                     // Found (a,a) pair, compute constraints (IntrBy)
                     if (next.getEType().equals(a)
                             && betweenFirstAndFirstPredicate) {
-                        ITime delta = next.getTime().computeDelta(
+                        AbstractResource delta = next.getTime().computeDelta(
                                 curr.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;
@@ -269,7 +269,7 @@ public class ConstrainedInvMiner extends InvariantMiner {
                     // Found (a,b) pair, compute constraints
                     if (next.getEType().equals(b)
                             && !betweenFirstAndFirstPredicate) {
-                        ITime delta = next.getTime().computeDelta(
+                        AbstractResource delta = next.getTime().computeDelta(
                                 curr.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;

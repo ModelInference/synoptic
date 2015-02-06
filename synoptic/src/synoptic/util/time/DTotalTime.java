@@ -3,7 +3,7 @@ package synoptic.util.time;
 /**
  * A totally ordered time type with a double value.
  */
-public class DTotalTime implements ITime {
+public class DTotalTime extends AbstractResource {
     /** Time value */
     public double time;
 
@@ -17,7 +17,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public boolean lessThan(ITime t) {
+    public boolean lessThan(AbstractResource t) {
         if (!(t instanceof DTotalTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -59,7 +59,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public int compareTo(ITime t) {
+    public int compareTo(AbstractResource t) {
         if (!(t instanceof DTotalTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -67,7 +67,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public ITime computeDelta(ITime other) {
+    public AbstractResource computeDelta(AbstractResource other) {
         if (other == null) {
             return this;
         }
@@ -79,7 +79,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public ITime incrBy(ITime other) {
+    public AbstractResource incrBy(AbstractResource other) {
         if (other == null) {
             return this;
         }
@@ -91,7 +91,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public ITime divBy(int divisor) {
+    public AbstractResource divBy(int divisor) {
         if (divisor < 1) {
             throw new IllegalArgumentException();
         }
@@ -99,7 +99,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public ITime normalize(ITime relativeTime) {
+    public AbstractResource normalize(AbstractResource relativeTime) {
         if (!(relativeTime instanceof DTotalTime)) {
             throw new NonComparableTimesException(this, relativeTime);
         }
@@ -113,7 +113,7 @@ public class DTotalTime implements ITime {
     }
 
     @Override
-    public ITime getZeroTime() {
+    public AbstractResource getZeroTime() {
         return new DTotalTime(0.0);
     }
 }

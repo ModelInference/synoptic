@@ -17,7 +17,7 @@ import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
 import synoptic.util.time.DTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 public class TraceNormalizationTests extends PynopticTest {
 
@@ -66,7 +66,7 @@ public class TraceNormalizationTests extends PynopticTest {
         // Check if all event times are normalized correctly
         for (EventNode event : events) {
             EventType eType = event.getEType();
-            ITime eTime = event.getTime();
+            AbstractResource eTime = event.getTime();
 
             // 'a' == 0.0
             if (eType.equals(a) && eTime.equals(zero)) {
@@ -117,7 +117,7 @@ public class TraceNormalizationTests extends PynopticTest {
         // Check if all transition time deltas are normalized correctly
         for (Transition<EventNode> trans : transitions) {
             EventType eType = trans.getSource().getEType();
-            ITime transTime = trans.getTimeDelta();
+            AbstractResource transTime = trans.getTimeDelta();
 
             // 'a->b' == 0.25
             if (eType.equals(a) && transTime.equals(quarter)) {

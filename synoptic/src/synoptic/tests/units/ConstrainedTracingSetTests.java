@@ -18,7 +18,7 @@ import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.event.Event;
 import synoptic.tests.PynopticTest;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 
 /**
@@ -205,7 +205,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // Counter-example path should store time at the end of violation
             // subpath as 120 after taking all max time transitions
             // ( x --60--> y --60--> z )
-            ITime t120 = new ITotalTime(120);
+            AbstractResource t120 = new ITotalTime(120);
             assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
         }
 
@@ -214,7 +214,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // Counter-example path should store time at the end of violation
             // subpath as 22 after taking all min time transitions
             // ( x --11--> y --11--> z )
-            ITime t22 = new ITotalTime(22);
+            AbstractResource t22 = new ITotalTime(22);
             assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t22) == 0);
         }
     }
@@ -315,7 +315,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // After taking all max time transitions, counter-example path
             // should store time at the end of violation subpath as 8.
             // ( x --4--> z --4--> x )
-            ITime t8 = new ITotalTime(8);
+            AbstractResource t8 = new ITotalTime(8);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t8) == 0);
             assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t8) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t8) == 0);
@@ -326,7 +326,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // After taking all min time transitions, counter-example path
             // should store time at the end of violation subpath as 2.
             // ( x --1--> z --1--> x )
-            ITime t2 = new ITotalTime(2);
+            AbstractResource t2 = new ITotalTime(2);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t2) == 0);
             assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t2) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t2) == 0);

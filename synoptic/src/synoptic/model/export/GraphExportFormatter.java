@@ -14,7 +14,7 @@ import daikonizer.DaikonInvariants;
 
 import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -188,7 +188,7 @@ public abstract class GraphExportFormatter {
      *            a string representing the relations (e.g., "t")
      */
     public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            ITime timeMin, ITime timeMax, ITime timeMedian,
+            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
             Set<String> relations);
 
     /**
@@ -212,7 +212,7 @@ public abstract class GraphExportFormatter {
      *            a string representing the relations (e.g., "t")
      */
     public abstract String edgeToStringWithITimesAndProb(int nodeSrc,
-            int nodeDst, ITime timeMin, ITime timeMax, ITime timeMedian,
+            int nodeDst, AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
             double freq, Set<String> relations);
 
     /**
@@ -223,8 +223,8 @@ public abstract class GraphExportFormatter {
      * @return If min==max, returns "min". Else, returns "[min,med,max]" if
      *         median is specified or else "[min,max]" if not
      */
-    protected String getITimeString(ITime timeMin, ITime timeMax,
-            ITime timeMedian, int sigDigits) {
+    protected String getITimeString(AbstractResource timeMin, AbstractResource timeMax,
+            AbstractResource timeMedian, int sigDigits) {
         // Make time string
         if (timeMin != null && timeMax != null) {
 

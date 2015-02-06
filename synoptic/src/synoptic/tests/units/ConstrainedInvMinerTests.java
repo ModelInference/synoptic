@@ -23,7 +23,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
 import synoptic.util.time.DTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 
 /**
@@ -175,7 +175,7 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upperInv = getConstrainedInv(minedInvs,
                 "a AFby b upper");
 
-        ITime actualTime = new ITotalTime(3);
+        AbstractResource actualTime = new ITotalTime(3);
 
         assertEquals(actualTime, lowerInv.getConstraint().getThreshold());
         assertEquals(actualTime, upperInv.getConstraint().getThreshold());
@@ -199,8 +199,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
-        ITime actualLower = new DTotalTime(3.0);
-        ITime actualUpper = new DTotalTime(3.0);
+        AbstractResource actualLower = new DTotalTime(3.0);
+        AbstractResource actualUpper = new DTotalTime(3.0);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -228,8 +228,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
-        ITime actualLower = new DTotalTime(3.0);
-        ITime actualUpper = new DTotalTime(8.0);
+        AbstractResource actualLower = new DTotalTime(3.0);
+        AbstractResource actualUpper = new DTotalTime(8.0);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -268,8 +268,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a IntrBy b upper");
 
-        ITime actualLower = new DTotalTime(3.0);
-        ITime actualUpper = new DTotalTime(8.0);
+        AbstractResource actualLower = new DTotalTime(3.0);
+        AbstractResource actualUpper = new DTotalTime(8.0);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -298,8 +298,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a AFby b upper");
 
-        ITime actualLower = new DTotalTime(1.0);
-        ITime actualUpper = new DTotalTime(6.0);
+        AbstractResource actualLower = new DTotalTime(1.0);
+        AbstractResource actualUpper = new DTotalTime(6.0);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -321,8 +321,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a AFby b upper");
 
-        ITime actualLower = new DTotalTime(2.0);
-        ITime actualUpper = new DTotalTime(6.0);
+        AbstractResource actualLower = new DTotalTime(2.0);
+        AbstractResource actualUpper = new DTotalTime(6.0);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -342,8 +342,8 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upper = getConstrainedInv(minedInvs,
                 "a AFby b upper");
 
-        ITime actualLower = new DTotalTime(-9);
-        ITime actualUpper = new DTotalTime(-4);
+        AbstractResource actualLower = new DTotalTime(-9);
+        AbstractResource actualUpper = new DTotalTime(-4);
 
         assertEquals(actualLower, lower.getConstraint().getThreshold());
 
@@ -377,11 +377,11 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upperInvAP = getConstrainedInv(minedInvs,
                 "a AP c upper");
 
-        ITime actualLowerBoundAFby = new DTotalTime(2.5);
-        ITime actualUpperBoundAFby = new DTotalTime(9.0);
+        AbstractResource actualLowerBoundAFby = new DTotalTime(2.5);
+        AbstractResource actualUpperBoundAFby = new DTotalTime(9.0);
 
-        ITime actualLowerBoundAP = new DTotalTime(1.0);
-        ITime actualUpperBoundAP = new DTotalTime(6.0);
+        AbstractResource actualLowerBoundAP = new DTotalTime(1.0);
+        AbstractResource actualUpperBoundAP = new DTotalTime(6.0);
 
         assertEquals(actualLowerBoundAFby, lowerInvAFby.getConstraint()
                 .getThreshold());
@@ -441,9 +441,9 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> bAFbyc = getConstrainedInv(minedInvs,
                 "b AFby c lower");
 
-        ITime aAFbyb_time = aAFbyb.getConstraint().getThreshold();
-        ITime aAFbyc_time = aAFbyc.getConstraint().getThreshold();
-        ITime bAFbyc_time = bAFbyc.getConstraint().getThreshold();
+        AbstractResource aAFbyb_time = aAFbyb.getConstraint().getThreshold();
+        AbstractResource aAFbyc_time = aAFbyc.getConstraint().getThreshold();
+        AbstractResource bAFbyc_time = bAFbyc.getConstraint().getThreshold();
 
         assertEquals(aAFbyc_time, aAFbyb_time.incrBy(bAFbyc_time));
     }

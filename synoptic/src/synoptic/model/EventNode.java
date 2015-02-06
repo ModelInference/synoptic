@@ -17,7 +17,7 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
 import synoptic.util.time.EqualVectorTimestampsException;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * The event node class -- a node in a graph that contains an event.
@@ -270,7 +270,7 @@ public class EventNode implements INode<EventNode> {
 		EventNode dest = transition.getTarget();
 		if (AbstractMain.getInstance().options.usePerformanceInfo) {
 			if (dest.getTime() != null) {
-				ITime delta = dest.getTime().computeDelta(this.getTime());
+				AbstractResource delta = dest.getTime().computeDelta(this.getTime());
 				transition.setTimeDelta(delta);
 			}
 		}
@@ -296,7 +296,7 @@ public class EventNode implements INode<EventNode> {
 	/**
 	 * Get the timestamp associated with the event.
 	 */
-	public ITime getTime() {
+	public AbstractResource getTime() {
 		return event.getTime();
 	}
 

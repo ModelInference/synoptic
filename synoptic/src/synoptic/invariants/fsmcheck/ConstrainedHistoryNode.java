@@ -9,7 +9,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * An extension of a HistoryNode which also records time deltas
@@ -19,7 +19,7 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
      * Concrete edge(s) used to arrive at this node
      */
     List<ITransition<EventNode>> transitions;
-    ITime tDelta;
+    AbstractResource tDelta;
     ConstrainedHistoryNode<T> previousConst;
     int violationStart;
     int violationEnd;
@@ -33,7 +33,7 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
      * @param tDelta
      *            An ITime which should have a zero time value
      */
-    public ConstrainedHistoryNode(T node, ITime tDelta) {
+    public ConstrainedHistoryNode(T node, AbstractResource tDelta) {
         super(node, null, 0);
 
         // Neither parameter can be null
@@ -54,7 +54,7 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
      * @param tDelta
      */
     public ConstrainedHistoryNode(T node, ConstrainedHistoryNode<T> previous,
-            int count, List<ITransition<EventNode>> transitions, ITime tDelta) {
+            int count, List<ITransition<EventNode>> transitions, AbstractResource tDelta) {
         super(node, previous, count);
 
         // No parameter can be null
@@ -92,7 +92,7 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
 
         List<T> path = new ArrayList<T>();
         List<List<ITransition<EventNode>>> transitionsList = new ArrayList<List<ITransition<EventNode>>>();
-        List<ITime> tDeltas = new ArrayList<ITime>();
+        List<AbstractResource> tDeltas = new ArrayList<AbstractResource>();
         ConstrainedHistoryNode<T> cur = this;
 
         // Traverse the path of ConstrainedHistoryNodes recording T nodes,

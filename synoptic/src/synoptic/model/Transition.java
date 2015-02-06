@@ -5,7 +5,7 @@ import java.util.Set;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.TimeSeries;
 
 /**
@@ -132,7 +132,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     // delta at the same time.
 
     @Override
-    public ITime getTimeDelta() {
+    public AbstractResource getTimeDelta() {
         if (this.labels.getTimeDeltaSeries() != null) {
             throw new IllegalStateException("Series initialized");
         }
@@ -140,7 +140,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     }
 
     @Override
-    public void setTimeDelta(ITime d) {
+    public void setTimeDelta(AbstractResource d) {
         if (d == null) {
             throw new IllegalArgumentException();
         }
@@ -153,7 +153,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     }
 
     @Override
-    public TimeSeries<ITime> getDeltaSeries() {
+    public TimeSeries<AbstractResource> getDeltaSeries() {
         if (this.labels.getTimeDelta() != null) {
             throw new IllegalStateException("Delta already set.");
         }
@@ -163,7 +163,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     }
 
     @Override
-    public void addTimeDeltaToSeries(ITime newDelta) {
+    public void addTimeDeltaToSeries(AbstractResource newDelta) {
         // Should not be able to have a delta and a series at the same
         // time.
         if (this.labels.getTimeDelta() != null) {
@@ -176,7 +176,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
         }
 
         createSeriesIfEmpty();
-        TimeSeries<ITime> series = this.labels.getTimeDeltaSeries();
+        TimeSeries<AbstractResource> series = this.labels.getTimeDeltaSeries();
         series.addDelta(newDelta);
     }
 
@@ -186,7 +186,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     private void createSeriesIfEmpty() {
         if (this.labels.getTimeDeltaSeries() == null) {
             this.labels.setLabel(TransitionLabelType.TIME_DELTA_SERIES_LABEL,
-                    new TimeSeries<ITime>());
+                    new TimeSeries<AbstractResource>());
         }
     }
 

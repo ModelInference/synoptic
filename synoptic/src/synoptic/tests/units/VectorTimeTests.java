@@ -16,7 +16,7 @@ import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.NonComparableTimesException;
 import synoptic.util.time.NotComparableVectorsException;
 import synoptic.util.time.VectorTime;
@@ -52,7 +52,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void equalityTest() {
-        ITime v1, v2, v3;
+        AbstractResource v1, v2, v3;
 
         v1 = new VectorTime("1,2,3");
         v2 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
@@ -73,7 +73,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = NotComparableVectorsException.class)
     public void equalityDiffLengthVectorsTest() {
-        ITime v1, v2;
+        AbstractResource v1, v2;
 
         v1 = new VectorTime("1,2,3");
 
@@ -163,7 +163,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = NonComparableTimesException.class)
     public void lessThanDiffTimeTypesTest() {
-        ITime v, d;
+        AbstractResource v, d;
         v = new VectorTime("1,2,3");
         d = new DTotalTime(1);
         v.lessThan(d);
@@ -206,7 +206,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = NonComparableTimesException.class)
     public void compareToDiffTimeTypesTest() {
-        ITime v, d;
+        AbstractResource v, d;
         v = new VectorTime("1,2,3");
         d = new DTotalTime(1);
         v.compareTo(d);
@@ -217,7 +217,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void toStringTest() {
-        ITime v1;
+        AbstractResource v1;
         v1 = new VectorTime("1,2,3,1");
         String s = v1.toString();
         assertEquals("[1, 2, 3, 1]", s);
@@ -228,7 +228,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void hashCodeTest() {
-        ITime v1, v2;
+        AbstractResource v1, v2;
         v1 = new VectorTime("1,2,3");
         v2 = new VectorTime("1,2,4");
 
@@ -263,7 +263,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = WrongTimeTypeException.class)
     public void determineIthEventNonVTimeTest() {
-        ITime vtime, dtime;
+        AbstractResource vtime, dtime;
         vtime = new VectorTime("1,2,3");
         dtime = new DTotalTime(1);
         List<EventNode> eventNodes = new LinkedList<EventNode>();

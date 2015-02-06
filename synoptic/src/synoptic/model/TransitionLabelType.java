@@ -2,7 +2,7 @@ package synoptic.model;
 
 import daikonizer.DaikonInvariants;
 
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.TimeSeries;
 
 /**
@@ -26,7 +26,7 @@ public enum TransitionLabelType {
      * The amount of time that elapses between the two events connected by this
      * transition.
      */
-    TIME_DELTA_LABEL("time-delta", ITime.class),
+    TIME_DELTA_LABEL("time-delta", AbstractResource.class),
     /**
      * The set of all recorded times, each of which was observed to elapse
      * between the two events connected by this transition. This is like

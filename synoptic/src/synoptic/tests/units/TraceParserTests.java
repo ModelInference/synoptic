@@ -35,7 +35,7 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 import synoptic.util.time.LTotalTime;
 import synoptic.util.time.VectorTime;
@@ -315,7 +315,7 @@ public class TraceParserTests extends SynopticTest {
         assertSame(timeStrs.length, types.size());
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
-            ITime eventTime = e.getTime();
+            AbstractResource eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getEType().equals(types.get(i)));
 
@@ -1482,9 +1482,9 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
 
-        ITime a = new ITotalTime(5);
-        ITime b = new ITotalTime(9);
-        ITime c = new ITotalTime(11);
+        AbstractResource a = new ITotalTime(5);
+        AbstractResource b = new ITotalTime(9);
+        AbstractResource c = new ITotalTime(11);
 
         assertTrue(events.get(0).getTime().equals(a));
         assertTrue(events.get(1).getTime().equals(b));

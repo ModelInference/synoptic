@@ -13,7 +13,7 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * NFA state set superclass for all time-constrained invariants. It keeps the
@@ -29,12 +29,12 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      * Running time stored by the state machine from when t=0 state was first
      * encountered
      */
-    List<ITime> tRunning;
+    List<AbstractResource> tRunning;
 
     /**
      * Upper- or lower-bound time constraint
      */
-    ITime tBound;
+    AbstractResource tBound;
     public EventType a, b;
 
     /**
@@ -65,7 +65,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
      */
     public ConstrainedHistoryNode<T> extend(T node,
             ConstrainedHistoryNode<T> prior,
-            List<ITransition<EventNode>> transitions, ITime tDelta) {
+            List<ITransition<EventNode>> transitions, AbstractResource tDelta) {
 
         if (prior == null) {
             return null;
@@ -182,7 +182,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         relation.add(inv.getRelation());
 
         states = new ArrayList<ConstrainedHistoryNode<T>>(numStates);
-        tRunning = new ArrayList<ITime>(numStates);
+        tRunning = new ArrayList<AbstractResource>(numStates);
 
         // Set up states and state times
         for (int i = 0; i < numStates; ++i) {
@@ -271,7 +271,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         }
 
         // Store min/max time for convenience
-        ITime minMaxTime = minMaxTrans.get(0).getTimeDelta();
+        AbstractResource minMaxTime = minMaxTrans.get(0).getTimeDelta();
 
         // Whether current running time will be outside the time bound at each
         // state
@@ -285,7 +285,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         for (int i = 0; i < numStates; ++i) {
 
             // Increment running time and compare to time bound
-            ITime newTime = tRunning.get(i).incrBy(minMaxTime);
+            AbstractResource newTime = tRunning.get(i).incrBy(minMaxTime);
             int tComparison = newTime.compareTo(tBound);
 
             // Within bound if upper and <= bound or if lower >= bound
@@ -366,8 +366,8 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
             } else {
 
                 // Compare current transition's time with min/max time
-                ITime curTime = curTrans.getTimeDelta();
-                ITime minMaxTime = minMaxTransitions.get(0).getTimeDelta();
+                AbstractResource curTime = curTrans.getTimeDelta();
+                AbstractResource minMaxTime = minMaxTransitions.get(0).getTimeDelta();
                 int timeComparison = curTime.compareTo(minMaxTime);
 
                 // Finding MAX time delta
@@ -456,7 +456,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         result.tBound = tBound;
         result.numStates = numStates;
         result.states = new ArrayList<ConstrainedHistoryNode<T>>(states);
-        result.tRunning = new ArrayList<ITime>(tRunning);
+        result.tRunning = new ArrayList<AbstractResource>(tRunning);
         result.previous = previous;
         result.relation = relation;
 

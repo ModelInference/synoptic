@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 import synoptic.util.time.LTotalTime;
 import synoptic.util.time.VectorTime;
@@ -25,7 +25,7 @@ public class ITimeTests extends SynopticTest {
     public void testPositiveDelta() {
         DTotalTime d1 = new DTotalTime(2.0);
         DTotalTime d2 = new DTotalTime(1.0);
-        ITime delta = d1.computeDelta(d2);
+        AbstractResource delta = d1.computeDelta(d2);
         assertEquals(new DTotalTime(1.0), delta);
     }
 
@@ -66,9 +66,9 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testDivisionITotalTIme() {
-        ITime t1 = new ITotalTime(10);
-        ITime t2 = t1.divBy(2);
-        ITime oracle = new ITotalTime(5);
+        AbstractResource t1 = new ITotalTime(10);
+        AbstractResource t2 = t1.divBy(2);
+        AbstractResource oracle = new ITotalTime(5);
         assertEquals(oracle, t2);
     }
 
@@ -77,9 +77,9 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testDivisionLTotalTIme() {
-        ITime t1 = new LTotalTime(10);
-        ITime t2 = t1.divBy(2);
-        ITime oracle = new LTotalTime(5);
+        AbstractResource t1 = new LTotalTime(10);
+        AbstractResource t2 = t1.divBy(2);
+        AbstractResource oracle = new LTotalTime(5);
         assertEquals(oracle, t2);
     }
 
@@ -88,9 +88,9 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testDivisionDTotalTime() {
-        ITime t1 = new DTotalTime(10);
-        ITime t2 = t1.divBy(2);
-        ITime oracle = new DTotalTime(5);
+        AbstractResource t1 = new DTotalTime(10);
+        AbstractResource t2 = t1.divBy(2);
+        AbstractResource oracle = new DTotalTime(5);
         assertEquals(oracle, t2);
     }
 
@@ -99,10 +99,10 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testITotalTimeIncr() {
-        ITime t1 = new ITotalTime(1);
-        ITime t2 = new ITotalTime(5);
-        ITime result = t1.incrBy(t2);
-        ITime oracle = new ITotalTime(6);
+        AbstractResource t1 = new ITotalTime(1);
+        AbstractResource t2 = new ITotalTime(5);
+        AbstractResource result = t1.incrBy(t2);
+        AbstractResource oracle = new ITotalTime(6);
         assertEquals(oracle, result);
     }
 
@@ -111,10 +111,10 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testLTotalTimeIncr() {
-        ITime t1 = new LTotalTime(1);
-        ITime t2 = new LTotalTime(5);
-        ITime result = t1.incrBy(t2);
-        ITime oracle = new LTotalTime(6);
+        AbstractResource t1 = new LTotalTime(1);
+        AbstractResource t2 = new LTotalTime(5);
+        AbstractResource result = t1.incrBy(t2);
+        AbstractResource oracle = new LTotalTime(6);
         assertEquals(oracle, result);
     }
 

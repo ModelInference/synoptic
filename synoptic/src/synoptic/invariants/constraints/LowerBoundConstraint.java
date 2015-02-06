@@ -1,25 +1,25 @@
 package synoptic.invariants.constraints;
 
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * An inequality constraint that evaluates to true if the given time t is
  * greater than the internal time threshold.
  */
 public class LowerBoundConstraint implements IThresholdConstraint {
-    private ITime bound;
+    private AbstractResource bound;
 
-    public LowerBoundConstraint(ITime bound) {
+    public LowerBoundConstraint(AbstractResource bound) {
         this.bound = bound;
     }
 
     @Override
-    public ITime getThreshold() {
+    public AbstractResource getThreshold() {
         return bound;
     }
 
     @Override
-    public boolean evaluate(ITime t) {
+    public boolean evaluate(AbstractResource t) {
         return !(this.bound.lessThan(t));
     }
 
