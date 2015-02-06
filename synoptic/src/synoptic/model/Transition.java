@@ -5,8 +5,8 @@ import java.util.Set;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.TimeSeries;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.TimeSeries;
 
 /**
  * An implementation of a transition.

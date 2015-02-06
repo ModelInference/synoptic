@@ -21,7 +21,7 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.Pair;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * <p>

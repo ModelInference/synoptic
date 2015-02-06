@@ -5,8 +5,8 @@ import java.util.Map;
 
 import daikonizer.DaikonInvariants;
 
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.TimeSeries;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.TimeSeries;
 
 /**
  * Maintains a map of labels that are associated with some transition. The types

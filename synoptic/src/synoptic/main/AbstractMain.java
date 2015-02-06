@@ -58,7 +58,7 @@ import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.SynopticJar;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Contains entry points for the command line version of Synoptic or a

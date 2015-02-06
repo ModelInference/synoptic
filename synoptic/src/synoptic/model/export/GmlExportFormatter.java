@@ -5,7 +5,7 @@ import java.util.Set;
 import daikonizer.DaikonInvariants;
 
 import synoptic.model.interfaces.INode;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Implements a GML (graph modeling language) export for graphs:

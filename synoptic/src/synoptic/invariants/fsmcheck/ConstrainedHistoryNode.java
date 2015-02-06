@@ -9,7 +9,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * An extension of a HistoryNode which also records time deltas

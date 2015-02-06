@@ -7,11 +7,11 @@ import java.util.LinkedList;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
-import synoptic.util.time.LTotalTime;
-import synoptic.util.time.VectorTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.VectorTime;
 
 /**
  * Tests that exercise classes that implement the ITime interface.

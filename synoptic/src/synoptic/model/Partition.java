@@ -21,7 +21,7 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
 import synoptic.model.state.SynDaikonizer;
 import synoptic.util.NotImplementedException;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they

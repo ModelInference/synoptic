@@ -3,8 +3,8 @@ package synoptic.model.interfaces;
 import java.util.Set;
 
 import synoptic.model.TransitionLabelsMap;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.TimeSeries;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.TimeSeries;
 
 /**
  * A generic interface for a transition. This interface provides method to
