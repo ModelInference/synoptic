@@ -3,12 +3,15 @@ package main;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import model.EventTypeEncodings;
 import model.InvModel;
 import model.InvsModel;
+import model.LtsExporter;
 import algorithms.InvariMintKTails;
 import algorithms.InvariMintPropTypes;
 import algorithms.InvariMintSynoptic;
 import algorithms.PGraphInvariMint;
+import dk.brics.automaton.Automaton;
 
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 
@@ -114,6 +117,11 @@ public class InvariMintMain {
                     invID++;
                 }
             }
+        }
+
+        // Export in LTS format if requested
+        if (opts.outputLTS) {
+            exportLTS(invMintAlg.getInvMintAlgName());
         }
 
         if (opts.exportStdAlgPGraph) {
@@ -292,5 +300,27 @@ public class InvariMintMain {
 
             }
         }
+
+        // Export in LTS format if requested
+        if (opts.outputLTS) {
+            exportLTS("InvMintPropTypes");
+        }
+    }
+
+    /**
+     * Export a model in LTS format, and time the operation
+     */
+    private void exportLTS(String algName) {
+        logger.info("Exporting final model in LTS format...");
+        long startTime = System.currentTimeMillis();
+
+        String baseFilename = opts.outputPathPrefix + "." + algName;
+        Automaton model = invmintDfa.model;
+        EventTypeEncodings encodings = invmintDfa.getEventEncodings();
+
+        LtsExporter.exportLTS(baseFilename, model, encodings);
+
+        logger.info("Exporting in LTS format took "
+                + (System.currentTimeMillis() - startTime) + "ms");
     }
 }
