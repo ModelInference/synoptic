@@ -16,8 +16,8 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
-import synoptic.util.time.EqualVectorTimestampsException;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.EqualVectorTimestampsException;
 
 /**
  * The event node class -- a node in a graph that contains an event.

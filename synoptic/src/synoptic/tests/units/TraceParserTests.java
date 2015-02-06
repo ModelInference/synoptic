@@ -33,12 +33,12 @@ import synoptic.model.state.State;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.FTotalTime;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
-import synoptic.util.time.LTotalTime;
-import synoptic.util.time.VectorTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.FTotalTime;
+import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.VectorTime;
 
 /**
  * Tests for the synoptic.main.TraceParser class.

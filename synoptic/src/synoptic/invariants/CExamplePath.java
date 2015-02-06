@@ -5,7 +5,7 @@ import java.util.List;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Represents a counter-example path in a model -- e.g., a PartitionGraph.

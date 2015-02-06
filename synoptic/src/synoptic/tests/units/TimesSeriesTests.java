@@ -7,9 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.ITotalTime;
-import synoptic.util.time.TimeSeries;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.TimeSeries;
 
 public class TimesSeriesTests extends SynopticTest {
 

@@ -15,12 +15,12 @@ import synoptic.main.parser.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.NonComparableTimesException;
-import synoptic.util.time.NotComparableVectorsException;
-import synoptic.util.time.VectorTime;
-import synoptic.util.time.WrongTimeTypeException;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.NonComparableTimesException;
+import synoptic.util.resource.NotComparableVectorsException;
+import synoptic.util.resource.VectorTime;
+import synoptic.util.resource.WrongTimeTypeException;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.

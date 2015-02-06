@@ -1,6 +1,6 @@
 package synoptic.invariants.constraints;
 
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * An inequality constraint that evaluates to true if the given time t is

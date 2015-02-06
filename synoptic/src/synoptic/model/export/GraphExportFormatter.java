@@ -14,7 +14,7 @@ import daikonizer.DaikonInvariants;
 
 import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.

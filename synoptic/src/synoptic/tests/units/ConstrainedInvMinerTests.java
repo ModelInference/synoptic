@@ -22,9 +22,9 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.ITotalTime;
 
 /**
  * Tests for mining constrained invariants.

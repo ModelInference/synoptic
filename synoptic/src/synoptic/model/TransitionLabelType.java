@@ -2,8 +2,8 @@ package synoptic.model;
 
 import daikonizer.DaikonInvariants;
 
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.TimeSeries;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.TimeSeries;
 
 /**
  * The set of labels that can be associated with a transition in Synoptic

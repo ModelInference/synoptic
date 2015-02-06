@@ -40,14 +40,14 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.matching.NamedMatcher;
 import synoptic.util.matching.NamedPattern;
 import synoptic.util.matching.NamedSubstitution;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.EqualVectorTimestampsException;
-import synoptic.util.time.FTotalTime;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
-import synoptic.util.time.LTotalTime;
-import synoptic.util.time.NotComparableVectorsException;
-import synoptic.util.time.VectorTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.EqualVectorTimestampsException;
+import synoptic.util.resource.FTotalTime;
+import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.NotComparableVectorsException;
+import synoptic.util.resource.VectorTime;
 
 /**
  * A generic trace parser, configured in terms of Java 7 style named capture

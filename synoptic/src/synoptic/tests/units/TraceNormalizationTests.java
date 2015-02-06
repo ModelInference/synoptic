@@ -16,8 +16,8 @@ import synoptic.model.Transition;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.AbstractResource;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.DTotalTime;
 
 public class TraceNormalizationTests extends PynopticTest {
 

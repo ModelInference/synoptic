@@ -10,8 +10,8 @@ import org.junit.Test;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.ITotalTime;
 
 /**
  * Tests for verifying proper state when adding/mutating the innards of the

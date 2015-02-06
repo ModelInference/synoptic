@@ -12,7 +12,7 @@ import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.PynopticTest;
-import synoptic.util.time.DTotalTime;
+import synoptic.util.resource.DTotalTime;
 
 /**
  * Tests for the TempConstrainedInvariant class.

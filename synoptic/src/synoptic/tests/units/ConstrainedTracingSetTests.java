@@ -18,8 +18,8 @@ import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.event.Event;
 import synoptic.tests.PynopticTest;
-import synoptic.util.time.AbstractResource;
-import synoptic.util.time.ITotalTime;
+import synoptic.util.resource.AbstractResource;
+import synoptic.util.resource.ITotalTime;
 
 /**
  * Tests for finding counter-example paths using TracingStateSets for

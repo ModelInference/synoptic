@@ -25,7 +25,7 @@ import synoptic.model.Relation;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
-import synoptic.util.time.ITotalTime;
+import synoptic.util.resource.ITotalTime;
 
 /**
  * Tests for the ChainsTraceGraph class.
