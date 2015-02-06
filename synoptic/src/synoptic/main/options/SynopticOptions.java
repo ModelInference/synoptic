@@ -225,12 +225,25 @@ public class SynopticOptions extends Options {
     public boolean outputInvariantsToFile = false;
 
     /**
+     * Do not output the final model unless a format is explicitly requested.
+     */
+    @Option(AbstractOptions.noModelOutputStr)
+    public boolean noModelOutput = false;
+
+    /**
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
     @Option(value = AbstractOptions.exportAsGMLStr,
             aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
+
+    /**
+     * Output the LTS representation of the final model to the output prefix
+     * specified by -o or -output-prefix.
+     */
+    @Option(value = AbstractOptions.outputLTSStr, aliases = { "-lts" })
+    public boolean outputLTS = false;
 
     /**
      * The absolute path to the dot command executable to use for outputting
@@ -507,7 +520,9 @@ public class SynopticOptions extends Options {
         AbstractOptions.outputPathPrefix = outputPathPrefix;
         absOpts.outputSupportCount = outputSupportCount;
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
+        absOpts.noModelOutput = noModelOutput;
         absOpts.exportAsGML = exportAsGML;
+        absOpts.outputLTS = outputLTS;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputEdgeLabels = outputEdgeLabels;
         absOpts.showTerminalNode = showTerminalNode;
