@@ -21,7 +21,7 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
 import synoptic.model.state.SynDaikonizer;
 import synoptic.util.NotImplementedException;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
@@ -489,9 +489,9 @@ public class Partition implements INode<Partition> {
     /**
      * Return a set containing the timestamp of every Event in this Partition
      */
-    public Set<ITime> getAllTimes() {
+    public Set<AbstractResource> getAllTimes() {
 
-        HashSet<ITime> allDeltas = new HashSet<ITime>();
+        HashSet<AbstractResource> allDeltas = new HashSet<AbstractResource>();
 
         for (EventNode ev : events) {
             allDeltas.add(ev.getTime());
@@ -505,10 +505,10 @@ public class Partition implements INode<Partition> {
         if (!AbstractMain.getInstance().options.usePerformanceInfo) {
             return;
         }
-        ITime srcTime = srcENode.getTime();
-        ITime targetTime = targetENode.getTime();
+        AbstractResource srcTime = srcENode.getTime();
+        AbstractResource targetTime = targetENode.getTime();
         if (targetTime != null && srcTime != null) {
-            ITime d = targetTime.computeDelta(srcTime);
+            AbstractResource d = targetTime.computeDelta(srcTime);
             tx.addTimeDeltaToSeries(d);
         }
     }

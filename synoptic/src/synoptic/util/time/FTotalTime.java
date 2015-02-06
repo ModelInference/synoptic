@@ -3,7 +3,7 @@ package synoptic.util.time;
 /**
  * A totally ordered time type with a float value.
  */
-public class FTotalTime implements ITime {
+public class FTotalTime extends AbstractResource {
     /** Time value */
     public float time;
 
@@ -17,7 +17,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public boolean lessThan(ITime t) {
+    public boolean lessThan(AbstractResource t) {
         if (!(t instanceof FTotalTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -56,7 +56,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public int compareTo(ITime t) {
+    public int compareTo(AbstractResource t) {
         if (!(t instanceof FTotalTime)) {
             throw new NonComparableTimesException(this, t);
         }
@@ -64,7 +64,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public ITime computeDelta(ITime other) {
+    public AbstractResource computeDelta(AbstractResource other) {
         if (other == null) {
             return this;
         }
@@ -76,7 +76,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public ITime incrBy(ITime other) {
+    public AbstractResource incrBy(AbstractResource other) {
         if (other == null) {
             return this;
         }
@@ -88,7 +88,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public ITime divBy(int divisor) {
+    public AbstractResource divBy(int divisor) {
         if (divisor < 1) {
             throw new IllegalArgumentException();
         }
@@ -96,7 +96,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public ITime normalize(ITime relativeTime) {
+    public AbstractResource normalize(AbstractResource relativeTime) {
         if (!(relativeTime instanceof FTotalTime)) {
             throw new NonComparableTimesException(this, relativeTime);
         }
@@ -110,7 +110,7 @@ public class FTotalTime implements ITime {
     }
 
     @Override
-    public ITime getZeroTime() {
+    public AbstractResource getZeroTime() {
         return new FTotalTime(0.0f);
     }
 }

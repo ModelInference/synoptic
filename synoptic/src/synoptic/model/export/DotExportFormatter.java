@@ -5,7 +5,7 @@ import java.util.Set;
 import daikonizer.DaikonInvariants;
 
 import synoptic.model.interfaces.INode;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Implements a GraphViz exporter (DOT language) for graphs:
@@ -67,7 +67,7 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            ITime timeMin, ITime timeMax, ITime timeMedian,
+            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
             Set<String> relations) {
 
         // Make time string
@@ -80,7 +80,7 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst,
-            ITime timeMin, ITime timeMax, ITime timeMedian, double prob,
+            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian, double prob,
             Set<String> relations) {
 
         // Make time and probability strings

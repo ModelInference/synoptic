@@ -30,7 +30,7 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Used to export a graph object to a file.
@@ -250,9 +250,9 @@ public class GraphExporter {
                         // Set edge and edge label for Perfume
                         if (main.options.usePerformanceInfo) {
                             // Calculate the min, max, and median time deltas
-                            ITime timeMin = null;
-                            ITime timeMax = null;
-                            ITime timeMedian = null;
+                            AbstractResource timeMin = null;
+                            AbstractResource timeMax = null;
+                            AbstractResource timeMedian = null;
                             if (trans.getDeltaSeries() != null) {
                                 timeMin = trans.getDeltaSeries().computeMin();
                                 timeMax = trans.getDeltaSeries().computeMax();

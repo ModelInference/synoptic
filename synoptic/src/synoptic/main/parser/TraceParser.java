@@ -43,7 +43,7 @@ import synoptic.util.matching.NamedSubstitution;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.FTotalTime;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 import synoptic.util.time.LTotalTime;
 import synoptic.util.time.NotComparableVectorsException;
@@ -138,7 +138,7 @@ public class TraceParser {
     private String selectedTimeGroup = null;
 
     // Used to convert delta values into absolute values when the flag is set
-    private ITime lastTime;
+    private AbstractResource lastTime;
 
     private static final String dummyEtypeLabel = "dummy-etype-for-line-with-state"
             .intern();
@@ -893,7 +893,7 @@ public class TraceParser {
             InternalSynopticException {
 
         Event event = null;
-        ITime nextTime = null;
+        AbstractResource nextTime = null;
 
         AbstractMain main = AbstractMain.getInstance();
 

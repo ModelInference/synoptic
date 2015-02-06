@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * Encapsulates a list of time instances that extend ITime.
  */
-public class TimeSeries<TimeType extends ITime> implements
-        Comparable<TimeSeries<ITime>> {
+public class TimeSeries<TimeType extends AbstractResource> implements
+        Comparable<TimeSeries<AbstractResource>> {
     private List<TimeType> times;
     boolean isSorted;
 
@@ -216,7 +216,7 @@ public class TimeSeries<TimeType extends ITime> implements
     }
 
     @Override
-    public int compareTo(TimeSeries<ITime> o) {
+    public int compareTo(TimeSeries<AbstractResource> o) {
         int cmp;
 
         sort();
@@ -226,7 +226,7 @@ public class TimeSeries<TimeType extends ITime> implements
         }
 
         int i = 0;
-        for (ITime t : times) {
+        for (AbstractResource t : times) {
             cmp = t.compareTo(o.times.get(i));
             if (cmp != 0) {
                 return cmp;

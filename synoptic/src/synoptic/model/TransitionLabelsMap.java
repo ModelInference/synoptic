@@ -5,7 +5,7 @@ import java.util.Map;
 
 import daikonizer.DaikonInvariants;
 
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.TimeSeries;
 
 /**
@@ -78,13 +78,13 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
      * Returns the time delta associated with the transition, or null if none
      * exist.
      */
-    public ITime getTimeDelta() {
+    public AbstractResource getTimeDelta() {
         Object o = getLabel(TransitionLabelType.TIME_DELTA_LABEL);
         if (o == null) {
             return null;
         }
-        assert (o instanceof ITime);
-        return (ITime) o;
+        assert (o instanceof AbstractResource);
+        return (AbstractResource) o;
     }
 
     /**
@@ -92,13 +92,13 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
      * exist.
      */
     @SuppressWarnings("unchecked")
-    public TimeSeries<ITime> getTimeDeltaSeries() {
+    public TimeSeries<AbstractResource> getTimeDeltaSeries() {
         Object o = getLabel(TransitionLabelType.TIME_DELTA_SERIES_LABEL);
         if (o == null) {
             return null;
         }
         assert (o instanceof TimeSeries);
-        return (TimeSeries<ITime>) o;
+        return (TimeSeries<AbstractResource>) o;
     }
 
     /**

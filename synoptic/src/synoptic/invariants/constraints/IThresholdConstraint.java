@@ -1,6 +1,6 @@
 package synoptic.invariants.constraints;
 
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Represents a time threshold constraint on some temporal invariant.
@@ -11,12 +11,12 @@ public interface IThresholdConstraint {
     /**
      * @return time constraint
      */
-    ITime getThreshold();
+    AbstractResource getThreshold();
 
     /**
      * @return true if given time satisfies internal inequality with respect to
      *         the threshold.
      */
-    boolean evaluate(ITime t);
+    boolean evaluate(AbstractResource t);
 
 }

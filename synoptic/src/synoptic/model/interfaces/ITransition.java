@@ -3,7 +3,7 @@ package synoptic.model.interfaces;
 import java.util.Set;
 
 import synoptic.model.TransitionLabelsMap;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.TimeSeries;
 
 /**
@@ -61,7 +61,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a delta series has been set.
      */
-    ITime getTimeDelta();
+    AbstractResource getTimeDelta();
 
     /**
      * Set the delta. Cannot be called after the delta series has been
@@ -72,7 +72,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a delta series has been set.
      */
-    void setTimeDelta(ITime d);
+    void setTimeDelta(AbstractResource d);
 
     /**
      * Returns the series of times contained within the Transition. If there is
@@ -84,7 +84,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a single delta has been set.
      */
-    TimeSeries<ITime> getDeltaSeries();
+    TimeSeries<AbstractResource> getDeltaSeries();
 
     /**
      * Adds a delta to the series. If the series of deltas is missing, then one
@@ -96,7 +96,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a single delta has been set.
      */
-    void addTimeDeltaToSeries(ITime d);
+    void addTimeDeltaToSeries(AbstractResource d);
 
     /**
      * Returns the transition labels associated with this transition.

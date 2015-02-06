@@ -10,7 +10,7 @@ import org.junit.Test;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 import synoptic.util.time.ITotalTime;
 
 /**
@@ -22,7 +22,7 @@ import synoptic.util.time.ITotalTime;
 public class TransitionDeltaTests {
 
     private Transition<EventNode> sTrans;
-    private ITime t;
+    private AbstractResource t;
 
     @Before
     public void createTransitions() {

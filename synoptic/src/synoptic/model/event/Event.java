@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.model.resource.Resource;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Represents an event parsed from a log file. An event includes an event type,
@@ -35,7 +35,7 @@ public class Event {
     /**
      * The time this event occurred.
      */
-    private ITime time;
+    private AbstractResource time;
 
     /**
      * The resources associated with this event
@@ -204,7 +204,7 @@ public class Event {
      * @param t
      *            the time
      */
-    public void setTime(ITime t) {
+    public void setTime(AbstractResource t) {
         time = t;
     }
 
@@ -213,7 +213,7 @@ public class Event {
      * 
      * @return the time when this event occurred.
      */
-    public ITime getTime() {
+    public AbstractResource getTime() {
         return time;
     }
 

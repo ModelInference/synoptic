@@ -6,7 +6,7 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * NFA state set for the IntrByLower constrained invariant which keeps the
@@ -103,7 +103,7 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
         }
 
         // Retrieve the previously-found min time delta
-        ITime tMin = transitions.get(0).getTimeDelta();
+        AbstractResource tMin = transitions.get(0).getTimeDelta();
         if (tMin == null) {
             tMin = tBound.getZeroTime();
         }

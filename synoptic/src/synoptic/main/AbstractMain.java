@@ -58,7 +58,7 @@ import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.SynopticJar;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Contains entry points for the command line version of Synoptic or a
@@ -737,8 +737,8 @@ public abstract class AbstractMain {
 
         // Traverse each trace to normalize the absolute times of its events
         for (IRelationPath relationPath : relationPaths) {
-            ITime minTime = null;
-            ITime maxTime = null;
+            AbstractResource minTime = null;
+            AbstractResource maxTime = null;
 
             // Find the min and max absolute time of any event in this trace
             EventNode cur = relationPath.getFirstNode();
@@ -756,7 +756,7 @@ public abstract class AbstractMain {
                                 traceGraph.getRelations()).get(0).getTarget();
             }
 
-            ITime rangeTime = null;
+            AbstractResource rangeTime = null;
 
             // Compute the range of this trace's times
             if (maxTime != null) {
@@ -789,12 +789,12 @@ public abstract class AbstractMain {
 
                 // Get normalized times of the transition's source and target
                 // events
-                ITime srcTime = trans.getSource().getTime();
-                ITime targetTime = trans.getTarget().getTime();
+                AbstractResource srcTime = trans.getSource().getTime();
+                AbstractResource targetTime = trans.getTarget().getTime();
 
                 // Compute and store normalized transition time delta
                 if (targetTime != null) {
-                    ITime delta = targetTime.computeDelta(srcTime);
+                    AbstractResource delta = targetTime.computeDelta(srcTime);
                     trans.setTimeDelta(delta);
                 }
             }

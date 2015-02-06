@@ -5,7 +5,7 @@ import java.util.List;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
+import synoptic.util.time.AbstractResource;
 
 /**
  * Represents a counter-example path in a model -- e.g., a PartitionGraph.
@@ -18,7 +18,7 @@ public class CExamplePath<T> {
     public ITemporalInvariant invariant;
     public List<T> path;
     public List<List<ITransition<EventNode>>> transitionsList;
-    public List<ITime> tDeltas;
+    public List<AbstractResource> tDeltas;
     public int violationStart;
     public int violationEnd;
 
@@ -57,7 +57,7 @@ public class CExamplePath<T> {
      *            The counter-example path index wher ethe violation ended
      */
     public CExamplePath(ITemporalInvariant inv, List<T> p,
-            List<List<ITransition<EventNode>>> transList, List<ITime> deltas,
+            List<List<ITransition<EventNode>>> transList, List<AbstractResource> deltas,
             int vioStart, int vioEnd) {
         invariant = inv;
         path = p;
