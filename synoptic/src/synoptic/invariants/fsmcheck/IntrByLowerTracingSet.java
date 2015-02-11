@@ -105,7 +105,7 @@ public class IntrByLowerTracingSet<T extends INode<T>> extends
         // Retrieve the previously-found min time delta
         AbstractResource tMin = transitions.get(0).getTimeDelta();
         if (tMin == null) {
-            tMin = tBound.getZeroTime();
+            tMin = tBound.getZeroResource();
         }
 
         // Update the running time deltas of any states which require it. State0

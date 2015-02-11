@@ -187,7 +187,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         // Set up states and state times
         for (int i = 0; i < numStates; ++i) {
             states.add(null);
-            tRunning.add(tBound.getZeroTime());
+            tRunning.add(tBound.getZeroResource());
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
         assert (input.isInitial());
 
         ConstrainedHistoryNode<T> newHistory = new ConstrainedHistoryNode<T>(
-                input, tBound.getZeroTime());
+                input, tBound.getZeroResource());
 
         // Always start on State0
         states.set(0, newHistory);

@@ -300,7 +300,7 @@ public class VectorTime extends AbstractResource {
     }
 
     @Override
-    public AbstractResource getZeroTime() {
+    public AbstractResource getZeroResource() {
         return new VectorTime("0");
     }
 }

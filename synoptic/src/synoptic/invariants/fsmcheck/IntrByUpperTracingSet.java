@@ -105,7 +105,7 @@ public class IntrByUpperTracingSet<T extends INode<T>> extends
         // Retrieve the previously-found max time delta
         AbstractResource tMax = transitions.get(0).getTimeDelta();
         if (tMax == null) {
-            tMax = tBound.getZeroTime();
+            tMax = tBound.getZeroResource();
         }
 
         // Update the running time deltas of any states which require it. State0

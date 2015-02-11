@@ -99,7 +99,7 @@ public class TimeSeries<TimeType extends AbstractResource> implements
         }
 
         // Create a zero valued starting point.
-        TimeType initial = (TimeType) times.get(0).getZeroTime();
+        TimeType initial = (TimeType) times.get(0).getZeroResource();
 
         for (TimeType t : times) {
             initial = (TimeType) initial.incrBy(t);
