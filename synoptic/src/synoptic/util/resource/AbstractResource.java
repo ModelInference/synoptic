@@ -65,9 +65,7 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
      * Divides the AbstractResource object by the specified divisor.
      * 
      * <pre>
-     * NOTE: Cannot divide resource by zero or a negative number, since
-     *       resources cannot be negative.
-     *       TODO: determine if resources are restricted to > 0
+     * NOTE: Cannot divide resource by zero.
      * </pre>
      * 
      * @param divisor

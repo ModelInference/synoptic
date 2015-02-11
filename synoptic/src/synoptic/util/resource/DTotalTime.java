@@ -92,7 +92,7 @@ public class DTotalTime extends AbstractResource {
 
     @Override
     public AbstractResource divBy(int divisor) {
-        if (divisor < 1) {
+        if (divisor == 0) {
             throw new IllegalArgumentException();
         }
         return new DTotalTime(this.time / divisor);
