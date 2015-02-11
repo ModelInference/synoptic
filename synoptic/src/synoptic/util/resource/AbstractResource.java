@@ -10,6 +10,11 @@ package synoptic.util.resource;
 public abstract class AbstractResource implements Comparable<AbstractResource> {
 
     /**
+     * The key identifying the resource
+     */
+    protected String key;
+
+    /**
      * Used to compare two resource values. Note that (x < y) || (y < x) is only
      * true for totally ordered resource instances. It is not necessarily true
      * for partially ordered resource, such as vector clocks. Two resources can
@@ -90,6 +95,13 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
      */
     public abstract AbstractResource getZeroResource();
 
+    /**
+     * @return the key identifying this resource
+     */
+    public String getKey() {
+        return key;
+    }
+
     @Override
     public abstract int hashCode();
 
@@ -98,4 +110,5 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
 
     @Override
     public abstract String toString();
+
 }
