@@ -10,79 +10,85 @@ package synoptic.util.resource;
 public abstract class AbstractResource implements Comparable<AbstractResource> {
 
     /**
-     * Used to compare two time values. Note that (x < y) || (y < x) is only
-     * true for totally ordered time instances. It is not necessarily true for
-     * partially ordered time, such as vector clocks.
+     * Used to compare two resource values. Note that (x < y) || (y < x) is only
+     * true for totally ordered resource instances. It is not necessarily true
+     * for partially ordered resource, such as vector clocks. Two resources can
+     * only be compared if they have the same key identifying the resource.
      * 
      * @param t
-     *            the other ITime instance
+     *            the other AbstractResource instance
      * @return true if (this < t), otherwise false
      */
     public abstract boolean lessThan(AbstractResource t);
 
     /**
-     * Used to compare two time values. Note that (x < y) || (y < x) is only
-     * true for totally ordered time instances. It is not necessarily true for
-     * partially ordered time, such as vector clocks.
+     * Used to compare two resource values. Note that (x < y) || (y < x) is only
+     * true for totally ordered resource instances. It is not necessarily true
+     * for partially ordered resource, such as vector clocks. Two resources can
+     * only be compared if they have the same key identifying the resource.
      * 
      * @param t
-     *            the other ITime instance
+     *            the other AbstractResource instance
      * @return true if (this < t), otherwise false
      */
     public abstract int compareTo(AbstractResource t);
 
     /**
-     * Computes the time difference between this ITime and another ITime
-     * instance.
+     * Computes the difference between this AbstractResource and another
+     * AbstractResource instance. The difference between two resources can only
+     * be compared if they have the same key identifying the resource.
      * 
      * @param other
-     *            the other ITime instance
-     * @return Delta time between this ITime and other ITime instance. (same
-     *         type as the callee object)
+     *            the other AbstractResource instance
+     * @return Delta time between this AbstractResource and other
+     *         AbstractResource instance. (same type as the callee object)
      */
     public abstract AbstractResource computeDelta(AbstractResource other);
 
     /**
-     * Increments the ITime object by the specified amount, and returns the
-     * incremented time as a new object.
+     * Increments the AbstractResource object by the specified amount, and
+     * returns the incremented resource as a new object.
      * 
      * @param other
-     *            The ITime object with which to increment.
-     * @return The incremented ITime object. (same type as the callee object)
+     *            The AbstractResource object with which to increment.
+     * @return The incremented AbstractResource object. (same type as the callee
+     *         object)
      */
     public abstract AbstractResource incrBy(AbstractResource other);
 
     /**
-     * Divides the ITime object by the specified divisor.
+     * Divides the AbstractResource object by the specified divisor.
      * 
      * <pre>
-     * NOTE: Cannot divide time by zero or a negative number, since
-     *       time cannot be negative.
+     * NOTE: Cannot divide resource by zero or a negative number, since
+     *       resources cannot be negative.
+     *       TODO: determine if resources are restricted to > 0
      * </pre>
      * 
      * @param divisor
-     * @return The ITime object after division has occurred. (same type as the
-     *         callee object)
+     * @return The AbstractResource object after division has occurred. (same
+     *         type as the callee object)
      */
     public abstract AbstractResource divBy(int divisor);
 
     /**
-     * Returns a normalized ITime in respect to relativeTime.
+     * Returns a normalized AbstractResource in respect to relativeResource.
      * 
-     * @param relativeTime
-     *            the time to use for the normalization, usually the time with
-     *            the biggest value of the trace.
-     * @return A normalized ITime object. (same type as the callee object)
-     */
-    public abstract AbstractResource normalize(AbstractResource relativeTime);
-
-    /**
-     * Creates a new zero-time object
-     * 
-     * @return New ITime with a time value of zero. (same type as the callee
+     * @param relativeResource
+     *            the resource value to use for the normalization, usually the
+     *            resource with the biggest value of the trace.
+     * @return A normalized AbstractResource object. (same type as the callee
      *         object)
      */
-    public abstract AbstractResource getZeroTime();
+    public abstract AbstractResource normalize(AbstractResource relativeResource);
+
+    /**
+     * Creates a new zero-valued resource object with an empty string as key.
+     * 
+     * @return New AbstractResource with a resource value of zero. (same type as
+     *         the callee object)
+     */
+    public abstract AbstractResource getZeroResource();
 
     @Override
     public abstract int hashCode();

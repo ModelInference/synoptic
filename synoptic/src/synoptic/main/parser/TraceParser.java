@@ -1089,7 +1089,7 @@ public class TraceParser {
                         // If this is the first node, assign the zero time to
                         // lastTime
                         if (lastTime == null) {
-                            lastTime = nextTime.getZeroTime();
+                            lastTime = nextTime.getZeroResource();
                         }
 
                         nextTime = nextTime.incrBy(lastTime);

@@ -103,7 +103,7 @@ public class LTotalTime extends AbstractResource {
         }
 
         // If the relativeTime is zero, the normalized time should be zero, too
-        if (relativeTime.equals(relativeTime.getZeroTime())) {
+        if (relativeTime.equals(relativeTime.getZeroResource())) {
             return new DTotalTime(0.0);
         }
 
@@ -112,7 +112,7 @@ public class LTotalTime extends AbstractResource {
     }
 
     @Override
-    public AbstractResource getZeroTime() {
+    public AbstractResource getZeroResource() {
         return new LTotalTime(0);
     }
 }
