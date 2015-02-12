@@ -99,6 +99,25 @@ public class VectorTime extends AbstractResource {
      *            string input representing a vtime
      */
     public VectorTime(String timeStr) throws IllegalArgumentException {
+        super("");
+        String[] times = timeStr.split(",");
+        for (String t : times) {
+            Integer i = Integer.parseInt(t);
+            vector.add(i);
+        }
+    }
+
+    /**
+     * Builds a VectorTime from a string that looks like "1,2,3" and a resource
+     * key
+     * 
+     * @param timeStr
+     *            string input representing a vtime
+     * @param key
+     */
+    public VectorTime(String timeStr, String key)
+            throws IllegalArgumentException {
+        super(key);
         String[] times = timeStr.split(",");
         for (String t : times) {
             Integer i = Integer.parseInt(t);
@@ -113,6 +132,20 @@ public class VectorTime extends AbstractResource {
      *            input vector
      */
     public VectorTime(List<Integer> vector) throws IllegalArgumentException {
+        super("");
+        this.vector.addAll(vector);
+    }
+
+    /**
+     * Builds a VectorTime from a vector and a resource key
+     * 
+     * @param vector
+     *            input vector
+     * @param key
+     */
+    public VectorTime(List<Integer> vector, String key)
+            throws IllegalArgumentException {
+        super(key);
         this.vector.addAll(vector);
     }
 
@@ -122,6 +155,17 @@ public class VectorTime extends AbstractResource {
      * @param i
      */
     public VectorTime(Integer i) {
+        super("");
+        vector.add(i);
+    }
+
+    /**
+     * Builds a VectorTime from a single Integer and a resource key.
+     * 
+     * @param i
+     */
+    public VectorTime(Integer i, String key) {
+        super(key);
         vector.add(i);
     }
 
