@@ -13,6 +13,18 @@ public class LTotalTime extends AbstractResource {
      * @param i
      */
     public LTotalTime(long i) {
+        super("");
+        time = i;
+    }
+
+    /**
+     * Builds a Resource object form a long and a resource key
+     * 
+     * @param i
+     * @param key
+     */
+    public LTotalTime(long i, String key) {
+        super(key);
         time = i;
     }
 

@@ -13,6 +13,18 @@ public class ITotalTime extends AbstractResource {
      * @param i
      */
     public ITotalTime(int i) {
+        super("");
+        time = i;
+    }
+
+    /**
+     * Builds a Resource object from an int and a resource key
+     * 
+     * @param i
+     * @param key
+     */
+    public ITotalTime(int i, String key) {
+        super(key);
         time = i;
     }
 

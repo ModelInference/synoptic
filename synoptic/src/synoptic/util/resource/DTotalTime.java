@@ -13,6 +13,18 @@ public class DTotalTime extends AbstractResource {
      * @param d
      */
     public DTotalTime(double d) {
+        super("");
+        time = d;
+    }
+
+    /**
+     * Builds a Resource object from a double and a resource key
+     * 
+     * @param d
+     * @param key
+     */
+    public DTotalTime(double d, String key) {
+        super(key);
         time = d;
     }
 

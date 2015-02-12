@@ -13,6 +13,18 @@ public class FTotalTime extends AbstractResource {
      * @param f
      */
     public FTotalTime(float f) {
+        super("");
+        time = f;
+    }
+
+    /**
+     * Builds a Resource object from a float and a resource key
+     * 
+     * @param f
+     * @param key
+     */
+    public FTotalTime(float f, String key) {
+        super(key);
         time = f;
     }
 
