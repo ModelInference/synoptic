@@ -14,6 +14,14 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
      */
     protected String key;
 
+    public AbstractResource() {
+        this("");
+    }
+
+    public AbstractResource(String key) {
+        this.key = key;
+    }
+
     /**
      * Used to compare two resource values. Note that (x < y) || (y < x) is only
      * true for totally ordered resource instances. It is not necessarily true
