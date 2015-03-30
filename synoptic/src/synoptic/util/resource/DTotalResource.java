@@ -30,7 +30,7 @@ public class DTotalResource extends AbstractResource {
 
     @Override
     public boolean lessThan(AbstractResource r) {
-        if (!(r instanceof DTotalResource)) {
+        if (!isComparable(r)) {
             throw new NonComparableTimesException(this, r);
         }
         return value < ((DTotalResource) r).value;
@@ -58,6 +58,9 @@ public class DTotalResource extends AbstractResource {
             return false;
         }
         DTotalResource other = (DTotalResource) obj;
+        if (!key.equals(other.key)) {
+            return false;
+        }
         if (Double.doubleToLongBits(value) != Double
                 .doubleToLongBits(other.value)) {
             return false;
@@ -72,7 +75,7 @@ public class DTotalResource extends AbstractResource {
 
     @Override
     public int compareTo(AbstractResource r) {
-        if (!(r instanceof DTotalResource)) {
+        if (!isComparable(r)) {
             throw new NonComparableTimesException(this, r);
         }
         return new Double(value).compareTo(((DTotalResource) r).value);
@@ -84,10 +87,11 @@ public class DTotalResource extends AbstractResource {
             return this;
         }
 
-        if (!(other instanceof DTotalResource)) {
+        if (!isComparable(other)) {
             throw new NonComparableTimesException(this, other);
         }
-        return new DTotalResource(this.value - ((DTotalResource) other).value);
+        return new DTotalResource(this.value - ((DTotalResource) other).value,
+                key);
     }
 
     @Override
@@ -96,10 +100,11 @@ public class DTotalResource extends AbstractResource {
             return this;
         }
 
-        if (!(other instanceof DTotalResource)) {
+        if (!isComparable(other)) {
             throw new NonComparableTimesException(this, other);
         }
-        return new DTotalResource(this.value + ((DTotalResource) other).value);
+        return new DTotalResource(this.value + ((DTotalResource) other).value,
+                key);
     }
 
     @Override
@@ -107,19 +112,19 @@ public class DTotalResource extends AbstractResource {
         if (divisor == 0) {
             throw new IllegalArgumentException();
         }
-        return new DTotalResource(this.value / divisor);
+        return new DTotalResource(this.value / divisor, key);
     }
 
     @Override
     public AbstractResource normalize(AbstractResource relativeResource) {
-        if (!(relativeResource instanceof DTotalResource)) {
+        if (!isComparable(relativeResource)) {
             throw new NonComparableTimesException(this, relativeResource);
         }
 
         // If the relativeResource is zero, the normalized resource should be
         // zero, too
         if (relativeResource.equals(relativeResource.getZeroResource())) {
-            return new DTotalResource(0.0);
+            return new DTotalResource(0.0, key);
         }
 
         return new DTotalResource(this.value
@@ -128,6 +133,6 @@ public class DTotalResource extends AbstractResource {
 
     @Override
     public AbstractResource getZeroResource() {
-        return new DTotalResource(0.0);
+        return new DTotalResource(0.0, key);
     }
 }
