@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalTime;
 import synoptic.util.resource.LTotalTime;
 import synoptic.util.resource.VectorTime;
@@ -23,10 +23,10 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testPositiveDelta() {
-        DTotalTime d1 = new DTotalTime(2.0);
-        DTotalTime d2 = new DTotalTime(1.0);
+        DTotalResource d1 = new DTotalResource(2.0);
+        DTotalResource d2 = new DTotalResource(1.0);
         AbstractResource delta = d1.computeDelta(d2);
-        assertEquals(new DTotalTime(1.0), delta);
+        assertEquals(new DTotalResource(1.0), delta);
     }
 
     /**
@@ -88,9 +88,9 @@ public class ITimeTests extends SynopticTest {
      */
     @Test
     public void testDivisionDTotalTime() {
-        AbstractResource t1 = new DTotalTime(10);
+        AbstractResource t1 = new DTotalResource(10);
         AbstractResource t2 = t1.divBy(2);
-        AbstractResource oracle = new DTotalTime(5);
+        AbstractResource oracle = new DTotalResource(5);
         assertEquals(oracle, t2);
     }
 

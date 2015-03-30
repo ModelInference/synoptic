@@ -34,7 +34,7 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.FTotalTime;
 import synoptic.util.resource.ITotalTime;
 import synoptic.util.resource.LTotalTime;
@@ -328,7 +328,7 @@ public class TraceParserTests extends SynopticTest {
                 assertTrue(new FTotalTime(Float.parseFloat(timeStrs[i]))
                         .equals(eventTime));
             } else if (timeType.equals("DTIME")) {
-                assertTrue(new DTotalTime(Double.parseDouble(timeStrs[i]))
+                assertTrue(new DTotalResource(Double.parseDouble(timeStrs[i]))
                         .equals(eventTime));
             } else if (timeType.equals("DATETIME")) {
                 SimpleDateFormat dateFormatter = new SimpleDateFormat(

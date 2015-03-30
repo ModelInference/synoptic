@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalTime;
 import synoptic.util.resource.TimeSeries;
 
@@ -74,12 +74,12 @@ public class TimesSeriesTests extends SynopticTest {
 
     @Test
     public void medianTestEvenNumberOfValues() {
-        TimeSeries<DTotalTime> dtimes = new TimeSeries<DTotalTime>();
+        TimeSeries<DTotalResource> dtimes = new TimeSeries<DTotalResource>();
         for (int i = 1; i <= 6; i++) {
-            dtimes.addDelta(new DTotalTime(i));
+            dtimes.addDelta(new DTotalResource(i));
         }
 
-        assertEquals(new DTotalTime(3.5), dtimes.computeMedian());
+        assertEquals(new DTotalResource(3.5), dtimes.computeMedian());
     }
 
     @Test

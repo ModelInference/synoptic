@@ -19,6 +19,22 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
     }
 
     /**
+     * Determines if two resources are comparable. Two resources are comparable
+     * only if they are of the same time and have the same key.
+     * 
+     * @return
+     */
+    public boolean isComparable(AbstractResource resource) {
+        if (!this.key.equals(resource.key)) {
+            return false;
+        }
+        if (!this.getClass().equals(resource.getClass())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Used to compare two resource values. Note that (x < y) || (y < x) is only
      * true for totally ordered resource instances. It is not necessarily true
      * for partially ordered resource, such as vector clocks. Two resources can
