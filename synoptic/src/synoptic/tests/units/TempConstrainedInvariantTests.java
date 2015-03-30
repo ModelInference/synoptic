@@ -12,7 +12,7 @@ import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.main.parser.ParseException;
 import synoptic.tests.PynopticTest;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 
 /**
  * Tests for the TempConstrainedInvariant class.
@@ -32,7 +32,7 @@ public class TempConstrainedInvariantTests extends PynopticTest {
         AlwaysFollowedInvariant unconstrainedInv = new AlwaysFollowedInvariant(
                 "a", "b", "t");
 
-        IThresholdConstraint upper = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper = new UpperBoundConstraint(new DTotalResource(
                 2.0));
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
                 unconstrainedInv, upper);
@@ -49,9 +49,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
         AlwaysFollowedInvariant unconstrainedInv = new AlwaysFollowedInvariant(
                 "a", "b", "t");
 
-        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalResource(
                 2.0));
-        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalResource(
                 2.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
@@ -71,9 +71,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
         AlwaysFollowedInvariant unconstrainedInv = new AlwaysFollowedInvariant(
                 "a", "b", "t");
 
-        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalResource(
                 2.0));
-        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalResource(
                 1.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
@@ -95,9 +95,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
         AlwaysPrecedesInvariant unconstrainedInv2 = new AlwaysPrecedesInvariant(
                 "a", "b", "t");
 
-        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper1 = new UpperBoundConstraint(new DTotalResource(
                 2.0));
-        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalTime(
+        IThresholdConstraint upper2 = new UpperBoundConstraint(new DTotalResource(
                 1.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(

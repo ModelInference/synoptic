@@ -41,7 +41,7 @@ import synoptic.util.matching.NamedMatcher;
 import synoptic.util.matching.NamedPattern;
 import synoptic.util.matching.NamedSubstitution;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.EqualVectorTimestampsException;
 import synoptic.util.resource.FTotalTime;
 import synoptic.util.resource.ITotalTime;
@@ -1065,7 +1065,7 @@ public class TraceParser {
                         nextTime = new FTotalTime(t);
                     } else if (selectedTimeGroup.equals("DTIME")) {
                         double t = Double.parseDouble(timeField.trim());
-                        nextTime = new DTotalTime(t);
+                        nextTime = new DTotalResource(t);
                     } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
                     } else if (selectedTimeGroup.equals("DATETIME")) {

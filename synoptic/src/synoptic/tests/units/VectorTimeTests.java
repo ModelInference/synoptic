@@ -16,7 +16,7 @@ import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.DTotalTime;
+import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.NonComparableTimesException;
 import synoptic.util.resource.NotComparableVectorsException;
 import synoptic.util.resource.VectorTime;
@@ -165,7 +165,7 @@ public class VectorTimeTests extends SynopticTest {
     public void lessThanDiffTimeTypesTest() {
         AbstractResource v, d;
         v = new VectorTime("1,2,3");
-        d = new DTotalTime(1);
+        d = new DTotalResource(1);
         v.lessThan(d);
     }
 
@@ -208,7 +208,7 @@ public class VectorTimeTests extends SynopticTest {
     public void compareToDiffTimeTypesTest() {
         AbstractResource v, d;
         v = new VectorTime("1,2,3");
-        d = new DTotalTime(1);
+        d = new DTotalResource(1);
         v.compareTo(d);
     }
 
@@ -265,7 +265,7 @@ public class VectorTimeTests extends SynopticTest {
     public void determineIthEventNonVTimeTest() {
         AbstractResource vtime, dtime;
         vtime = new VectorTime("1,2,3");
-        dtime = new DTotalTime(1);
+        dtime = new DTotalResource(1);
         List<EventNode> eventNodes = new LinkedList<EventNode>();
         eventNodes.add(new EventNode(new Event("a")));
         eventNodes.add(new EventNode(new Event("b")));

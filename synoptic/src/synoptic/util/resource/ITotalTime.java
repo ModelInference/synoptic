@@ -116,10 +116,10 @@ public class ITotalTime extends AbstractResource {
 
         // If the relativeTime is zero, the normalized time should be zero, too
         if (relativeTime.equals(relativeTime.getZeroResource())) {
-            return new DTotalTime(0.0);
+            return new DTotalResource(0.0);
         }
 
-        return new DTotalTime(1.0 * this.time
+        return new DTotalResource(1.0 * this.time
                 / ((ITotalTime) relativeTime).time);
     }
 
