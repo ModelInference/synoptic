@@ -31,7 +31,7 @@ public class LTotalTime extends AbstractResource {
     @Override
     public boolean lessThan(AbstractResource t) {
         if (!(t instanceof LTotalTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         return time < ((LTotalTime) t).time;
     }
@@ -70,7 +70,7 @@ public class LTotalTime extends AbstractResource {
     @Override
     public int compareTo(AbstractResource t) {
         if (!(t instanceof LTotalTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         return Long.valueOf(time).compareTo(((LTotalTime) t).time);
     }
@@ -82,7 +82,7 @@ public class LTotalTime extends AbstractResource {
         }
 
         if (!(other instanceof LTotalTime)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new LTotalTime(this.time - ((LTotalTime) other).time);
     }
@@ -94,7 +94,7 @@ public class LTotalTime extends AbstractResource {
         }
 
         if (!(other instanceof LTotalTime)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new LTotalTime(this.time + ((LTotalTime) other).time);
     }
@@ -111,7 +111,7 @@ public class LTotalTime extends AbstractResource {
     @Override
     public AbstractResource normalize(AbstractResource relativeTime) {
         if (!(relativeTime instanceof LTotalTime)) {
-            throw new NonComparableTimesException(this, relativeTime);
+            throw new NonComparableResourceException(this, relativeTime);
         }
 
         // If the relativeTime is zero, the normalized time should be zero, too
