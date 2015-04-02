@@ -31,7 +31,7 @@ public class DTotalResource extends AbstractResource {
     @Override
     public boolean lessThan(AbstractResource r) {
         if (!isComparable(r)) {
-            throw new NonComparableTimesException(this, r);
+            throw new NonComparableResourceException(this, r);
         }
         return value < ((DTotalResource) r).value;
     }
@@ -76,7 +76,7 @@ public class DTotalResource extends AbstractResource {
     @Override
     public int compareTo(AbstractResource r) {
         if (!isComparable(r)) {
-            throw new NonComparableTimesException(this, r);
+            throw new NonComparableResourceException(this, r);
         }
         return new Double(value).compareTo(((DTotalResource) r).value);
     }
@@ -88,7 +88,7 @@ public class DTotalResource extends AbstractResource {
         }
 
         if (!isComparable(other)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new DTotalResource(this.value - ((DTotalResource) other).value,
                 key);
@@ -101,7 +101,7 @@ public class DTotalResource extends AbstractResource {
         }
 
         if (!isComparable(other)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new DTotalResource(this.value + ((DTotalResource) other).value,
                 key);
@@ -118,7 +118,7 @@ public class DTotalResource extends AbstractResource {
     @Override
     public AbstractResource normalize(AbstractResource relativeResource) {
         if (!isComparable(relativeResource)) {
-            throw new NonComparableTimesException(this, relativeResource);
+            throw new NonComparableResourceException(this, relativeResource);
         }
 
         // If the relativeResource is zero, the normalized resource should be

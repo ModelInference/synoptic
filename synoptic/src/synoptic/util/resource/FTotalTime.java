@@ -31,7 +31,7 @@ public class FTotalTime extends AbstractResource {
     @Override
     public boolean lessThan(AbstractResource t) {
         if (!(t instanceof FTotalTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         return time < ((FTotalTime) t).time;
     }
@@ -70,7 +70,7 @@ public class FTotalTime extends AbstractResource {
     @Override
     public int compareTo(AbstractResource t) {
         if (!(t instanceof FTotalTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         return new Float(time).compareTo(((FTotalTime) t).time);
     }
@@ -82,7 +82,7 @@ public class FTotalTime extends AbstractResource {
         }
 
         if (!(other instanceof FTotalTime)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new FTotalTime(this.time - ((FTotalTime) other).time);
     }
@@ -94,7 +94,7 @@ public class FTotalTime extends AbstractResource {
         }
 
         if (!(other instanceof FTotalTime)) {
-            throw new NonComparableTimesException(this, other);
+            throw new NonComparableResourceException(this, other);
         }
         return new FTotalTime(this.time + ((FTotalTime) other).time);
     }
@@ -110,7 +110,7 @@ public class FTotalTime extends AbstractResource {
     @Override
     public AbstractResource normalize(AbstractResource relativeTime) {
         if (!(relativeTime instanceof FTotalTime)) {
-            throw new NonComparableTimesException(this, relativeTime);
+            throw new NonComparableResourceException(this, relativeTime);
         }
 
         // If the relativeTime is zero, the normalized time should be zero, too

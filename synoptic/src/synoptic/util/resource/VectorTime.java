@@ -177,7 +177,7 @@ public class VectorTime extends AbstractResource {
     @Override
     public boolean lessThan(AbstractResource t) {
         if (!(t instanceof VectorTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         VectorTime vTime = (VectorTime) t;
 
@@ -308,7 +308,7 @@ public class VectorTime extends AbstractResource {
     @Override
     public int compareTo(AbstractResource t) {
         if (!(t instanceof VectorTime)) {
-            throw new NonComparableTimesException(this, t);
+            throw new NonComparableResourceException(this, t);
         }
         if (this.equals(t)) {
             return 0;

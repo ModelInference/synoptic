@@ -17,7 +17,7 @@ import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
-import synoptic.util.resource.NonComparableTimesException;
+import synoptic.util.resource.NonComparableResourceException;
 import synoptic.util.resource.NotComparableVectorsException;
 import synoptic.util.resource.VectorTime;
 import synoptic.util.resource.WrongTimeTypeException;
@@ -161,7 +161,7 @@ public class VectorTimeTests extends SynopticTest {
     /**
      * Times of different types cannot be compared -- this throws an exception.
      */
-    @Test(expected = NonComparableTimesException.class)
+    @Test(expected = NonComparableResourceException.class)
     public void lessThanDiffTimeTypesTest() {
         AbstractResource v, d;
         v = new VectorTime("1,2,3");
@@ -204,7 +204,7 @@ public class VectorTimeTests extends SynopticTest {
     /**
      * Times of different types cannot be compared -- this throws an exception.
      */
-    @Test(expected = NonComparableTimesException.class)
+    @Test(expected = NonComparableResourceException.class)
     public void compareToDiffTimeTypesTest() {
         AbstractResource v, d;
         v = new VectorTime("1,2,3");
