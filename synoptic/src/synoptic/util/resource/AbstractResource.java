@@ -12,7 +12,7 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
     /**
      * The key identifying the resource
      */
-    protected String key;
+    protected final String key;
 
     public AbstractResource(String key) {
         this.key = key;
