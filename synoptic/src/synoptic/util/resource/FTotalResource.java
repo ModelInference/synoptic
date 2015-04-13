@@ -1,31 +1,31 @@
 package synoptic.util.resource;
 
 /**
- * A totally ordered resource type with a double value.
+ * A totally ordered resource type with a float value.
  */
-public class DTotalResource extends AbstractResource {
+public class FTotalResource extends AbstractResource {
     /** Resource value */
-    public double value;
+    public float value;
 
     /**
-     * Builds a Resource object from a double
+     * Builds a Resource object from a float
      * 
-     * @param d
+     * @param f
      */
-    public DTotalResource(double d) {
+    public FTotalResource(float f) {
         super("");
-        value = d;
+        value = f;
     }
 
     /**
-     * Builds a Resource object from a double and a resource key
+     * Builds a Resource object from a float and a resource key
      * 
-     * @param d
+     * @param f
      * @param key
      */
-    public DTotalResource(double d, String key) {
+    public FTotalResource(float f, String key) {
         super(key);
-        value = d;
+        value = f;
     }
 
     @Override
@@ -33,16 +33,14 @@ public class DTotalResource extends AbstractResource {
         if (!isComparable(r)) {
             throw new NonComparableResourceException(this, r);
         }
-        return value < ((DTotalResource) r).value;
+        return value < ((FTotalResource) r).value;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        long temp;
-        temp = Double.doubleToLongBits(value);
-        result = prime * result + (int) (temp ^ (temp >>> 32)) + key.hashCode();
+        result = prime * result + Float.floatToIntBits(value) + key.hashCode();
         return result;
     }
 
@@ -57,12 +55,11 @@ public class DTotalResource extends AbstractResource {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DTotalResource other = (DTotalResource) obj;
+        FTotalResource other = (FTotalResource) obj;
         if (!key.equals(other.key)) {
             return false;
         }
-        if (Double.doubleToLongBits(value) != Double
-                .doubleToLongBits(other.value)) {
+        if (Float.floatToIntBits(value) != Float.floatToIntBits(other.value)) {
             return false;
         }
         return true;
@@ -70,7 +67,7 @@ public class DTotalResource extends AbstractResource {
 
     @Override
     public String toString() {
-        return Double.toString(value);
+        return Float.toString(value);
     }
 
     @Override
@@ -78,7 +75,7 @@ public class DTotalResource extends AbstractResource {
         if (!isComparable(r)) {
             throw new NonComparableResourceException(this, r);
         }
-        return new Double(value).compareTo(((DTotalResource) r).value);
+        return new Float(value).compareTo(((FTotalResource) r).value);
     }
 
     @Override
@@ -90,8 +87,7 @@ public class DTotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new DTotalResource(this.value - ((DTotalResource) other).value,
-                key);
+        return new FTotalResource(this.value - ((FTotalResource) other).value);
     }
 
     @Override
@@ -103,8 +99,7 @@ public class DTotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new DTotalResource(this.value + ((DTotalResource) other).value,
-                key);
+        return new FTotalResource(this.value + ((FTotalResource) other).value);
     }
 
     @Override
@@ -112,7 +107,7 @@ public class DTotalResource extends AbstractResource {
         if (divisor == 0) {
             throw new IllegalArgumentException();
         }
-        return new DTotalResource(this.value / divisor, key);
+        return new FTotalResource(this.value / divisor, key);
     }
 
     @Override
@@ -121,18 +116,17 @@ public class DTotalResource extends AbstractResource {
             throw new NonComparableResourceException(this, relativeResource);
         }
 
-        // If the relativeResource is zero, the normalized resource should be
-        // zero, too
+        // If the relativeTime is zero, the normalized time should be zero, too
         if (relativeResource.equals(relativeResource.getZeroResource())) {
             return new DTotalResource(0.0, key);
         }
 
         return new DTotalResource(this.value
-                / ((DTotalResource) relativeResource).value);
+                / ((FTotalResource) relativeResource).value, key);
     }
 
     @Override
     public AbstractResource getZeroResource() {
-        return new DTotalResource(0.0, key);
+        return new FTotalResource(0.0f, key);
     }
 }
