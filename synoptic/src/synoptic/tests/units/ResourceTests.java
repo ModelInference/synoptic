@@ -14,9 +14,9 @@ import synoptic.util.resource.LTotalTime;
 import synoptic.util.resource.VectorTime;
 
 /**
- * Tests that exercise classes that implement the ITime interface.
+ * Tests that exercise classes that extends the AbstractResource abstract class.
  */
-public class ITimeTests extends SynopticTest {
+public class ResourceTests extends SynopticTest {
 
     /**
      * Tests correctness of delta computation.
@@ -62,7 +62,7 @@ public class ITimeTests extends SynopticTest {
     }
 
     /**
-     * Test that we can divide an ITotalTime instance.
+     * Test that we can divide an AbstractResource instance.
      */
     @Test
     public void testDivisionITotalTIme() {
