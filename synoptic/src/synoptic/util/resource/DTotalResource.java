@@ -42,7 +42,8 @@ public class DTotalResource extends AbstractResource {
         int result = 1;
         long temp;
         temp = Double.doubleToLongBits(value);
-        result = prime * result + (int) (temp ^ (temp >>> 32)) + key.hashCode();
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + key.hashCode();
         return result;
     }
 
