@@ -6,7 +6,7 @@ import java.util.Map;
 import daikonizer.DaikonInvariants;
 
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.TimeSeries;
+import synoptic.util.resource.ResourceSeries;
 
 /**
  * Maintains a map of labels that are associated with some transition. The types
@@ -92,13 +92,13 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
      * exist.
      */
     @SuppressWarnings("unchecked")
-    public TimeSeries<AbstractResource> getTimeDeltaSeries() {
+    public ResourceSeries<AbstractResource> getTimeDeltaSeries() {
         Object o = getLabel(TransitionLabelType.TIME_DELTA_SERIES_LABEL);
         if (o == null) {
             return null;
         }
-        assert (o instanceof TimeSeries);
-        return (TimeSeries<AbstractResource>) o;
+        assert (o instanceof ResourceSeries);
+        return (ResourceSeries<AbstractResource>) o;
     }
 
     /**

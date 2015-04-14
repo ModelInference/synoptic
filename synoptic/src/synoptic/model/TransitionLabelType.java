@@ -3,7 +3,7 @@ package synoptic.model;
 import daikonizer.DaikonInvariants;
 
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.TimeSeries;
+import synoptic.util.resource.ResourceSeries;
 
 /**
  * The set of labels that can be associated with a transition in Synoptic
@@ -32,7 +32,7 @@ public enum TransitionLabelType {
      * between the two events connected by this transition. This is like
      * TIME_DELTA_LABEL, but aggregated over multiple edges.
      */
-    TIME_DELTA_SERIES_LABEL("time-delta series", TimeSeries.class),
+    TIME_DELTA_SERIES_LABEL("time-delta series", ResourceSeries.class),
     /**
      * The set of relations associated with this transition.
      */
