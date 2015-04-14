@@ -10,7 +10,8 @@ import synoptic.model.EventNode;
  * A vector timestamps is a fixed array of integer "clocks". Typically, an
  * integer clock at index i represents the local time of process i. If the
  * system is distributed, then a process is a host. Therefore, the vector
- * represents a point in time in a multiprocess (or distributed) execution.
+ * represents a point in time in a multiprocess (or distributed) execution. A
+ * vector time is a special resource itself and has no key identifying it.
  */
 public class VectorTime extends AbstractResource {
     ArrayList<Integer> vector = new ArrayList<Integer>();
@@ -108,24 +109,6 @@ public class VectorTime extends AbstractResource {
     }
 
     /**
-     * Builds a VectorTime from a string that looks like "1,2,3" and a resource
-     * key
-     * 
-     * @param timeStr
-     *            string input representing a vtime
-     * @param key
-     */
-    public VectorTime(String timeStr, String key)
-            throws IllegalArgumentException {
-        super(key);
-        String[] times = timeStr.split(",");
-        for (String t : times) {
-            Integer i = Integer.parseInt(t);
-            vector.add(i);
-        }
-    }
-
-    /**
      * Builds a VectorTime from a vector
      * 
      * @param vector
@@ -137,35 +120,12 @@ public class VectorTime extends AbstractResource {
     }
 
     /**
-     * Builds a VectorTime from a vector and a resource key
-     * 
-     * @param vector
-     *            input vector
-     * @param key
-     */
-    public VectorTime(List<Integer> vector, String key)
-            throws IllegalArgumentException {
-        super(key);
-        this.vector.addAll(vector);
-    }
-
-    /**
      * Builds a VectorTime from a single Integer.
      * 
      * @param i
      */
     public VectorTime(Integer i) {
         super("");
-        vector.add(i);
-    }
-
-    /**
-     * Builds a VectorTime from a single Integer and a resource key.
-     * 
-     * @param i
-     */
-    public VectorTime(Integer i, String key) {
-        super(key);
         vector.add(i);
     }
 
