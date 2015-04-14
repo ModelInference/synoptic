@@ -45,7 +45,7 @@ import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.EqualVectorTimestampsException;
 import synoptic.util.resource.FTotalResource;
 import synoptic.util.resource.ITotalResource;
-import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.LTotalResource;
 import synoptic.util.resource.NotComparableVectorsException;
 import synoptic.util.resource.VectorTime;
 
@@ -1059,7 +1059,7 @@ public class TraceParser {
                         nextTime = new ITotalResource(t);
                     } else if (selectedTimeGroup.equals("LTIME")) {
                         long t = Long.parseLong(timeField.trim());
-                        nextTime = new LTotalTime(t);
+                        nextTime = new LTotalResource(t);
                     } else if (selectedTimeGroup.equals("FTIME")) {
                         float t = Float.parseFloat(timeField.trim());
                         nextTime = new FTotalResource(t);
@@ -1075,7 +1075,7 @@ public class TraceParser {
                             throw new ParseException(error);
                         }
                         Date date = dateFormatter.parse(timeField.trim());
-                        nextTime = new LTotalTime(date.getTime());
+                        nextTime = new LTotalResource(date.getTime());
                     } else {
                         String error = buildLineErrorLocString(line, fileName,
                                 lineNum)

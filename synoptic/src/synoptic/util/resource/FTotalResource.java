@@ -119,7 +119,8 @@ public class FTotalResource extends AbstractResource {
             throw new NonComparableResourceException(this, relativeResource);
         }
 
-        // If the relativeTime is zero, the normalized time should be zero, too
+        // If the relativeResource is zero, the normalized resource should be
+        // zero, too
         if (relativeResource.equals(relativeResource.getZeroResource())) {
             return new DTotalResource(0.0, key);
         }
