@@ -40,7 +40,8 @@ public class FTotalResource extends AbstractResource {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Float.floatToIntBits(value) + key.hashCode();
+        result = prime * result + Float.floatToIntBits(value);
+        result = prime * result + key.hashCode();
         return result;
     }
 
@@ -87,7 +88,8 @@ public class FTotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new FTotalResource(this.value - ((FTotalResource) other).value);
+        return new FTotalResource(this.value - ((FTotalResource) other).value,
+                key);
     }
 
     @Override
@@ -99,7 +101,8 @@ public class FTotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new FTotalResource(this.value + ((FTotalResource) other).value);
+        return new FTotalResource(this.value + ((FTotalResource) other).value,
+                key);
     }
 
     @Override
