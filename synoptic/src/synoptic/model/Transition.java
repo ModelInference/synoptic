@@ -6,7 +6,7 @@ import java.util.Set;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.TimeSeries;
+import synoptic.util.resource.ResourceSeries;
 
 /**
  * An implementation of a transition.
@@ -153,7 +153,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     }
 
     @Override
-    public TimeSeries<AbstractResource> getDeltaSeries() {
+    public ResourceSeries<AbstractResource> getDeltaSeries() {
         if (this.labels.getTimeDelta() != null) {
             throw new IllegalStateException("Delta already set.");
         }
@@ -176,7 +176,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
         }
 
         createSeriesIfEmpty();
-        TimeSeries<AbstractResource> series = this.labels.getTimeDeltaSeries();
+        ResourceSeries<AbstractResource> series = this.labels.getTimeDeltaSeries();
         series.addDelta(newDelta);
     }
 
@@ -186,7 +186,7 @@ public class Transition<NodeType extends INode<NodeType>> implements ITransition
     private void createSeriesIfEmpty() {
         if (this.labels.getTimeDeltaSeries() == null) {
             this.labels.setLabel(TransitionLabelType.TIME_DELTA_SERIES_LABEL,
-                    new TimeSeries<AbstractResource>());
+                    new ResourceSeries<AbstractResource>());
         }
     }
 

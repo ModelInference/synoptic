@@ -4,7 +4,7 @@ import java.util.Set;
 
 import synoptic.model.TransitionLabelsMap;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.TimeSeries;
+import synoptic.util.resource.ResourceSeries;
 
 /**
  * A generic interface for a transition. This interface provides method to
@@ -84,7 +84,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a single delta has been set.
      */
-    TimeSeries<AbstractResource> getDeltaSeries();
+    ResourceSeries<AbstractResource> getDeltaSeries();
 
     /**
      * Adds a delta to the series. If the series of deltas is missing, then one

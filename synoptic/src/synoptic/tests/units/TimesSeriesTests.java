@@ -9,15 +9,15 @@ import org.junit.Test;
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalResource;
-import synoptic.util.resource.TimeSeries;
+import synoptic.util.resource.ResourceSeries;
 
 public class TimesSeriesTests extends SynopticTest {
 
-    private TimeSeries<ITotalResource> times;
+    private ResourceSeries<ITotalResource> times;
 
     @Before
     public void resettimes() {
-        times = new TimeSeries<ITotalResource>();
+        times = new ResourceSeries<ITotalResource>();
     }
 
     // Does it compute the mode with only one value?
@@ -74,7 +74,7 @@ public class TimesSeriesTests extends SynopticTest {
 
     @Test
     public void medianTestEvenNumberOfValues() {
-        TimeSeries<DTotalResource> dtimes = new TimeSeries<DTotalResource>();
+        ResourceSeries<DTotalResource> dtimes = new ResourceSeries<DTotalResource>();
         for (int i = 1; i <= 6; i++) {
             dtimes.addDelta(new DTotalResource(i));
         }
