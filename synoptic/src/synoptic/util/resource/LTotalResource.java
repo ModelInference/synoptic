@@ -1,30 +1,29 @@
 package synoptic.util.resource;
 
 /**
- * A totally ordered resource type with an integer value.
+ * A totally ordered resource type with a long integer value.
  */
-public class ITotalResource extends AbstractResource {
+public class LTotalResource extends AbstractResource {
     /** Resource value */
-    public int value;
-    String stuff;
+    public long value;
 
     /**
-     * Builds a Resource object from an int
+     * Builds a Resource object from an long
      * 
      * @param i
      */
-    public ITotalResource(int i) {
+    public LTotalResource(long i) {
         super("");
         value = i;
     }
 
     /**
-     * Builds a Resource object from an int and a resource key
+     * Builds a Resource object form a long and a resource key
      * 
      * @param i
      * @param key
      */
-    public ITotalResource(int i, String key) {
+    public LTotalResource(long i, String key) {
         super(key);
         value = i;
     }
@@ -34,14 +33,14 @@ public class ITotalResource extends AbstractResource {
         if (!isComparable(r)) {
             throw new NonComparableResourceException(this, r);
         }
-        return value < ((ITotalResource) r).value;
+        return value < ((LTotalResource) r).value;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + value;
+        result = prime * result + (int) value;
         result = prime * result + key.hashCode();
         return result;
     }
@@ -57,7 +56,7 @@ public class ITotalResource extends AbstractResource {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ITotalResource other = (ITotalResource) obj;
+        LTotalResource other = (LTotalResource) obj;
         if (!key.equals(other.key)) {
             return false;
         }
@@ -69,7 +68,7 @@ public class ITotalResource extends AbstractResource {
 
     @Override
     public String toString() {
-        return Integer.toString(value);
+        return Long.toString(value);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class ITotalResource extends AbstractResource {
         if (!isComparable(r)) {
             throw new NonComparableResourceException(this, r);
         }
-        return Integer.valueOf(value).compareTo(((ITotalResource) r).value);
+        return Long.valueOf(value).compareTo(((LTotalResource) r).value);
     }
 
     @Override
@@ -89,8 +88,7 @@ public class ITotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new ITotalResource(this.value - ((ITotalResource) other).value,
-                key);
+        return new LTotalResource(this.value - ((LTotalResource) other).value, key);
     }
 
     @Override
@@ -102,8 +100,7 @@ public class ITotalResource extends AbstractResource {
         if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new ITotalResource(this.value + ((ITotalResource) other).value,
-                key);
+        return new LTotalResource(this.value + ((LTotalResource) other).value, key);
     }
 
     @Override
@@ -112,7 +109,7 @@ public class ITotalResource extends AbstractResource {
             throw new IllegalArgumentException();
         }
 
-        return new ITotalResource(this.value / divisor, key);
+        return new LTotalResource(this.value / divisor, key);
     }
 
     @Override
@@ -128,11 +125,11 @@ public class ITotalResource extends AbstractResource {
         }
 
         return new DTotalResource(1.0 * this.value
-                / ((ITotalResource) relativeResource).value, key);
+                / ((LTotalResource) relativeResource).value, key);
     }
 
     @Override
     public AbstractResource getZeroResource() {
-        return new ITotalResource(0, key);
+        return new LTotalResource(0, key);
     }
 }

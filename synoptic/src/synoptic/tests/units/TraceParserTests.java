@@ -37,7 +37,7 @@ import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.FTotalResource;
 import synoptic.util.resource.ITotalResource;
-import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.LTotalResource;
 import synoptic.util.resource.VectorTime;
 
 /**
@@ -339,7 +339,7 @@ public class TraceParserTests extends SynopticTest {
                 } catch (java.text.ParseException e1) {
                     throw new ParseException(e1.getMessage(), e1.getCause());
                 }
-                assertTrue(new LTotalTime(eventDate.getTime())
+                assertTrue(new LTotalResource(eventDate.getTime())
                         .equals(eventTime));
             }
 

@@ -10,7 +10,7 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalResource;
-import synoptic.util.resource.LTotalTime;
+import synoptic.util.resource.LTotalResource;
 import synoptic.util.resource.VectorTime;
 
 /**
@@ -77,9 +77,9 @@ public class ResourceTests extends SynopticTest {
      */
     @Test
     public void testDivisionLTotalTIme() {
-        AbstractResource t1 = new LTotalTime(10);
+        AbstractResource t1 = new LTotalResource(10);
         AbstractResource t2 = t1.divBy(2);
-        AbstractResource oracle = new LTotalTime(5);
+        AbstractResource oracle = new LTotalResource(5);
         assertEquals(oracle, t2);
     }
 
@@ -111,10 +111,10 @@ public class ResourceTests extends SynopticTest {
      */
     @Test
     public void testLTotalTimeIncr() {
-        AbstractResource t1 = new LTotalTime(1);
-        AbstractResource t2 = new LTotalTime(5);
+        AbstractResource t1 = new LTotalResource(1);
+        AbstractResource t2 = new LTotalResource(5);
         AbstractResource result = t1.incrBy(t2);
-        AbstractResource oracle = new LTotalTime(6);
+        AbstractResource oracle = new LTotalResource(6);
         assertEquals(oracle, result);
     }
 
