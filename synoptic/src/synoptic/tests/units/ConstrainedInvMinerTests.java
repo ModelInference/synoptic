@@ -24,7 +24,7 @@ import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 
 /**
  * Tests for mining constrained invariants.
@@ -175,7 +175,7 @@ public class ConstrainedInvMinerTests extends PynopticTest {
         TempConstrainedInvariant<?> upperInv = getConstrainedInv(minedInvs,
                 "a AFby b upper");
 
-        AbstractResource actualTime = new ITotalTime(3);
+        AbstractResource actualTime = new ITotalResource(3);
 
         assertEquals(actualTime, lowerInv.getConstraint().getThreshold());
         assertEquals(actualTime, upperInv.getConstraint().getThreshold());

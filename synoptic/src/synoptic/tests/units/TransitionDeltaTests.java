@@ -11,7 +11,7 @@ import synoptic.model.EventNode;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 
 /**
  * Tests for verifying proper state when adding/mutating the innards of the
@@ -26,7 +26,7 @@ public class TransitionDeltaTests {
 
     @Before
     public void createTransitions() {
-        t = new ITotalTime(1);
+        t = new ITotalResource(1);
         sTrans = new Transition<EventNode>(new EventNode(new Event("event1")), 
                 new EventNode(new Event("event2")), "");
     }

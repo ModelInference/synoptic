@@ -44,7 +44,7 @@ import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.EqualVectorTimestampsException;
 import synoptic.util.resource.FTotalResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalTime;
 import synoptic.util.resource.NotComparableVectorsException;
 import synoptic.util.resource.VectorTime;
@@ -1036,7 +1036,7 @@ public class TraceParser {
             // an exception.
             if (selectedTimeGroup == implicitTimeGroup) {
                 // Implicit case: LOGTIME
-                nextTime = new ITotalTime(lineNum);
+                nextTime = new ITotalResource(lineNum);
             } else {
                 // Explicit case.
                 String timeField = matched.get(selectedTimeGroup);
@@ -1056,7 +1056,7 @@ public class TraceParser {
                 try {
                     if (selectedTimeGroup.equals("TIME")) {
                         int t = Integer.parseInt(timeField.trim());
-                        nextTime = new ITotalTime(t);
+                        nextTime = new ITotalResource(t);
                     } else if (selectedTimeGroup.equals("LTIME")) {
                         long t = Long.parseLong(timeField.trim());
                         nextTime = new LTotalTime(t);
@@ -1207,7 +1207,7 @@ public class TraceParser {
                     lineNum);
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
-                event.setTime(new ITotalTime(lineNum));
+                event.setTime(new ITotalResource(lineNum));
             } else {
                 // We can't recover with vector time -- incrementing it simply
                 // doesn't make sense.

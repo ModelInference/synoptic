@@ -9,7 +9,7 @@ import org.junit.Test;
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalTime;
 import synoptic.util.resource.VectorTime;
 
@@ -66,9 +66,9 @@ public class ResourceTests extends SynopticTest {
      */
     @Test
     public void testDivisionITotalTIme() {
-        AbstractResource t1 = new ITotalTime(10);
+        AbstractResource t1 = new ITotalResource(10);
         AbstractResource t2 = t1.divBy(2);
-        AbstractResource oracle = new ITotalTime(5);
+        AbstractResource oracle = new ITotalResource(5);
         assertEquals(oracle, t2);
     }
 
@@ -99,10 +99,10 @@ public class ResourceTests extends SynopticTest {
      */
     @Test
     public void testITotalTimeIncr() {
-        AbstractResource t1 = new ITotalTime(1);
-        AbstractResource t2 = new ITotalTime(5);
+        AbstractResource t1 = new ITotalResource(1);
+        AbstractResource t2 = new ITotalResource(5);
         AbstractResource result = t1.incrBy(t2);
-        AbstractResource oracle = new ITotalTime(6);
+        AbstractResource oracle = new ITotalResource(6);
         assertEquals(oracle, result);
     }
 

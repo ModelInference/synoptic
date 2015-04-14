@@ -1,20 +1,21 @@
 package synoptic.util.resource;
 
 /**
- * A totally ordered time type with an integer value.
+ * A totally ordered resource type with an integer value.
  */
-public class ITotalTime extends AbstractResource {
-    /** Time value */
-    public int time;
+public class ITotalResource extends AbstractResource {
+    /** Resource value */
+    public int value;
+    String stuff;
 
     /**
-     * Builds a Time object from an int
+     * Builds a Resource object from an int
      * 
      * @param i
      */
-    public ITotalTime(int i) {
+    public ITotalResource(int i) {
         super("");
-        time = i;
+        value = i;
     }
 
     /**
@@ -23,24 +24,25 @@ public class ITotalTime extends AbstractResource {
      * @param i
      * @param key
      */
-    public ITotalTime(int i, String key) {
+    public ITotalResource(int i, String key) {
         super(key);
-        time = i;
+        value = i;
     }
 
     @Override
-    public boolean lessThan(AbstractResource t) {
-        if (!(t instanceof ITotalTime)) {
-            throw new NonComparableResourceException(this, t);
+    public boolean lessThan(AbstractResource r) {
+        if (!isComparable(r)) {
+            throw new NonComparableResourceException(this, r);
         }
-        return time < ((ITotalTime) t).time;
+        return value < ((ITotalResource) r).value;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + time;
+        result = prime * result + value;
+        result = prime * result + key.hashCode();
         return result;
     }
 
@@ -55,8 +57,11 @@ public class ITotalTime extends AbstractResource {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ITotalTime other = (ITotalTime) obj;
-        if (time != other.time) {
+        ITotalResource other = (ITotalResource) obj;
+        if (!key.equals(other.key)) {
+            return false;
+        }
+        if (value != other.value) {
             return false;
         }
         return true;
@@ -64,15 +69,15 @@ public class ITotalTime extends AbstractResource {
 
     @Override
     public String toString() {
-        return Integer.toString(time);
+        return Integer.toString(value);
     }
 
     @Override
-    public int compareTo(AbstractResource t) {
-        if (!(t instanceof ITotalTime)) {
-            throw new NonComparableResourceException(this, t);
+    public int compareTo(AbstractResource r) {
+        if (!isComparable(r)) {
+            throw new NonComparableResourceException(this, r);
         }
-        return Integer.valueOf(time).compareTo(((ITotalTime) t).time);
+        return Integer.valueOf(value).compareTo(((ITotalResource) r).value);
     }
 
     @Override
@@ -81,10 +86,11 @@ public class ITotalTime extends AbstractResource {
             return this;
         }
 
-        if (!(other instanceof ITotalTime)) {
+        if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new ITotalTime(this.time - ((ITotalTime) other).time);
+        return new ITotalResource(this.value - ((ITotalResource) other).value,
+                key);
     }
 
     @Override
@@ -93,10 +99,11 @@ public class ITotalTime extends AbstractResource {
             return this;
         }
 
-        if (!(other instanceof ITotalTime)) {
+        if (!isComparable(other)) {
             throw new NonComparableResourceException(this, other);
         }
-        return new ITotalTime(this.time + ((ITotalTime) other).time);
+        return new ITotalResource(this.value + ((ITotalResource) other).value,
+                key);
     }
 
     @Override
@@ -105,26 +112,26 @@ public class ITotalTime extends AbstractResource {
             throw new IllegalArgumentException();
         }
 
-        return new ITotalTime(this.time / divisor);
+        return new ITotalResource(this.value / divisor, key);
     }
 
     @Override
     public AbstractResource normalize(AbstractResource relativeTime) {
-        if (!(relativeTime instanceof ITotalTime)) {
+        if (!isComparable(relativeTime)) {
             throw new NonComparableResourceException(this, relativeTime);
         }
 
         // If the relativeTime is zero, the normalized time should be zero, too
         if (relativeTime.equals(relativeTime.getZeroResource())) {
-            return new DTotalResource(0.0);
+            return new DTotalResource(0.0, key);
         }
 
-        return new DTotalResource(1.0 * this.time
-                / ((ITotalTime) relativeTime).time);
+        return new DTotalResource(1.0 * this.value
+                / ((ITotalResource) relativeTime).value, key);
     }
 
     @Override
     public AbstractResource getZeroResource() {
-        return new ITotalTime(0);
+        return new ITotalResource(0, key);
     }
 }

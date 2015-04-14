@@ -25,7 +25,7 @@ import synoptic.model.Relation;
 import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 
 /**
  * Tests for the ChainsTraceGraph class.
@@ -213,10 +213,10 @@ public class ChainsTraceGraphTests extends SynopticTest {
         events.add(eventB);
         events.add(eventC);
         events.add(eventD);
-        eventA.getEvent().setTime(new ITotalTime(0));
-        eventB.getEvent().setTime(new ITotalTime(5));
-        eventC.getEvent().setTime(new ITotalTime(3));
-        eventD.getEvent().setTime(new ITotalTime(9));
+        eventA.getEvent().setTime(new ITotalResource(0));
+        eventB.getEvent().setTime(new ITotalResource(5));
+        eventC.getEvent().setTime(new ITotalResource(3));
+        eventD.getEvent().setTime(new ITotalResource(9));
 
         Set<Relation> relations = new HashSet<Relation>();
         relations.add(new Relation("time-relation", "t", false));
