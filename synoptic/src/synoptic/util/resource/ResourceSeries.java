@@ -8,16 +8,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Encapsulates a list of resource instances that extend AbstractResource.
+ * Encapsulates a list of resource instances of the same type as identified by
+ * the key that extend AbstractResource.
  */
 public class ResourceSeries<ResourceType extends AbstractResource> implements
         Comparable<ResourceSeries<AbstractResource>> {
     private List<ResourceType> resources;
     boolean isSorted;
+    private final String key;
 
     public ResourceSeries() {
         resources = new ArrayList<ResourceType>();
         isSorted = true;
+        key = "";
+    }
+
+    public ResourceSeries(String key) {
+        resources = new ArrayList<ResourceType>();
+        isSorted = true;
+        this.key = key;
     }
 
     /**
@@ -197,6 +206,9 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
      */
     public void addDelta(ResourceType r) {
         assert r != null;
+        if (!r.key.equals(key)) {
+            throw new WrongResourceTypeException(key, r);
+        }
         resources.add(r);
         isSorted = false;
     }
@@ -209,11 +221,20 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
      */
     public void addAllDeltas(Collection<ResourceType> deltas) {
         assert deltas != null;
+        for (ResourceType delta : deltas) {
+            if (!delta.key.equals(key)) {
+                throw new WrongResourceTypeException(key, delta);
+            }
+        }
         resources.addAll(deltas);
     }
 
     public List<ResourceType> getAllDeltas() {
         return resources;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     @Override
