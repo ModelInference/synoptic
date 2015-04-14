@@ -19,7 +19,7 @@ import synoptic.model.Partition;
 import synoptic.model.event.Event;
 import synoptic.tests.PynopticTest;
 import synoptic.util.resource.AbstractResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 
 /**
  * Tests for finding counter-example paths using TracingStateSets for
@@ -205,7 +205,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // Counter-example path should store time at the end of violation
             // subpath as 120 after taking all max time transitions
             // ( x --60--> y --60--> z )
-            AbstractResource t120 = new ITotalTime(120);
+            AbstractResource t120 = new ITotalResource(120);
             assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t120) == 0);
         }
 
@@ -214,7 +214,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // Counter-example path should store time at the end of violation
             // subpath as 22 after taking all min time transitions
             // ( x --11--> y --11--> z )
-            AbstractResource t22 = new ITotalTime(22);
+            AbstractResource t22 = new ITotalResource(22);
             assertTrue(cExPath.tDeltas.get(vEnd).compareTo(t22) == 0);
         }
     }
@@ -315,7 +315,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // After taking all max time transitions, counter-example path
             // should store time at the end of violation subpath as 8.
             // ( x --4--> z --4--> x )
-            AbstractResource t8 = new ITotalTime(8);
+            AbstractResource t8 = new ITotalResource(8);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t8) == 0);
             assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t8) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t8) == 0);
@@ -326,7 +326,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
             // After taking all min time transitions, counter-example path
             // should store time at the end of violation subpath as 2.
             // ( x --1--> z --1--> x )
-            AbstractResource t2 = new ITotalTime(2);
+            AbstractResource t2 = new ITotalResource(2);
             assertTrue(cExPathX.tDeltas.get(vEndX).compareTo(t2) == 0);
             assertTrue(cExPathZ.tDeltas.get(vEndZ).compareTo(t2) == 0);
             assertTrue(cExPathTerm.tDeltas.get(vEndTerm).compareTo(t2) == 0);
@@ -362,7 +362,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     public void stateSubsetTest() throws Exception {
         // Create a legal node to be the "inhabited states"
         ConstrainedHistoryNode<Partition> node = new ConstrainedHistoryNode<Partition>(
-                new Partition(new EventNode(new Event(""))), new ITotalTime(0));
+                new Partition(new EventNode(new Event(""))), new ITotalResource(0));
 
         // Create the lists of inhabited states: (0,2,3) and (0,2)
         List<ConstrainedHistoryNode<Partition>> cTSetStates = new ArrayList<ConstrainedHistoryNode<Partition>>();

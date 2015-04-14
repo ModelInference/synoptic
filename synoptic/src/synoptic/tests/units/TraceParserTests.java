@@ -36,7 +36,7 @@ import synoptic.util.Predicate.IBoolBinary;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.FTotalResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalTime;
 import synoptic.util.resource.VectorTime;
 
@@ -323,7 +323,7 @@ public class TraceParserTests extends SynopticTest {
                 assertTrue(new VectorTime(timeStrs[i]).equals(eventTime));
             } else if (timeType.equals("TIME")) {
                 int itime = Integer.parseInt(timeStrs[i]);
-                assertTrue(new ITotalTime(itime).equals(eventTime));
+                assertTrue(new ITotalResource(itime).equals(eventTime));
             } else if (timeType.equals("FTIME")) {
                 assertTrue(new FTotalResource(Float.parseFloat(timeStrs[i]))
                         .equals(eventTime));
@@ -1482,9 +1482,9 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
 
-        AbstractResource a = new ITotalTime(5);
-        AbstractResource b = new ITotalTime(9);
-        AbstractResource c = new ITotalTime(11);
+        AbstractResource a = new ITotalResource(5);
+        AbstractResource b = new ITotalResource(9);
+        AbstractResource c = new ITotalResource(11);
 
         assertTrue(events.get(0).getTime().equals(a));
         assertTrue(events.get(1).getTime().equals(b));

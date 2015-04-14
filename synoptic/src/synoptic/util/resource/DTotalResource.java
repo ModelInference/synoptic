@@ -128,7 +128,7 @@ public class DTotalResource extends AbstractResource {
         }
 
         return new DTotalResource(this.value
-                / ((DTotalResource) relativeResource).value);
+                / ((DTotalResource) relativeResource).value, key);
     }
 
     @Override

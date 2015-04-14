@@ -8,23 +8,23 @@ import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
 import synoptic.util.resource.DTotalResource;
-import synoptic.util.resource.ITotalTime;
+import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.TimeSeries;
 
 public class TimesSeriesTests extends SynopticTest {
 
-    private TimeSeries<ITotalTime> times;
+    private TimeSeries<ITotalResource> times;
 
     @Before
     public void resettimes() {
-        times = new TimeSeries<ITotalTime>();
+        times = new TimeSeries<ITotalResource>();
     }
 
     // Does it compute the mode with only one value?
     @Test
     public void modeDeltaTestOneValue() {
-        times.addDelta(new ITotalTime(1));
-        assertEquals(new ITotalTime(1), times.computeMode());
+        times.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), times.computeMode());
     }
 
     // Does it compute the mode with no values?
@@ -37,25 +37,25 @@ public class TimesSeriesTests extends SynopticTest {
     // (one is the most used).
     @Test
     public void modeDeltaTestManyValues() {
-        times.addDelta(new ITotalTime(1));
-        times.addDelta(new ITotalTime(8));
-        times.addDelta(new ITotalTime(2));
-        times.addDelta(new ITotalTime(1));
-        times.addDelta(new ITotalTime(8));
-        times.addDelta(new ITotalTime(1));
-        times.addDelta(new ITotalTime(16));
-        times.addDelta(new ITotalTime(16));
-        times.addDelta(new ITotalTime(1));
-        times.addDelta(new ITotalTime(8));
-        times.addDelta(new ITotalTime(1));
-        assertEquals(new ITotalTime(1), times.computeMode());
+        times.addDelta(new ITotalResource(1));
+        times.addDelta(new ITotalResource(8));
+        times.addDelta(new ITotalResource(2));
+        times.addDelta(new ITotalResource(1));
+        times.addDelta(new ITotalResource(8));
+        times.addDelta(new ITotalResource(1));
+        times.addDelta(new ITotalResource(16));
+        times.addDelta(new ITotalResource(16));
+        times.addDelta(new ITotalResource(1));
+        times.addDelta(new ITotalResource(8));
+        times.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), times.computeMode());
     }
 
     // Does the median work with one value?
     @Test
     public void medianTestOneValue() {
-        times.addDelta(new ITotalTime(1));
-        assertEquals(new ITotalTime(1), times.computeMedian());
+        times.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), times.computeMedian());
     }
 
     @Test
@@ -66,10 +66,10 @@ public class TimesSeriesTests extends SynopticTest {
     @Test
     public void medianTestOddNumberOfValues() {
         for (int i = 1; i <= 5; i++) {
-            times.addDelta(new ITotalTime(i));
+            times.addDelta(new ITotalResource(i));
         }
 
-        assertEquals(new ITotalTime(3), times.computeMedian());
+        assertEquals(new ITotalResource(3), times.computeMedian());
     }
 
     @Test
@@ -84,8 +84,8 @@ public class TimesSeriesTests extends SynopticTest {
 
     @Test
     public void meanTestOneValue() {
-        times.addDelta(new ITotalTime(1));
-        assertEquals(new ITotalTime(1), times.computeMean());
+        times.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), times.computeMean());
     }
 
     @Test
@@ -95,10 +95,10 @@ public class TimesSeriesTests extends SynopticTest {
 
     @Test
     public void meanTestManyValues() {
-        times.addDelta(new ITotalTime(1));
-        times.addDelta(new ITotalTime(2));
-        times.addDelta(new ITotalTime(5));
-        times.addDelta(new ITotalTime(8));
-        assertEquals(new ITotalTime(4), times.computeMean());
+        times.addDelta(new ITotalResource(1));
+        times.addDelta(new ITotalResource(2));
+        times.addDelta(new ITotalResource(5));
+        times.addDelta(new ITotalResource(8));
+        assertEquals(new ITotalResource(4), times.computeMean());
     }
 }
