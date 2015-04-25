@@ -1,6 +1,9 @@
 package synoptic.tests.units;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 
@@ -11,6 +14,7 @@ import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalResource;
+import synoptic.util.resource.NonComparableResourceException;
 import synoptic.util.resource.VectorTime;
 
 /**
@@ -161,5 +165,153 @@ public class ResourceTests extends SynopticTest {
         VectorTime v1 = new VectorTime(1);
         VectorTime v2 = new VectorTime(2);
         v1.incrBy(v2);
+    }
+
+    /**
+     * Test equals and hashcode for equal resources.
+     */
+    @Test
+    public void testEqualsHashcodeEqualResources() {
+        AbstractResource r1;
+        AbstractResource r2;
+
+        r1 = new DTotalResource(4);
+        r2 = new DTotalResource(4);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+
+        r1 = new ITotalResource(4);
+        r2 = new ITotalResource(4);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+
+        r1 = new LTotalResource(4);
+        r2 = new LTotalResource(4);
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+    }
+
+    /**
+     * Test equals and hashcode for equal resources with resource key.
+     */
+    @Test
+    public void testEqualsHashcodeEqualResourcesWithKey() {
+        AbstractResource r1;
+        AbstractResource r2;
+
+        r1 = new DTotalResource(4, "key");
+        r2 = new DTotalResource(4, "key");
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+
+        r1 = new ITotalResource(4, "key");
+        r2 = new ITotalResource(4, "key");
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+
+        r1 = new LTotalResource(4, "key");
+        r2 = new LTotalResource(4, "key");
+        assertEquals(r1.hashCode(), r2.hashCode());
+        assertTrue(r1.equals(r2));
+    }
+
+    /**
+     * Test equals and hashcode for unequal resources.
+     */
+    @Test
+    public void testEqualsHashcodeUnequalResources() {
+        AbstractResource r1;
+        AbstractResource r2;
+
+        r1 = new DTotalResource(4);
+        r2 = new DTotalResource(2);
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new ITotalResource(4);
+        r2 = new ITotalResource(2);
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new LTotalResource(4);
+        r2 = new LTotalResource(2);
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new LTotalResource(4);
+        r2 = new DTotalResource(4);
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+    }
+
+    /**
+     * Test equals and hashcode for unequal resources with resource key.
+     */
+    @Test
+    public void testEqualsHashcodeUnequalResourcesWithKey() {
+        AbstractResource r1;
+        AbstractResource r2;
+
+        r1 = new DTotalResource(4, "key");
+        r2 = new DTotalResource(4, "notkey");
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new ITotalResource(4, "key");
+        r2 = new ITotalResource(2, "key");
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new LTotalResource(4, "key");
+        r2 = new DTotalResource(4, "key");
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+
+        r1 = new LTotalResource(4, "key");
+        r2 = new LTotalResource(4);
+        assertTrue(r1.hashCode() != r2.hashCode());
+        assertFalse(r1.equals(r2));
+    }
+
+    @Test
+    public void testIncompatibleResourceOperation() {
+        AbstractResource r1;
+        AbstractResource r2;
+
+        r1 = new DTotalResource(4, "key");
+        r2 = new DTotalResource(4, "notkey");
+        try {
+            r1.compareTo(r2);
+            fail("NonComparableResourceException expected");
+        } catch (NonComparableResourceException e) {
+            // Success
+        }
+
+        r1 = new DTotalResource(4, "key");
+        r2 = new DTotalResource(4);
+        try {
+            r1.computeDelta(r2);
+            fail("NonComparableResourceException expected");
+        } catch (NonComparableResourceException e) {
+            // Success
+        }
+
+        r1 = new DTotalResource(4, "key");
+        r2 = new ITotalResource(4, "key");
+        try {
+            r1.incrBy(r2);
+            fail("NonComparableResourceException expected");
+        } catch (NonComparableResourceException e) {
+            // Success
+        }
+
+        r1 = new DTotalResource(4);
+        r2 = new ITotalResource(4);
+        try {
+            r1.compareTo(r2);
+            fail("NonComparableResourceException expected");
+        } catch (NonComparableResourceException e) {
+            // Success
+        }
     }
 }
