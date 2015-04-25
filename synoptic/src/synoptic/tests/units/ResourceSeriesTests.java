@@ -2,6 +2,7 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.ResourceSeries;
+import synoptic.util.resource.WrongResourceTypeException;
 
 public class ResourceSeriesTests extends SynopticTest {
 
@@ -25,6 +27,13 @@ public class ResourceSeriesTests extends SynopticTest {
     public void modeDeltaTestOneValue() {
         resources.addDelta(new ITotalResource(1));
         assertEquals(new ITotalResource(1), resources.computeMode());
+    }
+
+    @Test
+    public void modeDeltaTestOneValueKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMode());
     }
 
     // Does it compute the mode with no values?
@@ -51,11 +60,35 @@ public class ResourceSeriesTests extends SynopticTest {
         assertEquals(new ITotalResource(1), resources.computeMode());
     }
 
+    @Test
+    public void modeDeltaTestManyValuesKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        resources.addDelta(new ITotalResource(8, "key"));
+        resources.addDelta(new ITotalResource(2, "key"));
+        resources.addDelta(new ITotalResource(1, "key"));
+        resources.addDelta(new ITotalResource(8, "key"));
+        resources.addDelta(new ITotalResource(1, "key"));
+        resources.addDelta(new ITotalResource(16, "key"));
+        resources.addDelta(new ITotalResource(16, "key"));
+        resources.addDelta(new ITotalResource(1, "key"));
+        resources.addDelta(new ITotalResource(8, "key"));
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMode());
+    }
+
     // Does the median work with one value?
     @Test
     public void medianTestOneValue() {
         resources.addDelta(new ITotalResource(1));
         assertEquals(new ITotalResource(1), resources.computeMedian());
+    }
+
+    @Test
+    public void medianTestOneValueKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMedian());
     }
 
     @Test
@@ -89,6 +122,13 @@ public class ResourceSeriesTests extends SynopticTest {
     }
 
     @Test
+    public void meanTestOneValueKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMean());
+    }
+
+    @Test
     public void meanTestEmpty() {
         assertNull(resources.computeMean());
     }
@@ -100,5 +140,42 @@ public class ResourceSeriesTests extends SynopticTest {
         resources.addDelta(new ITotalResource(5));
         resources.addDelta(new ITotalResource(8));
         assertEquals(new ITotalResource(4), resources.computeMean());
+    }
+
+    @Test
+    public void meanTestManyValuesKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        resources.addDelta(new ITotalResource(2, "key"));
+        resources.addDelta(new ITotalResource(5, "key"));
+        resources.addDelta(new ITotalResource(8, "key"));
+        assertEquals(new ITotalResource(4, "key"), resources.computeMean());
+    }
+
+    @Test
+    public void resourceSeriesWrongTypeTest() {
+        resources = new ResourceSeries<ITotalResource>("key");
+
+        try {
+            resources.addDelta(new ITotalResource(1));
+            fail("WrongResourceTypeException expected");
+        } catch (WrongResourceTypeException e) {
+            // Success
+        }
+
+        try {
+            resources.addDelta(new ITotalResource(1, "notkey"));
+            fail("WrongResourceTypeException expected");
+        } catch (WrongResourceTypeException e) {
+            // Success
+        }
+
+        resources = new ResourceSeries<ITotalResource>();
+        try {
+            resources.addDelta(new ITotalResource(1, "notkey"));
+            fail("WrongResourceTypeException expected");
+        } catch (WrongResourceTypeException e) {
+            // Success
+        }
     }
 }
