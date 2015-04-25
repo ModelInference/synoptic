@@ -1,6 +1,6 @@
 package synoptic.invariants.constraints;
 
-import synoptic.model.resource.IResource;
+import synoptic.util.resource.AbstractResource;
 
 /**
  * Represents a resource threshold constraint on some resource invariant.
@@ -9,11 +9,11 @@ public interface IResourceConstraint<E extends Comparable<E>> {
     /**
      * @return resource constraint
      */
-    IResource<E> getThreshold();
+    AbstractResource getThreshold();
 
     /**
      * @return true if given resource satisfies internal inequality with respect
      *         to the threshold.
      */
-    boolean evaluate(IResource<E> t);
+    boolean evaluate(AbstractResource t);
 }
