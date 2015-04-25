@@ -29,6 +29,14 @@ public class ResourceTests extends SynopticTest {
         assertEquals(new DTotalResource(1.0), delta);
     }
 
+    @Test
+    public void testPositiveDeltaWithKey() {
+        DTotalResource d1 = new DTotalResource(2.0, "key");
+        DTotalResource d2 = new DTotalResource(1.0, "key");
+        AbstractResource delta = d1.computeDelta(d2);
+        assertEquals(new DTotalResource(1.0, "key"), delta);
+    }
+
     /**
      * Delta computation between two vector timestamps is not supported. Uses
      * integer vtime constructor.
@@ -65,57 +73,84 @@ public class ResourceTests extends SynopticTest {
      * Test that we can divide an AbstractResource instance.
      */
     @Test
-    public void testDivisionITotalTIme() {
-        AbstractResource t1 = new ITotalResource(10);
-        AbstractResource t2 = t1.divBy(2);
+    public void testDivisionITotalResource() {
+        AbstractResource r1 = new ITotalResource(10);
+        AbstractResource r2 = r1.divBy(2);
         AbstractResource oracle = new ITotalResource(5);
-        assertEquals(oracle, t2);
+        assertEquals(oracle, r2);
+
+        AbstractResource r1WithKey = new ITotalResource(10, "key");
+        AbstractResource r2WithKey = r1WithKey.divBy(2);
+        AbstractResource oracleWithKey = new ITotalResource(5, "key");
+        assertEquals(oracleWithKey, r2WithKey);
     }
 
     /**
-     * Test that we can divide an LTotalTime instance.
+     * Test that we can divide an LTotalResource instance.
      */
     @Test
-    public void testDivisionLTotalTIme() {
-        AbstractResource t1 = new LTotalResource(10);
-        AbstractResource t2 = t1.divBy(2);
+    public void testDivisionLTotalResource() {
+        AbstractResource r1 = new LTotalResource(10);
+        AbstractResource r2 = r1.divBy(2);
         AbstractResource oracle = new LTotalResource(5);
-        assertEquals(oracle, t2);
+        assertEquals(oracle, r2);
+
+        AbstractResource r1WithKey = new LTotalResource(10, "key");
+        AbstractResource r2WithKey = r1WithKey.divBy(2);
+        AbstractResource oracleWithKey = new LTotalResource(5, "key");
+        assertEquals(oracleWithKey, r2WithKey);
     }
 
     /**
-     * Test that we can divide a DTotalTime instance.
+     * Test that we can divide a DTotalResource instance.
      */
     @Test
-    public void testDivisionDTotalTime() {
-        AbstractResource t1 = new DTotalResource(10);
-        AbstractResource t2 = t1.divBy(2);
+    public void testDivisionDTotalResource() {
+        AbstractResource r1 = new DTotalResource(10);
+        AbstractResource r2 = r1.divBy(2);
         AbstractResource oracle = new DTotalResource(5);
-        assertEquals(oracle, t2);
+        assertEquals(oracle, r2);
+
+        AbstractResource r1WithKey = new DTotalResource(10, "key");
+        AbstractResource r2WithKey = r1WithKey.divBy(2);
+        AbstractResource oracleWithKey = new DTotalResource(5, "key");
+        assertEquals(oracleWithKey, r2WithKey);
     }
 
     /**
-     * Test that we can increment an ITotalTime instance.
+     * Test that we can increment an ITotalResource instance.
      */
     @Test
-    public void testITotalTimeIncr() {
-        AbstractResource t1 = new ITotalResource(1);
-        AbstractResource t2 = new ITotalResource(5);
-        AbstractResource result = t1.incrBy(t2);
+    public void testITotalResourceIncr() {
+        AbstractResource r1 = new ITotalResource(1);
+        AbstractResource r2 = new ITotalResource(5);
+        AbstractResource result = r1.incrBy(r2);
         AbstractResource oracle = new ITotalResource(6);
         assertEquals(oracle, result);
+
+        AbstractResource r1WithKey = new ITotalResource(1, "key");
+        AbstractResource r2WithKey = new ITotalResource(5, "key");
+        AbstractResource resultWithKey = r1WithKey.incrBy(r2WithKey);
+        AbstractResource oracleWithKey = new ITotalResource(6, "key");
+        assertEquals(oracleWithKey, resultWithKey);
     }
 
     /**
-     * Test that we can increment an LTotalTime instance.
+     * Test that we can increment an LTotalResource instance.
      */
     @Test
-    public void testLTotalTimeIncr() {
-        AbstractResource t1 = new LTotalResource(1);
-        AbstractResource t2 = new LTotalResource(5);
-        AbstractResource result = t1.incrBy(t2);
+    public void testLTotalResourceIncr() {
+        AbstractResource r1 = new LTotalResource(1);
+        AbstractResource r2 = new LTotalResource(5);
+        AbstractResource result = r1.incrBy(r2);
         AbstractResource oracle = new LTotalResource(6);
         assertEquals(oracle, result);
+
+        AbstractResource r1WithKey = new LTotalResource(1, "key");
+        AbstractResource r2WithKey = new LTotalResource(5, "key");
+        AbstractResource resultWithKey = r1WithKey.incrBy(r2WithKey);
+        AbstractResource oracleWithKey = new LTotalResource(6, "key");
+        assertEquals(oracleWithKey, resultWithKey);
     }
 
     /**
