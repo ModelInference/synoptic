@@ -178,4 +178,80 @@ public class ResourceSeriesTests extends SynopticTest {
             // Success
         }
     }
+
+    // Does min work?
+    @Test
+    public void minTestOneValue() {
+        resources.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), resources.computeMin());
+    }
+
+    @Test
+    public void minTestOneValueKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMin());
+    }
+
+    @Test
+    public void minTestEmpty() {
+        assertNull(resources.computeMin());
+    }
+
+    @Test
+    public void minTestMany() {
+        for (int i = 1; i <= 5; i++) {
+            resources.addDelta(new ITotalResource(i));
+        }
+
+        assertEquals(new ITotalResource(1), resources.computeMin());
+    }
+
+    @Test
+    public void minTestManyWithKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        for (int i = 1; i <= 5; i++) {
+            resources.addDelta(new ITotalResource(i, "key"));
+        }
+
+        assertEquals(new ITotalResource(1, "key"), resources.computeMin());
+    }
+
+    // Does max work?
+    @Test
+    public void maxTestOneValue() {
+        resources.addDelta(new ITotalResource(1));
+        assertEquals(new ITotalResource(1), resources.computeMax());
+    }
+
+    @Test
+    public void maxTestOneValueKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        resources.addDelta(new ITotalResource(1, "key"));
+        assertEquals(new ITotalResource(1, "key"), resources.computeMax());
+    }
+
+    @Test
+    public void maxTestEmpty() {
+        assertNull(resources.computeMax());
+    }
+
+    @Test
+    public void maxTestMany() {
+        for (int i = 1; i <= 5; i++) {
+            resources.addDelta(new ITotalResource(i));
+        }
+
+        assertEquals(new ITotalResource(5), resources.computeMax());
+    }
+
+    @Test
+    public void maxTestManyWithKey() {
+        resources = new ResourceSeries<ITotalResource>("key");
+        for (int i = 1; i <= 5; i++) {
+            resources.addDelta(new ITotalResource(i, "key"));
+        }
+
+        assertEquals(new ITotalResource(5, "key"), resources.computeMax());
+    }
 }
