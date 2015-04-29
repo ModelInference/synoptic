@@ -122,6 +122,7 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
      * @return Minimum resource delta for transition, or null if transition has
      *         no resource deltas
      */
+    // IB: method untested, as far as I can tell. Add 1-2 tests for this.
     public ResourceType computeMin() {
         return computeMinMax(false);
     }
@@ -130,6 +131,7 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
      * @return Maximum resource delta for transition, or null if transition has
      *         no resource deltas
      */
+    // IB: method untested, as far as I can tell. Add 1-2 tests for this.
     public ResourceType computeMax() {
         return computeMinMax(true);
     }
@@ -240,6 +242,9 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
     @Override
     public int compareTo(ResourceSeries<AbstractResource> o) {
         int cmp;
+
+        // IB: don't you want to sort the input series o before comparison (as
+        // you do below with this)?
 
         sort();
         cmp = ((Integer) resources.size()).compareTo(o.resources.size());

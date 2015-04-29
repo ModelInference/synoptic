@@ -1,16 +1,17 @@
 package synoptic.util.resource;
 
 /**
- * An interface that all Synoptic resource types must implement. It abstract
- * away the type of resource used -- vector clocks/integer/float/etc. And
- * exposes the very basic operations on resource, such as comparison for
- * ordering. A resource contains a key identifying the resource, and a
- * comparable value.
+ * An interface that all Synoptic resource types must implement. It abstracts
+ * away the type of resource used -- vector clocks/integer/float/etc -- and
+ * exposes the basic operations on resources, such as comparison for ordering. A
+ * resource contains a key identifying the resource, and a comparable value.
  */
 public abstract class AbstractResource implements Comparable<AbstractResource> {
 
     /**
-     * The key identifying the resource
+     * The key identifying the resource. If the key is the empty string then the
+     * resource is anonymous. That is, there was no explicit information
+     * regarding it's type given to us by the user/log.
      */
     protected final String key;
 
@@ -20,7 +21,7 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
 
     /**
      * Determines if two resources are comparable. Two resources are comparable
-     * only if they are of the same time and have the same key.
+     * only if they are of the same type and have identical keys.
      * 
      * @return
      */
@@ -82,10 +83,10 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
     public abstract AbstractResource incrBy(AbstractResource other);
 
     /**
-     * Divides the AbstractResource object by the specified divisor.
+     * Divides the AbstractResource instance by the specified divisor.
      * 
      * <pre>
-     * NOTE: Cannot divide resource by zero.
+     * NOTE: Cannot divide by zero.
      * </pre>
      * 
      * @param divisor
@@ -99,7 +100,7 @@ public abstract class AbstractResource implements Comparable<AbstractResource> {
      * 
      * @param relativeResource
      *            the resource value to use for the normalization, usually the
-     *            resource with the biggest value of the trace.
+     *            resource with the biggest value in the trace.
      * @return A normalized AbstractResource object. (same type as the callee
      *         object)
      */
