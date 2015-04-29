@@ -100,6 +100,8 @@ public class VectorTime extends AbstractResource {
      *            string input representing a vtime
      */
     public VectorTime(String timeStr) throws IllegalArgumentException {
+        // IB: Why is there no unique key to identify vector timestamps? Don't
+        // you want these to be incomparable with other kinds of resources?
         super("");
         String[] times = timeStr.split(",");
         for (String t : times) {
