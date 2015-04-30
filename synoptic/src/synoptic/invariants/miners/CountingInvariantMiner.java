@@ -141,8 +141,13 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                     if (multipleRelations) {
                         throw new NotImplementedException();
                     }
-                    invariants
-                            .add(new InterruptedByInvariant(e1, e2, relation));
+                    InterruptedByInvariant invariant = new InterruptedByInvariant(
+                            e1, e2, relation);
+                    if (supportCount) {
+                        invariant.setStatistics(new InvariantStatistics(
+                                gEventCnts.get(e1)));
+                    }
+                    invariants.add(invariant);
                 }
             }
         }

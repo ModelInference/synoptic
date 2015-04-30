@@ -35,7 +35,7 @@ public class TempConstrainedInvariantTests extends PynopticTest {
         IThresholdConstraint upper = new UpperBoundConstraint(new DTotalResource(
                 2.0));
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv, upper);
+                unconstrainedInv, upper, false);
 
         assertFalse(unconstrainedInv.equals(constrInv));
     }
@@ -55,9 +55,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
                 2.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv, upper1);
+                unconstrainedInv, upper1, false);
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv2 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv, upper2);
+                unconstrainedInv, upper2, false);
 
         assertTrue(constrInv1.equals(constrInv2));
     }
@@ -77,9 +77,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
                 1.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv, upper1);
+                unconstrainedInv, upper1, false);
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv2 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv, upper2);
+                unconstrainedInv, upper2, false);
 
         assertFalse(constrInv1.equals(constrInv2));
     }
@@ -101,9 +101,9 @@ public class TempConstrainedInvariantTests extends PynopticTest {
                 1.0));
 
         TempConstrainedInvariant<AlwaysFollowedInvariant> constrInv1 = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                unconstrainedInv1, upper1);
+                unconstrainedInv1, upper1, false);
         TempConstrainedInvariant<AlwaysPrecedesInvariant> constrInv2 = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-                unconstrainedInv2, upper2);
+                unconstrainedInv2, upper2, false);
 
         assertFalse(constrInv1.equals(constrInv2));
     }
