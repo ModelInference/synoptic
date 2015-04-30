@@ -20,7 +20,6 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
-import synoptic.invariants.ltlcheck.Pair;
 import synoptic.main.AbstractMain;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
@@ -30,6 +29,7 @@ import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
+import synoptic.util.Pair;
 
 /**
  * Implements an invariant miner for both totally and partially ordered traces

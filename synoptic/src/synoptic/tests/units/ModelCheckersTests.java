@@ -21,7 +21,6 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.AbstractMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -69,7 +68,6 @@ public class ModelCheckersTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        AbstractMain.getInstance().options.useFSMChecker = this.useFSMChecker;
     }
 
     /**
@@ -317,13 +315,8 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (AbstractMain.getInstance().options.useFSMChecker) {
-            cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
-                    "d", "b" });
-        } else {
-            cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
-                    "d", "a", "c", "d", "b" });
-        }
+        cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
+                "d", "b" });
         // NOTE: NFby c-examples do not need to end with a TERMINAL node
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }

@@ -511,7 +511,6 @@ public class ExtPerfumeOptions extends Options {
 
         absOpts.logLvlQuiet = logLvlQuiet;
         absOpts.logLvlVerbose = logLvlVerbose;
-        absOpts.useFSMChecker = useFSMChecker;
         absOpts.randomSeed = randomSeed;
         AbstractOptions.separateVTimeIndexSets = separateVTimeIndexSets;
         absOpts.multipleRelations = multipleRelations;
