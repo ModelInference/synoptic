@@ -258,6 +258,14 @@ public class InvariMintOptions extends Options {
     public boolean exportMinedInvariantDFAs = false;
 
     /**
+     * Output the LTS representation of the final model to the output prefix
+     * specified by -o or -output-prefix.
+     */
+    @Option(value = "Output the final model in the LTS format",
+            aliases = { "-lts" })
+    public boolean outputLTS = false;
+
+    /**
      * What level of logging to use.
      */
     @Option(value = "Quietest logging, warnings only")
