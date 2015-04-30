@@ -12,7 +12,7 @@ import java.util.Map;
  * the key that extend AbstractResource.
  */
 public class ResourceSeries<ResourceType extends AbstractResource> implements
-        Comparable<ResourceSeries<AbstractResource>> {
+        Comparable<ResourceSeries<ResourceType>> {
     private List<ResourceType> resources;
     boolean isSorted;
     private final String key;
@@ -238,7 +238,7 @@ public class ResourceSeries<ResourceType extends AbstractResource> implements
     }
 
     @Override
-    public int compareTo(ResourceSeries<AbstractResource> o) {
+    public int compareTo(ResourceSeries<ResourceType> o) {
         int cmp;
 
         sort();
