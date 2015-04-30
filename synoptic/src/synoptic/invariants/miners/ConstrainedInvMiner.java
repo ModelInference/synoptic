@@ -14,6 +14,7 @@ import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
+import synoptic.main.AbstractMain;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Trace;
@@ -75,7 +76,8 @@ public class ConstrainedInvMiner extends InvariantMiner {
             ChainsTraceGraph g, boolean multipleRelations) {
 
         TemporalInvariantSet invs = miner.computeInvariants(g,
-                multipleRelations, false);
+                multipleRelations,
+                AbstractMain.getInstance().options.outputSupportCount);
         return computeInvariants(g, multipleRelations, invs);
     }
 
@@ -183,9 +185,11 @@ public class ConstrainedInvMiner extends InvariantMiner {
     private <T extends BinaryInvariant> void augmentInvariant(T inv,
             Pair<IThresholdConstraint, IThresholdConstraint> constraints) {
         TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getLeft());
+                inv, constraints.getLeft(),
+                AbstractMain.getInstance().options.outputSupportCount);
         TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getRight());
+                inv, constraints.getRight(),
+                AbstractMain.getInstance().options.outputSupportCount);
 
         constrainedInvs.add(lowerConstrInv);
         constrainedInvs.add(upperConstrInv);
