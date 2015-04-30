@@ -105,11 +105,6 @@ public class ExtPerfumeOptions extends Options {
     public boolean logLvlVerbose = false;
 
     /**
-     * Perfume always uses the FSM checker
-     */
-    public final boolean useFSMChecker = true;
-
-    /**
      * Sets the random seed for Perfume's source of pseudo-random numbers.
      */
     @Option(AbstractOptions.randomSeedStr)
