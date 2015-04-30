@@ -8,7 +8,6 @@ import synoptic.model.interfaces.INode;
 
 /**
  * The interface all temporal synoptic.invariants must implement.
- * 
  */
 public interface ITemporalInvariant {
     /**
@@ -28,14 +27,6 @@ public interface ITemporalInvariant {
      * @return a prefix of {@code path} that still violates the the property
      */
     <T extends INode<T>> List<T> shorten(List<T> path);
-
-    /**
-     * Get the Buchi-automaton that corresponds to this LTL property. This
-     * method should cache the automaton.
-     * 
-     * @return a Buchi-automaton represented as a graph
-     */
-    gov.nasa.ltl.graph.Graph getAutomaton();
 
     /**
      * Get the relation whose paths are constrained by this invariant.

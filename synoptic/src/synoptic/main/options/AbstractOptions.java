@@ -45,9 +45,6 @@ public class AbstractOptions {
     static final String logLvlVerboseStr = "-v Print detailed information during execution";
     public boolean logLvlVerbose = false;
 
-    static final String useFSMCheckerStr = "-f Use FSM checker instead of the default NASA LTL-based checker";
-    public boolean useFSMChecker = false;
-
     static final String randomSeedStr = "Use a specific random seed for pseudo-random number generator";
     public Long randomSeed = null;
 

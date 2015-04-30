@@ -52,16 +52,13 @@ public class PerformanceTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         AbstractMain main = AbstractMain.getInstance();
-        main.options.useFSMChecker = this.useFSMChecker;
         main.options.logLvlExtraVerbose = false;
         main.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
-        System.out.println(testName.getMethodName() + ":"
-                + "\n\tuseFSMChecker "
-                + AbstractMain.getInstance().options.useFSMChecker
-                + "\n\tType " + traceType + "\n\ttotalEvents " + totalEvents
+        System.out.println(testName.getMethodName() + ":" + "\n\tType "
+                + traceType + "\n\ttotalEvents " + totalEvents
                 + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
                 + numEventTypes + "\n\twithInvariants " + withInvariants
                 + "\n\t==> TIME: " + msTime + "ms (averaged over "

@@ -62,13 +62,6 @@ public class SynopticOptions extends Options {
     public boolean logLvlVerbose = false;
 
     /**
-     * Use the new FSM checker instead of the LTL checker.
-     */
-    @Option(value = AbstractOptions.useFSMCheckerStr,
-            aliases = { "-use-fsm-checker" })
-    public boolean useFSMChecker = true;
-
-    /**
      * Sets the random seed for Synoptic's source of pseudo-random numbers.
      */
     @Option(AbstractOptions.randomSeedStr)
@@ -490,7 +483,6 @@ public class SynopticOptions extends Options {
 
         absOpts.logLvlQuiet = logLvlQuiet;
         absOpts.logLvlVerbose = logLvlVerbose;
-        absOpts.useFSMChecker = useFSMChecker;
         absOpts.randomSeed = randomSeed;
         AbstractOptions.separateVTimeIndexSets = separateVTimeIndexSets;
         absOpts.multipleRelations = multipleRelations;

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import gov.nasa.ltl.graph.Graph;
-
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -148,12 +146,4 @@ public class KTailInvariant implements ITemporalInvariant {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * This invariant is not used during refinement or coarsening, so LTL has
-     * been left undefined
-     */
-    @Override
-    public Graph getAutomaton() {
-        throw new UnsupportedOperationException();
-    }
 }

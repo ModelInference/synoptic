@@ -4,13 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import gov.nasa.ltl.graph.Graph;
-import gov.nasa.ltl.trans.LTL2Buchi;
-import gov.nasa.ltl.trans.ParseErrorException;
-
-import synoptic.invariants.ltlchecker.LTLFormula;
 import synoptic.model.event.EventType;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.InvariantStatistics;
 
 /**
@@ -32,9 +26,6 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     protected int secondRoleId = 0;
 
     protected String relation;
-
-    // CACHE:
-    private Graph automaton;
 
     private BinaryInvariant(EventType typeFirst, EventType typeSecond) {
         first = typeFirst;
@@ -173,21 +164,6 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         }
 
         return true;
-    }
-
-    @Override
-    public gov.nasa.ltl.graph.Graph getAutomaton() {
-        try {
-            if (automaton == null) {
-                String formula = LTLFormula.prepare(getLTLString());
-                logger.fine("Prepared formula: " + formula);
-                automaton = LTL2Buchi.translate("! (" + formula + ")");
-                logger.fine("Translated formula: " + automaton);
-            }
-            return automaton;
-        } catch (ParseErrorException e) {
-            throw InternalSynopticException.wrap(e);
-        }
     }
 
     @Override

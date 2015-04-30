@@ -245,23 +245,12 @@ public class InvariantStatisticsTests extends SynopticTest {
 
         // Test with FSM checker.
         AbstractMain main = AbstractMain.getInstance();
-        main.options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));
             logger.fine("minedInvs: " + minedInvs);
             logger.fine("[FSM] cExamples: " + cExamples);
-        }
-        assertTrue(cExamples == null);
-
-        // Test with LTL checker.
-        main.options.useFSMChecker = false;
-        cExamples = minedInvs.getAllCounterExamples(inputGraph);
-        if (cExamples != null) {
-            logger.fine("log: " + Arrays.toString(log));
-            logger.fine("minedInvs: " + minedInvs);
-            logger.fine("[LTL] cExamples: " + cExamples);
         }
         assertTrue(cExamples == null);
     }
