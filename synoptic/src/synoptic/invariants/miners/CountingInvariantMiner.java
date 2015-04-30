@@ -144,9 +144,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                     InterruptedByInvariant invariant = new InterruptedByInvariant(
                             e1, e2, relation);
                     if (supportCount) {
-                        // TODO: Check correctness before merging in Issue391
                         invariant.setStatistics(new InvariantStatistics(
-                                gEventCnts.get(e1) - 1));
+                                gEventCnts.get(e1)));
                     }
                     invariants.add(invariant);
                 }

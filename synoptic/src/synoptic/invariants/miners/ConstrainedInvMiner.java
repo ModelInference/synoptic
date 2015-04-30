@@ -185,9 +185,11 @@ public class ConstrainedInvMiner extends InvariantMiner {
     private <T extends BinaryInvariant> void augmentInvariant(T inv,
             Pair<IThresholdConstraint, IThresholdConstraint> constraints) {
         TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getLeft());
+                inv, constraints.getLeft(),
+                AbstractMain.getInstance().options.outputSupportCount);
         TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>(
-                inv, constraints.getRight());
+                inv, constraints.getRight(),
+                AbstractMain.getInstance().options.outputSupportCount);
 
         constrainedInvs.add(lowerConstrInv);
         constrainedInvs.add(upperConstrInv);

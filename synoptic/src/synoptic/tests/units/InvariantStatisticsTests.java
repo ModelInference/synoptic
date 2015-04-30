@@ -158,8 +158,7 @@ public class InvariantStatisticsTests extends SynopticTest {
 
         InterruptedByInvariant invariant4 = new InterruptedByInvariant("b",
                 "a", Event.defTimeRelationStr);
-        // TODO:
-        // invariant4.setStatistics(new InvariantStatistics(XX));
+        invariant4.setStatistics(new InvariantStatistics(3));
         trueInvs.add(invariant4);
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
@@ -211,8 +210,7 @@ public class InvariantStatisticsTests extends SynopticTest {
 
         InterruptedByInvariant invariant3 = new InterruptedByInvariant("b",
                 "a", Event.defTimeRelationStr);
-        // TODO:
-        // invariant3.setStatistics(new InvariantStatistics(XX));
+        invariant3.setStatistics(new InvariantStatistics(3));
         trueInvs.add(invariant3);
 
         logger.info("minedInvs: " + minedInvs.toString());
