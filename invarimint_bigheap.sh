@@ -7,4 +7,4 @@
 #   128MB : starting heap size heap to start with
 # 6,144MB : max heap size
 
-java -ea -Xms128m -Xmx6144m -cp ./lib/junit-4.9b2.jar:./lib/automaton.jar:./lib/plume.jar:./lib/synoptic.jar:./InvariMint/bin/ main.InvariMintMain $*
+java -ea -Xms128m -Xmx6144m -cp "./synoptic/bin/:./InvariMint/bin/:./daikonizer/bin/:./lib/*" main.InvariMintMain $*

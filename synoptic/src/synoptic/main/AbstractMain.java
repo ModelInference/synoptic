@@ -50,6 +50,7 @@ import synoptic.model.export.GmlExportFormatter;
 import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.export.JsonExporter;
+import synoptic.model.export.LtsExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.IRelationPath;
@@ -311,6 +312,11 @@ public abstract class AbstractMain {
     private <T extends INode<T>> void exportGraph(String baseFilename,
             IGraph<T> g, boolean outputEdgeLabelsCondition,
             boolean imageGenCondition) {
+        // Check for a request not to output the model
+        if (options.noModelOutput && !options.exportAsGML) {
+            logger.info("Not outputting model due to flag --noModelOutput");
+            return;
+        }
 
         if (AbstractOptions.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
@@ -872,6 +878,17 @@ public abstract class AbstractMain {
                     pGraph);
 
             logger.info("Exporting JSON object took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
+        }
+
+        // Export in LTS format if requested
+        if (options.outputLTS) {
+            logger.info("Exporting final graph in LTS format...");
+            startTime = System.currentTimeMillis();
+
+            LtsExporter.exportLTS(AbstractOptions.outputPathPrefix, pGraph);
+
+            logger.info("Exporting in LTS format took "
                     + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
