@@ -46,7 +46,7 @@ import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
+import synoptic.util.resource.AbstractResource;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
@@ -281,7 +281,8 @@ public class SynopticService extends RemoteServiceServlet implements
                 }
 
                 double transitionProb = wTransition.getProbability();
-                ITime mean = wTransition.getDeltaSeries().computeMean();
+                AbstractResource mean = wTransition.getDeltaSeries()
+                        .computeMean();
 
                 GWTEdge edge;
                 if (mean == null) {
