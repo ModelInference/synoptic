@@ -3,7 +3,7 @@ under the MIT license, which appears below. Some files in the distribution are
 distributed under a different license. These exceptions are:
 
 Libraries used by the synoptic family of projects:
-  lib/ (various licenses, see individual jar files)
+ * lib/ (various licenses, see individual jar files)
 
 
 The MIT License (MIT)
@@ -30,5 +30,5 @@ SOFTWARE.
 
 The repository includes software developed by LaBRI and Bell Labs (both are used
 by the CSight project):
-https://altarica.labri.fr/forge/projects/mcscm/wiki/
-http://spinroot.com/spin/whatispin.html
+ * https://altarica.labri.fr/forge/projects/mcscm/wiki/
+ * http://spinroot.com/spin/whatispin.html
