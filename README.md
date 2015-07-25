@@ -5,7 +5,7 @@ This site hosts source code, academic papers, and other resources for three rela
   * **Synoptic** : a tool to infer an FSM model from a sequential log. [Try it!](http://synoptic.cs.washington.edu)
   * **CSight** : a tool to infer a communicating FSM model from a distributed system's logs
   * **InvariMint** : an approach to declaratively specify model inference algorithms
-  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://kramer.nss.cs.ubc.ca/perfume/)
+  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://perfume.cs.umass.edu)
 
 # Introduction #
 
