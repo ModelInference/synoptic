@@ -42,7 +42,7 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * Perfume
     * Works on Linux/OSX/Windows.
-    * Try Perfume in your browser: **http://bestchai.bitbucket.org/perfume/**
+    * Try Perfume in your browser: **http://perfume.cs.umass.edu**
     * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsPerfumeCmdLineHelpScreen) : command line usage reference
     * [A high-level description](http://people.cs.umass.edu/~ohmann/perfume/) of Perfume
 
