@@ -91,9 +91,6 @@ public class AbstractOptions {
     // Whether or not we are running Perfume (true), or Synoptic (false).
     public boolean usePerformanceInfo = false;
 
-    static final String outputJSONStr = "-j Output the final model as a JSON object";
-    public boolean outputJSON = false;
-
     static final String traceNormalizationStr = "Independently normalize each trace";
     public boolean traceNormalization = false;
 
@@ -164,6 +161,9 @@ public class AbstractOptions {
 
     static final String showInitialNodeStr = "Show INITIAL node in generated graphs.";
     public boolean showInitialNode = true;
+
+    static final String outputJSONStr = "-j Output the final model as a JSON object";
+    public boolean outputJSON = false;
 
     // Extended Perfume option
     static final String intermediateOutPathStr = "The location to output intermediate models";

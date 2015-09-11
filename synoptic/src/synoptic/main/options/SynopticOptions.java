@@ -268,9 +268,11 @@ public class SynopticOptions extends Options {
     public boolean showInitialNode = true;
 
     /**
-     * Synoptic doesn't support JSON output
+     * Output a JSON object of the final model to the output prefix specified by
+     * -o or -output-prefix.
      */
-    public final boolean outputJSON = false;
+    @Option(value = AbstractOptions.outputJSONStr, aliases = { "-output-json" })
+    public boolean outputJSON = false;
 
     // end option group "Output Options"
 
