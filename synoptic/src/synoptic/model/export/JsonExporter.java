@@ -100,7 +100,8 @@ public class JsonExporter {
      * @param pGraph
      *            The partition graph whose log we're outputting
      */
-    private static List<Map<String, Object>> makeLogJSON(PartitionGraph pGraph) {
+    private static List<Map<String, Object>> makeLogJSON(
+            PartitionGraph pGraph) {
         // The log (list of traces) to go into the JSON object
         List<Map<String, Object>> logListOfTraces = new LinkedList<Map<String, Object>>();
 
@@ -133,15 +134,18 @@ public class JsonExporter {
             List<Map<String, Object>> singleTraceEventsList = new LinkedList<Map<String, Object>>();
 
             int eventIndexWithinTrace = 0;
-            for (EventNode event = startingEvent; !event.isTerminal(); event = event
-                    .getAllSuccessors().iterator().next()) {
+            for (EventNode event = startingEvent; !event
+                    .isTerminal(); event = event.getAllSuccessors().iterator()
+                            .next()) {
                 // One event, contains event index, event type, and timestamp
                 Map<String, Object> singleEventMap = new LinkedHashMap<String, Object>();
 
-                // Populate this event's index within the trace and its type
+                // Populate this event's index within the trace, its type, and
+                // the line in the log where it was found
                 singleEventMap.put("eventIndex", eventIndexWithinTrace);
                 EventType evType = event.getEType();
                 singleEventMap.put("eventType", evType.toString());
+                singleEventMap.put("logLine", event.getLineNum());
 
                 // Populate this event's time if it's not INITIAL or TERMINAL
                 if (!evType.isSpecialEventType()) {
@@ -153,8 +157,8 @@ public class JsonExporter {
 
                 // Record this event's event instance information to ease the
                 // creation of the partition part of the JSON later
-                eventMap.put(event, new EventInstance(traceID,
-                        eventIndexWithinTrace++));
+                eventMap.put(event,
+                        new EventInstance(traceID, eventIndexWithinTrace++));
             }
 
             // Populate the single trace
