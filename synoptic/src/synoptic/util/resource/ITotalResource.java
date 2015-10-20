@@ -6,7 +6,6 @@ package synoptic.util.resource;
 public class ITotalResource extends AbstractResource {
     /** Resource value */
     public int value;
-    String stuff;
 
     /**
      * Builds a Resource object from an int
@@ -124,11 +123,11 @@ public class ITotalResource extends AbstractResource {
         // If the relativeResource is zero, the normalized resource should be
         // zero, too
         if (relativeResource.equals(relativeResource.getZeroResource())) {
-            return new DTotalResource(0.0, key);
+            return new DTotalResource(0, key).getZeroResource();
         }
 
-        return new DTotalResource(1.0 * this.value
-                / ((ITotalResource) relativeResource).value, key);
+        ITotalResource relative = (ITotalResource) relativeResource;
+        return new DTotalResource(value, key).divBy(relative.value);
     }
 
     @Override

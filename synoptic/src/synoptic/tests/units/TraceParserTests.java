@@ -18,8 +18,6 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
-
 import synoptic.main.AbstractMain;
 import synoptic.main.options.AbstractOptions;
 import synoptic.main.parser.ParseException;
@@ -35,10 +33,11 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBoolBinary;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
-import synoptic.util.resource.FTotalResource;
 import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalResource;
 import synoptic.util.resource.VectorTime;
+
+import junit.framework.Assert;
 
 /**
  * Tests for the synoptic.main.TraceParser class.
@@ -324,12 +323,8 @@ public class TraceParserTests extends SynopticTest {
             } else if (timeType.equals("TIME")) {
                 int itime = Integer.parseInt(timeStrs[i]);
                 assertTrue(new ITotalResource(itime).equals(eventTime));
-            } else if (timeType.equals("FTIME")) {
-                assertTrue(new FTotalResource(Float.parseFloat(timeStrs[i]))
-                        .equals(eventTime));
-            } else if (timeType.equals("DTIME")) {
-                assertTrue(new DTotalResource(Double.parseDouble(timeStrs[i]))
-                        .equals(eventTime));
+            } else if (timeType.equals("FTIME") || timeType.equals("DTIME")) {
+                assertTrue(new DTotalResource(timeStrs[i]).equals(eventTime));
             } else if (timeType.equals("DATETIME")) {
                 SimpleDateFormat dateFormatter = new SimpleDateFormat(
                         "dd/MMM/yyyy:HH:mm:ss");

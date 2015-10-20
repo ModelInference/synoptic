@@ -121,11 +121,11 @@ public class LTotalResource extends AbstractResource {
         // If the relativeResource is zero, the normalized resource should be
         // zero, too
         if (relativeResource.equals(relativeResource.getZeroResource())) {
-            return new DTotalResource(0.0, key);
+            return new DTotalResource(0, key).getZeroResource();
         }
 
-        return new DTotalResource(1.0 * this.value
-                / ((LTotalResource) relativeResource).value, key);
+        LTotalResource relative = (LTotalResource) relativeResource;
+        return new DTotalResource(value, key).divBy(relative.value);
     }
 
     @Override

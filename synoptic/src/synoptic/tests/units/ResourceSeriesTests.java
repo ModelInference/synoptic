@@ -112,7 +112,7 @@ public class ResourceSeriesTests extends SynopticTest {
             dtimes.addDelta(new DTotalResource(i));
         }
 
-        assertEquals(new DTotalResource(3.5), dtimes.computeMedian());
+        assertEquals(new DTotalResource("3.5"), dtimes.computeMedian());
     }
 
     @Test

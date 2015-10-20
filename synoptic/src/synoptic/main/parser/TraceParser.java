@@ -43,7 +43,6 @@ import synoptic.util.matching.NamedSubstitution;
 import synoptic.util.resource.AbstractResource;
 import synoptic.util.resource.DTotalResource;
 import synoptic.util.resource.EqualVectorTimestampsException;
-import synoptic.util.resource.FTotalResource;
 import synoptic.util.resource.ITotalResource;
 import synoptic.util.resource.LTotalResource;
 import synoptic.util.resource.NotComparableVectorsException;
@@ -1060,12 +1059,9 @@ public class TraceParser {
                     } else if (selectedTimeGroup.equals("LTIME")) {
                         long t = Long.parseLong(timeField.trim());
                         nextTime = new LTotalResource(t);
-                    } else if (selectedTimeGroup.equals("FTIME")) {
-                        float t = Float.parseFloat(timeField.trim());
-                        nextTime = new FTotalResource(t);
-                    } else if (selectedTimeGroup.equals("DTIME")) {
-                        double t = Double.parseDouble(timeField.trim());
-                        nextTime = new DTotalResource(t);
+                    } else if (selectedTimeGroup.equals("FTIME")
+                            || selectedTimeGroup.equals("DTIME")) {
+                        nextTime = new DTotalResource(timeField.trim());
                     } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
                     } else if (selectedTimeGroup.equals("DATETIME")) {

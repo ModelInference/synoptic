@@ -27,18 +27,18 @@ public class ResourceTests extends SynopticTest {
      */
     @Test
     public void testPositiveDelta() {
-        DTotalResource d1 = new DTotalResource(2.0);
-        DTotalResource d2 = new DTotalResource(1.0);
+        DTotalResource d1 = new DTotalResource("2.0");
+        DTotalResource d2 = new DTotalResource("1.0");
         AbstractResource delta = d1.computeDelta(d2);
-        assertEquals(new DTotalResource(1.0), delta);
+        assertEquals(new DTotalResource("1.0"), delta);
     }
 
     @Test
     public void testPositiveDeltaWithKey() {
-        DTotalResource d1 = new DTotalResource(2.0, "key");
-        DTotalResource d2 = new DTotalResource(1.0, "key");
+        DTotalResource d1 = new DTotalResource("2.0", "key");
+        DTotalResource d2 = new DTotalResource("1.0", "key");
         AbstractResource delta = d1.computeDelta(d2);
-        assertEquals(new DTotalResource(1.0, "key"), delta);
+        assertEquals(new DTotalResource("1.0", "key"), delta);
     }
 
     /**

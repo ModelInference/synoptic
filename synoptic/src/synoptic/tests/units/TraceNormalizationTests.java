@@ -57,11 +57,11 @@ public class TraceNormalizationTests extends PynopticTest {
         boolean correctF = false;
 
         // Reference times for testing normalized event times
-        DTotalResource zero = new DTotalResource(0.0);
-        DTotalResource quarter = new DTotalResource(0.25);
-        DTotalResource half = new DTotalResource(0.5);
-        DTotalResource threeQuarter = new DTotalResource(0.75);
-        DTotalResource one = new DTotalResource(1.0);
+        DTotalResource zero = new DTotalResource("0.0");
+        DTotalResource quarter = new DTotalResource("0.25");
+        DTotalResource half = new DTotalResource("0.5");
+        DTotalResource threeQuarter = new DTotalResource("0.75");
+        DTotalResource one = new DTotalResource("1.0");
 
         // Check if all event times are normalized correctly
         for (EventNode event : events) {
@@ -180,7 +180,7 @@ public class TraceNormalizationTests extends PynopticTest {
             // floating-point error
             double eTime = 0.0;
             if (!eType.isSpecialEventType()) {
-                eTime = ((DTotalResource) event.getTime()).value;
+                eTime = ((DTotalResource) event.getTime()).getValue();
                 eTime = Math.round(eTime * 10) / 10.0;
             }
 
@@ -221,7 +221,7 @@ public class TraceNormalizationTests extends PynopticTest {
             // floating-point error
             double transTime = 0.0;
             if (!eType.isSpecialEventType() && trans.getTimeDelta() != null) {
-                transTime = ((DTotalResource) trans.getTimeDelta()).value;
+                transTime = ((DTotalResource) trans.getTimeDelta()).getValue();
                 transTime = Math.round(transTime * 10) / 10.0;
             }
 
