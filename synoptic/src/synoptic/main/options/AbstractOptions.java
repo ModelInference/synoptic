@@ -110,7 +110,7 @@ public class AbstractOptions {
     static final String argsFilenameStr = "-c Command line arguments input filename";
     public static String argsFilename = null;
 
-    static final String inputDeltaStr = "-l Interpret the supplied time values as delta values instead of absolute values";
+    static final String inputDeltaStr = "Interpret the supplied time values as delta values instead of absolute values";
     public static boolean inputDelta = false;
 
     static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";

@@ -181,6 +181,12 @@ public class PerfumeOptions extends Options {
     @OptionGroup("Input Options")
     @Option(value = AbstractOptions.argsFilenameStr, aliases = { "-argsfile" })
     public String argsFilename = null;
+
+    /**
+     * Interpret the supplied time values as delta values instead of absolute values
+     */
+    @Option(value = AbstractOptions.inputDeltaStr)
+    public boolean inputDelta = false;
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
@@ -493,6 +499,7 @@ public class PerfumeOptions extends Options {
         // Input options
 
         AbstractOptions.argsFilename = argsFilename;
+        AbstractOptions.inputDelta = inputDelta;
 
         // Output options
 
