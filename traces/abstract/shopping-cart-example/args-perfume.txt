@@ -1,0 +1,3 @@
+-o ../shopping-cart-perfume
+-r (?<ip>) .*(?<TIME>0).* "GET HTTP/1.1 /(?<TYPE>.+).php"
+-m \\k<ip>
