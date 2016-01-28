@@ -192,6 +192,12 @@ public class ExtPerfumeOptions extends Options {
     public boolean traceNormalization = false;
 
     /**
+     * Keep events in log order and do not sort by supplied resource values
+     */
+    @Option(value = AbstractOptions.keepOrderStr)
+    public boolean keepOrder = true;
+
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
@@ -520,6 +526,7 @@ public class ExtPerfumeOptions extends Options {
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;
+        absOpts.keepOrder = keepOrder;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
         absOpts.dateFormat = dateFormat;

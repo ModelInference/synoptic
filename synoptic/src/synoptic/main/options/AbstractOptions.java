@@ -94,6 +94,9 @@ public class AbstractOptions {
     static final String traceNormalizationStr = "Independently normalize each trace";
     public boolean traceNormalization = false;
 
+    static final String keepOrderStr = "Keep events in log order and do not sort by supplied resource values";
+    public boolean keepOrder = false;
+
     static final String recoverFromParseErrorsStr = "Ignore parser warnings and attempt to recover from parse errors if possible";
     public boolean recoverFromParseErrors = false;
 
@@ -112,9 +115,6 @@ public class AbstractOptions {
 
     static final String inputDeltaStr = "Interpret the supplied time values as delta values instead of absolute values";
     public static boolean inputDelta = false;
-
-    static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";
-    public static boolean keepOrder = false;
 
     // Extended Perfume option
     static final String modelFileStr = "The file containing the Perfume model";

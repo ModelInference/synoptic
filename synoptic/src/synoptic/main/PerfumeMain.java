@@ -108,7 +108,6 @@ public class PerfumeMain extends AbstractMain {
         this.graphExportFormatter = graphExportFormatter;
         this.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
-        AbstractOptions.keepOrder = true;
         AbstractMain.instance = this;
     }
 

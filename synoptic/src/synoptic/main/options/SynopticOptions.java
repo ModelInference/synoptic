@@ -162,6 +162,13 @@ public class SynopticOptions extends Options {
     public final boolean traceNormalization = false;
 
     /**
+     * Synoptic usually sorts events within a trace by supplied resource values,
+     * assumed to be time
+     */
+    @Option(value = AbstractOptions.keepOrderStr)
+    public boolean keepOrder = false;
+
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
@@ -501,6 +508,7 @@ public class SynopticOptions extends Options {
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;
+        absOpts.keepOrder = keepOrder;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
         absOpts.dateFormat = dateFormat;
