@@ -59,7 +59,7 @@ public abstract class EventType implements Comparable<EventType> {
     /**
      * Returns the label of this event type.
      */
-    public abstract String getETypeLabel();
+    public abstract <T> T getETypeLabel();
 
     // //////////////////////
     // These methods implement basic functionality for the two
