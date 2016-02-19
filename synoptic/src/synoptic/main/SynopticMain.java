@@ -16,7 +16,7 @@ import synoptic.util.InternalSynopticException;
  * Contains entry points for the command line version of Synoptic, as well as
  * for libraries that want to use Synoptic from a jar.
  */
-public class SynopticMain extends AbstractMain {
+public class SynopticMain extends CommandlineMain {
 
     /**
      * Return the singleton instance of SynopticMain, first asserting that the

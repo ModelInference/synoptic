@@ -372,7 +372,7 @@ public abstract class AbstractMain {
                 !options.exportAsGML);
     }
 
-    private void processPOLog(TraceParser parserIn, List<EventNode> parsedEvents)
+    protected void processPOLog(TraceParser parserIn, List<EventNode> parsedEvents)
             throws ParseException, FileNotFoundException {
         TraceParser parser = parserIn;
 
@@ -562,45 +562,11 @@ public abstract class AbstractMain {
      * @throws Exception
      */
     public PartitionGraph createInitialPartitionGraph() throws Exception {
-        TraceParser parser = new TraceParser(options.regExps,
-                AbstractOptions.partitionRegExp,
-                AbstractOptions.separatorRegExp, options.dateFormat);
-        List<EventNode> parsedEvents;
-        try {
-            parsedEvents = parseEvents(parser,
-                    AbstractOptions.plumeOpts.logFilenames);
-        } catch (ParseException e) {
-            logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + AbstractOptions.plumeOpts.getOptDesc("help"));
-            logger.severe(e.toString());
+        // Make the trace graph from supplied logs or traces
+        ChainsTraceGraph traceGraph = makeTraceGraph();
+        if (traceGraph == null) {
             return null;
         }
-
-        if (options.debugParse) {
-            // Terminate since the user is interested in debugging the parser.
-            logger.info("Terminating. To continue further, re-run without the debugParse option.");
-            return null;
-        }
-
-        // PO Logs are processed differently.
-        if (!parser.logTimeTypeIsTotallyOrdered()) {
-            logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
-            processPOLog(parser, parsedEvents);
-            return null;
-        }
-
-        if (parsedEvents.size() == 0) {
-            logger.severe("Did not parse any events from the input log files. Stopping.");
-            return null;
-        }
-
-        // //////////////////
-        ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
-        // //////////////////
-
-        // Parsing information can be garbage-collected.
-        parser = null;
-        parsedEvents = null;
 
         // Perform trace-wise normalization if requested
         if (options.traceNormalization) {
@@ -713,6 +679,11 @@ public abstract class AbstractMain {
 
         return pGraph;
     }
+
+    /**
+     * 
+     */
+    protected abstract ChainsTraceGraph makeTraceGraph() throws Exception;
 
     /**
      * Perform trace-wise normalization on the trace graph. In other words,

@@ -18,7 +18,7 @@ import synoptic.util.InternalSynopticException;
 /**
  * Contains entry points for the command line version of Perfume.
  */
-public class PerfumeMain extends AbstractMain {
+public class PerfumeMain extends CommandlineMain {
 
     /**
      * Return the singleton instance of PerfumeMain, first asserting that the
