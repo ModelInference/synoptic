@@ -11,15 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.main.AbstractMain;
-import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.state.State;
-import synoptic.model.state.SynDaikonizer;
 import synoptic.util.NotImplementedException;
 import synoptic.util.resource.AbstractResource;
 
@@ -33,7 +28,7 @@ import synoptic.util.resource.AbstractResource;
  * corresponds to a set of transitions that all have the same target (but
  * possibly different sources).
  */
-public class Partition implements INode<Partition> {
+public abstract class Partition implements INode<Partition> {
     /**
      * All the events this partition contains. A partition is constrained to
      * contain EventNodes that have Events of the same EventType.
@@ -46,49 +41,62 @@ public class Partition implements INode<Partition> {
      * and re-used later). This variable indicates whether or not this partition
      * has been initialized.
      */
-    private boolean initialized = false;
+    protected boolean initialized = false;
 
     /**
-     * The EvenType of this partition -- all EventNode instances MUST contain
-     * Event instances that contains this type of event.
+     * Returns a new partition of the same type as this object that will contain
+     * a set of event nodes.
      */
-    private EventType eType = null;
+    public abstract Partition newOfThisType(Set<EventNode> eNodes);
 
     /**
-     * Cached transitions with Daikon invariants. We need to cache these
-     * transitions because Daikon invariants are expensive to compute, and we
-     * may revisit the same transition many times while deriving abstract tests
-     * from a model (i.e., a PartitionGraph).
+     * Create a partition containing a set of event nodes
      */
-    private final List<Transition<Partition>> cachedTransitionsWithInvs;
-
-    /**
-     * Creates a new partition that will contain a set of event nodes.
-     * 
-     * @param eNodes
-     */
-    public Partition(Set<EventNode> eNodes) {
+    protected Partition(Set<EventNode> eNodes) {
         assert eNodes.size() > 0;
         events = new LinkedHashSet<EventNode>();
         addEventNodes(eNodes);
-        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
     }
 
     /**
-     * Creates a new partition that will contain a single event node.
-     * 
-     * @param eNodes
+     * Returns a new partition of the same type as this object that will contain
+     * a single event node.
      */
-    public Partition(EventNode eNode) {
+    public abstract Partition newOfThisType(EventNode eNode);
+
+    /**
+     * Create a partition containing a single event node
+     */
+    protected Partition(EventNode eNode) {
         events = new LinkedHashSet<EventNode>();
         addOneEventNode(eNode);
-        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
     }
 
+    /**
+     * Initialize this partition with a single EventNode
+     */
     public void initialize(EventNode eNode) {
-        eType = eNode.getEType();
         initialized = true;
+        initializeEType(eNode);
     }
+
+    /**
+     * Set up this newly-initialized partition's EventType(s)
+     */
+    protected abstract void initializeEType(EventNode eNode);
+
+    /**
+     * Initialize this partition with a set of EventNodes
+     */
+    public void initialize(Collection<EventNode> eNodes) {
+        initialized = true;
+        initializeETypes(eNodes);
+    }
+
+    /**
+     * Set up this newly-initialized partition's EventType(s)
+     */
+    protected abstract void initializeETypes(Collection<EventNode> eNode);
 
     /**
      * Adds a collection of event nodes to the existing partition. Updates the
@@ -99,15 +107,14 @@ public class Partition implements INode<Partition> {
      */
     public void addEventNodes(Collection<EventNode> eNodes) {
         if (!initialized) {
-            initialize(eNodes.iterator().next());
+            initialize(eNodes);
         }
 
         events.addAll(eNodes);
         for (final EventNode e : eNodes) {
             e.setParent(this);
-            // A Partition is allowed to contain only EventNode instances of the
-            // same event type.
-            assert eType.equals(e.getEType());
+            // Verify that EventNode type is legal for this partition
+            checkNewENodeType(e);
         }
     }
 
@@ -121,11 +128,17 @@ public class Partition implements INode<Partition> {
         if (!initialized) {
             initialize(eNode);
         } else {
-            assert eType.equals(eNode.getEType());
+            checkNewENodeType(eNode);
         }
         eNode.setParent(this);
         events.add(eNode);
     }
+
+    /**
+     * Verify the EventNode is of an acceptable type, either identical or
+     * considered equal for uniform and variable Partitions, respectively
+     */
+    protected abstract void checkNewENodeType(EventNode eNode);
 
     /**
      * Returns the set of event nodes contained in this partition.
@@ -136,13 +149,14 @@ public class Partition implements INode<Partition> {
 
     /**
      * Removes a set of event nodes. NOTE: this method cannot be used to remove
-     * all the messages in the partition. For this, use the removeAllMessages()
-     * method.
+     * all the messages in the partition. For this, use the
+     * {@link #removeAllEventNodes()} method.
      * 
      * @param eventNodes
      */
     public void removeEventNodes(Set<EventNode> eventNodes) {
         events.removeAll(eventNodes);
+        refreshETypes();
         assert events.size() > 0;
     }
 
@@ -151,8 +165,14 @@ public class Partition implements INode<Partition> {
      */
     public void removeAllEventNodes() {
         events.clear();
+        refreshETypes();
         initialized = false;
     }
+
+    /**
+     * 
+     */
+    protected abstract void refreshETypes();
 
     /**
      * Whether or not this is the dummy terminal partition.
@@ -160,8 +180,13 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isTerminal() {
         assert initialized;
-        return eType.isTerminalEventType();
+        return hasTerminal();
     }
+
+    /**
+     * Whether this partition's EventType(s) include the dummy terminal type
+     */
+    protected abstract boolean hasTerminal();
 
     /**
      * Whether or not this is the dummy initial partition.
@@ -169,17 +194,13 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isInitial() {
         assert initialized;
-        return eType.isInitialEventType();
+        return hasInitial();
     }
 
     /**
-     * Returns the event type of this partition.
+     * Whether this partition's EventType(s) include the dummy initial type
      */
-    @Override
-    public EventType getEType() {
-        assert initialized;
-        return eType;
-    }
+    protected abstract boolean hasInitial();
 
     /**
      * Returns the number of event nodes this partition contains.
@@ -194,7 +215,7 @@ public class Partition implements INode<Partition> {
         StringBuilder str = new StringBuilder();
         // str.append("Partition " + hashCode());
         str.append(!initialized ? "UNINIT." : "");
-        str.append("P." + getEType());
+        str.append("P." + getAllETypes());
         str.append("." + events.size());
         return str.toString();
     }
@@ -445,7 +466,7 @@ public class Partition implements INode<Partition> {
         }
 
         // 1. Compare label strings.
-        int labelCmp = eType.compareTo(other.getEType());
+        int labelCmp = compareETypes(other);
         if (labelCmp != 0) {
             return labelCmp;
         }
@@ -476,6 +497,14 @@ public class Partition implements INode<Partition> {
         return 0;
     }
 
+    /**
+     * Compare the EventType(s) of this partition and {@code other}, returning a
+     * negative, zero, or positive number if {@code other}'s EventType(s) are
+     * considered less than, equal to, or greater than this partition's type(s),
+     * respectively
+     */
+    protected abstract int compareETypes(Partition other);
+
     @Override
     public Partition getParent() {
         throw new UnsupportedOperationException();
@@ -500,7 +529,7 @@ public class Partition implements INode<Partition> {
         return allDeltas;
     }
 
-    private static void updateTransitionDeltas(EventNode srcENode,
+    protected static void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
         if (!AbstractMain.getInstance().options.usePerformanceInfo) {
             return;
@@ -604,114 +633,5 @@ public class Partition implements INode<Partition> {
             Set<String> relations) {
         // TODO: implement.
         throw new NotImplementedException();
-    }
-
-    /**
-     * Generates and caches outgoing transitions of this partition, each of
-     * which has DaikonInvariants labeled on it. NOTE: 1) This method must be
-     * called only when state processing logic is enabled. 2) Since this method
-     * caches transitions, it must be called only after the final model is yield
-     * (i.e., no more changes to this Partition).
-     * 
-     * @return transitions with Daikon invariants
-     * @throws Exception
-     */
-    @SuppressWarnings("null")
-    public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
-        assert (AbstractMain.getInstance().options.stateProcessing);
-
-        if (!cachedTransitionsWithInvs.isEmpty() || isTerminal()) {
-            return cachedTransitionsWithInvs;
-        }
-
-        for (Partition childP : getAllSuccessors()) {
-            Transition<Partition> tx = null;
-            SynDaikonizer daikonizer = new SynDaikonizer();
-
-            if (isInitial()) {
-                // This is a dummy initial partition and its dummy event node
-                // has no post-event state. Instead, we need to get
-                // pre-event states of the successor event nodes.
-                // This partition contains only a single dummy event node.
-                assert events.size() == 1;
-                EventNode dummyInitEvent = events.iterator().next();
-
-                for (ITransition<EventNode> tr : dummyInitEvent
-                        .getAllTransitions()) {
-                    // Add only states that are on transitions to childP
-                    // to daikonizer.
-                    boolean stateAdded = addStateToDaikonizer(tr, childP,
-                            daikonizer, false);
-                    // Create transition to childP iff it doesn't already exist
-                    // and tr's destination is childP.
-                    if (stateAdded && tx == null) {
-                        tx = createDaikonInvTransition(tr);
-                        cachedTransitionsWithInvs.add(tx);
-                    }
-                }
-            } else {
-                // This is NOT a dummy initial partition. Its event nodes have
-                // post-event states.
-                for (EventNode event : events) {
-                    List<Transition<EventNode>> transitions = event
-                            .getAllTransitions();
-                    // Events are totally ordered.
-                    assert transitions.size() == 1;
-                    ITransition<EventNode> tr = transitions.iterator().next();
-                    boolean stateAdded = addStateToDaikonizer(tr, childP,
-                            daikonizer, true);
-                    if (stateAdded && tx == null) {
-                        tx = createDaikonInvTransition(tr);
-                        cachedTransitionsWithInvs.add(tx);
-                    }
-                }
-            }
-            assert (tx != null);
-            // Generate invariants of tx.
-            DaikonInvariants daikonInvs = daikonizer.getDaikonEnterInvariants();
-            // Label tx with Daikon invariants.
-            tx.labels.setLabel(TransitionLabelType.DAIKON_INVARIANTS_LABEL,
-                    daikonInvs);
-        }
-        return cachedTransitionsWithInvs;
-    }
-
-    /**
-     * Adds a state that is on eventTrans to daikonizer iff the target of
-     * eventTrans is in targetPartition.
-     * 
-     * @return true iff the state is added to daikonizer.
-     * @throws Exception
-     */
-    private static boolean addStateToDaikonizer(
-            ITransition<EventNode> eventTrans, Partition targetPartition,
-            SynDaikonizer daikonizer, boolean post) {
-        EventNode srcEvent = eventTrans.getSource();
-        EventNode dstEvent = eventTrans.getTarget();
-        Partition dstPartition = dstEvent.getParent();
-
-        if (dstPartition.compareTo(targetPartition) == 0) {
-            State state = post ? srcEvent.getPostEventState() : dstEvent
-                    .getPreEventState();
-            daikonizer.addInstance(state);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Creates Partition transition from the given EventNode transition. This
-     * transition will be used to store Daikon invariants.
-     */
-    private static Transition<Partition> createDaikonInvTransition(
-            ITransition<EventNode> eventTrans) {
-        EventNode srcNode = eventTrans.getSource();
-        EventNode targetNode = eventTrans.getTarget();
-        Transition<Partition> tx = new Transition<Partition>(
-                srcNode.getParent(), targetNode.getParent(),
-                eventTrans.getRelation());
-        updateTransitionDeltas(srcNode, targetNode, tx);
-        // But, tx has no invariants associated with it yet.
-        return tx;
     }
 }

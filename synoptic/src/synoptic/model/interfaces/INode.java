@@ -17,12 +17,11 @@ import synoptic.model.event.EventType;
  */
 public interface INode<NodeType> extends Comparable<NodeType> {
     /**
-     * Returns the label of the node. NOTE: This call is used by the LTLChecker
-     * to retrieve the canonical representation of the event type.
-     * 
-     * @return the node's label
+     * Returns all event types of this partition--only one unless this is a
+     * variable node that allows types that are non-identical but considered
+     * equal
      */
-    EventType getEType();
+    public List<EventType> getAllETypes();
 
     public Set<NodeType> getAllSuccessors();
 
