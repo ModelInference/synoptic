@@ -13,6 +13,7 @@ import java.util.Set;
 
 import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.main.AbstractMain;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.NotImplementedException;
@@ -81,22 +82,22 @@ public abstract class Partition implements INode<Partition> {
     }
 
     /**
-     * Set up this newly-initialized partition's EventType(s)
-     */
-    protected abstract void initializeEType(EventNode eNode);
-
-    /**
      * Initialize this partition with a set of EventNodes
      */
     public void initialize(Collection<EventNode> eNodes) {
         initialized = true;
-        initializeETypes(eNodes);
+        initializeEType(eNodes);
     }
 
     /**
      * Set up this newly-initialized partition's EventType(s)
      */
-    protected abstract void initializeETypes(Collection<EventNode> eNode);
+    protected abstract void initializeEType(EventNode eNode);
+
+    /**
+     * Set up this newly-initialized partition's EventType(s)
+     */
+    protected abstract void initializeEType(Collection<EventNode> eNodes);
 
     /**
      * Adds a collection of event nodes to the existing partition. Updates the
@@ -110,11 +111,16 @@ public abstract class Partition implements INode<Partition> {
             initialize(eNodes);
         }
 
+        // Correctness of checkNewENodeType() in variable partitions requires
+        // new eNodes to be added to events before checking their legality
         events.addAll(eNodes);
+        refreshETypes();
+
         for (final EventNode e : eNodes) {
             e.setParent(this);
-            // Verify that EventNode type is legal for this partition
-            checkNewENodeType(e);
+
+            // Verify the EventNode type is legal for this partition
+            assert isLegalEType(e.getEType());
         }
     }
 
@@ -128,17 +134,29 @@ public abstract class Partition implements INode<Partition> {
         if (!initialized) {
             initialize(eNode);
         } else {
-            checkNewENodeType(eNode);
+            // Verify the EventNode type is legal for this partition
+            assert isLegalEType(eNode.getEType());
         }
         eNode.setParent(this);
         events.add(eNode);
     }
 
     /**
-     * Verify the EventNode is of an acceptable type, either identical or
-     * considered equal for uniform and variable Partitions, respectively
+     * Whether the event type is legal within this partition, either identical
+     * to the type of this uniform partition or considered equal to all types of
+     * this variable partition. (NOTE: when adding multiple event nodes to this
+     * partition, they should be added to {@link #events} BEFORE checking them
+     * with this method)
      */
-    protected abstract void checkNewENodeType(EventNode eNode);
+    protected abstract boolean isLegalEType(EventType otherEType);
+
+    // /**
+    // * Verify all EventNodes are of an acceptable type, either identical to
+    // the
+    // * type of this uniform partition or considered equal to all types of this
+    // * variable partition
+    // */
+    // protected abstract void checkNewENodeType(Collection<EventNode> eNodes);
 
     /**
      * Returns the set of event nodes contained in this partition.
@@ -499,8 +517,8 @@ public abstract class Partition implements INode<Partition> {
 
     /**
      * Compare the EventType(s) of this partition and {@code other}, returning a
-     * negative, zero, or positive number if {@code other}'s EventType(s) are
-     * considered less than, equal to, or greater than this partition's type(s),
+     * negative, zero, or positive number if this partition's EventType(s) are
+     * considered less than, equal to, or greater than {@code other}'s type(s),
      * respectively
      */
     protected abstract int compareETypes(Partition other);
