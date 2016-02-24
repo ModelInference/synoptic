@@ -14,7 +14,6 @@ import synoptic.main.AbstractMain;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
 import synoptic.util.resource.AbstractResource;
@@ -23,7 +22,7 @@ import synoptic.util.resource.EqualVectorTimestampsException;
 /**
  * The event node class -- a node in a graph that contains an event.
  */
-public class EventNode implements INode<EventNode> {
+public class EventNode implements IUniformNode<EventNode> {
     /**
      * The partition that contains the event node
      */
@@ -307,9 +306,7 @@ public class EventNode implements INode<EventNode> {
         return Arrays.asList(event.getEType());
     }
 
-    /**
-     * Return the label associated with the event.
-     */
+    @Override
     public EventType getEType() {
         return event.getEType();
     }

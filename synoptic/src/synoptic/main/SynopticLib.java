@@ -33,11 +33,8 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
 
     private List<List<T>> rawTraces = null;
 
-    private static int nextTraceID = 0;
-
-    // Maps a unique partition label to a set of parsed events corresponding to
-    // that partition
-    Map<T, List<EventNode>> partitions = new LinkedHashMap<>();
+    // Maps a trace ID to events within that trace
+    Map<Integer, List<EventNode>> traces = new LinkedHashMap<>();
 
     // EventNode -> Relation associated with this event node.
     Map<EventNode, Set<Relation>> allEventRelations = new HashMap<>();
@@ -99,7 +96,7 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
         this.options = opts;
         this.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
-        partitions = new HashMap<>();
+        traces = new HashMap<>();
         AbstractMain.instance = this;
     }
 
@@ -115,9 +112,7 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
             return null;
         }
 
-        makeChainsTraceGraph(allEvents);
-
-        return null;
+        return makeChainsTraceGraph(allEvents);
     }
 
     /**
@@ -129,6 +124,7 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
 
         List<EventNode> allEvents = new ArrayList<EventNode>();
         int resourceVal = 0; // TODO: is this necessary?
+        int traceId = 0;
 
         // Set up single relation that will be shared by all events
         Set<Relation> relations = new HashSet<>();
@@ -144,8 +140,8 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
                 Event event = new Event(eType, "", "", 0);
                 event.setTime(new ITotalResource(resourceVal++));
 
-                // Add event to the partition labeled with this raw event object
-                EventNode eventNode = addEventNodeToPartition(event, rawEvent);
+                // Add event to the current trace
+                EventNode eventNode = addEventNodeToPartition(event, traceId++);
 
                 // We want to add event relations ONLY IF eventNode actually
                 // represents an event, not a dummy state
@@ -164,24 +160,17 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
     /**
      * 
      */
-    private EventNode addEventNodeToPartition(Event event, T pName) {
+    private EventNode addEventNodeToPartition(Event event, int traceId) {
         EventNode eventNode = new EventNode(event);
 
-        List<EventNode> events = null;
-        for (T otherPName : partitions.keySet()) {
-            if (otherPName.equals(pName)) {
-                events = partitions.get(otherPName);
-            }
-        }
+        List<EventNode> events = traces.get(traceId);
 
         if (events == null) {
             events = new ArrayList<>();
-            partitions.put(pName, events);
-            logger.fine("Created partition '" + pName + "'");
-
-            nextTraceID++;
+            traces.put(traceId, events);
+            logger.fine("Created trace '" + traceId + "'");
         }
-        eventNode.setTraceID(nextTraceID);
+        eventNode.setTraceID(traceId);
 
         // We want to add eventNode to partitions ONLY IF event actually
         // represents an event, not a dummy for state.
@@ -210,8 +199,8 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
             List<EventNode> allEvents) throws ParseException {
         //
         GenChainsTraceGraph graph = new GenChainsTraceGraph(allEvents);
-        for (T pName : partitions.keySet()) {
-            graph.addTrace(partitions.get(pName), allEventRelations);
+        for (List<EventNode> trace : traces.values()) {
+            graph.addTrace(trace, allEventRelations);
         }
         return graph;
     }
