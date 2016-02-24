@@ -21,6 +21,16 @@ public class GenericEventType<T extends Comparable<T>> extends EventType {
         this(type, false, false);
     }
 
+    @Override
+    public EventType newInitialEventType() {
+        return newInitialGenericEventType();
+    }
+
+    @Override
+    public EventType newTerminalEventType() {
+        return newTerminalGenericEventType();
+    }
+
     /**
      * Creates a new GenericEventType that is an INITIAL.
      */
@@ -30,7 +40,7 @@ public class GenericEventType<T extends Comparable<T>> extends EventType {
     }
 
     /**
-     * Creates a new GenericEventType that is an TERMINAL.
+     * Creates a new GenericEventType that is a TERMINAL.
      */
     static public <U extends Comparable<U>> GenericEventType<U> newTerminalGenericEventType() {
         return new GenericEventType<U>(null, false, true);

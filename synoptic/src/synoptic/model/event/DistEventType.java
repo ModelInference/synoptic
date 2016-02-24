@@ -294,6 +294,16 @@ public class DistEventType extends EventType implements IDistEventType {
         this(type, "-1", false, false);
     }
 
+    @Override
+    public EventType newInitialEventType() {
+        return newInitialDistEventType();
+    }
+
+    @Override
+    public EventType newTerminalEventType() {
+        return newTerminalDistEventType();
+    }
+
     /**
      * Creates a new DistEventType that is an INITIAL.
      */
@@ -303,7 +313,7 @@ public class DistEventType extends EventType implements IDistEventType {
     }
 
     /**
-     * Creates a new DistEventType that is an TERMINAL.
+     * Creates a new DistEventType that is a TERMINAL.
      */
     static public DistEventType newTerminalDistEventType() {
         return new DistEventType(EventType.terminalNodeLabel,

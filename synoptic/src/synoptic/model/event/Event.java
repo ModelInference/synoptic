@@ -90,33 +90,20 @@ public class Event {
     }
 
     /**
-     * Returns the special INITIAL event of String type.
+     * Returns the special INITIAL event with the same event type as the
+     * parameter.
      */
-    public static Event newInitialStringEvent() {
-        return new Event(StringEventType.newInitialStringEventType(), null,
-                null, 0);
+    public static Event newInitialEvent(EventType anyInstanceOfType) {
+        return new Event(anyInstanceOfType.newInitialEventType(), null, null,
+                0);
     }
 
     /**
-     * Returns the special terminal event of String type.
+     * Returns the special TERMINAL event with the same event type as the
+     * parameter.
      */
-    public static Event newTerminalStringEvent() {
-        return new Event(StringEventType.newTerminalStringEventType(), null,
-                null, 0);
-    }
-
-    /**
-     * Returns the special INITIAL event of DistEvent type.
-     */
-    public static Event newInitialDistEvent() {
-        return new Event(DistEventType.newInitialDistEventType(), null, null, 0);
-    }
-
-    /**
-     * Returns the special terminal event of DistEvent type.
-     */
-    public static Event newTerminalDistEvent() {
-        return new Event(DistEventType.newTerminalDistEventType(), null, null,
+    public static Event newTerminalEvent(EventType anyInstanceOfType) {
+        return new Event(anyInstanceOfType.newTerminalEventType(), null, null,
                 0);
     }
 

@@ -23,6 +23,16 @@ public class StringEventType extends EventType {
         this(type, false, false);
     }
 
+    @Override
+    public EventType newInitialEventType() {
+        return newInitialStringEventType();
+    }
+
+    @Override
+    public EventType newTerminalEventType() {
+        return newTerminalStringEventType();
+    }
+
     /**
      * Creates a new StringEventType that is an INITIAL.
      */
@@ -31,7 +41,7 @@ public class StringEventType extends EventType {
     }
 
     /**
-     * Creates a new StringEventType that is an TERMINAL.
+     * Creates a new StringEventType that is a TERMINAL.
      */
     static public StringEventType newTerminalStringEventType() {
         return new StringEventType(EventType.terminalNodeLabel, false, true);
