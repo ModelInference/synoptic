@@ -15,6 +15,7 @@ import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.GenChainsTraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Relation;
 import synoptic.model.event.Event;
@@ -114,7 +115,7 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
             return null;
         }
 
-        genChainsTraceGraph(allEvents);
+        makeChainsTraceGraph(allEvents);
 
         return null;
     }
@@ -193,11 +194,11 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
     /**
      * 
      */
-    private ChainsTraceGraph genChainsTraceGraph(List<EventNode> parsedEvents)
-            throws ParseException {
+    private GenChainsTraceGraph makeChainsTraceGraph(
+            List<EventNode> parsedEvents) throws ParseException {
         long startTime = loggerInfoStart(
                 "Generating inter-event temporal relation...");
-        ChainsTraceGraph inputGraph = generateDirectTORelation(parsedEvents);
+        GenChainsTraceGraph inputGraph = generateDirectTORelation(parsedEvents);
         loggerInfoEnd("Generating temporal relation took ", startTime);
         return inputGraph;
     }
@@ -205,10 +206,10 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
     /**
      * 
      */
-    private ChainsTraceGraph generateDirectTORelation(List<EventNode> allEvents)
-            throws ParseException {
+    private GenChainsTraceGraph generateDirectTORelation(
+            List<EventNode> allEvents) throws ParseException {
         //
-        ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
+        GenChainsTraceGraph graph = new GenChainsTraceGraph(allEvents);
         for (T pName : partitions.keySet()) {
             graph.addTrace(partitions.get(pName), allEventRelations);
         }

@@ -106,6 +106,22 @@ public class Event {
     }
 
     /**
+     * Returns the special INITIAL event of a generic object type.
+     */
+    public static Event newInitialGenericEvent() {
+        return new Event(GenericEventType.newInitialGenericEventType(), null,
+                null, 0);
+    }
+
+    /**
+     * Returns the special terminal event of a generic object type.
+     */
+    public static Event newTerminalGenericEvent() {
+        return new Event(GenericEventType.newTerminalGenericEventType(), null,
+                null, 0);
+    }
+
+    /**
      * Returns the special INITIAL event of DistEvent type.
      */
     public static Event newInitialDistEvent() {

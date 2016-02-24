@@ -41,6 +41,14 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
     private final List<Trace> traces = new ArrayList<Trace>();
 
+    /**
+     * Internal constructor for trace graph subtypes
+     */
+    protected ChainsTraceGraph(Collection<EventNode> nodes, Event initEvent,
+            Event termEvent) {
+        super(nodes, initEvent, termEvent);
+    }
+
     public ChainsTraceGraph(Collection<EventNode> nodes) {
         super(nodes, initEvent, termEvent);
     }
