@@ -17,7 +17,7 @@ import synoptic.algorithms.TransitiveClosure;
 import synoptic.main.options.AbstractOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.model.event.Event;
-import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 
 /**
  * This structure holds all the totally ordered executions extracted from the
@@ -30,8 +30,8 @@ import synoptic.model.event.EventType;
  * through the time relation. Multiple relations are interposed with existing
  * connected time chains.
  */
-public class ChainsTraceGraph<T extends EventType> extends TraceGraph<T> {
-    static Event initEvent = Event.newInitialEvent();
+public class ChainsTraceGraph extends TraceGraph<StringEventType> {
+    static Event initEvent = Event.newInitialStringEvent();
     static Event termEvent = Event.newTerminalStringEvent();
 
     /**

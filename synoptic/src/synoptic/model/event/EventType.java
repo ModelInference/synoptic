@@ -30,16 +30,6 @@ public abstract class EventType implements Comparable<EventType> {
     protected final boolean isTerminalEventType;
 
     /**
-     * Returns a new EventType that is an INITIAL.
-     */
-    public abstract EventType newInitialEventType();
-
-    /**
-     * Returns a new EventType that is a TERMINAL.
-     */
-    public abstract EventType newTerminalEventType();
-
-    /**
      * Instantiates a new EventType that can be an INITIAL, a TERMINAL, or
      * neither. It cannot be both an INITIAL and a TERMINAL.
      * 
