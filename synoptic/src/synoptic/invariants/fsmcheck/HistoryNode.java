@@ -87,7 +87,7 @@ public class HistoryNode<T extends INode<T>> implements
         StringBuilder sb = new StringBuilder();
         HistoryNode<T> cur = this;
         while (cur != null) {
-            sb.append(cur.node.getEType());
+            sb.append(cur.node.eTypeStr());
             sb.append(" <- ");
             cur = cur.previous;
         }

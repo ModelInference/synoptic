@@ -17,8 +17,6 @@ import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.event.Event;
-import synoptic.model.event.EventType;
-import synoptic.model.event.StringEventType;
 import synoptic.tests.PynopticTest;
 
 /**
@@ -46,7 +44,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         // Get the counter-example path at partition d
         for (Partition part : graph.getNodes()) {
-            if (part.getEType().equals(new StringEventType("d"))) {
+            if (part.eTypeStr().equals("d")) {
                 cExPath = tracingSets.get(part).failpath()
                         .toCounterexample(inv);
             }
@@ -102,7 +100,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         // Get the counter-example path at partition x
         for (Partition part : graph.getNodes()) {
-            if (part.getEType().equals(new StringEventType("x"))) {
+            if (part.eTypeStr().equals("x")) {
                 cExPath = tracingSets.get(part).failpath()
                         .toCounterexample(inv);
             }
@@ -211,13 +209,13 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // d
         for (Partition part : graph.getNodes()) {
 
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
-            if (evType.equals(new StringEventType("b"))) {
+            if (evType.equals("b")) {
                 bPart = part;
-            } else if (evType.equals(new StringEventType("c"))) {
+            } else if (evType.equals("c")) {
                 cPart = part;
-            } else if (evType.equals(new StringEventType("d"))) {
+            } else if (evType.equals("d")) {
                 cExPath = tracingSets.get(part).failpath()
                         .toCounterexample(inv);
             }
@@ -299,20 +297,20 @@ public class ConstrainedRefinementTests extends PynopticTest {
                 continue;
             }
 
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
             // Partition a should not be split: it is sometimes the beginning of
             // a violation subpath but never in the middle
-            if (evType.equals(new StringEventType("a"))) {
+            if (evType.equals("a")) {
                 assertTrue(part.size() == 2);
             }
 
             // Partitions b, c, and d should all be split, and e should begin
             // and end with only 1 event
-            else if (evType.equals(new StringEventType("b"))
-                    || evType.equals(new StringEventType("c"))
-                    || evType.equals(new StringEventType("d"))
-                    || evType.equals(new StringEventType("e"))) {
+            else if (evType.equals("b")
+                    || evType.equals("c")
+                    || evType.equals("d")
+                    || evType.equals("e")) {
                 assertTrue(part.size() == 1);
             }
 
@@ -357,22 +355,22 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         for (Partition part : graph.getNodes()) {
 
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
             // Partition a should not be split: it is sometimes the beginning of
             // a violation subpath but never in the middle
-            if (evType.equals(new StringEventType("a"))) {
+            if (evType.equals("a")) {
                 assertTrue(part.size() == totalAs);
             }
 
             // Partitions b should be split
-            else if (evType.equals(new StringEventType("b"))) {
+            else if (evType.equals("b")) {
                 assertTrue(part.size() < totalBs);
             }
 
             // Partition c should not be split: it is sometimes the end of a
             // violation subpath but never in the middle
-            else if (evType.equals(new StringEventType("c"))) {
+            else if (evType.equals("c")) {
                 assertTrue(part.size() == totalCs);
             }
 
@@ -473,15 +471,15 @@ public class ConstrainedRefinementTests extends PynopticTest {
 
         for (Partition part : graph.getNodes()) {
 
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
             // Partition x shouldn't be split
-            if (evType.equals(new StringEventType("x"))) {
+            if (evType.equals("x")) {
                 assertTrue(part.size() == totalXs);
             }
 
             // Partitions z should be split
-            else if (evType.equals(new StringEventType("z"))) {
+            else if (evType.equals("z")) {
                 assertTrue(part.size() < totalZs);
             }
 
@@ -511,15 +509,15 @@ public class ConstrainedRefinementTests extends PynopticTest {
         int xparts = 0, zparts = 0;
 
         for (Partition part : graph.getNodes()) {
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
             // No splits should occur
-            if (evType.equals(new StringEventType("x"))) {
+            if (evType.equals("x")) {
                 xparts++;
                 assertTrue(part.size() == 8);
             }
 
-            else if (evType.equals(new StringEventType("z"))) {
+            else if (evType.equals("z")) {
                 zparts++;
                 assertTrue(part.size() == 4);
             }
@@ -552,16 +550,16 @@ public class ConstrainedRefinementTests extends PynopticTest {
         int xparts = 0, zparts = 0;
 
         for (Partition part : graph.getNodes()) {
-            EventType evType = part.getEType();
+            String evType = part.eTypeStr();
 
             // x shouldn't be split
-            if (evType.equals(new StringEventType("x"))) {
+            if (evType.equals("x")) {
                 xparts++;
                 assertTrue(part.size() == 8);
             }
 
             // z should be split
-            else if (evType.equals(new StringEventType("z"))) {
+            else if (evType.equals("z")) {
                 zparts++;
                 assertTrue(part.size() < 4);
             }

@@ -31,9 +31,9 @@ public class VariablePartition extends Partition
     }
 
     @Override
-    public List<EventType> getAllETypes() {
+    public String eTypeStr() {
         assert initialized;
-        return eTypes;
+        return eTypes.toString();
     }
 
     @Override

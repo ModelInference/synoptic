@@ -113,7 +113,7 @@ public class BisimulationTests extends SynopticTest {
             // Check that each partition contains exactly one LogEvent, and that
             // the set of all LogEvents is exactly the set of the input
             // LogEvents.
-            if (p.getEType().isInitialEventType()) {
+            if (p.isInitial()) {
                 hasInitial = true;
                 continue;
             }

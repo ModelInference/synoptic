@@ -74,7 +74,7 @@ public class CExamplePath<T> {
         result.append(": ");
         for (T n : path) {
             if (n instanceof Partition) {
-                result.append(((Partition) n).getEType().toString());
+                result.append(((Partition) n).eTypeStr().toString());
             } else {
                 result.append(n.toString());
             }

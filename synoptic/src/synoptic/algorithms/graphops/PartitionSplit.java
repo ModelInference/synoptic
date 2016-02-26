@@ -102,7 +102,7 @@ public class PartitionSplit implements IOperation {
         // NOTE: this string only makes sense BEFORE the operation is committed,
         // after a commit() the partition may have a different # of messages!
         return "S."
-                + partitionToSplit.getEType()
+                + partitionToSplit.eTypeStr()
                 + "."
                 + eventsToSplitOut.size()
                 + "/"

@@ -73,15 +73,13 @@ public class PartitionGraphTests extends SynopticTest {
         Partition pInitial = pGraph.getDummyInitialNode();
         assertTrue(pInitial.getAllTransitions().size() == 2);
         Partition pA1 = pInitial.getAllTransitions().get(0).getTarget();
-        assertTrue(pA1.getEType().equals(new StringEventType("a")));
+        assertTrue(pA1.eTypeStr().equals("a"));
         assertTrue(pA1.getAllTransitions().size() == 1);
-        assertTrue(pA1.getAllTransitions().get(0).getTarget().getEType()
-                .isTerminalEventType());
+        assertTrue(pA1.getAllTransitions().get(0).getTarget().isTerminal());
         Partition pA2 = pInitial.getAllTransitions().get(1).getTarget();
-        assertTrue(pA2.getEType().equals(new StringEventType("a")));
+        assertTrue(pA2.eTypeStr().equals("a"));
         assertTrue(pA2.getAllTransitions().size() == 1);
-        assertTrue(pA2.getAllTransitions().get(0).getTarget().getEType()
-                .isTerminalEventType());
+        assertTrue(pA2.getAllTransitions().get(0).getTarget().isTerminal());
 
         // Undo the split.
         pGraph.apply(rewind);
@@ -132,18 +130,16 @@ public class PartitionGraphTests extends SynopticTest {
         assertTrue(pTraces.size() == 2);
         for (List<Partition> p : pTraces) {
             // Synthetic traces will only have either a or q after INITIAL.
-            boolean aTrace = p.get(1).getEType()
-                    .equals(new StringEventType("a"));
-            boolean qTrace = p.get(1).getEType()
-                    .equals(new StringEventType("q"));
+            boolean aTrace = p.get(1).eTypeStr().equals("a");
+            boolean qTrace = p.get(1).eTypeStr().equals("q");
             assertTrue(aTrace || qTrace);
             assertTrue(p.get(0).isInitial());
             if (aTrace) {
-                assertTrue(p.get(2).getEType().equals(new StringEventType("b")));
-                assertTrue(p.get(3).getEType().equals(new StringEventType("c")));
+                assertTrue(p.get(2).eTypeStr().equals("b"));
+                assertTrue(p.get(3).eTypeStr().equals("c"));
             } else {
-                assertTrue(p.get(2).getEType().equals(new StringEventType("a")));
-                assertTrue(p.get(3).getEType().equals(new StringEventType("b")));
+                assertTrue(p.get(2).eTypeStr().equals("a"));
+                assertTrue(p.get(3).eTypeStr().equals("b"));
             }
             assertTrue(p.get(4).isTerminal());
         }
@@ -196,7 +192,7 @@ public class PartitionGraphTests extends SynopticTest {
         Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
         INode<Partition> cPartition = null;
         for (Partition p : nodes) {
-            if (p.getEType().toString().equals("c")) {
+            if (p.eTypeStr().equals("c")) {
                 cPartition = p;
                 break;
             }
@@ -228,7 +224,7 @@ public class PartitionGraphTests extends SynopticTest {
         INode<Partition> cPartition = null;
         INode<Partition> aPartition = null;
         for (Partition p : nodes) {
-            String eType = p.getEType().toString();
+            String eType = p.eTypeStr();
             if (eType.equals("c")) {
                 cPartition = p;
             }

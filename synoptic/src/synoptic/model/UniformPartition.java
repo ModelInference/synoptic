@@ -1,8 +1,6 @@
 package synoptic.model;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import synoptic.model.event.EventType;
 
@@ -27,9 +25,9 @@ public class UniformPartition extends Partition
     }
 
     @Override
-    public List<EventType> getAllETypes() {
+    public String eTypeStr() {
         assert initialized;
-        return Arrays.asList(eType);
+        return eType.toString();
     }
 
     @Override

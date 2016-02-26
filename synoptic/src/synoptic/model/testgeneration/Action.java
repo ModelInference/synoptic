@@ -1,7 +1,6 @@
 package synoptic.model.testgeneration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,8 +37,8 @@ public class Action implements IUniformNode<Action> {
 	}
 
     @Override
-    public List<EventType> getAllETypes() {
-        return Arrays.asList(eventType);
+    public String eTypeStr() {
+        return eventType.toString();
     }
 
 	@Override

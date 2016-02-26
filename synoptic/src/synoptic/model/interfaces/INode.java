@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.model.Partition;
-import synoptic.model.event.EventType;
 
 /**
  * The interface all nodes must implement. The interface does not contain
@@ -17,11 +16,11 @@ import synoptic.model.event.EventType;
  */
 public interface INode<NodeType> extends Comparable<NodeType> {
     /**
-     * Returns all event types of this partition--only one unless this is a
-     * variable node that allows types that are non-identical but considered
-     * equal
+     * Returns a string representation of all of this partition's event types,
+     * only one unless this is a variable node that allows types that are
+     * non-identical but considered equal
      */
-    public List<EventType> getAllETypes();
+    public String eTypeStr();
 
     public Set<NodeType> getAllSuccessors();
 

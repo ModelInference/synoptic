@@ -121,7 +121,7 @@ public class ConstrainedHistoryNode<T extends INode<T>> extends HistoryNode<T> {
         StringBuilder sb = new StringBuilder();
         ConstrainedHistoryNode<T> cur = this;
         while (cur != null) {
-            sb.append(cur.node.getEType());
+            sb.append(cur.node.eTypeStr());
             sb.append("(");
 
             // Include time if it's available

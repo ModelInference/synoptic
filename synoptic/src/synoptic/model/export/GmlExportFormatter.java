@@ -2,10 +2,10 @@ package synoptic.model.export;
 
 import java.util.Set;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.model.interfaces.INode;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Implements a GML (graph modeling language) export for graphs:
@@ -36,7 +36,7 @@ public class GmlExportFormatter extends GraphExportFormatter {
         }
 
         return "node\n[\n  id " + nodeId + "\n  label " + "\""
-                + quote(node.getEType().toString()) + "\"" + "\n"
+                + quote(node.eTypeStr()) + "\"" + "\n"
                 + nodeGraphics + "]\n";
     }
 

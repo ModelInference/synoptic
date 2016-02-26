@@ -196,8 +196,7 @@ public class JsonExporter {
             List<Map<String, Object>> singlePartitionEventList = new LinkedList<Map<String, Object>>();
 
             // Populate this partition's event type
-            EventType evType = partition.getEType();
-            singlePartitionMap.put("eventType", evType.toString());
+            singlePartitionMap.put("eventType", partition.eTypeStr());
 
             for (EventNode event : partition.getEventNodes()) {
                 // One event, contains trace ID and index within the trace
@@ -207,7 +206,7 @@ public class JsonExporter {
                 // within the JSON object
                 EventInstance evInstance = eventMap.get(event);
 
-                if (evType.isSpecialEventType()) {
+                if (partition.isInitial() || partition.isTerminal()) {
                     continue PartitionLoop;
                 }
 

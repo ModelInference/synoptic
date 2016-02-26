@@ -2,10 +2,10 @@ package synoptic.model.export;
 
 import java.util.Set;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.model.interfaces.INode;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Implements a GraphViz exporter (DOT language) for graphs:
@@ -27,7 +27,7 @@ public class DotExportFormatter extends GraphExportFormatter {
     public <T extends INode<T>> String nodeToString(int nodeId, T node,
             boolean isInitial, boolean isTerminal) {
 
-        String attributes = "label=\"" + quote(node.getEType().toString())
+        String attributes = "label=\"" + quote(node.eTypeStr())
                 + "\"";
         if (isInitial) {
             attributes = attributes + ",shape=box";

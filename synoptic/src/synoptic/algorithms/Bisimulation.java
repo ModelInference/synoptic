@@ -890,7 +890,7 @@ public class Bisimulation {
                     }
 
                 } else {
-                    logger.fine("Merge of partitions " + p.getEType()
+                    logger.fine("Merge of partitions " + p.eTypeStr()
                             + " nodes maintains invs, accepted.");
                     return true;
                 }

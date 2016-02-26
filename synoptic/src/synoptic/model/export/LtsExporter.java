@@ -109,7 +109,7 @@ public class LtsExporter {
                 transitionAdded = true;
 
                 // Output transition to the next state
-                String eventType = nextPart.getEType().toString();
+                String eventType = nextPart.eTypeStr();
                 ltsContent.append(eventType).append(" -> S")
                         .append(partIDs.get(nextPart));
 

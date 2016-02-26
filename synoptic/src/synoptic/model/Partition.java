@@ -247,7 +247,7 @@ public abstract class Partition implements INode<Partition> {
         StringBuilder str = new StringBuilder();
         // str.append("Partition " + hashCode());
         str.append(!initialized ? "UNINIT." : "");
-        str.append("P." + getAllETypes());
+        str.append("P." + eTypeStr());
         str.append("." + events.size());
         return str.toString();
     }

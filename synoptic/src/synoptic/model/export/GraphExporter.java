@@ -19,18 +19,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.main.AbstractMain;
 import synoptic.main.options.AbstractOptions;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
+import synoptic.model.UniformStatePartition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Used to export a graph object to a file.
@@ -205,8 +206,9 @@ public class GraphExporter {
                 if (main.options.stateProcessing && node instanceof Partition) {
                     // We need to do these castings because INode<T> doesn't
                     // have getTransitionsWithDaikonInvariants method, but
-                    // Partition has.
-                    Partition partition = (Partition) node;
+                    // UniformStatePartition does.
+                    assert node instanceof UniformStatePartition;
+                    UniformStatePartition partition = (UniformStatePartition) node;
                     transitions = (List<? extends ITransition<T>>) partition
                             .getTransitionsWithDaikonInvariants();
                 }
