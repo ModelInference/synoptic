@@ -94,6 +94,12 @@ public class SynopticOptions extends Options {
     public boolean testGeneration = false;
 
     /**
+     * Allow variably-typed partitions when using SynopticLib
+     */
+    @Option(AbstractOptions.variablePartitionsStr)
+    public boolean variablePartitions = false;
+
+    /**
      * Filter all invariants that have support values greater than the threshold
      */
     @Option(value = AbstractOptions.supportCountThresholdStr)
@@ -490,6 +496,7 @@ public class SynopticOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.variablePartitions = variablePartitions;
         absOpts.supportCountThreshold = supportCountThreshold;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
 

@@ -126,9 +126,14 @@ public class ExtPerfumeOptions extends Options {
     public final boolean stateProcessing = false;
 
     /**
-     * Pefume doesn't support abstract test generation
+     * Perfume doesn't support abstract test generation
      */
     public final boolean testGeneration = false;
+
+    /**
+     * Perfume doesn't support variably-typed partitions
+     */
+    public final boolean variablePartitions = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -511,6 +516,7 @@ public class ExtPerfumeOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.variablePartitions = variablePartitions;
 
         // Parser options
 

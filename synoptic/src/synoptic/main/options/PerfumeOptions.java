@@ -87,6 +87,11 @@ public class PerfumeOptions extends Options {
     public final boolean testGeneration = false;
 
     /**
+     * Perfume doesn't support variably-typed partitions
+     */
+    public final boolean variablePartitions = false;
+
+    /**
      * Perfume supports IntrBy Invariants
      */
     public boolean ignoreIntrByInvs = false;
@@ -482,6 +487,7 @@ public class PerfumeOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.variablePartitions = variablePartitions;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
 
         // Parser options
