@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import synoptic.model.event.EventType;
+import synoptic.model.interfaces.INode;
 
 /**
  * (( TODO ))
@@ -34,6 +35,11 @@ public class VariablePartition extends Partition
     public String eTypeStr() {
         assert initialized;
         return eTypes.toString();
+    }
+
+    @Override
+    public List<EventType> getAllETypes() {
+        return eTypes;
     }
 
     @Override
@@ -101,25 +107,25 @@ public class VariablePartition extends Partition
     }
 
     @Override
-    protected int compareETypes(Partition other) {
-        // Order this partition after any that are less complex, non-variable
-        // partitions
-        if (!(other instanceof VariablePartition)) {
+    public int compareETypes(INode<?> other) {
+        // Order this partition after any less complex, non-variable nodes
+        if (!(other instanceof IVariableNode<?>)) {
             return 1;
         }
         
-        VariablePartition varOther = (VariablePartition) other;
+        IVariableNode<?> varOther = (IVariableNode<?>) other;
+        Collection<EventType> otherETypes = varOther.getAllETypes();
         
         // If partitions have different numbers of event types, simply order by
         // number of types
-        if (eTypes.size() < varOther.eTypes.size()) {
+        if (eTypes.size() < otherETypes.size()) {
             return -1;
-        } else if (eTypes.size() > varOther.eTypes.size()) {
+        } else if (eTypes.size() > otherETypes.size()) {
             return 1;
         }
 
         // Perform n-to-m comparison of all event types in both partitions
-        for (EventType otherEType : varOther.eTypes) {
+        for (EventType otherEType : otherETypes) {
             if (!isLegalEType(otherEType)) {
                 return -1;
             }

@@ -30,11 +30,11 @@ public class TopologicalKTails {
      */
     static public <NodeType extends INode<NodeType>> boolean kEquals(
             NodeType n1, NodeType n2, int k, boolean subsumption) {
-        if (!n1.getEType().equals(n2.getEType())) {
+        if (!n1.eTypesEqual(n2)) {
             return false;
         }
         if (k == 0) {
-            return n1.getEType().equals(n2.getEType());
+            return n1.eTypesEqual(n2);
         }
 
         if (subsumption) {
@@ -95,7 +95,7 @@ public class TopologicalKTails {
             LinkedHashMap<NodeType, NodeType> allVisitedMatches) {
 
         // The labels must match.
-        if (!n1.getEType().equals(n2.getEType())) {
+        if (!n1.eTypesEqual(n2)) {
             return false;
         }
 

@@ -13,6 +13,7 @@ import synoptic.main.AbstractMain;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.state.State;
 import synoptic.util.resource.AbstractResource;
@@ -134,6 +135,22 @@ public class EventNode implements IUniformNode<EventNode> {
     public String toString() {
         return "[EventNode: " + getEvent() + " (Hash: " + hashCode()
                 + ", Line: " + getLineNum() + ")" + "]";
+    }
+
+    @Override
+    public int compareETypes(INode<?> other) {
+        // Order before any more complex, non-uniform node
+        if (!(other instanceof IUniformNode<?>)) {
+            return -1;
+        }
+
+        IUniformNode<?> eNodeOther = (IUniformNode<?>) other;
+        return event.getEType().compareTo(eNodeOther.getEType());
+    }
+
+    @Override
+    public boolean eTypesEqual(INode<?> other) {
+        return (compareETypes(other) == 0);
     }
 
     /**

@@ -75,4 +75,17 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * Whether or not this is the dummy initial node.
      */
     boolean isInitial();
+
+    /**
+     * Compare the EventType(s) of this node and {@code other}, returning a
+     * negative, zero, or positive number if this node's EventType(s) are
+     * considered less than, equal to, or greater than {@code other}'s type(s),
+     * respectively
+     */
+    int compareETypes(INode<?> other);
+
+    /**
+     * Whether the EventType(s) of this node and {@code other} are equal
+     */
+    boolean eTypesEqual(INode<?> other);
 }

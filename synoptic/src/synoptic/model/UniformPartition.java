@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.Collection;
 
 import synoptic.model.event.EventType;
+import synoptic.model.interfaces.INode;
 
 /**
  * TODO
@@ -75,9 +76,8 @@ public class UniformPartition extends Partition
     }
 
     @Override
-    protected int compareETypes(Partition other) {
-        // Order this partition before any that are more complex, non-uniform
-        // node types
+    public int compareETypes(INode<?> other) {
+        // Order this partition before any more complex, non-uniform nodes
         if (!(other instanceof IUniformNode<?>)) {
             return -1;
         }

@@ -248,15 +248,13 @@ public class Transition<NodeType extends INode<?>>
     @Override
     public int compareTo(ITransition<NodeType> other) {
         // First compare the sources of the two transitions.
-        int cmp = (this.source).getEType().compareTo(
-                (other.getSource()).getEType());
+        int cmp = (this.source).compareETypes(other.getSource());
         if (cmp != 0) {
             return cmp;
         }
 
         // Then, compare the targets of the two transitions.
-        cmp = ((INode<NodeType>) this.target).getEType().compareTo(
-                ((INode<NodeType>) other.getTarget()).getEType());
+        cmp = this.target.compareETypes(other.getTarget());
         if (cmp != 0) {
             return cmp;
         }

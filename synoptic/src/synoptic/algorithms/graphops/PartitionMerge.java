@@ -23,7 +23,7 @@ public class PartitionMerge implements IOperation {
      *            partition {@code retained}
      */
     public PartitionMerge(Partition retained, Partition removed) {
-        assert retained.getEType().equals(removed.getEType()) : "merging partitions of different types";
+        assert retained.eTypesEqual(removed) : "merging partitions of different types";
         assert (retained.size() != 0 && removed.size() != 0) : "merging two empty partitions";
 
         this.retained = retained;

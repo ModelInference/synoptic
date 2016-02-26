@@ -252,6 +252,11 @@ public abstract class Partition implements INode<Partition> {
         return str.toString();
     }
 
+    @Override
+    public boolean eTypesEqual(INode<?> other) {
+        return (compareETypes(other) == 0);
+    }
+
     /**
      * Split the event nodes according to the presence of an outgoing transition
      * trans (the source in trans is ignored here). Note that the returned
@@ -528,14 +533,6 @@ public abstract class Partition implements INode<Partition> {
         }
         return 0;
     }
-
-    /**
-     * Compare the EventType(s) of this partition and {@code other}, returning a
-     * negative, zero, or positive number if this partition's EventType(s) are
-     * considered less than, equal to, or greater than {@code other}'s type(s),
-     * respectively
-     */
-    protected abstract int compareETypes(Partition other);
 
     @Override
     public Partition getParent() {

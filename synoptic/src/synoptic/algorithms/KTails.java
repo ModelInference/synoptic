@@ -146,11 +146,11 @@ public class KTails {
         assert (k > 0);
 
         if (k == 1) {
-            return n1.getEType().equals(n2.getEType());
+            return n1.eTypesEqual(n2);
         }
 
         // Optimization.
-        if (!n1.getEType().equals(n2.getEType())) {
+        if (!n1.eTypesEqual(n2)) {
             return false;
         }
 
