@@ -157,7 +157,7 @@ public class ConstrainedRefinementTests extends PynopticTest {
         // Create a partition, add above events, and add some events (not part
         // of any min/max transitions) to be randomly assigned to one side
         // of the split or the other
-        Partition part = new Partition(outgoingEv);
+        Partition part = Partition.newPartition(outgoingEv);
         part.addOneEventNode(inAndOutgoingEv);
         part.addOneEventNode(new EventNode(new Event("label")));
         part.addOneEventNode(new EventNode(new Event("label")));

@@ -63,7 +63,7 @@ public class PartitionSplit implements IOperation {
         assert isValid();
 
         if (newPartition == null) {
-            newPartition = new Partition(getSplitEvents());
+            newPartition = Partition.newPartition(getSplitEvents());
         }
 
         newPartition.addEventNodes(getSplitEvents());

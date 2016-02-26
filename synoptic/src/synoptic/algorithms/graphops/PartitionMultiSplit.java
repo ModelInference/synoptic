@@ -45,7 +45,7 @@ public class PartitionMultiSplit implements IOperation {
                 skippedFirst = true;
                 continue;
             }
-            Partition newPartition = new Partition(set);
+            Partition newPartition = Partition.newPartition(set);
             newPartitions.add(newPartition);
             partition.removeEventNodes(set);
             newPartition.addEventNodes(set);

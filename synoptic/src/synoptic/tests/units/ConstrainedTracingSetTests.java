@@ -362,7 +362,8 @@ public class ConstrainedTracingSetTests extends PynopticTest {
     public void stateSubsetTest() throws Exception {
         // Create a legal node to be the "inhabited states"
         ConstrainedHistoryNode<Partition> node = new ConstrainedHistoryNode<Partition>(
-                new Partition(new EventNode(new Event(""))), new ITotalResource(0));
+                Partition.newPartition(new EventNode(new Event(""))),
+                new ITotalResource(0));
 
         // Create the lists of inhabited states: (0,2,3) and (0,2)
         List<ConstrainedHistoryNode<Partition>> cTSetStates = new ArrayList<ConstrainedHistoryNode<Partition>>();
