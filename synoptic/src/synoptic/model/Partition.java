@@ -1,6 +1,7 @@
 package synoptic.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,25 +46,13 @@ public abstract class Partition implements INode<Partition> {
     protected boolean initialized = false;
 
     /**
-     * Returns a new partition of the same type as this object that will contain
-     * a set of event nodes.
+     * Create a partition containing a collection of event nodes
      */
-    public abstract Partition newOfThisType(Set<EventNode> eNodes);
-
-    /**
-     * Create a partition containing a set of event nodes
-     */
-    protected Partition(Set<EventNode> eNodes) {
+    protected Partition(Collection<EventNode> eNodes) {
         assert eNodes.size() > 0;
         events = new LinkedHashSet<EventNode>();
         addEventNodes(eNodes);
     }
-
-    /**
-     * Returns a new partition of the same type as this object that will contain
-     * a single event node.
-     */
-    public abstract Partition newOfThisType(EventNode eNode);
 
     /**
      * Create a partition containing a single event node
@@ -71,6 +60,31 @@ public abstract class Partition implements INode<Partition> {
     protected Partition(EventNode eNode) {
         events = new LinkedHashSet<EventNode>();
         addOneEventNode(eNode);
+    }
+
+    /**
+     * Construct a new partition of the proper type for this Synoptic execution
+     * (variable, uniform, or uniform state) containing a single event node
+     */
+    public static Partition newPartition(EventNode eNode) {
+        return newPartition(Arrays.asList(eNode));
+    }
+
+    /**
+     * Construct a new partition of the proper type for this Synoptic execution
+     * (variable, uniform, or uniform state) containing a collection of event
+     * nodes
+     */
+    public static Partition newPartition(Collection<EventNode> eNodes) {
+        if (AbstractMain.getInstance().options.variablePartitions) {
+            return new VariablePartition(eNodes);
+        }
+
+        if (AbstractMain.getInstance().options.stateProcessing) {
+            return new UniformStatePartition(eNodes);
+        }
+
+        return new UniformPartition(eNodes);
     }
 
     /**
@@ -548,7 +562,7 @@ public abstract class Partition implements INode<Partition> {
     }
 
     protected static void updateTransitionDeltas(EventNode srcENode,
-            EventNode targetENode, ITransition<Partition> tx) {
+            EventNode targetENode, ITransition<?> tx) {
         if (!AbstractMain.getInstance().options.usePerformanceInfo) {
             return;
         }

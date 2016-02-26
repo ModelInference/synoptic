@@ -4,15 +4,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import daikonizer.DaikonInvariants;
-
-import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 import synoptic.model.TransitionLabelType;
+import synoptic.model.UniformPartition;
+import synoptic.model.UniformStatePartition;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.testgeneration.AbstractTestCase;
 import synoptic.model.testgeneration.Action;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * SynopticTestGeneration derives abstract test cases from a Synoptic model,
@@ -31,8 +32,8 @@ public class SynopticTestGeneration {
      */
     public static Set<AbstractTestCase> deriveAbstractTests(PartitionGraph model) {
         Set<AbstractTestCase> testSuite = new LinkedHashSet<AbstractTestCase>();
-        Set<List<Partition>> paths = model.getAllBoundedPredictedPaths();
-        for (List<Partition> path : paths) {
+        Set<List<UniformPartition>> paths = model.getAllBoundedPredictedPaths();
+        for (List<UniformPartition> path : paths) {
             AbstractTestCase testCase = convertPathToAbstractTest(path);
             testSuite.add(testCase);
         }
@@ -45,7 +46,7 @@ public class SynopticTestGeneration {
      * @return a corresponding abstract test case.
      */
     public static AbstractTestCase convertPathToAbstractTest(
-            List<Partition> path) {
+            List<UniformPartition> path) {
         assert !path.isEmpty();
         AbstractMain main = AbstractMain.getInstance();
 
@@ -53,7 +54,7 @@ public class SynopticTestGeneration {
         AbstractTestCase testCase = new AbstractTestCase(currAction);
 
         for (int i = 0; i < path.size() - 1; i++) {
-            Partition next = path.get(i + 1);
+            UniformPartition next = path.get(i + 1);
 
             Action nextAction = new Action(next.getEType());
             testCase.add(nextAction);
@@ -61,11 +62,14 @@ public class SynopticTestGeneration {
                     currAction, nextAction, timeRelation);
 
             if (main.options.stateProcessing) {
-                Partition curr = path.get(i);
-                List<? extends ITransition<Partition>> transitions = curr
+                UniformPartition curr = path.get(i);
+                assert curr instanceof UniformStatePartition;
+                UniformStatePartition currState = (UniformStatePartition) curr;
+
+                List<? extends ITransition<UniformStatePartition>> transitions = currState
                         .getTransitionsWithDaikonInvariants();
 
-                for (ITransition<Partition> trans : transitions) {
+                for (ITransition<UniformStatePartition> trans : transitions) {
                     if (trans.getTarget().compareTo(next) == 0) {
                         DaikonInvariants invs = trans.getLabels()
                                 .getDaikonInvariants();

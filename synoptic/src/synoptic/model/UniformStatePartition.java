@@ -1,8 +1,8 @@
 package synoptic.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import synoptic.main.AbstractMain;
 import synoptic.model.interfaces.ITransition;
@@ -21,16 +21,16 @@ public class UniformStatePartition extends UniformPartition {
      * may revisit the same transition many times while deriving abstract tests
      * from a model (i.e., a PartitionGraph).
      */
-    private final List<Transition<Partition>> cachedTransitionsWithInvs;
+    private final List<Transition<UniformStatePartition>> cachedTransitionsWithInvs;
 
-    public UniformStatePartition(Set<EventNode> eNodes) {
+    protected UniformStatePartition(Collection<EventNode> eNodes) {
         super(eNodes);
-        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
+        cachedTransitionsWithInvs = new ArrayList<>();
     }
 
-    public UniformStatePartition(EventNode eNode) {
+    protected UniformStatePartition(EventNode eNode) {
         super(eNode);
-        cachedTransitionsWithInvs = new ArrayList<Transition<Partition>>();
+        cachedTransitionsWithInvs = new ArrayList<>();
     }
 
     /**
@@ -44,7 +44,7 @@ public class UniformStatePartition extends UniformPartition {
      * @throws Exception
      */
     @SuppressWarnings("null")
-    public List<? extends ITransition<Partition>> getTransitionsWithDaikonInvariants() {
+    public List<? extends ITransition<UniformStatePartition>> getTransitionsWithDaikonInvariants() {
         assert (AbstractMain.getInstance().options.stateProcessing);
 
         if (!cachedTransitionsWithInvs.isEmpty() || isTerminal()) {
@@ -52,7 +52,7 @@ public class UniformStatePartition extends UniformPartition {
         }
 
         for (Partition childP : getAllSuccessors()) {
-            Transition<Partition> tx = null;
+            Transition<UniformStatePartition> tx = null;
             SynDaikonizer daikonizer = new SynDaikonizer();
 
             if (isInitial()) {
@@ -130,13 +130,18 @@ public class UniformStatePartition extends UniformPartition {
      * Creates Partition transition from the given EventNode transition. This
      * transition will be used to store Daikon invariants.
      */
-    private static Transition<Partition> createDaikonInvTransition(
+    private static Transition<UniformStatePartition> createDaikonInvTransition(
             ITransition<EventNode> eventTrans) {
         EventNode srcNode = eventTrans.getSource();
         EventNode targetNode = eventTrans.getTarget();
-        Transition<Partition> tx = new Transition<Partition>(
-                srcNode.getParent(), targetNode.getParent(),
-                eventTrans.getRelation());
+
+        UniformStatePartition srcPart = (UniformStatePartition) srcNode
+                .getParent();
+        UniformStatePartition targetPart = (UniformStatePartition) targetNode
+                .getParent();
+
+        Transition<UniformStatePartition> tx = new Transition<>(srcPart,
+                targetPart, eventTrans.getRelation());
         updateTransitionDeltas(srcNode, targetNode, tx);
         // But, tx has no invariants associated with it yet.
         return tx;

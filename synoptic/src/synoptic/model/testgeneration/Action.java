@@ -1,13 +1,14 @@
 package synoptic.model.testgeneration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import synoptic.model.IUniformNode;
 import synoptic.model.Partition;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -16,7 +17,7 @@ import synoptic.model.interfaces.ITransition;
  * 
  *
  */
-public class Action implements INode<Action> {
+public class Action implements IUniformNode<Action> {
 	private final EventType eventType;
 	private final List<ITransition<Action>> transitions;
 	
@@ -35,6 +36,11 @@ public class Action implements INode<Action> {
 		assert transitions.isEmpty();
 		transitions.add(transition);
 	}
+
+    @Override
+    public List<EventType> getAllETypes() {
+        return Arrays.asList(eventType);
+    }
 
 	@Override
 	public EventType getEType() {
@@ -102,5 +108,4 @@ public class Action implements INode<Action> {
 	public int compareTo(Action arg0) {
 		return eventType.compareTo(arg0.eventType);
 	}
-
 }

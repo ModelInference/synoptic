@@ -192,7 +192,7 @@ public class PartitionGraph implements IGraph<Partition> {
         // one partition.
         partitions = new LinkedHashSet<Partition>();
         for (Set<EventNode> eNodes : prepartitions.values()) {
-            partitions.add(new Partition(eNodes));
+            partitions.add(Partition.newPartition(eNodes));
         }
 
         transitionCache.clear();
@@ -228,7 +228,7 @@ public class PartitionGraph implements IGraph<Partition> {
                 for (LinkedHashSet<Integer> indexPartition : partitioningIndexSets) {
                     if (indexPartition.contains(index)) {
                         if (subPartitions[i] == null) {
-                            subPartitions[i] = new Partition(m);
+                            subPartitions[i] = Partition.newPartition(m);
                         } else {
                             subPartitions[i].addOneEventNode(m);
                         }
@@ -265,8 +265,8 @@ public class PartitionGraph implements IGraph<Partition> {
         final Map<EventType, Partition> prepartitions = new LinkedHashMap<EventType, Partition>();
         for (EventNode message : events) {
             if (!prepartitions.containsKey(message.getEType())) {
-                final Partition partition = new Partition(
-                        new LinkedHashSet<EventNode>());
+                final Partition partition = Partition
+                        .newPartition(new LinkedHashSet<EventNode>());
                 prepartitions.put(message.getEType(), partition);
             }
             prepartitions.get(message.getEType()).addOneEventNode(message);
@@ -283,7 +283,7 @@ public class PartitionGraph implements IGraph<Partition> {
             } else {
                 t.removeEventNodes(iSet);
                 partitions.add(t);
-                partitions.add(new Partition(iSet));
+                partitions.add(Partition.newPartition(iSet));
             }
         }
     }
@@ -302,8 +302,8 @@ public class PartitionGraph implements IGraph<Partition> {
             if (seenENodes.contains(e)) {
                 continue;
             }
-            Partition partition = new Partition(e);
-            partitions.add(partition);
+            partitions.add(Partition.newPartition(e));
+
             seenENodes.add(e);
         }
         transitionCache.clear();
@@ -628,17 +628,20 @@ public class PartitionGraph implements IGraph<Partition> {
      * 
      * @return a set of all bounded paths in this partition graph.
      */
-    public Set<List<Partition>> getAllBoundedPredictedPaths() {
-        List<Partition> currPath = new ArrayList<Partition>();
-        Set<List<Partition>> pathsSoFar = new LinkedHashSet<List<Partition>>();
+    public Set<List<UniformPartition>> getAllBoundedPredictedPaths() {
+        List<UniformPartition> currPath = new ArrayList<>();
+        Set<List<UniformPartition>> pathsSoFar = new LinkedHashSet<>();
         for (Partition partition : partitions) {
+            assert partition instanceof UniformPartition;
+
             // NOTE: numAppearInPath is a hash map but Partition doesn't
             // override
             // hashCode(), but this is OK because every node is distinct from
             // the rest of the nodes in graph.
             numAppearInPath.put(partition, 0);
         }
-        getAllBoundedPredictedPathsHelper(getDummyInitialNode(), currPath,
+        getAllBoundedPredictedPathsHelper(
+                (UniformPartition) getDummyInitialNode(), currPath,
                 pathsSoFar);
         return pathsSoFar;
     }
@@ -653,8 +656,9 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param pathsSoFar
      *            - the paths we have constructed so far.
      */
-    private void getAllBoundedPredictedPathsHelper(Partition p,
-            List<Partition> currPath, Set<List<Partition>> pathsSoFar) {
+    private void getAllBoundedPredictedPathsHelper(UniformPartition p,
+            List<UniformPartition> currPath,
+            Set<List<UniformPartition>> pathsSoFar) {
         int pCount = numAppearInPath.get(p);
         if (pCount >= repeatLimit) {
             return;
@@ -663,10 +667,12 @@ public class PartitionGraph implements IGraph<Partition> {
         numAppearInPath.put(p, pCount);
         currPath.add(p);
         for (Partition succ : getAdjacentNodes(p)) {
-            getAllBoundedPredictedPathsHelper(succ, currPath, pathsSoFar);
+            assert succ instanceof UniformPartition;
+            UniformPartition unifSucc = (UniformPartition) succ;
+            getAllBoundedPredictedPathsHelper(unifSucc, currPath, pathsSoFar);
         }
         if (p.isTerminal() && isPredictedPath(currPath)) {
-            List<Partition> newPath = new ArrayList<Partition>(currPath);
+            List<UniformPartition> newPath = new ArrayList<>(currPath);
             pathsSoFar.add(newPath);
         }
         currPath.remove(currPath.size() - 1);
@@ -680,7 +686,7 @@ public class PartitionGraph implements IGraph<Partition> {
      * 
      * @return true if a path is predicted and not observed.
      */
-    public static boolean isPredictedPath(List<Partition> path) {
+    public static boolean isPredictedPath(List<UniformPartition> path) {
         assert !path.isEmpty();
         assert path.get(0).isInitial();
         assert path.get(path.size() - 1).isTerminal();
@@ -689,7 +695,7 @@ public class PartitionGraph implements IGraph<Partition> {
         // Add dummy initial eventNode to the set of reachable nodes.
         reachableNodes.addAll(path.get(0).getEventNodes());
         for (int i = 1; i < path.size(); i++) {
-            Partition nextPartiton = path.get(i);
+            UniformPartition nextPartiton = path.get(i);
             // Get nodes in nextPartition that are reachable from reachableNodes
             Set<EventNode> nextReachableNodes = new LinkedHashSet<EventNode>();
             for (EventNode node : reachableNodes) {

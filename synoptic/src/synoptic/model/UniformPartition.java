@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import synoptic.model.event.EventType;
 
@@ -19,21 +18,11 @@ public class UniformPartition extends Partition
      */
     protected EventType eType = null;
 
-    @Override
-    public Partition newOfThisType(Set<EventNode> eNodes) {
-        return new UniformPartition(eNodes);
-    }
-
-    @Override
-    public Partition newOfThisType(EventNode eNode) {
-        return new UniformPartition(eNode);
-    }
-
-    public UniformPartition(Set<EventNode> eNodes) {
+    protected UniformPartition(Collection<EventNode> eNodes) {
         super(eNodes);
     }
 
-    public UniformPartition(EventNode eNode) {
+    protected UniformPartition(EventNode eNode) {
         super(eNode);
     }
 

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import synoptic.model.event.EventType;
 
@@ -23,21 +22,11 @@ public class VariablePartition extends Partition
     private boolean hasTerminal = false;
     private boolean hasInitial = false;
 
-    @Override
-    public Partition newOfThisType(Set<EventNode> eNodes) {
-        return new VariablePartition(eNodes);
-    }
-
-    @Override
-    public Partition newOfThisType(EventNode eNode) {
-        return new VariablePartition(eNode);
-    }
-
-    public VariablePartition(Set<EventNode> eNodes) {
+    protected VariablePartition(Collection<EventNode> eNodes) {
         super(eNodes);
     }
 
-    public VariablePartition(EventNode eNode) {
+    protected VariablePartition(EventNode eNode) {
         super(eNode);
     }
 

@@ -13,7 +13,8 @@ import synoptic.util.resource.ResourceSeries;
  * 
  * @param <NodeType>
  */
-public class Transition<NodeType extends INode<NodeType>> implements ITransition<NodeType> {
+public class Transition<NodeType extends INode<?>>
+        implements ITransition<NodeType> {
 
     protected NodeType source;
     protected NodeType target;
