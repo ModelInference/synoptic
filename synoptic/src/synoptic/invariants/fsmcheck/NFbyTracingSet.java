@@ -31,10 +31,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         aNotSeen = aSeen = bSeenAfter = null;
-        if (a.equals(name)) {
+        if (x.hasEType(a)) {
             aSeen = newHistory;
         } else {
             aNotSeen = newHistory;
@@ -43,9 +42,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void transition(T x) {
-        EventType name = x.getEType();
-
-        if (b.equals(name)) {
+        if (x.hasEType(b)) {
             bSeenAfter = preferShorter(aSeen, bSeenAfter);
             aSeen = null;
         }
@@ -53,7 +50,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
          * NOTE: there is no else here, because for this invariant, isA and isB
          * can be simultaneously true (A NFby A, eg, A is singleton).
          */
-        if (a.equals(name)) {
+        if (x.hasEType(a)) {
             aSeen = preferShorter(aNotSeen, aSeen);
             aNotSeen = null;
         }

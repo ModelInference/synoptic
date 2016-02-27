@@ -34,25 +34,30 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         neitherSeen = firstA = firstB = null;
-        if (a.equals(name)) {
+        boolean isA = x.hasEType(a);
+        boolean isB = x.hasEType(b);
+        if (isA) {
             firstA = newHistory;
-        } else if (b.equals(name)) {
+        }
+        if (isB) {
             firstB = newHistory;
-        } else {
+        }
+        if (!isA && !isB) {
             neitherSeen = newHistory;
         }
     }
 
     @Override
     public void transition(T x) {
-        EventType name = x.getEType();
-        if (a.equals(name)) {
+        boolean isA = x.hasEType(a);
+        boolean isB = x.hasEType(b);
+        if (isA) {
             firstA = preferShorter(neitherSeen, firstA);
             neitherSeen = null;
-        } else if (b.equals(name)) {
+        }
+        if (isB) {
             firstB = preferShorter(neitherSeen, firstB);
             neitherSeen = null;
         }

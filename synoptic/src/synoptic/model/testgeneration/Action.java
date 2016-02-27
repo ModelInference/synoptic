@@ -14,8 +14,6 @@ import synoptic.model.interfaces.ITransition;
 /**
  * Action is a single step in an abstract test case.
  * Action is an INode that can have at most 1 outgoing transition.
- * 
- *
  */
 public class Action implements IUniformNode<Action> {
 	private final EventType eventType;
@@ -123,5 +121,10 @@ public class Action implements IUniformNode<Action> {
     @Override
     public boolean eTypesEqual(INode<?> other) {
         return (compareETypes(other) == 0);
+    }
+
+    @Override
+    public boolean hasEType(EventType otherEType) {
+        return eventType.equals(otherEType);
     }
 }

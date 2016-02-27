@@ -87,9 +87,9 @@ public class NeverFollowedInvariant extends BinaryInvariant {
         boolean first_seen = false;
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
-            if (message.getEType().equals(firstEvent) && !first_seen) {
+            if (message.hasEType(firstEvent) && !first_seen) {
                 first_seen = true;
-            } else if (message.getEType().equals(secondEvent) && first_seen) {
+            } else if (message.hasEType(secondEvent) && first_seen) {
                 return trace.subList(0, trace_pos + 1);
             }
         }

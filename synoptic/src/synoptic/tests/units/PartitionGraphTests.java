@@ -93,7 +93,7 @@ public class PartitionGraphTests extends SynopticTest {
 
     private <T extends INode<T>> T getNodeByName(IGraph<T> g, EventType nodeName) {
         for (T node : g.getNodes()) {
-            if (node.getEType().equals(nodeName)) {
+            if (node.hasEType(nodeName)) {
                 return node;
             }
         }

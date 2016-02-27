@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.model.Partition;
+import synoptic.model.event.EventType;
 
 /**
  * The interface all nodes must implement. The interface does not contain
@@ -88,4 +89,10 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * Whether the EventType(s) of this node and {@code other} are equal
      */
     boolean eTypesEqual(INode<?> other);
+
+    /**
+     * Whether this node contains {@code otherEType} as its only event type
+     * (uniformly-typed nodes) or one of its event types (variably-typed nodes)
+     */
+    boolean hasEType(EventType otherEType);
 }

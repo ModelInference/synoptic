@@ -107,17 +107,17 @@ public class InterruptedByInvariant extends BinaryInvariant {
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
             // a seen
-            if (message.getEType().equals(firstEvent) && !first_seen) {
+            if (message.hasEType(firstEvent) && !first_seen) {
                 first_seen = true;
             }
 
             // a seen again
-            if (message.getEType().equals(firstEvent) && first_seen) {
+            if (message.hasEType(firstEvent) && first_seen) {
                 return trace.subList(0, trace_pos + 1);
             }
 
             // b seen, so reset to initial state
-            if (message.getEType().equals(secondEvent)) {
+            if (message.hasEType(secondEvent)) {
                 first_seen = false;
             }
         }

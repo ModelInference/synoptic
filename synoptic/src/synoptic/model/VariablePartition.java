@@ -134,4 +134,9 @@ public class VariablePartition extends Partition
         // No differences found
         return 0;
     }
+
+    @Override
+    public boolean hasEType(EventType otherEType) {
+        return eTypes.contains(otherEType);
+    }
 }

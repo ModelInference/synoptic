@@ -22,10 +22,9 @@ public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         aNotSeen = aSeenOnce = aSeenMoreThanOnce = null;
-        if (a.equals(name)) {
+        if (x.hasEType(a)) {
             aSeenOnce = newHistory;
         } else {
             aNotSeen = newHistory;
@@ -34,20 +33,23 @@ public class IntrByTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void transition(T x) {
-        EventType name = x.getEType();
+        boolean isA = x.hasEType(a);
+        boolean isB = x.hasEType(b);
 
-        boolean isA = a.equals(name);
-        boolean isB = b.equals(name);
-
-        if (isA) {
+        if (isA && isB) {
             aSeenMoreThanOnce = preferShorter(aSeenOnce, aSeenMoreThanOnce);
             aSeenOnce = aNotSeen;
             aNotSeen = null;
-        }
-
-        if (isB) {
-            aNotSeen = preferShorter(aSeenOnce, aNotSeen);
-            aSeenOnce = null;
+        } else {
+            if (isA) {
+                aSeenMoreThanOnce = preferShorter(aSeenOnce, aSeenMoreThanOnce);
+                aSeenOnce = aNotSeen;
+                aNotSeen = null;
+            }
+            if (isB) {
+                aNotSeen = preferShorter(aSeenOnce, aNotSeen);
+                aSeenOnce = null;
+            }
         }
 
         // Advance history for all states.

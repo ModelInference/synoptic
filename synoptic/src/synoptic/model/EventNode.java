@@ -153,6 +153,11 @@ public class EventNode implements IUniformNode<EventNode> {
         return (compareETypes(other) == 0);
     }
 
+    @Override
+    public boolean hasEType(EventType otherEType) {
+        return event.getEType().equals(otherEType);
+    }
+
     /**
      * Add a transition from this node to node dest with multiple relations.
      * 

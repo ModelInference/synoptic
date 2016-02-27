@@ -229,17 +229,14 @@ public abstract class ConstrainedTracingSet<T extends INode<T>> extends
 
     @Override
     public void transition(T input) {
-
-        EventType name = input.getEType();
-
         // Whether this event is the A or B of this invariant
         boolean isA = false;
         boolean isB = false;
 
         // Precompute whether this event is the A or B of this invariant
-        if (a.equals(name)) {
+        if (input.hasEType(a)) {
             isA = true;
-        } else if (b.equals(name)) {
+        } else if (input.hasEType(b)) {
             isB = true;
         }
 

@@ -34,26 +34,39 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
-        if (name.equals(a)) {
-            wasB = null;
+        boolean isA = x.hasEType(a);
+        boolean isB = x.hasEType(b);
+        if (isA && isB) {
             wasA = newHistory;
-        } else {
             wasB = newHistory;
-            wasA = null;
+        } else {
+            if (isA) {
+                wasA = newHistory;
+                wasB = null;
+            }
+            if (isB) {
+                wasA = null;
+                wasB = newHistory;
+            }
         }
     }
 
     @Override
     public void transition(T x) {
-        EventType name = x.getEType();
-        if (a.equals(name)) {
+        boolean isA = x.hasEType(a);
+        boolean isB = x.hasEType(b);
+        if (isA && isB) {
             wasA = preferShorter(wasB, wasA);
-            wasB = null;
-        } else if (b.equals(name)) {
             wasB = preferShorter(wasA, wasB);
-            wasA = null;
+        } else {
+            if (isA) {
+                wasA = preferShorter(wasB, wasA);
+                wasB = null;
+            } else if (isB) {
+                wasB = preferShorter(wasA, wasB);
+                wasA = null;
+            }
         }
         wasA = extend(x, wasA);
         wasB = extend(x, wasB);

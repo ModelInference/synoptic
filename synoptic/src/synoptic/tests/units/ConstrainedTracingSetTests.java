@@ -60,7 +60,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // Get partition of first invariant predicate ("A")
         for (Partition part : graph.getNodes()) {
-            if (part.getEType().equals(inv.getFirst())) {
+            if (part.hasEType(inv.getFirst())) {
                 partitions[0] = part;
                 break;
             }
@@ -68,7 +68,7 @@ public class ConstrainedTracingSetTests extends PynopticTest {
 
         // Get partition of second invariant predicate ("B")
         for (Partition part : graph.getNodes()) {
-            if (part.getEType().equals(inv.getSecond())) {
+            if (part.hasEType(inv.getSecond())) {
                 partitions[1] = part;
                 break;
             }
