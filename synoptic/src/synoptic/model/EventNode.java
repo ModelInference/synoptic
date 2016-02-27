@@ -2,6 +2,7 @@ package synoptic.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -325,6 +326,11 @@ public class EventNode implements IUniformNode<EventNode> {
     @Override
     public String eTypeStr() {
         return event.getEType().toString();
+    }
+
+    @Override
+    public List<EventType> getAllETypes() {
+        return Arrays.asList(event.getEType());
     }
 
     @Override

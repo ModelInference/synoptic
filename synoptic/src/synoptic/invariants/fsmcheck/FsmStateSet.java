@@ -3,6 +3,7 @@ package synoptic.invariants.fsmcheck;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,7 +80,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * }
      * </pre>
      */
-    protected List<Map<EventType, BitSet>> invariantsMap;
+    protected List<Map<List<EventType>, BitSet>> invariantsMap;
 
     /**
      * Initializes the bitsets, and assigns the input mapping, based on the
@@ -93,9 +94,9 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             sets.add(new BitSet());
         }
 
-        invariantsMap = new ArrayList<Map<EventType, BitSet>>(2);
-        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>();
-        Map<EventType, BitSet> bmap = new LinkedHashMap<EventType, BitSet>();
+        invariantsMap = new ArrayList<>(2);
+        Map<List<EventType>, BitSet> amap = new LinkedHashMap<>();
+        Map<List<EventType>, BitSet> bmap = new LinkedHashMap<>();
         invariantsMap.add(amap);
         invariantsMap.add(bmap);
         for (int i = 0; i < invariants.size(); i++) {
@@ -105,11 +106,11 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             BitSet bset = bmap.get(second);
             if (aset == null) {
                 aset = new BitSet();
-                amap.put(first, aset);
+                amap.put(Arrays.asList(first), aset);
             }
             if (bset == null) {
                 bset = new BitSet();
-                bmap.put(second, bset);
+                bmap.put(Arrays.asList(second), bset);
             }
             aset.set(i);
             bset.set(i);
@@ -256,7 +257,8 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     }
 
     public BitSet getInputInvariantsDependencies(int mappingIndex, T input) {
-        BitSet result = invariantsMap.get(mappingIndex).get(input.getEType());
+        BitSet result = invariantsMap.get(mappingIndex)
+                .get(input.getAllETypes());
         if (result == null) {
             return new BitSet();
         }
@@ -264,7 +266,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     }
 
     public BitSet getInputCopy(int ix, T input) {
-        EventType label = input.getEType();
+        List<EventType> label = input.getAllETypes();
         BitSet result = invariantsMap.get(ix).get(label);
         if (result == null) {
             return new BitSet();

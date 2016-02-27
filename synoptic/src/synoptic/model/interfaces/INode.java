@@ -17,11 +17,18 @@ import synoptic.model.event.EventType;
  */
 public interface INode<NodeType> extends Comparable<NodeType> {
     /**
-     * Returns a string representation of all of this partition's event types,
-     * only one unless this is a variable node that allows types that are
+     * Returns a string representation of all of this node's event types, only
+     * one unless this is a variable partition that allows types that are
      * non-identical but considered equal
      */
     public String eTypeStr();
+
+    /**
+     * Returns all of this node's event types, only one unless this is a
+     * variable node that allows types that are non-identical but considered
+     * equal
+     */
+    public List<EventType> getAllETypes();
 
     public Set<NodeType> getAllSuccessors();
 

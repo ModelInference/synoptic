@@ -61,7 +61,7 @@ public class KTails {
         // the partition.
         // TODO: this is inefficient, ideally we would Map sets of strings to
         // partitions with those sets!
-        Map<Partition, Set<List<EventType>>> kStringsMap = new LinkedHashMap<Partition, Set<List<EventType>>>();
+        Map<Partition, Set<List<List<EventType>>>> kStringsMap = new LinkedHashMap<>();
 
         // int remaining = partitions.size();
         // Build the kStringsMap
@@ -70,7 +70,7 @@ public class KTails {
             // logger.info("Remaining kTails pre-mining = " + remaining);
             // remaining -= 1;
 
-            Set<List<EventType>> ret = getNodeKStrings(P, k);
+            Set<List<List<EventType>>> ret = getNodeKStrings(P, k);
             kStringsMap.put(P, ret);
         }
 
@@ -93,7 +93,7 @@ public class KTails {
             // m will track all partitions to be merged with Pi.
             PartitionMultiMerge m = null;
 
-            Set<List<EventType>> PiKStrings = kStringsMap.get(Pi);
+            Set<List<List<EventType>>> PiKStrings = kStringsMap.get(Pi);
 
             // Can't merge a partition with itself. So skip i=j. Also, merging
             // is commutative so if we've tried merge(p1,p2), then we don't have
@@ -108,7 +108,7 @@ public class KTails {
                     continue;
                 }
 
-                Set<List<EventType>> PjKStrings = kStringsMap.get(Pj);
+                Set<List<List<EventType>>> PjKStrings = kStringsMap.get(Pj);
                 if (!PiKStrings.equals(PjKStrings)) {
                     continue;
                 }
@@ -154,8 +154,8 @@ public class KTails {
             return false;
         }
 
-        Set<List<EventType>> n1Strings = getNodeKStrings(n1, k);
-        Set<List<EventType>> n2Strings = getNodeKStrings(n2, k);
+        Set<List<List<EventType>>> n1Strings = getNodeKStrings(n1, k);
+        Set<List<List<EventType>>> n2Strings = getNodeKStrings(n2, k);
         if (n1Strings.equals(n2Strings)) {
             return true;
         }
@@ -167,7 +167,7 @@ public class KTails {
      * @param P
      * @return
      */
-    private static <NodeType extends INode<NodeType>> Set<List<EventType>> getNodeKStrings(
+    private static <NodeType extends INode<NodeType>> Set<List<List<EventType>>> getNodeKStrings(
             NodeType P, int k) {
         assert (k >= 0);
 
@@ -175,12 +175,12 @@ public class KTails {
             return Collections.emptySet();
         }
 
-        Set<List<EventType>> prefixes = new LinkedHashSet<List<EventType>>();
-        List<EventType> prefix = new ArrayList<EventType>();
-        prefix.add(P.getEType());
+        Set<List<List<EventType>>> prefixes = new LinkedHashSet<>();
+        List<List<EventType>> prefix = new ArrayList<>();
+        prefix.add(P.getAllETypes());
         prefixes.add(prefix);
 
-        Set<List<EventType>> ret = new LinkedHashSet<List<EventType>>();
+        Set<List<List<EventType>>> ret = new LinkedHashSet<>();
         ret.addAll(prefixes);
         for (NodeType child : P.getAllSuccessors()) {
             // note: prefixes cannot mutate during this loop.
@@ -190,9 +190,10 @@ public class KTails {
     }
 
     /**
-     * Helper for getNodeKString. Returns a set of lists of EventTypes, which
-     * represents a set of strings that are of length <= k and which can be
-     * constructed by starting at P.
+     * Helper for getNodeKString. Returns a set of lists of EventTypes (in
+     * another list with exactly one EventType unless this is a variably-typed
+     * node), which represents a set of strings that are of length <= k and
+     * which can be constructed by starting at P.
      * 
      * @param P
      * @param k
@@ -200,21 +201,21 @@ public class KTails {
      *            : cannot be modified.
      * @return
      */
-    private static <NodeType extends INode<NodeType>> Set<List<EventType>> getNodeKStringHelper(
-            NodeType P, int k, Set<List<EventType>> parentPrefixes) {
+    private static <NodeType extends INode<NodeType>> Set<List<List<EventType>>> getNodeKStringHelper(
+            NodeType P, int k, Set<List<List<EventType>>> parentPrefixes) {
         assert (k >= 0);
 
         if (k == 0) {
             return Collections.emptySet();
         }
 
-        Set<List<EventType>> newPrefixes = new LinkedHashSet<List<EventType>>();
+        Set<List<List<EventType>>> newPrefixes = new LinkedHashSet<>();
 
-        for (List<EventType> prefix : parentPrefixes) {
+        for (List<List<EventType>> prefix : parentPrefixes) {
             // Have to copy the prefix into newPrefixes, completely!
-            List<EventType> prefixCopy = new ArrayList<EventType>();
+            List<List<EventType>> prefixCopy = new ArrayList<>();
             prefixCopy.addAll(prefix);
-            prefixCopy.add(P.getEType());
+            prefixCopy.add(P.getAllETypes());
             newPrefixes.add(prefixCopy);
         }
 
@@ -223,7 +224,7 @@ public class KTails {
         }
 
         // We always return at least the new prefixes we've constructed.
-        Set<List<EventType>> ret = newPrefixes;
+        Set<List<List<EventType>>> ret = newPrefixes;
         for (NodeType child : P.getAllSuccessors()) {
             ret.addAll(getNodeKStringHelper(child, k - 1, newPrefixes));
         }

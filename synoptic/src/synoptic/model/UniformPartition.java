@@ -1,6 +1,8 @@
 package synoptic.model;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -29,6 +31,11 @@ public class UniformPartition extends Partition
     public String eTypeStr() {
         assert initialized;
         return eType.toString();
+    }
+
+    @Override
+    public List<EventType> getAllETypes() {
+        return Arrays.asList(eType);
     }
 
     @Override
