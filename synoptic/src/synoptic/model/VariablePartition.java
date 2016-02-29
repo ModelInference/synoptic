@@ -25,10 +25,12 @@ public class VariablePartition extends Partition
 
     protected VariablePartition(Collection<EventNode> eNodes) {
         super(eNodes);
+        assert eTypes.size() > 0;
     }
 
     protected VariablePartition(EventNode eNode) {
         super(eNode);
+        assert eTypes.size() == 1;
     }
 
     @Override

@@ -17,7 +17,7 @@ public class UniformPartition extends Partition
      * The EventType of this partition -- all EventNode instances within this
      * partition MUST be of this type
      */
-    protected EventType eType = null;
+    protected EventType eType;
 
     protected UniformPartition(Collection<EventNode> eNodes) {
         super(eNodes);
