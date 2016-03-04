@@ -1,28 +1,35 @@
 package synoptic.model.export.types;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class SynNode<T> {
-    List<T> elements = null;
-    List<SynEdge<T>> outEdges = null;
+    protected Set<T> elements;
+    protected boolean isTerminal;
 
-    public SynNode(Collection<T> elems) {
-        elements = new LinkedList<>(elems);
-        outEdges = new LinkedList<>();
+    public SynNode(Collection<T> elements) {
+        this(elements, false);
     }
 
-    public List<T> getElements() {
+    public SynNode(Collection<T> elements, boolean isTerminal) {
+        this.elements = new LinkedHashSet<>(elements);
+        this.isTerminal = isTerminal;
+    }
+
+    public Set<T> getElements() {
         return elements;
     }
 
-    public List<SynEdge<T>> getOutEdges() {
-        return outEdges;
+    public void makeTerminal() {
+        isTerminal = true;
     }
 
-    public void addOutEdge(double prob, T destElem) {
-        SynEdge<T> newEdge = new SynEdge<T>(prob, destElem);
-        outEdges.add(newEdge);
+    public boolean isTerminal() {
+        return isTerminal;
+    }
+
+    public boolean contains(T element) {
+        return elements.contains(element);
     }
 }
