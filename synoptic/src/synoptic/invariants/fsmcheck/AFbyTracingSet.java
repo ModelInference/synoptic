@@ -42,7 +42,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         if (isA) {
             wasA = newHistory;
         }
-        if (isB) {
+        if (!isA || isB) {
             wasB = newHistory;
         }
     }
