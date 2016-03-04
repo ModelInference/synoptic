@@ -37,18 +37,13 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         boolean isA = x.hasEType(a);
         boolean isB = x.hasEType(b);
-        if (isA && isB) {
+        wasA = null;
+        wasB = null;
+        if (isA) {
             wasA = newHistory;
+        }
+        if (isB) {
             wasB = newHistory;
-        } else {
-            if (isA) {
-                wasA = newHistory;
-                wasB = null;
-            }
-            if (isB) {
-                wasA = null;
-                wasB = newHistory;
-            }
         }
     }
 
@@ -57,8 +52,9 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         boolean isA = x.hasEType(a);
         boolean isB = x.hasEType(b);
         if (isA && isB) {
+            HistoryNode<T> historyB = preferShorter(wasA, wasB);
             wasA = preferShorter(wasB, wasA);
-            wasB = preferShorter(wasA, wasB);
+            wasB = historyB;
         } else {
             if (isA) {
                 wasA = preferShorter(wasB, wasA);
