@@ -57,7 +57,7 @@ public class ExtPerfumeOptions extends Options {
      * block after intermediate model output and wait for external refinement
      * instructions.
      */
-    @Option(value = AbstractOptions.termOnInterdiateModelStr)
+    @Option(value = AbstractOptions.termOnIntermediateModelStr)
     public boolean termOnIntermediateModel = false;
 
     // Input Options
@@ -129,6 +129,18 @@ public class ExtPerfumeOptions extends Options {
      * Pefume doesn't support abstract test generation
      */
     public final boolean testGeneration = false;
+
+    /**
+     * Whether to ignore (filter out) IntrBy invariants
+     */
+    @Option(AbstractOptions.ignoreIntrByInvsStr)
+    public boolean ignoreIntrByInvs = false;
+
+    /**
+     * Whether to ignore (filter out) NFby invariants
+     */
+    @Option(AbstractOptions.ignoreNFbyInvsStr)
+    public boolean ignoreNFbyInvs = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -517,6 +529,8 @@ public class ExtPerfumeOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
+        absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
 
         // Parser options
 

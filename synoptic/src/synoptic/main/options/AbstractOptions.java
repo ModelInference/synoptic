@@ -63,11 +63,14 @@ public class AbstractOptions {
     static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
     public int supportCountThreshold = 0;
 
-    static final String ignoreIntrByInvsStr = "Ignore IntrBy Invariants. Synoptic currently doesn't support IntrBy Invariants.";
+    static final String ignoreIntrByInvsStr = "Ignore IntrBy invariants. Synoptic currently doesn't support IntrBy Invariants.";
     public boolean ignoreIntrByInvs = true;
 
+    static final String ignoreNFbyInvsStr = "Ignore NFby invariants";
+    public boolean ignoreNFbyInvs = false;
+
     // Extended Perfume option
-    static final String termOnInterdiateModelStr = "-t Terminate on intermediate model output";
+    static final String termOnIntermediateModelStr = "-t Terminate on intermediate model output";
     public boolean termOnIntermediateModel = false;
 
     // ////////////////////////////

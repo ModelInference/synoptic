@@ -87,9 +87,16 @@ public class PerfumeOptions extends Options {
     public final boolean testGeneration = false;
 
     /**
-     * Perfume supports IntrBy Invariants
+     * Whether to ignore (filter out) IntrBy invariants
      */
+    @Option(AbstractOptions.ignoreIntrByInvsStr)
     public boolean ignoreIntrByInvs = false;
+
+    /**
+     * Whether to ignore (filter out) NFby invariants
+     */
+    @Option(AbstractOptions.ignoreNFbyInvsStr)
+    public boolean ignoreNFbyInvs = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -489,6 +496,7 @@ public class PerfumeOptions extends Options {
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
+        absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
 
         // Parser options
 

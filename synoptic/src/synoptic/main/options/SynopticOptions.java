@@ -100,11 +100,17 @@ public class SynopticOptions extends Options {
     public int supportCountThreshold = 0;
 
     /**
-     * Disable IntrBy Invariants in Synoptic. Synoptic currently doesn't support
-     * IntrBy Invariants.
+     * Disable IntrBy invariants in Synoptic. Synoptic currently doesn't support
+     * IntrBy invariants.
      */
     @Option(value = AbstractOptions.ignoreIntrByInvsStr)
     public boolean ignoreIntrByInvs = true;
+
+    /**
+     * Whether to ignore (filter out) NFby invariants
+     */
+    @Option(AbstractOptions.ignoreNFbyInvsStr)
+    public boolean ignoreNFbyInvs = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -499,6 +505,7 @@ public class SynopticOptions extends Options {
         absOpts.testGeneration = testGeneration;
         absOpts.supportCountThreshold = supportCountThreshold;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
+        absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
 
         // Parser options
 

@@ -619,7 +619,8 @@ public abstract class AbstractMain {
                 options.useTransitiveClosureMining, traceGraph);
         // //////////////////
 
-        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+        int origNumInvariants = minedInvs.numInvariants();
+        logger.info("Mined " + origNumInvariants + " invariants");
 
         // Check if the support counts for all the invariants that have a count
         // is above the
@@ -629,22 +630,46 @@ public abstract class AbstractMain {
             ITemporalInvariant inv = it.next();
             if (inv instanceof BinaryInvariant) {
                 if (((BinaryInvariant) inv).getStatistics() != null
-                        && ((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
+                        && ((BinaryInvariant) inv)
+                                .getStatistics().supportCount <= options.supportCountThreshold) {
                     it.remove();
                 }
             }
         }
 
-        // Removed IntrBy Invariants if necessary
-        if (options.ignoreIntrByInvs) {
+        if (minedInvs.numInvariants() != origNumInvariants) {
+            logger.info(String.format(
+                    "Retained %d invariants that met support count threshold %d",
+                    minedInvs.numInvariants(), options.supportCountThreshold));
+        }
+
+        // Removed IntrBy and/or NFby invariants if necessary
+        if (options.ignoreIntrByInvs || options.ignoreNFbyInvs) {
             for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
                     .hasNext();) {
                 ITemporalInvariant inv = it.next();
 
-                if (inv.getShortName().equals("IntrBy")) {
+                if (options.ignoreIntrByInvs
+                        && inv.getShortName().equals("IntrBy")) {
+                    it.remove();
+                }
+
+                if (options.ignoreNFbyInvs
+                        && inv.getShortName().equals("NFby")) {
                     it.remove();
                 }
             }
+
+            String removedTypes = "";
+            if (options.ignoreIntrByInvs) {
+                removedTypes += "IntrBy ";
+            }
+            if (options.ignoreNFbyInvs) {
+                removedTypes = "NFby";
+            }
+            logger.info(String.format(
+                    "Retained %d invariants after removing %s invariants",
+                    minedInvs.numInvariants(), removedTypes));
         }
 
         if (AbstractOptions.ignoreInvsOverETypeSet != null) {
@@ -819,9 +844,13 @@ public abstract class AbstractMain {
         }
 
         // //////////////////
-        startTime = loggerInfoStart("Refining (Splitting)...");
-        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
-        loggerInfoEnd("Splitting took ", startTime);
+        if (options.noRefinement) {
+            logger.info("Skipping refinement");
+        } else {
+            startTime = loggerInfoStart("Refining (Splitting)...");
+            Bisimulation.splitUntilAllInvsSatisfied(pGraph);
+            loggerInfoEnd("Splitting took ", startTime);
+        }
         // //////////////////
 
         if (options.logLvlVerbose || options.logLvlExtraVerbose) {
@@ -830,9 +859,13 @@ public abstract class AbstractMain {
         }
 
         // //////////////////
-        startTime = loggerInfoStart("Coarsening (Merging)..");
-        Bisimulation.mergePartitions(pGraph);
-        loggerInfoEnd("Merging took ", startTime);
+        if (options.noCoarsening) {
+            logger.info("Skipping coarsening");
+        } else {
+            startTime = loggerInfoStart("Coarsening (Merging)..");
+            Bisimulation.mergePartitions(pGraph);
+            loggerInfoEnd("Merging took ", startTime);
+        }
         // //////////////////
 
         // At this point, we have the final model in the pGraph object.
