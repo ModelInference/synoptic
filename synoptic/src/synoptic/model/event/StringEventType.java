@@ -45,6 +45,11 @@ public class StringEventType extends EventType {
     }
 
     @Override
+    public boolean typeEquals(EventType other) {
+        return equals(other);
+    }
+
+    @Override
     public int compareTo(EventType eother) {
         int baseCmp = super.compareTo(eother);
         if (baseCmp != 0) {

@@ -62,8 +62,9 @@ public class AbstractOptions {
 
     static final String variablePartitionsStr = "Allow partitions to be "
             + "variably-typed, or to contain events that are considered equal "
-            + "by their equals() method but do not have identical hashes. "
-            + "Only useful when using Synoptic as a library via SynopticLib";
+            + "by their typeEquals() method but not necessarily by equals() or "
+            + "hashCode(). Only useful when using Synoptic as a library via "
+            + "SynopticLib";
     public boolean variablePartitions = false;
 
     static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";

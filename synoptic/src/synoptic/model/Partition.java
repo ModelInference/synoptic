@@ -164,14 +164,6 @@ public abstract class Partition implements INode<Partition> {
      */
     protected abstract boolean isLegalEType(EventType otherEType);
 
-    // /**
-    // * Verify all EventNodes are of an acceptable type, either identical to
-    // the
-    // * type of this uniform partition or considered equal to all types of this
-    // * variable partition
-    // */
-    // protected abstract void checkNewENodeType(Collection<EventNode> eNodes);
-
     /**
      * Returns the set of event nodes contained in this partition.
      */
@@ -250,11 +242,6 @@ public abstract class Partition implements INode<Partition> {
         str.append("P." + eTypeStr());
         str.append("." + events.size());
         return str.toString();
-    }
-
-    @Override
-    public boolean eTypesEqual(INode<?> other) {
-        return (compareETypes(other) == 0);
     }
 
     /**

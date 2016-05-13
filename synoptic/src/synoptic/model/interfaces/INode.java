@@ -93,7 +93,8 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     int compareETypes(INode<?> other);
 
     /**
-     * Whether the EventType(s) of this node and {@code other} are equal
+     * Whether this node and {@code other} have fully compatible EventType(s)
+     * and thus could legally be merged into one node
      */
     boolean eTypesEqual(INode<?> other);
 

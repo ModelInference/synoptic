@@ -151,7 +151,11 @@ public class EventNode implements IUniformNode<EventNode> {
 
     @Override
     public boolean eTypesEqual(INode<?> other) {
-        return (compareETypes(other) == 0);
+        if (other instanceof IUniformNode<?>) {
+            IUniformNode<?> eNodeOther = (IUniformNode<?>) other;
+            return event.getEType().typeEquals(eNodeOther.getEType());
+        }
+        return false;
     }
 
     @Override

@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import synoptic.algorithms.graphops.IOperation;
 import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.AbstractMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -177,9 +178,47 @@ public class PartitionGraph implements IGraph<Partition> {
      *            Set of message which to be partitioned
      */
     private void partitionByLabels(Collection<EventNode> events) {
-        Map<EventType, Set<EventNode>> prepartitions = new LinkedHashMap<EventType, Set<EventNode>>();
+        partitions = new LinkedHashSet<Partition>();
+
+        // Variable partitions can contain events with different hashes, so
+        // handle them differently
+        if (AbstractMain.getInstance().options.variablePartitions) {
+            makeVariablePartitions(events);
+        } else {
+            makeUniformPartitions(events);
+        }
+
+        transitionCache.clear();
+    }
+
+    /**
+     * 
+     */
+    private void makeVariablePartitions(Collection<EventNode> events) {
+        //
         for (EventNode e : events) {
-            // Add the event node to a set corresponding to it's event type.
+            boolean addedToExisting = false;
+            for (Partition part : partitions) {
+                if (part.isLegalEType(e.getEType())) {
+                    part.addOneEventNode(e);
+                    addedToExisting = true;
+                    break;
+                }
+            }
+            if (!addedToExisting) {
+                partitions.add(Partition.newPartition(e));
+            }
+        }
+    }
+
+    /**
+     * 
+     */
+    private void makeUniformPartitions(Collection<EventNode> events) {
+        Map<Object, Set<EventNode>> prepartitions = new LinkedHashMap<>();
+
+        for (EventNode e : events) {
+            // Add the event node to a set corresponding to its event type.
             EventType eType = e.getEType();
             if (!prepartitions.containsKey(eType)) {
                 Set<EventNode> eNodes = new LinkedHashSet<EventNode>();
@@ -190,12 +229,9 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // For each set of event nodes with the same event type, create
         // one partition.
-        partitions = new LinkedHashSet<Partition>();
         for (Set<EventNode> eNodes : prepartitions.values()) {
             partitions.add(Partition.newPartition(eNodes));
         }
-
-        transitionCache.clear();
     }
 
     private void partitionByIndexSetsAndLabels(Collection<EventNode> events,

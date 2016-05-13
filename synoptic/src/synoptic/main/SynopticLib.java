@@ -21,7 +21,9 @@ import synoptic.model.Relation;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.GenericEventType;
+import synoptic.model.export.GenericExporter;
 import synoptic.model.export.types.SynGraph;
+import synoptic.model.interfaces.ISynType;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.resource.ITotalResource;
 
@@ -29,7 +31,8 @@ import synoptic.util.resource.ITotalResource;
  * The library version of Synoptic. Most users should only need to run the
  * {@link #inferModel} method TODO:
  */
-public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
+public class SynopticLib<T extends Comparable<T> & ISynType<T>>
+        extends AbstractMain {
 
     private List<List<T>> rawTraces = null;
 
@@ -53,12 +56,12 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
      * Perform the Synoptic inference algorithm. See user documentation for an
      * explanation of the options
      */
-    public static <T extends Comparable<T>> SynGraph<T> inferModel(
+    public static <T extends Comparable<T> & ISynType<T>> SynGraph<T> inferModel(
             SynopticOptions synOptions, List<List<T>> traces) throws Exception {
-
         // Construct main object
         AbstractOptions options = synOptions.toAbstractOptions();
         AbstractOptions.keepOrder = true; // TODO: do something proper
+        AbstractOptions.outputPathPrefix = null;
         SynopticLib<T> mainInstance = new SynopticLib<>(options);
 
         mainInstance.rawTraces = traces;
@@ -70,13 +73,14 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
             if (pGraph != null) {
                 mainInstance.runSynoptic(pGraph);
             }
+            SynGraph<T> synGraph = GenericExporter.makeSynGraph(pGraph);
+            instance = null;
+            return synGraph;
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
             throw InternalSynopticException.wrap(e);
         }
-
-        return null;
     }
 
     /**
@@ -141,7 +145,7 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
                 event.setTime(new ITotalResource(resourceVal++));
 
                 // Add event to the current trace
-                EventNode eventNode = addEventNodeToPartition(event, traceId++);
+                EventNode eventNode = addEventNodeToPartition(event, traceId);
 
                 // We want to add event relations ONLY IF eventNode actually
                 // represents an event, not a dummy state
@@ -151,10 +155,11 @@ public class SynopticLib<T extends Comparable<T>> extends AbstractMain {
 
                 allEvents.add(eventNode);
             }
+            traceId++;
         }
 
         loggerInfoEnd("Converting traces took ", startTime);
-        return null;
+        return allEvents;
     }
 
     /**

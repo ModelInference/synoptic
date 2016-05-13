@@ -14,14 +14,14 @@ import synoptic.model.interfaces.INode;
 public class VariablePartition extends Partition
         implements IVariableNode<Partition> {
     /**
-     * Any EventNode instances added MUST be of an EventType considered equal to
-     * ALL of these, and this must always contain exactly all types in
+     * Any EventNode instances added MUST be of an EventType compatible with ALL
+     * of these, and this must always contain exactly all types in
      * {@code events}
      */
-    private final List<EventType> eTypes = new LinkedList<>();
+    private List<EventType> eTypes;
 
-    private boolean hasTerminal = false;
-    private boolean hasInitial = false;
+    private boolean hasTerminal;
+    private boolean hasInitial;
 
     protected VariablePartition(Collection<EventNode> eNodes) {
         super(eNodes);
@@ -56,21 +56,24 @@ public class VariablePartition extends Partition
 
     @Override
     protected boolean isLegalEType(EventType otherEType) {
-        // The event's type must be considered equal to all of this partition's
+        // For initial and terminal, partition and type just need to match
+        if ((hasInitial && otherEType.isInitialEventType())
+                || (hasTerminal && otherEType.isTerminalEventType())) {
+            return true;
+        }
+        if (hasInitial || hasTerminal || otherEType.isSpecialEventType()) {
+            return false;
+        }
+
+        // The event's type must be compatible with all of this partition's
         // event types
         for (EventType eType : eTypes) {
-            if (!eType.equals(otherEType)) {
+            if (!eType.typeEquals(otherEType)) {
                 return false;
             }
         }
         return true;
     }
-
-    // @Override
-    // protected void checkNewENodeType(Collection<EventNode> eNodes) {
-    // //
-    // Set<EventType> distinctETypes = new HashSet<>();
-    // }
 
     @Override
     protected void refreshETypes() {
@@ -79,11 +82,11 @@ public class VariablePartition extends Partition
 
     /**
      * Reset the event types of this partition to those within {@code eNodes},
-     * and sets {@link #hasTerminal} and {@link #hasInitial}
+     * and set {@link #hasTerminal} and {@link #hasInitial}
      */
     private void refreshETypes(Collection<EventNode> eNodes) {
         // Reset types and terminal/initial flags
-        eTypes.clear();
+        eTypes = new LinkedList<>();
         hasTerminal = hasInitial = false;
 
         // Populate types and terminal/initial flags
@@ -111,13 +114,22 @@ public class VariablePartition extends Partition
     @Override
     public int compareETypes(INode<?> other) {
         // Order this partition after any less complex, non-variable nodes
-        if (!(other instanceof IVariableNode<?>)) {
+        if (!(other instanceof VariablePartition)) {
             return 1;
         }
-        
-        IVariableNode<?> varOther = (IVariableNode<?>) other;
+
+        VariablePartition varOther = (VariablePartition) other;
         Collection<EventType> otherETypes = varOther.getAllETypes();
-        
+
+        // Compare special partitions
+        if (hasInitial || varOther.hasInitial || hasTerminal
+                || varOther.hasTerminal) {
+            int specialCmp = compareSpecialType(varOther);
+            if (specialCmp != 0) {
+                return specialCmp;
+            }
+        }
+
         // If partitions have different numbers of event types, simply order by
         // number of types
         if (eTypes.size() < otherETypes.size()) {
@@ -127,13 +139,66 @@ public class VariablePartition extends Partition
         }
 
         // Perform n-to-m comparison of all event types in both partitions
-        for (EventType otherEType : otherETypes) {
-            if (!isLegalEType(otherEType)) {
-                return -1;
+        for (EventType thisEType : eTypes) {
+            for (EventType otherEType : otherETypes) {
+                int eTypeCmp = thisEType.compareTo(otherEType);
+                if (eTypeCmp != 0) {
+                    return eTypeCmp;
+                }
             }
         }
 
         // No differences found
+        return 0;
+    }
+
+    @Override
+    public boolean eTypesEqual(INode<?> other) {
+        // Must be a variably-typed partition
+        if (!(other instanceof VariablePartition)) {
+            return false;
+        }
+
+        VariablePartition varOther = (VariablePartition) other;
+
+        // Types of special partitions are equal if both are initial or both are
+        // terminal
+        if (hasInitial || varOther.hasInitial || hasTerminal
+                || varOther.hasTerminal) {
+            return compareSpecialType(varOther) == 0;
+        }
+
+        // Perform n-to-m check of all event types in both partitions
+        for (EventType thisEType : eTypes) {
+            for (EventType otherEType : varOther.getAllETypes()) {
+                if (!thisEType.typeEquals(otherEType)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 
+     */
+    private int compareSpecialType(VariablePartition varOther) {
+        // Check for matching special type
+        if ((hasInitial == varOther.hasInitial) && (hasTerminal == varOther.hasTerminal)) {
+            return 0;
+        }
+        // Sort this partition before if it is initial or other is terminal
+        if (hasInitial || varOther.hasTerminal) {
+            return -1;
+        }
+        // Sort this partition after if it is terminal or other is initial
+        if (hasTerminal || varOther.hasInitial) {
+            return 1;
+        }
+        // Reaching here means this method was illegally called when neither
+        // partition was special
+        assert false;
         return 0;
     }
 

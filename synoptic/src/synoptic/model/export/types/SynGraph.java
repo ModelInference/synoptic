@@ -1,31 +1,41 @@
 package synoptic.model.export.types;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class SynGraph<T> {
-    protected Map<SynNode<T>, Double> initialNodesProb;
+public class SynGraph<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    protected SynNode<T> initialNode;
     protected List<SynNode<T>> nodes;
     protected Map<SynNode<T>, List<SynEdge<T>>> edgesByNode;
     protected Map<T, SynEdge<T>> edgeByElem;
 
     public SynGraph() {
-        initialNodesProb = new LinkedHashMap<>();
+        initialNode = new SynNode<>();
         nodes = new LinkedList<>();
         edgesByNode = new HashMap<>();
         edgeByElem = new HashMap<>();
     }
 
-    public Map<SynNode<T>, Double> getInitialNodesAndProb() {
-        return initialNodesProb;
+    public SynNode<T> getInitialNode() {
+        return initialNode;
     }
 
     public List<SynNode<T>> getNodes() {
         return nodes;
+    }
+
+    public List<SynEdge<T>> getEdgesOutOfNode(SynNode<T> node) {
+        return edgesByNode.get(node);
+    }
+
+    public SynEdge<T> getEdgeOutOfElem(T elem) {
+        return edgeByElem.get(elem);
     }
 
     public SynNode<T> addNode(Collection<T> elems) {
@@ -35,14 +45,17 @@ public class SynGraph<T> {
         return newNode;
     }
 
-    public void setNodeAsInitial(SynNode<T> node, double prob) {
-        initialNodesProb.put(node, prob);
+    public SynNode<T> addInitialNode(Collection<T> elems) {
+        initialNode = new SynNode<>(elems);
+        edgesByNode.put(initialNode, new LinkedList<SynEdge<T>>());
+        return initialNode;
     }
 
     public void addEdge(SynNode<T> srcNode, SynNode<T> destNode,
             Collection<SynSubEdge<T>> subEdges, double prob) {
         //
-        if (!nodes.contains(srcNode) || !nodes.contains(destNode)) {
+        if ((!nodes.contains(srcNode) && srcNode != initialNode)
+                || !nodes.contains(destNode)) {
             throw new IllegalArgumentException(
                     "Src or dest nodes of the edge do not exist in the graph");
         }
@@ -57,18 +70,28 @@ public class SynGraph<T> {
 
     @Override
     public String toString() {
-        // StringBuilder sb = new StringBuilder();
-        //
-        // for (int id : nodes.keySet()) {
-        // SynNode n = nodes.get(id);
-        // sb.append(id).append(": ").append(n.label).append('\n');
-        // for (Edge e : n.outEdges) {
-        // sb.append(" ").append(e.src.id).append(" -> ").append(e.dest.id).append(" / ")
-        // .append(e.prob).append('\n');
-        // }
-        // }
-        //
-        // return sb.toString();
-        return null;
+        StringBuilder sb = new StringBuilder();
+
+        appendNode(sb, initialNode);
+
+        for (SynNode<T> node : nodes) {
+            appendNode(sb, node);
+        }
+
+        return sb.toString();
+    }
+
+    private void appendNode(StringBuilder sb, SynNode<T> node) {
+        if (node == initialNode) {
+            sb.append("INITIAL\n");
+        } else {
+            sb.append(node.hashCode())
+                    .append(node.isTerminal ? " (TERMINAL)" : "").append("\n  ")
+                    .append(node.elements).append('\n');
+        }
+        for (SynEdge<T> edge : edgesByNode.get(node)) {
+            sb.append("  -> ").append(edge.destNode.hashCode()).append(" / ")
+                    .append(edge.prob).append('\n');
+        }
     }
 }

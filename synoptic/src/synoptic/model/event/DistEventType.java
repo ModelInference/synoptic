@@ -330,6 +330,11 @@ public class DistEventType extends EventType implements IDistEventType {
     }
 
     @Override
+    public boolean typeEquals(EventType other) {
+        return equals(other);
+    }
+
+    @Override
     public int compareTo(EventType eother) {
         int baseCmp = super.compareTo(eother);
         if (baseCmp != 0) {

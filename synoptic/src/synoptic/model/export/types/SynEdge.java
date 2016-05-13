@@ -1,10 +1,13 @@
 package synoptic.model.export.types;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SynEdge<T> {
+public class SynEdge<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected SynNode<T> srcNode;
     protected SynNode<T> destNode;
     protected Map<T, T> subEdges;
@@ -45,5 +48,13 @@ public class SynEdge<T> {
 
     public double getProb() {
         return prob;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(srcNode.hashCode()).append(":").append(subEdges.keySet())
+                .append(" -> ").append(destNode.hashCode()).append(":")
+                .append(subEdges.values());
+        return sb.toString();
     }
 }

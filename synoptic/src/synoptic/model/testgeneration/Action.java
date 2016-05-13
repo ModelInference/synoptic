@@ -126,7 +126,11 @@ public class Action implements IUniformNode<Action> {
 
     @Override
     public boolean eTypesEqual(INode<?> other) {
-        return (compareETypes(other) == 0);
+        if (other instanceof IUniformNode<?>) {
+            IUniformNode<?> eNodeOther = (IUniformNode<?>) other;
+            return eventType.typeEquals(eNodeOther.getEType());
+        }
+        return false;
     }
 
     @Override

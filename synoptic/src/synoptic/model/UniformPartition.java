@@ -94,6 +94,15 @@ public class UniformPartition extends Partition
     }
 
     @Override
+    public boolean eTypesEqual(INode<?> other) {
+        if (other instanceof IUniformNode<?>) {
+            IUniformNode<?> eNodeOther = (IUniformNode<?>) other;
+            return eType.typeEquals(eNodeOther.getEType());
+        }
+        return false;
+    }
+
+    @Override
     public boolean hasEType(EventType otherEType) {
         return eType.equals(otherEType);
     }

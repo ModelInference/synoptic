@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import synoptic.model.EventNode;
@@ -22,7 +23,7 @@ import synoptic.model.interfaces.ITransition;
 /**
  * Export the Synoptic final model as a generically-typed
  * {@link synoptic.model.export.types.SynGraph}. The main entry method is
- * {@link #exportLTS(String, IGraph)}.
+ * {@link #makeSynGraph(IGraph)}.
  */
 public class GenericExporter {
     /**
@@ -32,7 +33,7 @@ public class GenericExporter {
      * @param graph
      *            The partition graph to output
      */
-    public static <N extends INode<N>, T> SynGraph<T> exportLTS(
+    public static <N extends INode<N>, T> SynGraph<T> makeSynGraph(
             IGraph<N> graph) {
         // The graph must be a partition graph
         assert graph instanceof PartitionGraph;
@@ -60,20 +61,31 @@ public class GenericExporter {
             if (part.isTerminal()) {
                 continue;
             }
-            // Find initial
-            if (part.isInitial()) {
-                initialPart = part;
-                continue;
+
+            {
+                Set<EventType> eTypeSet = new HashSet<>();
+                for (EventType eType : part.getAllETypes()) {
+                    eTypeSet.add(eType);
+                }
+                System.out.println(" ===== eTypes: " + eTypeSet.size()
+                        + "   events: " + part.getEventNodes().size());
             }
 
             //
             Collection<T> nodeElems = new LinkedList<>();
             for (EventNode eNode : part.getEventNodes()) {
-                EventType eType = eNode.getEType().getETypeLabel();
-                nodeElems.add((T) eType);
+                T elem = eNode.getEType().getETypeLabel();
+                nodeElems.add(elem);
             }
-            partToSNode.put(part, new SynNode<>(nodeElems));
-            synGraph.addNode(nodeElems);
+            // Find initial
+            if (part.isInitial()) {
+                initialPart = part;
+                SynNode<T> initialNode = synGraph.addInitialNode(nodeElems);
+                partToSNode.put(part, initialNode);
+            } else {
+                SynNode<T> newNode = synGraph.addNode(nodeElems);
+                partToSNode.put(part, newNode);
+            }
         }
 
         // Initialize fields for BFT (breadth-first traversal) over all
@@ -98,11 +110,18 @@ public class GenericExporter {
                 SynNode<T> destNode = partToSNode.get(nextPart);
                 double prob = pTrans.getProbability();
 
-                //
-                if (part.isInitial()) {
-                    synGraph.setNodeAsInitial(destNode, prob);
-                    continue;
+                // Standard BFT: ensure partitions are visited exactly once.
+                // Never visit TERMINAL
+                if (!visited.contains(nextPart) && !nextPart.isTerminal()) {
+                    visited.add(nextPart);
+                    bftQueue.add(nextPart);
                 }
+
+                //
+                // if (part.isInitial()) {
+                // synGraph.setNodeAsInitial(destNode, prob);
+                // continue;
+                // }
 
                 //
                 if (nextPart.isTerminal()) {
@@ -125,12 +144,6 @@ public class GenericExporter {
                 }
 
                 synGraph.addEdge(srcNode, destNode, subEdges, prob);
-
-                // Standard BFT: ensure partitions are visited exactly once
-                if (!visited.contains(nextPart)) {
-                    visited.add(nextPart);
-                    bftQueue.add(nextPart);
-                }
             }
         }
 

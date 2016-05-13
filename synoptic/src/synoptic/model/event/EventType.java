@@ -61,6 +61,13 @@ public abstract class EventType implements Comparable<EventType> {
      */
     public abstract <T> T getETypeLabel();
 
+    /**
+     * Whether this type and another type are considered similar enough to
+     * co-exist within the same partition. This method is equivalent to
+     * {@link #equals(Object)} except in {@link GenericEventType}
+     */
+    public abstract boolean typeEquals(EventType other);
+
     // //////////////////////
     // These methods implement basic functionality for the two
     // boolean base data members:

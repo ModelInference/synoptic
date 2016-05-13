@@ -1,6 +1,10 @@
 package synoptic.model.export.types;
 
-public class SynSubEdge<T> {
+import java.io.Serializable;
+
+public class SynSubEdge<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public T srcElem;
     public T destElem;
 
