@@ -70,11 +70,14 @@ public class AbstractOptions {
     static final String supportCountThresholdStr = "filter all invariants that have support values greater than the threshold";
     public int supportCountThreshold = 0;
 
-    static final String ignoreIntrByInvsStr = "Ignore IntrBy Invariants. Synoptic currently doesn't support IntrBy Invariants.";
+    static final String ignoreIntrByInvsStr = "Ignore IntrBy invariants. Synoptic currently doesn't support IntrBy Invariants.";
     public boolean ignoreIntrByInvs = true;
 
+    static final String ignoreNFbyInvsStr = "Ignore NFby invariants";
+    public boolean ignoreNFbyInvs = false;
+
     // Extended Perfume option
-    static final String termOnInterdiateModelStr = "-t Terminate on intermediate model output";
+    static final String termOnIntermediateModelStr = "-t Terminate on intermediate model output";
     public boolean termOnIntermediateModel = false;
 
     // ////////////////////////////
@@ -101,6 +104,9 @@ public class AbstractOptions {
     static final String traceNormalizationStr = "Independently normalize each trace";
     public boolean traceNormalization = false;
 
+    static final String keepOrderStr = "Keep events in log order and do not sort by supplied resource values";
+    public boolean keepOrder = false;
+
     static final String recoverFromParseErrorsStr = "Ignore parser warnings and attempt to recover from parse errors if possible";
     public boolean recoverFromParseErrors = false;
 
@@ -119,9 +125,6 @@ public class AbstractOptions {
 
     static final String inputDeltaStr = "Interpret the supplied time values as delta values instead of absolute values";
     public static boolean inputDelta = false;
-
-    static final String keepOrderStr = "-k Keep log events order and do not sort by supplied values";
-    public static boolean keepOrder = false;
 
     // Extended Perfume option
     static final String modelFileStr = "The file containing the Perfume model";

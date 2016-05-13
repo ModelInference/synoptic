@@ -93,8 +93,16 @@ public class PerfumeOptions extends Options {
 
     /**
      * Perfume supports IntrBy Invariants
+     * Whether to ignore (filter out) IntrBy invariants
      */
+    @Option(AbstractOptions.ignoreIntrByInvsStr)
     public boolean ignoreIntrByInvs = false;
+
+    /**
+     * Whether to ignore (filter out) NFby invariants
+     */
+    @Option(AbstractOptions.ignoreNFbyInvsStr)
+    public boolean ignoreNFbyInvs = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -156,6 +164,12 @@ public class PerfumeOptions extends Options {
     @Option(value = AbstractOptions.traceNormalizationStr,
             aliases = { "-trace-norm" })
     public boolean traceNormalization = false;
+
+    /**
+     * Keep events in log order and do not sort by supplied resource values
+     */
+    @Option(value = AbstractOptions.keepOrderStr)
+    public boolean keepOrder = true;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
@@ -489,6 +503,7 @@ public class PerfumeOptions extends Options {
         absOpts.testGeneration = testGeneration;
         absOpts.variablePartitions = variablePartitions;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
+        absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
 
         // Parser options
 
@@ -498,6 +513,7 @@ public class PerfumeOptions extends Options {
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;
+        absOpts.keepOrder = keepOrder;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
         absOpts.dateFormat = dateFormat;

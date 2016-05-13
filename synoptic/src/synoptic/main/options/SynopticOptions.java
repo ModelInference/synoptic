@@ -106,11 +106,17 @@ public class SynopticOptions extends Options {
     public int supportCountThreshold = 0;
 
     /**
-     * Disable IntrBy Invariants in Synoptic. Synoptic currently doesn't support
-     * IntrBy Invariants.
+     * Disable IntrBy invariants in Synoptic. Synoptic currently doesn't support
+     * IntrBy invariants.
      */
     @Option(value = AbstractOptions.ignoreIntrByInvsStr)
     public boolean ignoreIntrByInvs = true;
+
+    /**
+     * Whether to ignore (filter out) NFby invariants
+     */
+    @Option(AbstractOptions.ignoreNFbyInvsStr)
+    public boolean ignoreNFbyInvs = false;
 
     // //////////////////////////////////////////////////
     /**
@@ -166,6 +172,13 @@ public class SynopticOptions extends Options {
      * Synoptic doesn't support trace-wise normalization
      */
     public final boolean traceNormalization = false;
+
+    /**
+     * Synoptic usually sorts events within a trace by supplied resource values,
+     * assumed to be time
+     */
+    @Option(value = AbstractOptions.keepOrderStr)
+    public boolean keepOrder = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
@@ -499,6 +512,7 @@ public class SynopticOptions extends Options {
         absOpts.variablePartitions = variablePartitions;
         absOpts.supportCountThreshold = supportCountThreshold;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
+        absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
 
         // Parser options
 
@@ -508,6 +522,7 @@ public class SynopticOptions extends Options {
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
         absOpts.traceNormalization = traceNormalization;
+        absOpts.keepOrder = keepOrder;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;
         absOpts.debugParse = debugParse;
         absOpts.dateFormat = dateFormat;
