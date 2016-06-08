@@ -66,6 +66,9 @@ public class JsonExporter {
         assert graph instanceof PartitionGraph;
         PartitionGraph pGraph = (PartitionGraph) graph;
 
+        // EvBasedGraph evGraph = new EvBasedGraph(pGraph);
+        // System.out.println("evGraph:\n" + evGraph);
+
         Map<String, Object> finalModelMap = new LinkedHashMap<String, Object>();
 
         // Add log to final model map
