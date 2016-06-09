@@ -1018,7 +1018,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseOutOfOrderMultipleRelation() throws ParseException {
         String traceStr = "1 call foo\n" + "0 call main\n" + "2 return main";
         parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
-        AbstractOptions.keepOrder = false;
+        AbstractMain.getInstance().options.keepOrder = false;
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);

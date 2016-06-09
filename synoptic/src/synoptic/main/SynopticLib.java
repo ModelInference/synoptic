@@ -60,7 +60,7 @@ public class SynopticLib<T extends Comparable<T> & ISynType<T>>
             SynopticOptions synOptions, List<List<T>> traces) throws Exception {
         // Construct main object
         AbstractOptions options = synOptions.toAbstractOptions();
-        AbstractOptions.keepOrder = true; // TODO: do something proper
+        options.keepOrder = true;
         AbstractOptions.outputPathPrefix = null;
         SynopticLib<T> mainInstance = new SynopticLib<>(options);
 
