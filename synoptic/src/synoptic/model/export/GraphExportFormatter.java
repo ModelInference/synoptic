@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -54,9 +54,8 @@ public abstract class GraphExportFormatter {
     public GraphExportFormatter() {
         // This colors subset is taken from:
         // http://www.graphviz.org/doc/info/colors.html
-        possibleColors = new LinkedList<String>(Arrays.asList("darkorange1",
-                "goldenrod", "darkseagreen", "green3", "gray66", "indianred",
-                "indigo", "yellow1", "thistle"));
+        possibleColors = new LinkedList<String>(Arrays.asList("darkorange1", "goldenrod", "darkseagreen", "green3",
+                "gray66", "indianred", "indigo", "yellow1", "thistle"));
 
         relationColors = new LinkedHashMap<String, String>();
         relationColors.put(Event.defTimeRelationStr, defaultRelationColor);
@@ -75,8 +74,7 @@ public abstract class GraphExportFormatter {
         if (possibleColors.size() == 0) {
             if (!reportedColorsDeficiency) {
                 logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
-                        + defaultRelationColor
-                        + ") for the remaining relations.");
+                        + defaultRelationColor + ") for the remaining relations.");
             }
             reportedColorsDeficiency = true;
         }
@@ -111,8 +109,7 @@ public abstract class GraphExportFormatter {
      * @param isTerminal
      *            whether or not node is terminal
      */
-    public abstract <T extends INode<T>> String nodeToString(int nodeId,
-            T node, boolean isInitial, boolean isTerminal);
+    public abstract <T extends INode<T>> String nodeToString(int nodeId, T node, boolean isInitial, boolean isTerminal);
 
     /**
      * Serializes a single node edge in a graph to a string that represents this
@@ -122,14 +119,48 @@ public abstract class GraphExportFormatter {
      *            the unique identifier for the source node
      * @param nodeDst
      *            the unique identifier for the target node
-     * @param freq
-     *            the frequency value to be used as a label on the edge
-     * @param relation
-     *            a string representing the relation (e.g., "t")
+     * @param prob
+     *            the probability value to be used as a label on the edge
+     * @param relations
+     *            a string representing the relations (e.g., "t")
      * @return
      */
-    public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst,
-            double freq, Set<String> relation);
+    public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob, Set<String> relations);
+
+    /**
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, along with the probability of the edge transition.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param cnt
+     *            the count value to be used as a label on the edge
+     * @param relations
+     *            a string representing the relations (e.g., "t")
+     * @return
+     */
+    public abstract String edgeToStringWithCnt(int nodeSrc, int nodeDst, int cnt, Set<String> relations);
+
+    /**
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, along with the probability of the edge transition.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param prob
+     *            the probability value to be used as a label on the edge
+     * @param cnt
+     *            the count value to be used as a label on the edge
+     * @param relations
+     *            a string representing the relations (e.g., "t")
+     * @return
+     */
+    public abstract String edgeToStringWithProbCnt(int nodeSrc, int nodeDst, double prob, int cnt,
+            Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string that represents this
@@ -143,12 +174,11 @@ public abstract class GraphExportFormatter {
      *            the unique identifier for the target node
      * @param freq
      *            the frequency value to be used as a label on the edge
-     * @param relation
-     *            a string representing the relation (e.g., "t")
+     * @param relations
+     *            a string representing the relations (e.g., "t")
      * @return
      */
-    public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            Set<String> relations);
+    public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst, Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string. Also, outputs a
@@ -162,12 +192,11 @@ public abstract class GraphExportFormatter {
      *            the frequency value to be used as a label on the edge
      * @param traceId
      *            the identifier of the trace that this edge belongs to.
-     * @param relation
-     *            a string representing the relation (e.g., "t")
+     * @param relations
+     *            a string representing the relations (e.g., "t")
      * @return
      */
-    public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, Set<String> relations);
+    public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst, int traceId, Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string given the min and
@@ -187,9 +216,8 @@ public abstract class GraphExportFormatter {
      * @param relations
      *            a string representing the relations (e.g., "t")
      */
-    public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
-            Set<String> relations);
+    public abstract String edgeToStringWithITimes(int nodeSrc, int nodeDst, AbstractResource timeMin,
+            AbstractResource timeMax, AbstractResource timeMedian, Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string given the min and
@@ -211,9 +239,8 @@ public abstract class GraphExportFormatter {
      * @param relations
      *            a string representing the relations (e.g., "t")
      */
-    public abstract String edgeToStringWithITimesAndProb(int nodeSrc,
-            int nodeDst, AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
-            double freq, Set<String> relations);
+    public abstract String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst, AbstractResource timeMin,
+            AbstractResource timeMax, AbstractResource timeMedian, double freq, Set<String> relations);
 
     /**
      * Create the time delta string for an edge given the min, max, and
@@ -223,16 +250,14 @@ public abstract class GraphExportFormatter {
      * @return If min==max, returns "min". Else, returns "[min,med,max]" if
      *         median is specified or else "[min,max]" if not
      */
-    protected String getITimeString(AbstractResource timeMin, AbstractResource timeMax,
-            AbstractResource timeMedian, int sigDigits) {
+    protected String getITimeString(AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
+            int sigDigits) {
         // Make time string
         if (timeMin != null && timeMax != null) {
 
             // Round min and max to a few significant digits for readability
-            BigDecimal timeMinDec = new BigDecimal(timeMin.toString())
-                    .round(new MathContext(sigDigits));
-            BigDecimal timeMaxDec = new BigDecimal(timeMax.toString())
-                    .round(new MathContext(sigDigits));
+            BigDecimal timeMinDec = new BigDecimal(timeMin.toString()).round(new MathContext(sigDigits));
+            BigDecimal timeMaxDec = new BigDecimal(timeMax.toString()).round(new MathContext(sigDigits));
 
             // Remove trailing zeros and periods from min and max
             String timeMinStr = removeTrailingZeros(timeMinDec.toString());
@@ -241,8 +266,7 @@ public abstract class GraphExportFormatter {
             // Round and format median if provided
             String timeMedStr = "";
             if (timeMedian != null) {
-                BigDecimal timeMedDec = new BigDecimal(timeMedian.toString())
-                        .round(new MathContext(sigDigits));
+                BigDecimal timeMedDec = new BigDecimal(timeMedian.toString()).round(new MathContext(sigDigits));
 
                 timeMedStr = removeTrailingZeros(timeMedDec.toString()) + ",";
             }
@@ -279,8 +303,7 @@ public abstract class GraphExportFormatter {
 
         // Do not trim the first character, otherwise loop backwards until a
         // non-zero, non-period character is hit
-        while (trimInd > 0
-                && (str.charAt(trimInd) == '0' || str.charAt(trimInd) == '.')) {
+        while (trimInd > 0 && (str.charAt(trimInd) == '0' || str.charAt(trimInd) == '.')) {
             trimInd--;
 
             // Don't trim 0s left of the decimal
@@ -297,8 +320,8 @@ public abstract class GraphExportFormatter {
      * Serializes a single node edge in a graph to a string that represents this
      * edge, along with the Daikon invariants of the edge transition.
      */
-    public abstract String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst,
-            DaikonInvariants daikonInvs, Set<String> relation);
+    public abstract String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst, DaikonInvariants daikonInvs,
+            Set<String> relations);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

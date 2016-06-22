@@ -89,8 +89,7 @@ public class SynopticOptions extends Options {
     /**
      * Enable abstract test generation.
      */
-    @Option(value = AbstractOptions.testGenerationStr,
-            aliases = { "-test-generation" })
+    @Option(value = AbstractOptions.testGenerationStr, aliases = { "-test-generation" })
     public boolean testGeneration = false;
 
     /**
@@ -118,12 +117,11 @@ public class SynopticOptions extends Options {
      * this expression, the lines before and after are considered to be in
      * different 'traces', each to be considered an individual sample of the
      * behavior of the system. This is implemented by augmenting the separator
-     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k<SEPCOUNT>
-     * to the partitioner.
+     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k
+     * <SEPCOUNT> to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(value = AbstractOptions.separatorRegExpStr,
-            aliases = { "-partition-separator" })
+    @Option(value = AbstractOptions.separatorRegExpStr, aliases = { "-partition-separator" })
     public String separatorRegExp = null;
 
     /**
@@ -144,8 +142,7 @@ public class SynopticOptions extends Options {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    @Option(value = AbstractOptions.partitionRegExpStr,
-            aliases = { "-partition-mapping" })
+    @Option(value = AbstractOptions.partitionRegExpStr, aliases = { "-partition-mapping" })
     public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
 
     /**
@@ -179,8 +176,7 @@ public class SynopticOptions extends Options {
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(value = AbstractOptions.recoverFromParseErrorsStr,
-            aliases = { "-ignore-parse-errors" })
+    @Option(value = AbstractOptions.recoverFromParseErrorsStr, aliases = { "-ignore-parse-errors" })
     public boolean recoverFromParseErrors = false;
 
     /**
@@ -213,8 +209,7 @@ public class SynopticOptions extends Options {
      * (if specified, e.g. with --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(value = AbstractOptions.outputPathPrefixStr,
-            aliases = { "-output-prefix" })
+    @Option(value = AbstractOptions.outputPathPrefixStr, aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
 
     /**
@@ -240,8 +235,7 @@ public class SynopticOptions extends Options {
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
-    @Option(value = AbstractOptions.exportAsGMLStr,
-            aliases = { "-export-as-gml" })
+    @Option(value = AbstractOptions.exportAsGMLStr, aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
 
     /**
@@ -255,16 +249,21 @@ public class SynopticOptions extends Options {
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
-    @Option(value = AbstractOptions.dotExecutablePathStr,
-            aliases = { "-dot-executable" })
+    @Option(value = AbstractOptions.dotExecutablePathStr, aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
      * This sets the output edge labels on graphs that are exported.
      */
-    @Option(value = AbstractOptions.outputEdgeLabelsStr,
-            aliases = { "-outputEdgeLabels" })
-    public boolean outputEdgeLabels = true;
+    @Option(value = AbstractOptions.outputProbLabelsStr, aliases = { "-outputProbLabels" })
+    public boolean outputProbLabels = true;
+
+    /**
+     * Whether or not transition counts are displayed on edge labels in addition
+     * to metric ranges, which are always displayed
+     */
+    @Option(value = AbstractOptions.outputCountLabelsStr, aliases = { "-outputCountLabels" })
+    public boolean outputCountLabels = false;
 
     /**
      * Whether or not the output graphs include the common TERMINAL state, to
@@ -312,8 +311,8 @@ public class SynopticOptions extends Options {
     /**
      * Dump PNG of parsed trace graph to file. The file will have the name
      * <outputPathPrefix>.tracegraph.dot.png, where 'outputPathPrefix' is the
-     * filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
+     * filename of the final Synoptic output. This option is <i>unpublicized</i>
+     * ; it will not appear in the default usage message
      */
     @Option(AbstractOptions.dumpTraceGraphPngFileStr)
     public boolean dumpTraceGraphPngFile = false;
@@ -470,8 +469,7 @@ public class SynopticOptions extends Options {
      */
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options",
-                "Execution Options", "Parser Options", "Input Options",
+        System.out.println(plumeOptions.usage("General Options", "Execution Options", "Parser Options", "Input Options",
                 "Output Options", "Verbosity Options", "Debugging Options"));
     }
 
@@ -533,7 +531,8 @@ public class SynopticOptions extends Options {
         absOpts.exportAsGML = exportAsGML;
         absOpts.outputLTS = outputLTS;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
-        absOpts.outputEdgeLabels = outputEdgeLabels;
+        absOpts.outputProbLabels = outputProbLabels;
+        absOpts.outputCountLabels = outputCountLabels;
         absOpts.showTerminalNode = showTerminalNode;
         absOpts.showInitialNode = showInitialNode;
         absOpts.outputJSON = outputJSON;

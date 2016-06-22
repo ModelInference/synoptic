@@ -8,7 +8,7 @@ import java.util.Set;
  */
 public class EvBasedNode {
     int nodeID;
-    Set<EvBasedEdge> outEdges = new HashSet<>();
+    Set<EvBasedEdge> outEdges = new HashSet<EvBasedEdge>();
 
     public EvBasedNode(int nodeID) {
         this.nodeID = nodeID;

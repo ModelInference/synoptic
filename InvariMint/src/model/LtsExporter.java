@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import synoptic.model.interfaces.INode;
+
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
-
-import synoptic.model.interfaces.INode;
 
 /**
  * Export the Invarimint final model in Labeled Transition System (LTS) format.
@@ -29,8 +29,8 @@ public class LtsExporter {
      * @param encodings
      *            The model's event type encodings
      */
-    public static <T extends INode<T>> void exportLTS(String baseFilename,
-            Automaton model, EventTypeEncodings encodings) {
+    public static <T extends INode<T>> void exportLTS(String baseFilename, Automaton model,
+            EventTypeEncodings encodings) {
 
         // Output the final model as in LTS format
         try {
@@ -56,7 +56,7 @@ public class LtsExporter {
         StringBuilder ltsContent = new StringBuilder();
 
         // Holds a unique ID for each state
-        HashMap<State, Integer> stateIDs = new HashMap<>();
+        HashMap<State, Integer> stateIDs = new HashMap<State, Integer>();
 
         int nextID = 0;
         State initialState = null;
@@ -65,8 +65,7 @@ public class LtsExporter {
         for (State state : model.getStates()) {
             // Skip pre-initial state; store initial state
             if (state == model.getInitialState()) {
-                initialState = state.getTransitions().iterator().next()
-                        .getDest();
+                initialState = state.getTransitions().iterator().next().getDest();
                 continue;
             }
 
@@ -75,23 +74,21 @@ public class LtsExporter {
         }
 
         // Print entry to initial state
-        String init = String.format("Invarimint = S%d",
-                stateIDs.get(initialState));
+        String init = String.format("Invarimint = S%d", stateIDs.get(initialState));
         ltsContent.append(init);
 
         // Initialize fields for BFT (breadth-first traversal) over all
         // partitions
-        LinkedBlockingQueue<State> bftQueue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<State> bftQueue = new LinkedBlockingQueue<State>();
         bftQueue.add(initialState);
-        HashSet<State> visited = new HashSet<>();
+        HashSet<State> visited = new HashSet<State>();
 
         // Perform a BFT over all states, storing each in the LTS representation
         while (!bftQueue.isEmpty()) {
             // Get a state
             State state = bftQueue.poll();
 
-            ltsContent
-                    .append(String.format(",\n\nS%d = ", stateIDs.get(state)));
+            ltsContent.append(String.format(",\n\nS%d = ", stateIDs.get(state)));
 
             // Loop over all outgoing transitions
             boolean transitionAdded = false;
@@ -113,8 +110,7 @@ public class LtsExporter {
                 char nextTransChar = nextTrans.getMin();
                 String eventType = encodings.getString(nextTransChar);
                 State dest = nextTrans.getDest();
-                ltsContent.append(eventType).append(" -> S")
-                        .append(stateIDs.get(dest));
+                ltsContent.append(eventType).append(" -> S").append(stateIDs.get(dest));
 
                 // Standard BFT: ensure states are visited exactly once
                 if (!visited.contains(dest)) {

@@ -4,11 +4,6 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import main.InvariMintOptions;
-import model.EventTypeEncodings;
-import model.InvModel;
-import model.InvsModel;
-
 import synoptic.algorithms.KTails;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.miners.ITOInvariantMiner;
@@ -19,6 +14,11 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.ITransition;
+
+import main.InvariMintOptions;
+import model.EventTypeEncodings;
+import model.InvModel;
+import model.InvsModel;
 
 public class InvariMintKTails extends PGraphInvariMint {
 
@@ -38,8 +38,7 @@ public class InvariMintKTails extends PGraphInvariMint {
     public InvsModel runInvariMint() throws Exception {
         assert opts.invMintKTails;
 
-        ITOInvariantMiner ktailsMiner = new KTailInvariantMiner(
-                opts.kTailLength);
+        ITOInvariantMiner ktailsMiner = new KTailInvariantMiner(opts.kTailLength);
 
         logger.info("Initializing with an all-accepting model.");
         this.initializeModel();
@@ -48,8 +47,7 @@ public class InvariMintKTails extends PGraphInvariMint {
 
         // Add the "^Initial[^Terminal]*Terminal$" invariant
         InvModel initialTerminalInv = new InvModel(
-                new TOInitialTerminalInvariant(initialEvent, terminalEvent,
-                        Event.defTimeRelationStr), encodings);
+                new TOInitialTerminalInvariant(initialEvent, terminalEvent, Event.defTimeRelationStr), encodings);
         invMintModel.intersectWith(initialTerminalInv);
 
         logger.info("Mining Invs.");
@@ -57,15 +55,13 @@ public class InvariMintKTails extends PGraphInvariMint {
         // Mine invariants using the specialized invMiner.
         minedInvs = this.mineInvariants(ktailsMiner);
 
-        logger.info("Intersecting current model with mined invs with minimize intersections="
-                + opts.minimizeIntersections);
+        logger.info(
+                "Intersecting current model with mined invs with minimize intersections=" + opts.minimizeIntersections);
 
         // Intersect current model with mined invariants.
-        invMintModel = InvComposition.intersectModelWithInvs(minedInvs,
-                opts.minimizeIntersections, invMintModel);
+        invMintModel = InvComposition.intersectModelWithInvs(minedInvs, opts.minimizeIntersections, invMintModel);
 
-        logger.info("InvariMint mined properties: "
-                + minedInvs.toPrettyString());
+        logger.info("InvariMint mined properties: " + minedInvs.toPrettyString());
 
         return invMintModel;
 
@@ -78,10 +74,9 @@ public class InvariMintKTails extends PGraphInvariMint {
         // ////////////
         // Export the initial trace graph (as a partition graph):
         PartitionGraph initPGraph = new PartitionGraph(traceGraph, false, null);
-        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
-                + ".pGraph-initial.dot";
+        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName + ".pGraph-initial.dot";
         try {
-            GraphExporter.exportGraph(exportPrefix, initPGraph, false);
+            GraphExporter.exportGraph(exportPrefix, initPGraph, false, false);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -104,12 +104,11 @@ public class PerfumeOptions extends Options {
      * this expression, the lines before and after are considered to be in
      * different 'traces', each to be considered an individual sample of the
      * behavior of the system. This is implemented by augmenting the separator
-     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k<SEPCOUNT>
-     * to the partitioner.
+     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k
+     * <SEPCOUNT> to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(value = AbstractOptions.separatorRegExpStr,
-            aliases = { "-partition-separator" })
+    @Option(value = AbstractOptions.separatorRegExpStr, aliases = { "-partition-separator" })
     public String separatorRegExp = null;
 
     /**
@@ -130,8 +129,7 @@ public class PerfumeOptions extends Options {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    @Option(value = AbstractOptions.partitionRegExpStr,
-            aliases = { "-partition-mapping" })
+    @Option(value = AbstractOptions.partitionRegExpStr, aliases = { "-partition-mapping" })
     public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
 
     /**
@@ -155,8 +153,7 @@ public class PerfumeOptions extends Options {
     /**
      * Perform trace-wise normalization
      */
-    @Option(value = AbstractOptions.traceNormalizationStr,
-            aliases = { "-trace-norm" })
+    @Option(value = AbstractOptions.traceNormalizationStr, aliases = { "-trace-norm" })
     public boolean traceNormalization = false;
 
     /**
@@ -170,8 +167,7 @@ public class PerfumeOptions extends Options {
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(value = AbstractOptions.recoverFromParseErrorsStr,
-            aliases = { "-ignore-parse-errors" })
+    @Option(value = AbstractOptions.recoverFromParseErrorsStr, aliases = { "-ignore-parse-errors" })
     public boolean recoverFromParseErrors = false;
 
     /**
@@ -196,7 +192,8 @@ public class PerfumeOptions extends Options {
     public String argsFilename = null;
 
     /**
-     * Interpret the supplied time values as delta values instead of absolute values
+     * Interpret the supplied time values as delta values instead of absolute
+     * values
      */
     @Option(value = AbstractOptions.inputDeltaStr)
     public boolean inputDelta = false;
@@ -210,8 +207,7 @@ public class PerfumeOptions extends Options {
      * (if specified, e.g. with --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(value = AbstractOptions.outputPathPrefixStr,
-            aliases = { "-output-prefix" })
+    @Option(value = AbstractOptions.outputPathPrefixStr, aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
 
     /**
@@ -237,24 +233,29 @@ public class PerfumeOptions extends Options {
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
-    @Option(value = AbstractOptions.exportAsGMLStr,
-            aliases = { "-export-as-gml" })
+    @Option(value = AbstractOptions.exportAsGMLStr, aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
 
     /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Perfume models
      */
-    @Option(value = AbstractOptions.dotExecutablePathStr,
-            aliases = { "-dot-executable" })
+    @Option(value = AbstractOptions.dotExecutablePathStr, aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
      * Whether or not probabilities are displayed on edge labels in addition to
      * metric ranges, which are always displayed
      */
-    @Option(value = AbstractOptions.outputEdgeLabelsStr)
-    public boolean outputEdgeLabels = false;
+    @Option(value = AbstractOptions.outputProbLabelsStr)
+    public boolean outputProbLabels = false;
+
+    /**
+     * Whether or not transition counts are displayed on edge labels in addition
+     * to metric ranges, which are always displayed
+     */
+    @Option(value = AbstractOptions.outputCountLabelsStr)
+    public boolean outputCountLabels = false;
 
     /**
      * Whether or not to show the median metric value on edges between the min
@@ -462,8 +463,7 @@ public class PerfumeOptions extends Options {
      */
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options",
-                "Execution Options", "Parser Options", "Input Options",
+        System.out.println(plumeOptions.usage("General Options", "Execution Options", "Parser Options", "Input Options",
                 "Output Options", "Verbosity Options", "Debugging Options"));
     }
 
@@ -524,7 +524,8 @@ public class PerfumeOptions extends Options {
         absOpts.noModelOutput = noModelOutput;
         absOpts.exportAsGML = exportAsGML;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
-        absOpts.outputEdgeLabels = outputEdgeLabels;
+        absOpts.outputProbLabels = outputProbLabels;
+        absOpts.outputCountLabels = outputCountLabels;
         absOpts.showMedian = showMedian;
         absOpts.showTerminalNode = showTerminalNode;
         absOpts.showInitialNode = showInitialNode;

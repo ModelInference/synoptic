@@ -26,8 +26,7 @@ public class LtsExporter {
      * @param graph
      *            The partition graph to output
      */
-    public static <T extends INode<T>> void exportLTS(String baseFilename,
-            IGraph<T> graph) {
+    public static <T extends INode<T>> void exportLTS(String baseFilename, IGraph<T> graph) {
 
         // The graph must be a partition graph
         assert graph instanceof PartitionGraph;
@@ -55,7 +54,7 @@ public class LtsExporter {
         StringBuilder ltsContent = new StringBuilder();
 
         // Holds a unique state ID for each partition
-        HashMap<Partition, Integer> partIDs = new HashMap<>();
+        HashMap<Partition, Integer> partIDs = new HashMap<Partition, Integer>();
 
         int nextID = 0;
         Partition initialPart = null;
@@ -79,9 +78,9 @@ public class LtsExporter {
 
         // Initialize fields for BFT (breadth-first traversal) over all
         // partitions
-        LinkedBlockingQueue<Partition> bftQueue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<Partition> bftQueue = new LinkedBlockingQueue<Partition>();
         bftQueue.add(initialPart);
-        HashSet<Partition> visited = new HashSet<>();
+        HashSet<Partition> visited = new HashSet<Partition>();
 
         // Perform a BFT over all partitions, along the way converting
         // Synoptic's internal event-based graph into a state-based one and
@@ -110,8 +109,7 @@ public class LtsExporter {
 
                 // Output transition to the next state
                 String eventType = nextPart.getEType().toString();
-                ltsContent.append(eventType).append(" -> S")
-                        .append(partIDs.get(nextPart));
+                ltsContent.append(eventType).append(" -> S").append(partIDs.get(nextPart));
 
                 // Standard BFT: ensure partitions are visited exactly once
                 if (!visited.contains(nextPart)) {

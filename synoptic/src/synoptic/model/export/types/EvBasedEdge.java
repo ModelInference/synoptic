@@ -14,15 +14,14 @@ public class EvBasedEdge {
     int edgeID;
     EvBasedNode srcNode;
     EvBasedNode destNode;
-    Set<EventNode> events = new HashSet<>();
+    Set<EventNode> events = new HashSet<EventNode>();
     EventType eType;
     AbstractResource resMin;
     AbstractResource resMax;
     Double prob;
 
-    public EvBasedEdge(int edgeID, EvBasedNode srcNode, EvBasedNode destNode,
-            Set<EventNode> events, EventType eType, AbstractResource resMin,
-            AbstractResource resMax, Double prob) {
+    public EvBasedEdge(int edgeID, EvBasedNode srcNode, EvBasedNode destNode, Set<EventNode> events, EventType eType,
+            AbstractResource resMin, AbstractResource resMax, Double prob) {
         this.edgeID = edgeID;
         this.srcNode = srcNode;
         this.destNode = destNode;
