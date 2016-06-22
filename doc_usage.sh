@@ -4,7 +4,7 @@
 # the projects hosted by the repo --- Synoptic, CSight, InvariMint,
 # Perfume. These are written to wiki pages (e.g.,
 # 'DocsSynopticCmdLineHelpScreen') and can be found online, e.g.,:
-# http://code.google.com/p/synoptic/wiki/DocsSynopticCmdLineHelpScreen
+# https://github.com/ModelInference/synoptic/wiki
 #
 # This script must be run manually, and will only work if executed
 # from within the default synoptic code branch. This script assume
@@ -28,7 +28,7 @@ code_repo=`pwd`
 wiki_repo=$1
 
 # 1. Pull and update the wiki repository
-cd ${wiki_repo} && hg pull && hg up
+cd ${wiki_repo} && git checkout master && git pull
 
 
 ###########################################################
@@ -42,34 +42,33 @@ function gen_wiki_page() {
     cd ${wiki_repo} && rm $usagef
 
     # 3. Generate the new wiki page
-    echo "#summary Lists the $prj command line usage screen" >> $usagef
-    echo "" >> $usagef
     if [ "$escapeName" = true ]; then
-	echo "= !$prj Command Line Options =" >> $usagef
+	echo "# !$prj Command Line Options #" >> $usagef
     else
-	echo "= $prj Command Line Options =" >> $usagef
+	echo "# $prj Command Line Options #" >> $usagef
     fi
-    echo "{{{" >> $usagef
+    echo '```' >> $usagef
     cd ${code_repo} && $cmd >> $usagef
-    echo "}}}" >> $usagef
+    echo '```' >> $usagef
     echo >> $usagef
 
     # 4. Determine the current revision for the synoptic repository
     # (assumed to be the current dir)
     echo "As of revision: " >> $usagef
-    cd ${code_repo} && hg tip --template "{node|short}" >> $usagef
+
+    cd ${code_repo} && git log -n 1 origin/master --pretty=format:"%H" >> $usagef
     echo >> $usagef
     echo >> $usagef
 
-    echo "*Note: this page is auto-generated. Do not edit.*" >> $usagef
+    echo "**Note: this page is auto-generated. Do not edit.**" >> $usagef
 }
 ###########################################################
 
 # Location of the usage screen wiki pages.
-syn_usagef=${wiki_repo}/DocsSynopticCmdLineHelpScreen.wiki
-dyn_usagef=${wiki_repo}/DocsCSightCmdLineHelpScreen.wiki
-invmint_usagef=${wiki_repo}/DocsInvariMintCmdLineHelpScreen.wiki
-perfume_usagef=${wiki_repo}/DocsPerfumeCmdLineHelpScreen.wiki
+syn_usagef=${wiki_repo}/DocsSynopticCmdLineHelpScreen.md
+dyn_usagef=${wiki_repo}/DocsCSightCmdLineHelpScreen.md
+invmint_usagef=${wiki_repo}/DocsInvariMintCmdLineHelpScreen.md
+perfume_usagef=${wiki_repo}/DocsPerfumeCmdLineHelpScreen.md
 
 ############################## Synoptic usage
 # Generate the synoptic usage:
@@ -95,6 +94,6 @@ gen_wiki_page $perfume_usagef "./perfume.sh -H" "Perfume" false;
 
 
 # 6. Commit and push the edited wiki pages
-cd ${wiki_repo} && hg commit -m 'Updated usage screen docs for all projects' $syn_usagef $dyn_usagef $invmint_usagef $perfume_usagef && hg push
+cd ${wiki_repo} && git commit -a -m 'Updated usage screen docs for all projects' && git push
 
 
