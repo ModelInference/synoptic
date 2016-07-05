@@ -4,12 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import main.InvariMintOptions;
-import model.EncodedAutomaton;
-import model.EventTypeEncodings;
-import model.InvsModel;
-import model.PartitionGraphAutomaton;
-
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.AbstractMain;
@@ -24,6 +18,12 @@ import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
+
+import main.InvariMintOptions;
+import model.EncodedAutomaton;
+import model.EventTypeEncodings;
+import model.InvsModel;
+import model.PartitionGraphAutomaton;
 
 /**
  * Represent an InvariMint algorithm that models a PartitionGraph-based
@@ -47,8 +47,7 @@ public abstract class PGraphInvariMint {
     EventType initialEvent;
     EventType terminalEvent;
 
-    public PGraphInvariMint(InvariMintOptions opts, String stdAlgName)
-            throws Exception {
+    public PGraphInvariMint(InvariMintOptions opts, String stdAlgName) throws Exception {
         this.stdAlgName = stdAlgName;
         this.invMintAlgName = "InvMint" + stdAlgName;
         logger = Logger.getLogger(invMintAlgName);
@@ -82,8 +81,7 @@ public abstract class PGraphInvariMint {
         assert terminalEvent != null;
 
         logger.info("Removing spurious edges");
-        TraceFiltering.removeSpuriousEdges(invMintModel, traceGraph, encodings,
-                initialEvent, terminalEvent);
+        TraceFiltering.removeSpuriousEdges(invMintModel, traceGraph, encodings, initialEvent, terminalEvent);
     }
 
     /** Exports the partition graph inferred by the standard algorithm. */
@@ -93,9 +91,8 @@ public abstract class PGraphInvariMint {
         }
         assert stdAlgPGraph != null;
 
-        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
-                + ".pGraph-final.dot";
-        GraphExporter.exportGraph(exportPrefix, stdAlgPGraph, false);
+        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName + ".pGraph-final.dot";
+        GraphExporter.exportGraph(exportPrefix, stdAlgPGraph, false, false);
         GraphExporter.generatePngFileFromDotFile(exportPrefix);
     }
 
@@ -104,8 +101,7 @@ public abstract class PGraphInvariMint {
         stdAlgpGraphToDFA();
         assert stdAlgDFA != null;
 
-        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
-                + ".dfa.dot";
+        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName + ".dfa.dot";
         stdAlgDFA.exportDotAndPng(exportPrefix);
     }
 
@@ -130,13 +126,11 @@ public abstract class PGraphInvariMint {
             if (stdSubset && !invSubset) {
                 // Output traces in invMintDFA that are not in stdAlgDFA:
                 modelDiff = invMintModel.differenceWith(stdAlgDFA);
-                exportDiffFname = opts.outputPathPrefix + "." + "InvMint-Std"
-                        + ".dfa.dot";
+                exportDiffFname = opts.outputPathPrefix + "." + "InvMint-Std" + ".dfa.dot";
             } else if (!stdSubset && invSubset) {
                 // Output traces in stdAlgDFA that are not in invMintDFA:
                 modelDiff = invMintModel.differenceWith(stdAlgDFA);
-                exportDiffFname = opts.outputPathPrefix + "." + "Std-InvMint"
-                        + ".dfa.dot";
+                exportDiffFname = opts.outputPathPrefix + "." + "Std-InvMint" + ".dfa.dot";
             }
 
             if (modelDiff != null) {
@@ -159,8 +153,7 @@ public abstract class PGraphInvariMint {
         long startTime = System.currentTimeMillis();
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
 
-        TemporalInvariantSet invs = miner.computeInvariants(traceGraph, false,
-                false);
+        TemporalInvariantSet invs = miner.computeInvariants(traceGraph, false, false);
 
         long endTime = System.currentTimeMillis();
         logger.info("Mining took " + (endTime - startTime) + "ms");
@@ -205,16 +198,13 @@ public abstract class PGraphInvariMint {
 
         if (AbstractMain.instance == null) {
             @SuppressWarnings("unused")
-            SynopticMain synMain = new SynopticMain(options,
-                    new DotExportFormatter());
+            SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
         }
 
         // Instantiate the parser and parse the log lines.
-        TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
+        TraceParser parser = new TraceParser(opts.regExps, opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
-        List<EventNode> parsedEvents = AbstractMain.parseEvents(parser,
-                opts.logFilenames);
+        List<EventNode> parsedEvents = AbstractMain.parseEvents(parser, opts.logFilenames);
 
         String errMsg = null;
         if (opts.debugParse) {

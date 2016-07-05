@@ -41,8 +41,7 @@ public class GraphVizExporterTests extends SynopticTest {
         // Randomize the order in which we add events to the graph
         List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
-        Collections.shuffle(pathCopy,
-                AbstractMain.getInstance().random);
+        Collections.shuffle(pathCopy, AbstractMain.getInstance().random);
         for (EventNode event : pathCopy) {
             g.add(event);
         }
@@ -56,7 +55,7 @@ public class GraphVizExporterTests extends SynopticTest {
 
         StringWriter writer = new StringWriter();
         try {
-            GraphExporter.exportGraph(writer, g, false);
+            GraphExporter.exportGraph(writer, g, false, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,20 +84,17 @@ public class GraphVizExporterTests extends SynopticTest {
     public void perfumeEdgeTrimTest() {
 
         // Input strings for testing
-        String inStrings[] = { "900", "30.1", "0.0400", "1.00", "20.00",
-                "3.330" };
+        String inStrings[] = { "900", "30.1", "0.0400", "1.00", "20.00", "3.330" };
         // Correct output strings
         String outStrings[] = { "900", "30.1", "0.04", "1", "20", "3.33" };
 
         for (int i = 0; i < inStrings.length; ++i) {
             // Trim the input string
-            String resultStr = GraphExportFormatter
-                    .removeTrailingZeros(inStrings[i]);
+            String resultStr = GraphExportFormatter.removeTrailingZeros(inStrings[i]);
 
             // Verify that the trimmed input string matches the output string
-            assertTrue("Trimmed version of '" + inStrings[i] + "' should be '"
-                    + outStrings[i] + "' but instead was '" + resultStr + "'",
-                    resultStr.equals(outStrings[i]));
+            assertTrue("Trimmed version of '" + inStrings[i] + "' should be '" + outStrings[i] + "' but instead was '"
+                    + resultStr + "'", resultStr.equals(outStrings[i]));
         }
     }
 }

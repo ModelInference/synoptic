@@ -19,8 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.main.AbstractMain;
 import synoptic.main.options.AbstractOptions;
 import synoptic.model.DAGsTraceGraph;
@@ -31,6 +29,8 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Used to export a graph object to a file.
@@ -49,8 +49,7 @@ public class GraphExporter {
      * Directory paths to the dot executable should be added here.
      */
     static final String[] dotCommands = { "/usr/bin/dot", "/usr/local/bin/dot",
-            "C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
-            "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe",
+            "C:\\Programme\\Graphviz2.26\\bin\\dot.exe", "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe",
             "C:\\Program Files\\Graphviz 2.28\\bin\\dot.exe" };
 
     /**
@@ -90,25 +89,21 @@ public class GraphExporter {
 
         String imageExt = "png";
 
-        String execCommand = dotCommand + " -O -T" + imageExt + " "
-                + dotFile.getAbsolutePath();
+        String execCommand = dotCommand + " -O -T" + imageExt + " " + dotFile.getAbsolutePath();
 
-        logger.info("Exporting graph to: " + dotFile.toString() + "."
-                + imageExt);
+        logger.info("Exporting graph to: " + dotFile.toString() + "." + imageExt);
 
         Process dotProcess;
         try {
             dotProcess = Runtime.getRuntime().exec(execCommand);
         } catch (IOException e) {
-            logger.severe("Could not run dotCommand '" + execCommand + "': "
-                    + e.getMessage());
+            logger.severe("Could not run dotCommand '" + execCommand + "': " + e.getMessage());
             return;
         }
         try {
             dotProcess.waitFor();
         } catch (InterruptedException e) {
-            logger.severe("Waiting for dot process interrupted '" + execCommand
-                    + "': " + e.getMessage());
+            logger.severe("Waiting for dot process interrupted '" + execCommand + "': " + e.getMessage());
         }
     }
 
@@ -116,19 +111,18 @@ public class GraphExporter {
      * Exports the graph to a format determined by Main.graphExportFormatter,
      * writing the resulting string to a file specified by fileName.
      */
-    public static <T extends INode<T>> void exportGraph(String fileName,
-            IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
+    public static <T extends INode<T>> void exportGraph(String fileName, IGraph<T> graph, boolean outputProbLabels,
+            boolean outputCountLabels) throws IOException {
         File f = new File(fileName);
         logger.info("Exporting graph to: " + fileName);
         final PrintWriter writer;
         try {
             writer = new PrintWriter(f);
         } catch (final IOException e) {
-            throw new RuntimeException("Error opening file for graph export: "
-                    + e.getMessage(), e);
+            throw new RuntimeException("Error opening file for graph export: " + e.getMessage(), e);
         }
         // /////////////
-        exportGraph(writer, graph, outputEdgeLabels);
+        exportGraph(writer, graph, outputProbLabels, outputCountLabels);
         // /////////////
         writer.close();
     }
@@ -145,14 +139,16 @@ public class GraphExporter {
      *            The writer to use for dot output
      * @param graph
      *            The graph to export
-     * @param outputEdgeLabels
-     *            Whether or not to output edge labels
+     * @param outputProbLabels
+     *            Whether or not to output probabilities on edge labels
+     * @param outputCountLabels
+     *            Whether or not to output transition counts on edge labels
      * @throws IOException
      *             In case there is a problem using the writer
      */
     @SuppressWarnings("unchecked")
-    public static <T extends INode<T>> void exportGraph(Writer writer,
-            IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
+    public static <T extends INode<T>> void exportGraph(Writer writer, IGraph<T> graph, boolean outputProbLabels,
+            boolean outputCountLabels) throws IOException {
 
         AbstractMain main = AbstractMain.getInstance();
         try {
@@ -189,8 +185,8 @@ public class GraphExporter {
                 }
 
                 // Output the node record -- its id along with its attributes.
-                writer.write(main.graphExportFormatter.nodeToString(nodeCnt,
-                        node, node.isInitial(), node.isTerminal()));
+                writer.write(
+                        main.graphExportFormatter.nodeToString(nodeCnt, node, node.isInitial(), node.isTerminal()));
                 // Remember the identifier assigned to this node (used for
                 // outputting transitions between nodes).
                 nodeToInt.put(node, nodeCnt);
@@ -207,12 +203,11 @@ public class GraphExporter {
                     // have getTransitionsWithDaikonInvariants method, but
                     // Partition has.
                     Partition partition = (Partition) node;
-                    transitions = (List<? extends ITransition<T>>) partition
-                            .getTransitionsWithDaikonInvariants();
+                    transitions = (List<? extends ITransition<T>>) partition.getTransitionsWithDaikonInvariants();
                 }
                 // If state processing isn't enabled, then output weights, else
                 // add the edge labels later.
-                else if (outputEdgeLabels && !main.options.stateProcessing) {
+                else if ((outputProbLabels || outputCountLabels) && !main.options.stateProcessing) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -225,8 +220,7 @@ public class GraphExporter {
                     // the source or the target node then we skip this
                     // transition. For example, this may occur if the target is
                     // a terminal node and Main.showTerminalNode is false.
-                    if (!nodeToInt.containsKey(trans.getSource())
-                            || !nodeToInt.containsKey(trans.getTarget())) {
+                    if (!nodeToInt.containsKey(trans.getSource()) || !nodeToInt.containsKey(trans.getTarget())) {
                         continue;
                     }
                     int nodeSrc = nodeToInt.get(trans.getSource());
@@ -235,78 +229,75 @@ public class GraphExporter {
 
                     // FIXME: special casing to handle PO trace graphs
                     // correctly (trace graphs are composed of EventNodes).
-
                     if (graph.getClass() == DAGsTraceGraph.class) {
-
                         // NOTE: The extra casts are necessary for this to work
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571
                         assert (((INode<?>) (trans.getSource())) instanceof EventNode);
-                        s = main.graphExportFormatter.edgeToStringWithTraceId(
-                                nodeSrc, nodeDst,
-                                ((EventNode) ((INode<?>) trans.getSource()))
-                                        .getTraceID(), trans.getRelation());
-                    } else {
-                        // Set edge and edge label for Perfume
-                        if (main.options.usePerformanceInfo) {
-                            // Calculate the min, max, and median time deltas
-                            AbstractResource timeMin = null;
-                            AbstractResource timeMax = null;
-                            AbstractResource timeMedian = null;
-                            if (trans.getDeltaSeries() != null) {
-                                timeMin = trans.getDeltaSeries().computeMin();
-                                timeMax = trans.getDeltaSeries().computeMax();
-
-                                // Compute median only if requested
-                                if (main.options.showMedian) {
-                                    timeMedian = trans.getDeltaSeries()
-                                            .computeMed();
-                                }
-                            }
-
-                            if (outputEdgeLabels) {
-                                // Show both metrics and probabilities on edges
-                                double prob = trans.getProbability();
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithITimesAndProb(nodeSrc,
-                                                nodeDst, timeMin, timeMax,
-                                                timeMedian, prob,
-                                                trans.getRelation());
-                            }
-
-                            else {
-                                // Show only metrics on edges
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithITimes(nodeSrc,
-                                                nodeDst, timeMin, timeMax,
-                                                timeMedian, trans.getRelation());
-                            }
-                        } else if (outputEdgeLabels) {
-
-                            if (main.options.stateProcessing) {
-                                // Label Daikon invariants on this transition.
-                                DaikonInvariants daikonInvs = trans.getLabels()
-                                        .getDaikonInvariants();
-                                assert (daikonInvs != null);
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithDaikonInvs(nodeSrc,
-                                                nodeDst, daikonInvs,
-                                                trans.getRelation());
-
-                            } else {
-                                double prob = trans.getProbability();
-                                s = main.graphExportFormatter
-                                        .edgeToStringWithProb(nodeSrc, nodeDst,
-                                                prob, trans.getRelation());
-                            }
-                        } else {
-                            s = main.graphExportFormatter
-                                    .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                            trans.getRelation());
-                        }
+                        s = main.graphExportFormatter.edgeToStringWithTraceId(nodeSrc, nodeDst,
+                                ((EventNode) ((INode<?>) trans.getSource())).getTraceID(), trans.getRelation());
+                        writer.write(s);
+                        continue;
                     }
-                    writer.write(s);
 
+                    // Set edge and edge label for Perfume
+                    if (main.options.usePerformanceInfo) {
+                        // Calculate the min, max, and median time deltas
+                        AbstractResource timeMin = null;
+                        AbstractResource timeMax = null;
+                        AbstractResource timeMedian = null;
+                        if (trans.getDeltaSeries() != null) {
+                            timeMin = trans.getDeltaSeries().computeMin();
+                            timeMax = trans.getDeltaSeries().computeMax();
+
+                            // Compute median only if requested
+                            if (main.options.showMedian) {
+                                timeMedian = trans.getDeltaSeries().computeMed();
+                            }
+                        }
+
+                        if (outputProbLabels) {
+                            // Show both metrics and probabilities on edges
+                            double prob = trans.getProbability();
+                            s = main.graphExportFormatter.edgeToStringWithITimesAndProb(nodeSrc, nodeDst, timeMin,
+                                    timeMax, timeMedian, prob, trans.getRelation());
+                        } else {
+                            // Show only metrics on edges
+                            s = main.graphExportFormatter.edgeToStringWithITimes(nodeSrc, nodeDst, timeMin, timeMax,
+                                    timeMedian, trans.getRelation());
+                        }
+                        writer.write(s);
+                        continue;
+                    }
+
+                    if (main.options.stateProcessing) {
+                        // Label Daikon invariants on this transition.
+                        DaikonInvariants daikonInvs = trans.getLabels().getDaikonInvariants();
+                        assert (daikonInvs != null);
+                        s = main.graphExportFormatter.edgeToStringWithDaikonInvs(nodeSrc, nodeDst, daikonInvs,
+                                trans.getRelation());
+                        writer.write(s);
+                        continue;
+                    }
+
+                    double prob;
+                    int cnt;
+                    if (outputProbLabels && !outputCountLabels) {
+                        prob = trans.getProbability();
+                        s = main.graphExportFormatter.edgeToStringWithProb(nodeSrc, nodeDst, prob, trans.getRelation());
+                    } else if (!outputProbLabels && outputCountLabels) {
+                        cnt = trans.getCount();
+                        s = main.graphExportFormatter.edgeToStringWithCnt(nodeSrc, nodeDst, cnt, trans.getRelation());
+                    } else if (outputProbLabels && outputCountLabels) {
+                        prob = trans.getProbability();
+                        cnt = trans.getCount();
+                        s = main.graphExportFormatter.edgeToStringWithProbCnt(nodeSrc, nodeDst, prob, cnt,
+                                trans.getRelation());
+                    } else {
+                        s = main.graphExportFormatter.edgeToStringWithNoProb(nodeSrc, nodeDst, trans.getRelation());
+                    }
+
+                    writer.write(s);
                 }
             }
 
@@ -315,10 +306,10 @@ public class GraphExporter {
             // End graph.
             writer.write(main.graphExportFormatter.endGraphString());
 
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Error writing to file during graph export: "
-                            + e.getMessage(), e);
+        } catch (
+
+        IOException e) {
+            throw new RuntimeException("Error writing to file during graph export: " + e.getMessage(), e);
         }
         return;
     }

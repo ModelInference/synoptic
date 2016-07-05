@@ -153,8 +153,11 @@ public class AbstractOptions {
     static final String dotExecutablePathStr = "-d Path to the Graphviz dot command executable to use";
     public static String dotExecutablePath = null;
 
-    static final String outputEdgeLabelsStr = "Output transition probabilities on the graph's edge labels";
-    public boolean outputEdgeLabels = true;
+    static final String outputProbLabelsStr = "Output transition probabilities on the graph's edge labels";
+    public boolean outputProbLabels = true;
+
+    static final String outputCountLabelsStr = "Output transition counts on the graph's edge labels";
+    public boolean outputCountLabels = false;
 
     static final String showMedianStr = "Show median metric value on edges in addition to min and max";
     public boolean showMedian = false;

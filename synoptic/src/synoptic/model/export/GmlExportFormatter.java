@@ -2,10 +2,10 @@ package synoptic.model.export;
 
 import java.util.Set;
 
-import daikonizer.DaikonInvariants;
-
 import synoptic.model.interfaces.INode;
 import synoptic.util.resource.AbstractResource;
+
+import daikonizer.DaikonInvariants;
 
 /**
  * Implements a GML (graph modeling language) export for graphs:
@@ -24,8 +24,7 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public <T extends INode<T>> String nodeToString(int nodeId, T node,
-            boolean isInitial, boolean isTerminal) {
+    public <T extends INode<T>> String nodeToString(int nodeId, T node, boolean isInitial, boolean isTerminal) {
         String nodeGraphics = "graphics [\n";
         if (isInitial) {
             nodeGraphics += "  type \"rectangle\"\n]\n";
@@ -35,13 +34,11 @@ public class GmlExportFormatter extends GraphExportFormatter {
             nodeGraphics += "  type \"oval\"\n]\n";
         }
 
-        return "node\n[\n  id " + nodeId + "\n  label " + "\""
-                + quote(node.getEType().toString()) + "\"" + "\n"
+        return "node\n[\n  id " + nodeId + "\n  label " + "\"" + quote(node.getEType().toString()) + "\"" + "\n"
                 + nodeGraphics + "]\n";
     }
 
-    private String edgeToString(int nodeSrc, int nodeDst, String attributes,
-            Set<String> relations) {
+    private String edgeToString(int nodeSrc, int nodeDst, String attributes, Set<String> relations) {
         assert (attributes != null);
 
         String s = "edge\n[\n  ";
@@ -58,24 +55,33 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, Set<String> relations) {
-        String attributes = "  label \"" + quote(String.format("%d", traceId))
+    public String edgeToStringWithTraceId(int nodeSrc, int nodeDst, int traceId, Set<String> relations) {
+        String attributes = "  label \"" + quote(String.format("%d", traceId)) + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+    }
+
+    @Override
+    public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob, Set<String> relations) {
+        String attributes = "  label \"P: " + quote(probToString(prob)) + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+    }
+
+    @Override
+    public String edgeToStringWithCnt(int nodeSrc, int nodeDst, int cnt, Set<String> relation) {
+        String attributes = "  label \"Cnt: " + quote(Integer.toString(cnt)) + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+    }
+
+    @Override
+    public String edgeToStringWithProbCnt(int nodeSrc, int nodeDst, double prob, int cnt, Set<String> relation) {
+        String attributes = "  label \"P:" + quote(probToString(prob)) + ", Cnt: " + quote(Integer.toString(cnt))
                 + "\"\n";
-        return edgeToString(nodeSrc, nodeDst, attributes, relations);
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 
     @Override
-    public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
-            Set<String> relations) {
-        String attributes = "  label \"" + quote(probToString(prob)) + "\"\n";
-        return edgeToString(nodeSrc, nodeDst, attributes, relations);
-    }
-
-    @Override
-    public String edgeToStringWithITimes(int nodeSrc, int nodeDst,
-            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian,
-            Set<String> relations) {
+    public String edgeToStringWithITimes(int nodeSrc, int nodeDst, AbstractResource timeMin, AbstractResource timeMax,
+            AbstractResource timeMedian, Set<String> relations) {
 
         // Make time string
         int sigDigits = 3;
@@ -86,9 +92,8 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst,
-            AbstractResource timeMin, AbstractResource timeMax, AbstractResource timeMedian, double prob,
-            Set<String> relations) {
+    public String edgeToStringWithITimesAndProb(int nodeSrc, int nodeDst, AbstractResource timeMin,
+            AbstractResource timeMax, AbstractResource timeMedian, double prob, Set<String> relations) {
 
         // Make time and probability strings
         int sigDigits = 3;
@@ -100,16 +105,15 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            Set<String> relations) {
+    public String edgeToStringWithNoProb(int nodeSrc, int nodeDst, Set<String> relations) {
         return edgeToString(nodeSrc, nodeDst, "", relations);
     }
 
     @Override
-    public String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst,
-            DaikonInvariants daikonInvs, Set<String> relations) {
-        String attributes = "  label \"" + quote(daikonInvs.toString())
-                + "\"\n";
+    public String edgeToStringWithDaikonInvs(int nodeSrc, int nodeDst, DaikonInvariants daikonInvs,
+            Set<String> relations) {
+        String attributes = "  label \"" + quote(daikonInvs.toString()) + "\"\n";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
+
 }

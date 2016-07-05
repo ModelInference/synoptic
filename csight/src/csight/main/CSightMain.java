@@ -14,6 +14,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.AbstractMain;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.AbstractOptions;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.TraceParser;
+import synoptic.model.DAGsTraceGraph;
+import synoptic.model.EventNode;
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.StringEventType;
+import synoptic.model.export.DotExportFormatter;
+import synoptic.util.InternalSynopticException;
+
 import csight.invariants.AlwaysFollowedBy;
 import csight.invariants.AlwaysPrecedes;
 import csight.invariants.BinaryInvariant;
@@ -38,24 +56,6 @@ import csight.model.fifosys.gfsm.GFSMState;
 import csight.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import csight.util.CounterPair;
 import csight.util.Util;
-
-import synoptic.invariants.AlwaysFollowedInvariant;
-import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.AbstractMain;
-import synoptic.main.SynopticMain;
-import synoptic.main.options.AbstractOptions;
-import synoptic.main.options.SynopticOptions;
-import synoptic.main.parser.TraceParser;
-import synoptic.model.DAGsTraceGraph;
-import synoptic.model.EventNode;
-import synoptic.model.channelid.ChannelId;
-import synoptic.model.event.DistEventType;
-import synoptic.model.event.StringEventType;
-import synoptic.model.export.DotExportFormatter;
-import synoptic.util.InternalSynopticException;
 
 /**
  * <p>
@@ -108,8 +108,7 @@ public class CSightMain {
         } catch (Exception e) {
             if (e.toString() != "") {
                 logger.severe(e.toString());
-                logger.severe("Unable to continue, exiting. Try cmd line option:\n\t"
-                        + opts.getOptDesc("help"));
+                logger.severe("Unable to continue, exiting. Try cmd line option:\n\t" + opts.getOptDesc("help"));
             }
         }
         return;
@@ -197,8 +196,7 @@ public class CSightMain {
             throw new OptionException(e.getMessage());
         }
         if (channelIds.isEmpty()) {
-            err = "Could not parse the channel specification:\n\t"
-                    + opts.getOptDesc("channelSpec");
+            err = "Could not parse the channel specification:\n\t" + opts.getOptDesc("channelSpec");
             throw new OptionException(err);
         }
 
@@ -209,14 +207,12 @@ public class CSightMain {
         }
 
         if (optns.mcPath == null) {
-            err = "Specify path of the McScM model checker to use for verification:\n\t"
-                    + opts.getOptDesc("mcPath");
+            err = "Specify path of the McScM model checker to use for verification:\n\t" + opts.getOptDesc("mcPath");
             throw new OptionException(err);
         }
 
         if (opts.topKElements < 1) {
-            err = "Cannot compare queues with less than 1 top element, "
-                    + "set -topK >=1 or use default.";
+            err = "Cannot compare queues with less than 1 top element, " + "set -topK >=1 or use default.";
             throw new OptionException(err);
         }
 
@@ -229,8 +225,7 @@ public class CSightMain {
         if (optns.mcType.equals("spin")) {
             mc = new Spin(opts.mcPath);
             if (opts.spinChannelCapacity <= 0) {
-                err = "Invalid channel capacity for use with spin: "
-                        + opts.spinChannelCapacity;
+                err = "Invalid channel capacity for use with spin: " + opts.spinChannelCapacity;
                 throw new OptionException(err);
             }
             if (opts.runParallel) {
@@ -275,16 +270,13 @@ public class CSightMain {
 
         // //////////////////
         // Parse the input log files into _Synoptic_ structures.
-        TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
+        TraceParser parser = new TraceParser(opts.regExps, opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
-        List<EventNode> parsedEvents = parseEventsFromFiles(parser,
-                opts.logFilenames);
+        List<EventNode> parsedEvents = parseEventsFromFiles(parser, opts.logFilenames);
 
         // //////////////////
         // Generate the Synoptic DAG from parsed events
-        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser,
-                parsedEvents);
+        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser, parsedEvents);
 
         // Parser can now be garbage-collected.
         parser = null;
@@ -301,23 +293,20 @@ public class CSightMain {
      * @throws InterruptedException
      * @throws IOException
      */
-    public void run(String log) throws IOException, InterruptedException,
-            Exception {
+    public void run(String log) throws IOException, InterruptedException, Exception {
         if (this.synMain == null) {
             initializeSynoptic();
         }
 
         // //////////////////
         // Parse the input string into _Synoptic_ structures.
-        TraceParser parser = new TraceParser(opts.regExps,
-                opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
+        TraceParser parser = new TraceParser(opts.regExps, opts.partitionRegExp, opts.separatorRegExp, opts.dateFormat);
 
         List<EventNode> parsedEvents = parseEventsFromString(parser, log);
 
         // //////////////////
         // Generate the Synoptic DAG from parsed events
-        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser,
-                parsedEvents);
+        DAGsTraceGraph traceGraph = AbstractMain.genDAGsTraceGraph(parser, parsedEvents);
 
         // Parser can now be garbage-collected.
         parser = null;
@@ -334,20 +323,17 @@ public class CSightMain {
      * @throws InterruptedException
      * @throws IOException
      */
-    public void run(DAGsTraceGraph traceGraph) throws IOException,
-            InterruptedException, Exception {
+    public void run(DAGsTraceGraph traceGraph) throws IOException, InterruptedException, Exception {
 
         // Export a visualization of the traceGraph
         String dotFilename = opts.outputPathPrefix + ".trace-graph.dot";
-        synoptic.model.export.GraphExporter.exportGraph(dotFilename,
-                traceGraph, true);
+        synoptic.model.export.GraphExporter.exportGraph(dotFilename, traceGraph, true, false);
         // synoptic.model.export.GraphExporter
         // .generatePngFileFromDotFile(dotFilename);
 
         // //////////////////
         // Mine Synoptic invariants
-        TemporalInvariantSet minedInvs = synMain.minePOInvariants(
-                opts.useTransitiveClosureMining, traceGraph);
+        TemporalInvariantSet minedInvs = synMain.minePOInvariants(opts.useTransitiveClosureMining, traceGraph);
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
@@ -365,8 +351,7 @@ public class CSightMain {
         logger.info("Converting Synoptic invariants to CSight invariants...");
         List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
 
-        logger.info(minedInvs.numInvariants() + " Synoptic invs --> "
-                + dynInvs.size() + " CSight invs.");
+        logger.info(minedInvs.numInvariants() + " Synoptic invs --> " + dynInvs.size() + " CSight invs.");
 
         if (dynInvs.isEmpty()) {
             logger.info("Mined 0 CSight invariants. Stopping.");
@@ -379,8 +364,8 @@ public class CSightMain {
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
         logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
-        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
-                traceGraph, numProcesses, channelIds, opts.consistentInitState);
+        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(traceGraph, numProcesses, channelIds,
+                opts.consistentInitState);
 
         assert !traces.isEmpty();
 
@@ -400,15 +385,13 @@ public class CSightMain {
             assert traces.size() == 1;
 
             logger.info("Finding invalidated invariants in the observed fifo system.");
-            Set<BinaryInvariant> faultyInvs = traces.get(0)
-                    .findInvalidatedInvariants(dynInvs);
+            Set<BinaryInvariant> faultyInvs = traces.get(0).findInvalidatedInvariants(dynInvs);
             if (!faultyInvs.isEmpty()) {
                 logger.warning("Input traces are incomplete --- some mined invariants cannot be satisfied: "
                         + faultyInvs.toString());
 
                 dynInvs.removeAll(faultyInvs);
-                logger.info("Ignoring faulty invariant and continuing. New invariants set: "
-                        + dynInvs.toString());
+                logger.info("Ignoring faulty invariant and continuing. New invariants set: " + dynInvs.toString());
             }
         }
 
@@ -440,8 +423,7 @@ public class CSightMain {
                 // Parallelization is currently only supported for McScM
                 checkInvsRefineGFSMParallel(dynInvs, pGraph);
             } else {
-                throw new OptionException(
-                        "Parallel model checking is currently only supported for McScM");
+                throw new OptionException("Parallel model checking is currently only supported for McScM");
             }
         } else if (opts.mcType.equals("spin") && opts.spinMultipleInvs) {
             checkMultipleInvsRefineGFSM(dynInvs, pGraph);
@@ -493,8 +475,7 @@ public class CSightMain {
      * @return
      * @throws Exception
      */
-    public List<EventNode> parseEventsFromFiles(TraceParser parser,
-            List<String> logFilenames) throws Exception {
+    public List<EventNode> parseEventsFromFiles(TraceParser parser, List<String> logFilenames) throws Exception {
         assert parser != null;
         assert synMain != null;
         assert logFilenames != null;
@@ -505,8 +486,7 @@ public class CSightMain {
         parsedEvents = AbstractMain.parseEvents(parser, logFilenames);
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            throw new OptionException(
-                    "CSight expects a log that is partially ordered.");
+            throw new OptionException("CSight expects a log that is partially ordered.");
         }
 
         postParseEvents(parsedEvents);
@@ -528,16 +508,13 @@ public class CSightMain {
      * @return
      * @throws Exception
      */
-    public List<EventNode> parseEventsFromString(TraceParser parser, String log)
-            throws Exception {
+    public List<EventNode> parseEventsFromString(TraceParser parser, String log) throws Exception {
         assert parser != null;
 
-        List<EventNode> parsedEvents = parser
-                .parseTraceString(log, "trace", -1);
+        List<EventNode> parsedEvents = parser.parseTraceString(log, "trace", -1);
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            throw new OptionException(
-                    "CSight expects a log that is partially ordered.");
+            throw new OptionException("CSight expects a log that is partially ordered.");
         }
 
         postParseEvents(parsedEvents);
@@ -553,8 +530,7 @@ public class CSightMain {
     private void postParseEvents(List<EventNode> parsedEvents) throws Exception {
 
         if (parsedEvents.isEmpty()) {
-            throw new OptionException(
-                    "Did not parse any events from the input log files. Stopping.");
+            throw new OptionException("Did not parse any events from the input log files. Stopping.");
         }
 
         // //////////////////
@@ -568,9 +544,7 @@ public class CSightMain {
         for (EventNode eNode : parsedEvents) {
             synoptic.model.event.EventType synEType = eNode.getEType();
             if (!(synEType instanceof DistEventType)) {
-                throw new InternalSynopticException(
-                        "Expected a DistEvenType, instead got "
-                                + synEType.getClass());
+                throw new InternalSynopticException("Expected a DistEvenType, instead got " + synEType.getClass());
             }
             DistEventType distEType = ((DistEventType) synEType);
 
@@ -587,8 +561,7 @@ public class CSightMain {
         }
 
         if (usedChannelIds.size() != channelIds.size()) {
-            throw new OptionException(
-                    "Some specified channelIds are not referenced in the log.");
+            throw new OptionException("Some specified channelIds are not referenced in the log.");
         }
 
         // Find the max pid referenced in the log. This will determine the
@@ -606,23 +579,18 @@ public class CSightMain {
         logger.info("Detected " + numProcesses + " processes in the log.");
 
         if (pidSum != ((maxPid * (maxPid + 1)) / 2) || !usedPids.contains(0)) {
-            throw new OptionException("Process ID range for the log has gaps: "
-                    + usedPids.toString());
+            throw new OptionException("Process ID range for the log has gaps: " + usedPids.toString());
         }
 
         // Make sure that we have observed at least one event for each process
         // associated with a used channel.
         for (ChannelId chId : channelIds) {
             if (chId.getSrcPid() > maxPid) {
-                throw new OptionException(
-                        "Did not observed any events for process "
-                                + chId.getSrcPid()
-                                + " that is part of channel " + chId.toString());
+                throw new OptionException("Did not observed any events for process " + chId.getSrcPid()
+                        + " that is part of channel " + chId.toString());
             } else if (chId.getDstPid() > maxPid) {
-                throw new OptionException(
-                        "Did not observed any events for process "
-                                + chId.getDstPid()
-                                + " that is part of channel " + chId.toString());
+                throw new OptionException("Did not observed any events for process " + chId.getDstPid()
+                        + " that is part of channel " + chId.toString());
             }
         }
 
@@ -634,8 +602,7 @@ public class CSightMain {
      * all "x NFby y" invariants where x and y occur at different processes (see
      * Issue 271)
      */
-    public static List<BinaryInvariant> synInvsToDynInvs(
-            TemporalInvariantSet minedInvs) {
+    public static List<BinaryInvariant> synInvsToDynInvs(TemporalInvariantSet minedInvs) {
         List<BinaryInvariant> dynInvs = Util.newList();
 
         BinaryInvariant dynInv = null;
@@ -747,12 +714,10 @@ public class CSightMain {
         int curTimeout = baseTimeout;
 
         if (maxTimeout < baseTimeout) {
-            throw new OptionException(
-                    "maxTimeout value must be greater than baseTimeout value");
+            throw new OptionException("maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking " + curInv.toString() + " : " + invsCounter
-                + " / " + totalInvs);
+        logger.info("Model checking " + curInv.toString() + " : " + invsCounter + " / " + totalInvs);
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
@@ -762,14 +727,12 @@ public class CSightMain {
 
         String gfsmPrefixFilename = opts.outputPathPrefix;
 
-        exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                gfsmPrefixFilename);
+        exportIntermediateModels(pGraph, curInv, gfsmCounter, gfsmPrefixFilename);
 
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
-            assert timedOutInvs.size() + satisfiedInvs.size()
-                    + invsToSatisfy.size() == totalInvs;
+            assert timedOutInvs.size() + satisfiedInvs.size() + invsToSatisfy.size() == totalInvs;
 
             if (pGraph.isSingleton()) {
                 // Skip model checking if all partitions are singletons.
@@ -788,24 +751,19 @@ public class CSightMain {
                 // curInv (only fone for McScM).
                 cfsm.augmentWithInvTracing(curInv);
 
-                mcInputStr = cfsm.toScmString("checking_scm_"
-                        + curInv.getConnectorString());
+                mcInputStr = cfsm.toScmString("checking_scm_" + curInv.getConnectorString());
             } else if (mc instanceof Spin) {
                 List<BinaryInvariant> curInvs = Util.newList();
                 curInvs.add(curInv);
-                mcInputStr = cfsm.toPromelaString(curInvs,
-                        opts.spinChannelCapacity);
+                mcInputStr = cfsm.toPromelaString(curInvs, opts.spinChannelCapacity);
 
             } else {
-                throw new RuntimeException(
-                        "Model checker is not properly specified.");
+                throw new RuntimeException("Model checker is not properly specified.");
             }
 
             logger.info("*******************************************************");
-            logger.info("Checking ... " + curInv.toString() + ". Inv "
-                    + invsCounter + " / " + totalInvs
-                    + ", refinements so far: " + gfsmCounter + ". Timeout = "
-                    + curTimeout + ".");
+            logger.info("Checking ... " + curInv.toString() + ". Inv " + invsCounter + " / " + totalInvs
+                    + ", refinements so far: " + gfsmCounter + ". Timeout = " + curTimeout + ".");
             logger.info("*******************************************************");
 
             try {
@@ -816,15 +774,13 @@ public class CSightMain {
                 invsToSatisfy.remove(0);
                 timedOutInvs.add(curInv);
 
-                logger.info("Timed out in checking invariant: "
-                        + curInv.toString());
+                logger.info("Timed out in checking invariant: " + curInv.toString());
 
                 // No invariants are left to try -- increase the timeout value,
                 // unless we reached the timeout limit, in which case we throw
                 // an exception.
                 if (invsToSatisfy.isEmpty()) {
-                    curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs,
-                            timeoutDelta, maxTimeout, curTimeout);
+                    curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs, timeoutDelta, maxTimeout, curTimeout);
                 }
 
                 // Try the first invariant (perhaps again, but with a higher
@@ -851,13 +807,11 @@ public class CSightMain {
                     if (!timedOutInvs.isEmpty()) {
                         // We ran out of non-timed-out invariants to check,
                         // re-add timed-out invariants.
-                        curTimeout = reAddTimedOutInvs(invsToSatisfy,
-                                timedOutInvs, timeoutDelta, maxTimeout,
+                        curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs, timeoutDelta, maxTimeout,
                                 curTimeout);
                     } else {
                         // No more invariants to check. We are done.
-                        logger.info("Finished checking " + invsCounter + " / "
-                                + totalInvs + " invariants.");
+                        logger.info("Finished checking " + invsCounter + " / " + totalInvs + " invariants.");
                         return mcCounter;
                     }
                 }
@@ -874,8 +828,7 @@ public class CSightMain {
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
-                exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                        gfsmPrefixFilename);
+                exportIntermediateModels(pGraph, curInv, gfsmCounter, gfsmPrefixFilename);
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
@@ -906,8 +859,8 @@ public class CSightMain {
      * @throws InterruptedException
      * @return The number of iteration of the model checking loop
      */
-    public int checkInvsRefineGFSMParallel(List<BinaryInvariant> invs,
-            GFSM pGraph) throws Exception, IOException, InterruptedException {
+    public int checkInvsRefineGFSMParallel(List<BinaryInvariant> invs, GFSM pGraph)
+            throws Exception, IOException, InterruptedException {
         assert pGraph != null;
         assert invs != null;
         assert !invs.isEmpty();
@@ -943,8 +896,7 @@ public class CSightMain {
         AtomicInteger invsCounter = new AtomicInteger(1);
 
         if (opts.maxTimeout < opts.baseTimeout) {
-            throw new Exception(
-                    "maxTimeout value must be greater than baseTimeout value");
+            throw new Exception("maxTimeout value must be greater than baseTimeout value");
         }
 
         /**
@@ -957,8 +909,7 @@ public class CSightMain {
         // gfsm.
         int mcCounter = 0;
 
-        exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
-                gfsmCounter.get(), opts.outputPathPrefix);
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(), gfsmCounter.get(), opts.outputPathPrefix);
 
         if (pGraph.isSingleton()) {
             // Skip model checking if all partitions are singletons.
@@ -967,35 +918,29 @@ public class CSightMain {
 
         // Initialize the Parallelizer.
         // @see McScMParallelizer for taskChannel
-        final BlockingQueue<ParallelizerTask> taskChannel = new LinkedBlockingQueue<ParallelizerTask>(
-                1);
+        final BlockingQueue<ParallelizerTask> taskChannel = new LinkedBlockingQueue<ParallelizerTask>(1);
         // @see McScMParallelizer for resultsChannel
         final BlockingQueue<ParallelizerResult> resultsChannel = new LinkedBlockingQueue<ParallelizerResult>();
 
-        Thread parallelizer = new Thread(new McScMParallelizer(
-                opts.numParallel, opts.mcPath, taskChannel, resultsChannel));
+        Thread parallelizer = new Thread(
+                new McScMParallelizer(opts.numParallel, opts.mcPath, taskChannel, resultsChannel));
 
         parallelizer.start();
-        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
-                totalInvs, taskChannel);
+        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(), totalInvs, taskChannel);
 
         while (true) {
             assert invsCounter.get() <= totalInvs;
             assert curInvs.size() <= opts.numParallel;
-            assert maxTimedOutInvs.size() + satisfiedInvs.size()
-                    + invsToSatisfy.size() + curInvs.size() == totalInvs;
+            assert maxTimedOutInvs.size() + satisfiedInvs.size() + invsToSatisfy.size() + curInvs.size() == totalInvs;
 
-            ParallelizerResult result = waitForResult(gfsmCounter.get(),
-                    resultsChannel);
+            ParallelizerResult result = waitForResult(gfsmCounter.get(), resultsChannel);
             mcCounter++;
 
-            logger.info("Obtained result from parallelizer (refinement: "
-                    + gfsmCounter + ")");
+            logger.info("Obtained result from parallelizer (refinement: " + gfsmCounter + ")");
 
             if (result.isException()) {
-                logger.severe("Parallelizer encountered exception: "
-                        + result.getException().getClass() + " (refinement: "
-                        + result.getRefinementCounter() + ")");
+                logger.severe("Parallelizer encountered exception: " + result.getException().getClass()
+                        + " (refinement: " + result.getRefinementCounter() + ")");
                 parallelizer.interrupt();
                 throw result.getException();
             }
@@ -1007,9 +952,8 @@ public class CSightMain {
             assert returnedPairCheck;
 
             if (result.isTimeout()) {
-                processTimeOut(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs,
-                        opts.timeoutDelta, opts.maxTimeout, gfsmCounter.get(),
-                        taskChannel, resultPair);
+                processTimeOut(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs, opts.timeoutDelta, opts.maxTimeout,
+                        gfsmCounter.get(), taskChannel, resultPair);
 
                 // Continue to wait for next result.
                 continue;
@@ -1019,8 +963,7 @@ public class CSightMain {
                 // Add the invariant back to beginning of queue checking to
                 // check again.
                 invsToSatisfy.add(0, resultPair);
-                parallelizerStartOne(invsToSatisfy, curInvs, pGraph, mcCounter,
-                        taskChannel);
+                parallelizerStartOne(invsToSatisfy, curInvs, pGraph, mcCounter, taskChannel);
 
                 // Continue to wait for next result.
                 continue;
@@ -1030,10 +973,8 @@ public class CSightMain {
             BinaryInvariant resultInv = resultPair.getInv();
 
             logger.info("*******************************************************");
-            logger.info("Finished Checking ... "
-                    + resultPair.getInv().toString() + ". Inv " + invsCounter
-                    + " / " + totalInvs + ", refinements so far: "
-                    + gfsmCounter + ". Timeout = " + resultPair.getTimeout()
+            logger.info("Finished Checking ... " + resultPair.getInv().toString() + ". Inv " + invsCounter + " / "
+                    + totalInvs + ", refinements so far: " + gfsmCounter + ". Timeout = " + resultPair.getTimeout()
                     + ".");
             logger.info("*******************************************************");
 
@@ -1043,12 +984,10 @@ public class CSightMain {
             logger.info(mcResult.toString());
 
             if (mcResult.modelIsSafe()) {
-                if (processSafeModelResult(pGraph, invsToSatisfy,
-                        maxTimedOutInvs, satisfiedInvs, curInvs,
+                if (processSafeModelResult(pGraph, invsToSatisfy, maxTimedOutInvs, satisfiedInvs, curInvs,
                         gfsmCounter.get(), taskChannel, resultInv, invsCounter)) {
                     // Every invariant has been satisfied. We are done.
-                    logger.info("Finished checking " + invsCounter + " / "
-                            + totalInvs + " invariants.");
+                    logger.info("Finished checking " + invsCounter + " / " + totalInvs + " invariants.");
                     parallelizer.interrupt();
                     return mcCounter;
                 }
@@ -1056,10 +995,8 @@ public class CSightMain {
                 continue;
             }
 
-            if (processUnsafeModelResult(pGraph, invsToSatisfy,
-                    maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
-                    opts.outputPathPrefix, taskChannel, resultsChannel,
-                    resultPair, mcResult)) {
+            if (processUnsafeModelResult(pGraph, invsToSatisfy, maxTimedOutInvs, curInvs, totalInvs, gfsmCounter,
+                    opts.outputPathPrefix, taskChannel, resultsChannel, resultPair, mcResult)) {
                 parallelizer.interrupt();
                 return mcCounter;
             }
@@ -1100,21 +1037,16 @@ public class CSightMain {
      * @throws Exception
      * @throws IOException
      */
-    private boolean processUnsafeModelResult(GFSM pGraph,
-            List<InvariantTimeoutPair> invsToSatisfy,
-            Set<InvariantTimeoutPair> maxTimedOutInvs,
-            Set<InvariantTimeoutPair> curInvs, int totalInvs,
-            AtomicInteger gfsmCounter, String gfsmPrefixFilename,
-            final BlockingQueue<ParallelizerTask> taskChannel,
-            final BlockingQueue<ParallelizerResult> resultsChannel,
-            InvariantTimeoutPair resultPair, MCResult mcResult)
+    private boolean processUnsafeModelResult(GFSM pGraph, List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs, Set<InvariantTimeoutPair> curInvs, int totalInvs,
+            AtomicInteger gfsmCounter, String gfsmPrefixFilename, final BlockingQueue<ParallelizerTask> taskChannel,
+            final BlockingQueue<ParallelizerResult> resultsChannel, InvariantTimeoutPair resultPair, MCResult mcResult)
             throws InterruptedException, Exception, IOException {
         // Increment the number of refinements:
         gfsmCounter.addAndGet(1);
 
         taskChannel.clear();
-        taskChannel.put(new ParallelizerTask(ParallelizerCommands.STOP_ALL,
-                null, gfsmCounter.get()));
+        taskChannel.put(new ParallelizerTask(ParallelizerCommands.STOP_ALL, null, gfsmCounter.get()));
         resultsChannel.clear();
 
         // Add the invariants that didn't return back to invariants to
@@ -1127,8 +1059,7 @@ public class CSightMain {
         // example.
         refineCExample(pGraph, mcResult.getCExample());
 
-        exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(),
-                gfsmCounter.get(), gfsmPrefixFilename);
+        exportIntermediateModels(pGraph, invsToSatisfy.get(0).getInv(), gfsmCounter.get(), gfsmPrefixFilename);
 
         // Model changed through refinement. Therefore, forget any
         // invariants that might have timed out previously,
@@ -1143,8 +1074,7 @@ public class CSightMain {
         if (pGraph.isSingleton()) {
             return true;
         }
-        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(),
-                totalInvs, taskChannel);
+        parallelizerStartK(invsToSatisfy, curInvs, pGraph, gfsmCounter.get(), totalInvs, taskChannel);
         return false;
     }
 
@@ -1176,22 +1106,17 @@ public class CSightMain {
      *             when maxTimeout is reached
      * @throws InterruptedException
      */
-    private void processTimeOut(GFSM pGraph,
-            List<InvariantTimeoutPair> invsToSatisfy,
-            Set<InvariantTimeoutPair> maxTimedOutInvs,
-            Set<InvariantTimeoutPair> curInvs, int timeoutDelta,
-            int maxTimeout, int gfsmCounter,
-            final BlockingQueue<ParallelizerTask> taskChannel,
-            InvariantTimeoutPair resultPair) throws Exception,
-            InterruptedException {
+    private void processTimeOut(GFSM pGraph, List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs, Set<InvariantTimeoutPair> curInvs, int timeoutDelta,
+            int maxTimeout, int gfsmCounter, final BlockingQueue<ParallelizerTask> taskChannel,
+            InvariantTimeoutPair resultPair) throws Exception, InterruptedException {
         // The model checker timed out. Increase the timeout value for
         // that invariant, unless we reached the timeout limit, in which
         // case we throw an exception.
         int curTimeout = resultPair.getTimeout();
         BinaryInvariant resultInv = resultPair.getInv();
 
-        logger.info("Timed out in checking invariant: " + resultInv.toString()
-                + " with timeout value " + curTimeout);
+        logger.info("Timed out in checking invariant: " + resultInv.toString() + " with timeout value " + curTimeout);
 
         curTimeout += timeoutDelta;
 
@@ -1209,16 +1134,14 @@ public class CSightMain {
         if (invsToSatisfy.isEmpty()) {
             if (curInvs.isEmpty()) {
                 // Every invariant reached max timeout.
-                throw new Exception(
-                        "McScM timed-out on all invariants. Cannot continue.");
+                throw new Exception("McScM timed-out on all invariants. Cannot continue.");
             }
             // We wait to see if any invariants currently being checked
             // can complete without exceeding max timeout.
 
         } else {
             // Start a new model checking process.
-            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                    taskChannel);
+            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter, taskChannel);
         }
     }
 
@@ -1240,14 +1163,10 @@ public class CSightMain {
      * @throws Exception
      * @throws InterruptedException
      */
-    private boolean processSafeModelResult(GFSM pGraph,
-            List<InvariantTimeoutPair> invsToSatisfy,
-            Set<InvariantTimeoutPair> maxTimedOutInvs,
-            Set<BinaryInvariant> satisfiedInvs,
-            Set<InvariantTimeoutPair> curInvs, int gfsmCounter,
-            final BlockingQueue<ParallelizerTask> taskChannel,
-            BinaryInvariant resultInv, AtomicInteger invsCounter)
-            throws Exception, InterruptedException {
+    private boolean processSafeModelResult(GFSM pGraph, List<InvariantTimeoutPair> invsToSatisfy,
+            Set<InvariantTimeoutPair> maxTimedOutInvs, Set<BinaryInvariant> satisfiedInvs,
+            Set<InvariantTimeoutPair> curInvs, int gfsmCounter, final BlockingQueue<ParallelizerTask> taskChannel,
+            BinaryInvariant resultInv, AtomicInteger invsCounter) throws Exception, InterruptedException {
 
         satisfiedInvs.add(resultInv);
 
@@ -1260,8 +1179,7 @@ public class CSightMain {
                     // There are timed out invariants that we never
                     // checked, but the model has not been refined. The
                     // invariants will still exceed the maxTimeout.
-                    throw new Exception(
-                            "McScM timed-out on all invariants. Cannot continue.");
+                    throw new Exception("McScM timed-out on all invariants. Cannot continue.");
                 }
 
                 return true;
@@ -1270,8 +1188,7 @@ public class CSightMain {
 
             invsCounter.addAndGet(1);
         } else {
-            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter,
-                    taskChannel);
+            parallelizerStartOne(invsToSatisfy, curInvs, pGraph, gfsmCounter, taskChannel);
 
             invsCounter.addAndGet(1);
         }
@@ -1290,16 +1207,14 @@ public class CSightMain {
      * @return
      * @throws InterruptedException
      */
-    private ParallelizerResult waitForResult(int refinementCounter,
-            BlockingQueue<ParallelizerResult> resultsChannel)
+    private ParallelizerResult waitForResult(int refinementCounter, BlockingQueue<ParallelizerResult> resultsChannel)
             throws InterruptedException {
         logger.info("Waiting for model checking result from Parallelizer...");
 
         while (true) {
             ParallelizerResult result = resultsChannel.take();
 
-            if (result.getRefinementCounter() == refinementCounter
-                    || result.isException()) {
+            if (result.getRefinementCounter() == refinementCounter || result.isException()) {
                 return result;
             }
         }
@@ -1319,16 +1234,13 @@ public class CSightMain {
      * @param inputsChannel
      * @throws InterruptedException
      */
-    private void parallelizerStartK(List<InvariantTimeoutPair> invsToSatisfy,
-            Set<InvariantTimeoutPair> curInvs, GFSM pGraph,
-            int refinementCounter, int totalInvs,
-            BlockingQueue<ParallelizerTask> taskChannel)
+    private void parallelizerStartK(List<InvariantTimeoutPair> invsToSatisfy, Set<InvariantTimeoutPair> curInvs,
+            GFSM pGraph, int refinementCounter, int totalInvs, BlockingQueue<ParallelizerTask> taskChannel)
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
 
         logger.info("*******************************************************");
-        logger.info("Model Checking ... " + opts.numParallel + " / "
-                + totalInvs + " being checked in parallel.");
+        logger.info("Model Checking ... " + opts.numParallel + " / " + totalInvs + " being checked in parallel.");
         logger.info("*******************************************************");
 
         List<ParallelizerInput> inputs = new ArrayList<ParallelizerInput>();
@@ -1339,15 +1251,13 @@ public class CSightMain {
         for (int i = 0; i < numLeftToCheck; i++) {
             InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
-            ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                    pGraph.getCFSM(opts.minimize));
+            ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck, pGraph.getCFSM(opts.minimize));
             inputs.add(input);
             curInvs.add(invTimeoutToCheck);
         }
 
         logger.fine("Sending START_K task to Parallelizer");
-        taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_K,
-                inputs, refinementCounter));
+        taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_K, inputs, refinementCounter));
     }
 
     /**
@@ -1362,9 +1272,8 @@ public class CSightMain {
      * @param inputsChannel
      * @throws InterruptedException
      */
-    private void parallelizerStartOne(List<InvariantTimeoutPair> invsToSatisfy,
-            Set<InvariantTimeoutPair> curInvs, GFSM pGraph,
-            int refinementCounter, BlockingQueue<ParallelizerTask> taskChannel)
+    private void parallelizerStartOne(List<InvariantTimeoutPair> invsToSatisfy, Set<InvariantTimeoutPair> curInvs,
+            GFSM pGraph, int refinementCounter, BlockingQueue<ParallelizerTask> taskChannel)
             throws InterruptedException {
         assert (!invsToSatisfy.isEmpty());
 
@@ -1372,14 +1281,12 @@ public class CSightMain {
 
         InvariantTimeoutPair invTimeoutToCheck = invsToSatisfy.remove(0);
 
-        ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck,
-                pGraph.getCFSM(opts.minimize));
+        ParallelizerInput input = new ParallelizerInput(invTimeoutToCheck, pGraph.getCFSM(opts.minimize));
         inputs.add(input);
         curInvs.add(invTimeoutToCheck);
 
         logger.fine("Sending START_ONE task to Parallelizer");
-        taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_ONE,
-                inputs, refinementCounter));
+        taskChannel.put(new ParallelizerTask(ParallelizerCommands.START_ONE, inputs, refinementCounter));
     }
 
     /**
@@ -1397,8 +1304,8 @@ public class CSightMain {
      * @throws InterruptedException
      * @return The number of iteration of the model checking loop
      */
-    public int checkMultipleInvsRefineGFSM(List<BinaryInvariant> invs,
-            GFSM pGraph) throws Exception, IOException, InterruptedException {
+    public int checkMultipleInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
+            throws Exception, IOException, InterruptedException {
         assert pGraph != null;
         assert invs != null;
         assert !invs.isEmpty();
@@ -1444,12 +1351,11 @@ public class CSightMain {
         int curTimeout = baseTimeout;
 
         if (maxTimeout < baseTimeout) {
-            throw new OptionException(
-                    "maxTimeout value must be greater than baseTimeout value");
+            throw new OptionException("maxTimeout value must be greater than baseTimeout value");
         }
 
-        logger.info("Model checking " + curInvs.size() + " invariants : "
-                + satisfiedInvs.size() + " / " + totalInvs + " satisfied");
+        logger.info("Model checking " + curInvs.size() + " invariants : " + satisfiedInvs.size() + " / " + totalInvs
+                + " satisfied");
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
@@ -1462,8 +1368,7 @@ public class CSightMain {
         while (true) {
             assert (satisfiedInvs.size() <= totalInvs);
             assert (curInvs.size() <= invsToSatisfy.size());
-            assert ((timedOutInvs.size() + satisfiedInvs.size() + invsToSatisfy
-                    .size()) == totalInvs);
+            assert ((timedOutInvs.size() + satisfiedInvs.size() + invsToSatisfy.size()) == totalInvs);
 
             if (pGraph.isSingleton()) {
                 // Skip model checking if all partitions are singletons
@@ -1474,22 +1379,18 @@ public class CSightMain {
             CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
             String mcInputStr;
-            mcInputStr = cfsm
-                    .toPromelaString(curInvs, opts.spinChannelCapacity);
+            mcInputStr = cfsm.toPromelaString(curInvs, opts.spinChannelCapacity);
             spinMC.prepare(mcInputStr, 20);
 
             logger.info("*******************************************************");
-            logger.info("Checking ... " + curInvs.size() + " invariants. Inv "
-                    + satisfiedInvs.size() + " / " + totalInvs + " satisfied"
-                    + ", refinements so far: " + gfsmCounter + ". Timeout = "
-                    + curTimeout + ". " + timedOutInvs.size()
-                    + " invariants are timed out.");
+            logger.info("Checking ... " + curInvs.size() + " invariants. Inv " + satisfiedInvs.size() + " / "
+                    + totalInvs + " satisfied" + ", refinements so far: " + gfsmCounter + ". Timeout = " + curTimeout
+                    + ". " + timedOutInvs.size() + " invariants are timed out.");
             logger.info("*******************************************************");
 
             for (int curInvNum = 0; curInvNum < curInvs.size(); curInvNum++) {
                 try {
-                    logger.info("Running Spin for invariant "
-                            + curInvs.get(curInvNum));
+                    logger.info("Running Spin for invariant " + curInvs.get(curInvNum));
                     modelCheckCounter++;
                     spinMC.verify(mcInputStr, curTimeout, curInvNum);
                 } catch (TimeoutException e) {
@@ -1498,18 +1399,15 @@ public class CSightMain {
                     BinaryInvariant timedOutInv = curInvs.get(curInvNum);
                     invsToSatisfy.remove(timedOutInv);
                     timedOutInvs.add(timedOutInv);
-                    logger.info("Timed out in checking invariant: "
-                            + timedOutInv.toString());
+                    logger.info("Timed out in checking invariant: " + timedOutInv.toString());
                     // Stay in the loop.
                     // Continue checking the rest of the invariants.
                 }
             }
 
             // Verify the results that didn't time out.
-            Map<Integer, MCResult> results = spinMC.getMultipleVerifyResults(
-                    cfsm.getChannelIds(), curInvs.size());
-            logger.info(results.size() + " / " + curInvs.size()
-                    + " results returned.");
+            Map<Integer, MCResult> results = spinMC.getMultipleVerifyResults(cfsm.getChannelIds(), curInvs.size());
+            logger.info(results.size() + " / " + curInvs.size() + " results returned.");
             for (int i = 0; i < curInvs.size(); i++) {
                 /*
                  * Retrieve the current invariant and the matching result. If
@@ -1549,8 +1447,7 @@ public class CSightMain {
 
                         // Increment the number of refinements:
                         gfsmCounter += 1;
-                        exportIntermediateModels(pGraph, curInv, gfsmCounter,
-                                gfsmPrefixFilename);
+                        exportIntermediateModels(pGraph, curInv, gfsmCounter, gfsmPrefixFilename);
                     }
 
                 }
@@ -1558,15 +1455,13 @@ public class CSightMain {
             }
             if (invsToSatisfy.isEmpty() && timedOutInvs.isEmpty()) {
                 // No more invariants to check. We are done.
-                logger.info("Finished checking " + satisfiedInvs.size() + " / "
-                        + totalInvs + " invariants.");
+                logger.info("Finished checking " + satisfiedInvs.size() + " / " + totalInvs + " invariants.");
                 return modelCheckCounter;
             } else if (invsToSatisfy.isEmpty() && !timedOutInvs.isEmpty()) {
                 // No invariants are left to try -- increase the timeout
                 // value, unless we reached the timeout limit, in which case
                 // we throw an exception.
-                curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs,
-                        timeoutDelta, maxTimeout, curTimeout);
+                curTimeout = reAddTimedOutInvs(invsToSatisfy, timedOutInvs, timeoutDelta, maxTimeout, curTimeout);
             }
 
             /*
@@ -1594,8 +1489,7 @@ public class CSightMain {
      *            Minimum number of invariants to return.
      * @return Invariants to check.
      */
-    public List<BinaryInvariant> chooseInvariants(List<BinaryInvariant> invs,
-            int minInvs) {
+    public List<BinaryInvariant> chooseInvariants(List<BinaryInvariant> invs, int minInvs) {
         // Make sure we get at least one invariant.
         minInvs = Math.max(minInvs, 1);
 
@@ -1627,16 +1521,14 @@ public class CSightMain {
         // Sort events by number of related invariants.
         List<CounterPair<DistEventType>> sortedEventList = Util.newList();
         for (Entry<DistEventType, Integer> entry : eventMap.entrySet()) {
-            sortedEventList.add(new CounterPair<DistEventType>(entry.getKey(),
-                    entry.getValue()));
+            sortedEventList.add(new CounterPair<DistEventType>(entry.getKey(), entry.getValue()));
         }
         Collections.sort(sortedEventList);
 
         // minEventCount is the minimum number of events we want involved in our
         // invariant check.
         // Lower minEventCount if we don't have enough events for it.
-        int minEventCount = Math.min(sortedEventList.size(),
-                (int) Math.sqrt(minInvs));
+        int minEventCount = Math.min(sortedEventList.size(), (int) Math.sqrt(minInvs));
 
         Set<DistEventType> addedEvents = Util.newSet();
         for (int i = 0; i < minEventCount; i++) {
@@ -1659,11 +1551,9 @@ public class CSightMain {
             for (BinaryInvariant inv : invs) {
                 // Add special case for eventually happens, as the first event
                 // doesn't matter here.
-                if (inv instanceof EventuallyHappens
-                        && addedEvents.contains(inv.getSecond())) {
+                if (inv instanceof EventuallyHappens && addedEvents.contains(inv.getSecond())) {
                     invsToCheck.add(inv);
-                } else if (addedEvents.contains(inv.getFirst())
-                        && addedEvents.contains(inv.getSecond())) {
+                } else if (addedEvents.contains(inv.getFirst()) && addedEvents.contains(inv.getSecond())) {
                     // Add invariant only if both events are in the set of
                     // events we're using
                     invsToCheck.add(inv);
@@ -1673,8 +1563,7 @@ public class CSightMain {
             // will have one more event to consider if we don't have enough
             // invariants.
             if (sortedEventList.size() > addedEvents.size()) {
-                addedEvents.add(sortedEventList.get(addedEvents.size())
-                        .getKey());
+                addedEvents.add(sortedEventList.get(addedEvents.size()).getKey());
             }
         }
         return invsToCheck;
@@ -1701,11 +1590,10 @@ public class CSightMain {
      *             when reached maxTimeout value
      */
 
-    private int reAddTimedOutInvs(List<BinaryInvariant> invsToSatisfy,
-            Set<BinaryInvariant> timedOutInvs, int timeoutDelta,
-            int maxTimeout, int curTimeout) throws Exception {
-        logger.info("Timed out in checking these invariants with timeout value "
-                + curTimeout + " :" + timedOutInvs.toString());
+    private int reAddTimedOutInvs(List<BinaryInvariant> invsToSatisfy, Set<BinaryInvariant> timedOutInvs,
+            int timeoutDelta, int maxTimeout, int curTimeout) throws Exception {
+        logger.info("Timed out in checking these invariants with timeout value " + curTimeout + " :"
+                + timedOutInvs.toString());
 
         curTimeout += timeoutDelta;
 
@@ -1729,8 +1617,7 @@ public class CSightMain {
      * @throws Exception
      *             if we were not able to eliminate the counter-example
      */
-    private boolean refineCExample(GFSM pGraph, MCcExample cexample)
-            throws Exception {
+    private boolean refineCExample(GFSM pGraph, MCcExample cexample) throws Exception {
 
         // Resolve all of the complete counter-example paths by:
         // refining all possible stitching partitions for pid 0.
@@ -1744,8 +1631,7 @@ public class CSightMain {
             logger.info("Computing process " + i + " paths...");
             Set<GFSMPath> processPaths = pGraph.getCExamplePaths(cexample, i);
             if (processPaths == null) {
-                logger.info("No matching paths for process " + i
-                        + " exist, continuing.");
+                logger.info("No matching paths for process " + i + " exist, continuing.");
                 // Treat this as if we refined all of the paths for the process
                 // -- none exist!
                 return false;
@@ -1798,8 +1684,7 @@ public class CSightMain {
             }
 
         }
-        throw new Exception(
-                "Unable to eliminate CFSM counter-example from GFSM.");
+        throw new Exception("Unable to eliminate CFSM counter-example from GFSM.");
     }
 
     /**
@@ -1813,21 +1698,18 @@ public class CSightMain {
      * @throws IOException
      * @throws Exception
      */
-    private void exportIntermediateModels(GFSM pGraph, BinaryInvariant curInv,
-            int gfsmCounter, String gfsmPrefixFilename) throws IOException,
-            Exception {
+    private void exportIntermediateModels(GFSM pGraph, BinaryInvariant curInv, int gfsmCounter,
+            String gfsmPrefixFilename) throws IOException, Exception {
 
         // Export GFSM:
-        String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
-                + ".dot";
+        String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter + ".dot";
         GraphExporter.exportGFSM(dotFilename, pGraph);
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM:
         CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
-        dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
-                + ".dot";
+        dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
         // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
