@@ -7,8 +7,8 @@ import java.util.Set;
  * A node in an event-based FSM version of a Synoptic model
  */
 public class EvBasedNode {
-    int nodeID;
-    Set<EvBasedEdge> outEdges = new HashSet<>();
+    public final int nodeID;
+    public final Set<EvBasedEdge> outEdges = new HashSet<>();
 
     public EvBasedNode(int nodeID) {
         this.nodeID = nodeID;

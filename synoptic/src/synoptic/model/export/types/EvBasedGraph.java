@@ -18,10 +18,22 @@ import synoptic.util.resource.AbstractResource;
  * {@link PartitionGraph}
  */
 public class EvBasedGraph {
-    EvBasedNode initialNode;
-    EvBasedNode terminalNode;
-    Set<EvBasedNode> nodes = new HashSet<>();
+    private EvBasedNode initialNode;
+    private EvBasedNode terminalNode;
+    private final Set<EvBasedNode> nodes = new HashSet<>();
     private int nextID = 0;
+
+    public EvBasedNode getInitialNode() {
+        return initialNode;
+    }
+
+    public EvBasedNode getTerminalNode() {
+        return terminalNode;
+    }
+
+    public Set<EvBasedNode> getNodes() {
+        return nodes;
+    }
 
     /**
      * Construct the event-based FSM
