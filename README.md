@@ -92,7 +92,7 @@ src : 2, dst : 1, timestamp : 21, type : tx_abort, txid : 1
 
 <b>2.</b> You then thoroughly tested and debugged the code, and eventually deployed it. After a week of executing thousands of two-phase commit rounds you discover an application-level inconsistency. This leads you to look at the accumulated log:
 
-![http://wiki.synoptic.googlecode.com/hg/images/main_page/long_2pc_log.png](http://wiki.synoptic.googlecode.com/hg/images/main_page/long_2pc_log.png)
+![https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/long_2pc_log.png](https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/long_2pc_log.png)
 
 
 ---
@@ -106,7 +106,7 @@ $ ./synoptic.sh -r '.+ timestamp :(?<DTIME>), type :(?<TYPE>), txid :(?<txId>)' 
 
 And you get the following output:
 
-![http://wiki.synoptic.googlecode.com/hg/images/main_page/2pc_new_graph.png](http://wiki.synoptic.googlecode.com/hg/images/main_page/2pc_new_graph.png)
+![https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/2pc_new_graph.png](https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/2pc_new_graph.png)
 
 
 ---
@@ -114,7 +114,7 @@ And you get the following output:
 
 <b>4.</b> You realize that this graph output differs from the graph that you generated while testing your code:
 
-![http://wiki.synoptic.googlecode.com/hg/images/main_page/2pc_old_new_graphs.png](http://wiki.synoptic.googlecode.com/hg/images/main_page/2pc_old_new_graphs.png)
+![https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/2pc_old_new_graphs.png](https://raw.githubusercontent.com/wiki/ModelInference/synoptic/images/main_page/2pc_old_new_graphs.png)
 
 You then find exactly where this discrepancy occurs in the log file, and go on from there.
 
