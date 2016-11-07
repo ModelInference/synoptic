@@ -2,10 +2,10 @@
 
 This site hosts source code, academic papers, and other resources for three related projects:
 
-  * **Synoptic** : a tool to infer an FSM model from a sequential log.
+  * **Synoptic** : a tool to infer an FSM model from a sequential log. [Try it!](http://synoptic.cs.washington.edu)
   * **CSight** : a tool to infer a communicating FSM model from a distributed system's logs
   * **InvariMint** : an approach to declaratively specify model inference algorithms
-  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://perfume.cs.umass.edu)
+  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://kramer.nss.cs.ubc.ca/perfume/)
 
 # Introduction #
 
@@ -25,24 +25,25 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * Synoptic
     * Works on Linux/OSX/Windows.
-    * [Installation instructions](https://github.com/ModelInference/synoptic/wiki/DocsInstallation)
-    * [Tutorial](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineTutorial) : explains how to get started with using Synoptic from scratch
-    * [Fast-paced usage primer](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineUsage) : includes many examples but not as detailed as the tutorial
-    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineHelpScreen) : command line usage reference
-    * Synoptic has a web interface that we are working to improve. We will update this page once it is operational.
+    * Try Synoptic in your browser: **http://synoptic.cs.washington.edu**
+      * [Tutorial](DocsWebAppTutorial) explains how to use the various web app features
+    * [Installation instructions](DocsInstallation)
+    * [Tutorial](DocsSynopticCmdLineTutorial) : explains how to get started with using Synoptic from scratch
+    * [Fast-paced usage primer](DocsSynopticCmdLineUsage) : includes many examples but not as detailed as the tutorial
+    * [Help screen](DocsSynopticCmdLineHelpScreen) : command line usage reference
 
   * CSight
     * Work on Linux and OSX, does not work on Windows (McScM dependency).
-    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsCSightCmdLineHelpScreen) : command line usage reference
+    * [Help screen](DocsCSightCmdLineHelpScreen) : command line usage reference
 
   * InvariMint
     * Works on Linux/OSX/Windows.
-    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsInvariMintCmdLineHelpScreen) : command line usage reference
+    * [Help screen](DocsInvariMintCmdLineHelpScreen) : command line usage reference
 
   * Perfume
     * Works on Linux/OSX/Windows.
-    * Try Perfume in your browser: **http://perfume.cs.umass.edu**
-    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsPerfumeCmdLineHelpScreen) : command line usage reference
+    * Try Perfume in your browser: **http://bestchai.bitbucket.org/perfume/**
+    * [Help screen](DocsPerfumeCmdLineHelpScreen) : command line usage reference
     * [A high-level description](http://people.cs.umass.edu/~ohmann/perfume/) of Perfume
 
 ## For academics ##
@@ -64,11 +65,11 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
 ## For developers ##
 
-  * [Development guide](https://github.com/ModelInference/synoptic/wiki/DocsDevelopment) : general overview for developers working on the project
+  * [Development guide](DocsDevelopment) : general overview for developers working on the project
 
-  * [Development practices](https://github.com/ModelInference/synoptic/wiki/DocsDevelopmentPractices) : describes the project's socio-technical processes and workflows
+  * [Development practices](DocsDevelopmentPractices) : describes the project's socio-technical processes and workflows
 
-  * [GWT Development guide](https://github.com/ModelInference/synoptic/wiki/DocsDevelopmentGWT) : describes how to get the GWT interface up and running
+  * [GWT Development guide](DocsDevelopmentGWT) : describes how to get the GWT interface up and running
 
 
 # A synoptic example #
