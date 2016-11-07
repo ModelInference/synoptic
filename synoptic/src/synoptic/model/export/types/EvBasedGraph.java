@@ -18,17 +18,29 @@ import synoptic.util.resource.AbstractResource;
  * {@link PartitionGraph}
  */
 public class EvBasedGraph {
-    EvBasedNode initialNode;
-    EvBasedNode terminalNode;
-    Set<EvBasedNode> nodes = new HashSet<EvBasedNode>();
+    private EvBasedNode initialNode;
+    private EvBasedNode terminalNode;
+    private final Set<EvBasedNode> nodes = new HashSet<>();
     private int nextID = 0;
+
+    public EvBasedNode getInitialNode() {
+        return initialNode;
+    }
+
+    public EvBasedNode getTerminalNode() {
+        return terminalNode;
+    }
+
+    public Set<EvBasedNode> getNodes() {
+        return nodes;
+    }
 
     /**
      * Construct the event-based FSM
      */
     public EvBasedGraph(PartitionGraph pGraph) {
         // Map of partitions to event-based FSM nodes
-        Map<Partition, EvBasedNode> partToNode = new HashMap<Partition, EvBasedNode>();
+        Map<Partition, EvBasedNode> partToNode = new HashMap<>();
 
         // Populate partition/node map, and find INITIAL and TERMINAL nodes
         for (Partition part : pGraph.getNodes()) {
@@ -47,7 +59,8 @@ public class EvBasedGraph {
         // For each partition, add all original outgoing edges as new
         // event-based FSM edges to the partition's corresponding node
         for (Partition part : pGraph.getNodes()) {
-            for (ITransition<Partition> pTrans : part.getWeightedTransitions()) {
+            for (ITransition<Partition> pTrans : part
+                    .getWeightedTransitions()) {
                 EvBasedEdge edge = makeEdge(partToNode, pTrans);
                 EvBasedNode srcNode = partToNode.get(pTrans.getSource());
                 srcNode.addOutEdge(edge);
@@ -58,7 +71,8 @@ public class EvBasedGraph {
     /**
      * Create and return a new event-based FSM edge
      */
-    private EvBasedEdge makeEdge(Map<Partition, EvBasedNode> partToNode, ITransition<Partition> pTrans) {
+    private EvBasedEdge makeEdge(Map<Partition, EvBasedNode> partToNode,
+            ITransition<Partition> pTrans) {
         Partition srcPart = pTrans.getSource();
 
         // Get the edge's endpoint nodes and contained events
@@ -72,7 +86,8 @@ public class EvBasedGraph {
         // AbstractResource timeMedian = null;
 
         // For Perfume, get the min, max, and median resource deltas
-        if (AbstractMain.getInstance().options.usePerformanceInfo && pTrans.getDeltaSeries() != null) {
+        if (AbstractMain.getInstance().options.usePerformanceInfo
+                && pTrans.getDeltaSeries() != null) {
             resMin = pTrans.getDeltaSeries().computeMin();
             resMax = pTrans.getDeltaSeries().computeMax();
             // timeMedian = pTrans.getDeltaSeries().computeMed();
@@ -80,7 +95,8 @@ public class EvBasedGraph {
 
         Double prob = pTrans.getProbability();
 
-        return new EvBasedEdge(nextID++, srcNode, destNode, events, eType, resMin, resMax, prob);
+        return new EvBasedEdge(nextID++, srcNode, destNode, events, eType,
+                resMin, resMax, prob);
     }
 
     public String toString() {
@@ -89,8 +105,9 @@ public class EvBasedGraph {
         for (EvBasedNode node : nodes) {
             sb.append("\n").append(node.nodeID);
             for (EvBasedEdge edge : node.outEdges) {
-                sb.append(String.format("\n  %s.%d[%s,%s](p=%f) -> %d", edge.eType, edge.edgeID, edge.resMin,
-                        edge.resMax, edge.prob, edge.destNode.nodeID));
+                sb.append(String.format("\n  %s.%d[%s,%s](p=%f) -> %d",
+                        edge.eType, edge.edgeID, edge.resMin, edge.resMax,
+                        edge.prob, edge.destNode.nodeID));
             }
         }
 
