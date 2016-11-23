@@ -2,7 +2,7 @@
 
 This site hosts source code, academic papers, and other resources for three related projects:
 
-  * **Synoptic** : a tool to infer an FSM model from a sequential log. [Try it!](http://synoptic.cs.washington.edu)
+  * **Synoptic** : a tool to infer an FSM model from a sequential log.
   * **CSight** : a tool to infer a communicating FSM model from a distributed system's logs
   * **InvariMint** : an approach to declaratively specify model inference algorithms
   * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://kramer.nss.cs.ubc.ca/perfume/)
@@ -25,7 +25,7 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * Synoptic
     * Works on Linux/OSX/Windows.
-    * Try Synoptic in your browser: **http://synoptic.cs.washington.edu**
+    * Try Synoptic in your browser (build a .war file from repository and deploy on your tomcat-based server)
       * [Tutorial](DocsWebAppTutorial) explains how to use the various web app features
     * [Installation instructions](DocsInstallation)
     * [Tutorial](DocsSynopticCmdLineTutorial) : explains how to get started with using Synoptic from scratch
