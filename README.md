@@ -26,24 +26,24 @@ Systems are often difficult to debug and to understand. A typical way of gaining
   * Synoptic
     * Works on Linux/OSX/Windows.
     * Try Synoptic in your browser (build a .war file from repository and deploy on your tomcat-based server)
-      * [Tutorial](DocsWebAppTutorial) explains how to use the various web app features
-    * [Installation instructions](DocsInstallation)
-    * [Tutorial](DocsSynopticCmdLineTutorial) : explains how to get started with using Synoptic from scratch
-    * [Fast-paced usage primer](DocsSynopticCmdLineUsage) : includes many examples but not as detailed as the tutorial
-    * [Help screen](DocsSynopticCmdLineHelpScreen) : command line usage reference
+      * [Tutorial](https://github.com/ModelInference/synoptic/wiki/DocsWebAppTutorial) explains how to use the various web app features
+    * [Installation instructions](https://github.com/ModelInference/synoptic/wiki/DocsInstallation)
+    * [Tutorial](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineTutorial) : explains how to get started with using Synoptic from scratch
+    * [Fast-paced usage primer](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineUsage) : includes many examples but not as detailed as the tutorial
+    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsSynopticCmdLineHelpScreen) : command line usage reference
 
   * CSight
     * Work on Linux and OSX, does not work on Windows (McScM dependency).
-    * [Help screen](DocsCSightCmdLineHelpScreen) : command line usage reference
+    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsCSightCmdLineHelpScreen) : command line usage reference
 
   * InvariMint
     * Works on Linux/OSX/Windows.
-    * [Help screen](DocsInvariMintCmdLineHelpScreen) : command line usage reference
+    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsInvariMintCmdLineHelpScreen) : command line usage reference
 
   * Perfume
     * Works on Linux/OSX/Windows.
     * Try Perfume in your browser: **http://bestchai.bitbucket.org/perfume/**
-    * [Help screen](DocsPerfumeCmdLineHelpScreen) : command line usage reference
+    * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsPerfumeCmdLineHelpScreen) : command line usage reference
     * [A high-level description](http://people.cs.umass.edu/~ohmann/perfume/) of Perfume
 
 ## For academics ##
@@ -65,11 +65,11 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
 ## For developers ##
 
-  * [Development guide](DocsDevelopment) : general overview for developers working on the project
+  * [Development guide](https://github.com/ModelInference/synoptic/wiki/DocsDevelopment) : general overview for developers working on the project
 
-  * [Development practices](DocsDevelopmentPractices) : describes the project's socio-technical processes and workflows
+  * [Development practices](https://github.com/ModelInference/synoptic/wiki/DocsDevelopmentPractices) : describes the project's socio-technical processes and workflows
 
-  * [GWT Development guide](DocsDevelopmentGWT) : describes how to get the GWT interface up and running
+  * [GWT Development guide](https://github.com/ModelInference/synoptic/wiki/DocsDevelopmentGWT) : describes how to get the GWT interface up and running
 
 
 # A synoptic example #
