@@ -33,6 +33,22 @@ public class JsonExporter {
 
     // ID variable for the entire class
     private static int globalID = 0;
+    private static final String initial = "INITIAL";
+    private static final String terminal = "TERMINAL";
+    // Map of nodes and their respective global ID's
+    private static Map<EvBasedNode, Integer> nodesIDMap;
+    // Map of edges and their respective global ID's
+    static Map<EvBasedEdge, Integer> edgesIDMap;
+    // Map of displayables and their respective global ID's
+    static Map<String, Integer> displayablesIDMap;
+    // Map of event types and their respective global ID's
+    static Map<String, Integer> eventTypesIDMap;
+    // Map of events and their respective global ID's
+    static Map<EventNode, Integer> eventsIDMap;
+    // Map of events and their respective global ID's
+    static Map<String, Integer> invariantTypesIDMap;
+    // Map of log statements and their respective global ID's
+    static Map<String, Integer> logStatementsIDMap;
 
     /**
      * Export the JSON object representation of the partition graph pGraph to
@@ -52,13 +68,13 @@ public class JsonExporter {
         PartitionGraph pGraph = (PartitionGraph) graph;
 
         EvBasedGraph evGraph = new EvBasedGraph(pGraph);
-        System.out.println("evGraph:\n" + evGraph);
 
-        Map<String, Object> finalModelMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> finalModelMap = new LinkedHashMap<>();
 
         // Add displayables to final model map
         List<Map<String, Object>> displayablesList = makeDisplayablesJSON(
                 evGraph);
+        finalModelMap.put("displayables", displayablesList);
 
         // Add nodes to the final model map
         List<Map<String, Integer>> nodesList = makeNodesJSON(evGraph);
@@ -67,8 +83,6 @@ public class JsonExporter {
         // Add edges to final model map
         List<Map<String, Integer>> edgesList = makeEdgesJSON(evGraph);
         finalModelMap.put("edges", edgesList);
-
-        finalModelMap.put("displayables", displayablesList);
 
         // Add event types to final model map
         List<Map<String, Object>> eventTypesList = makeEventTypesJSON(evGraph);
@@ -84,8 +98,7 @@ public class JsonExporter {
         finalModelMap.put("invariantTypes", invariantTypesList);
 
         // Add invariants to final model map
-        List<Map<String, Object>> invariantsList = makeNewInvariantsJSON(
-                pGraph);
+        List<Map<String, Object>> invariantsList = makeInvariantsJSON(pGraph);
         finalModelMap.put("invariants", invariantsList);
 
         // Add log statements to final model map
@@ -110,9 +123,6 @@ public class JsonExporter {
         }
     }
 
-    // Map of nodes and their respective global ID's
-    static Map<EvBasedNode, Integer> nodesIDMap = new LinkedHashMap<EvBasedNode, Integer>();
-
     /**
      * Creates the 'nodes' of the JSON object: a list of nodes within this
      * EvBasedGraph
@@ -120,49 +130,63 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose nodes we're outputting
      */
+
     private static List<Map<String, Integer>> makeNodesJSON(
             EvBasedGraph evGraph) {
 
-        // List of Nodes to go into the JSON object
-        List<Map<String, Integer>> nodeList = new LinkedList<Map<String, Integer>>();
+        nodesIDMap = new LinkedHashMap<>();
 
-        // add the initial node first
-        Map<String, Integer> initialNodeMap = new LinkedHashMap<String, Integer>();
-        initialNodeMap.put("id", globalID);
-        nodesIDMap.put(evGraph.getInitialNode(), globalID);
-        initialNodeMap.put("displayableIDs: ",
-                displayablesIDMap.get("INITIAL"));
-        nodeList.add(initialNodeMap);
-        globalID++;
+        assert (displayablesIDMap != null) : "displayablesIDMap is null";
+
+        // List of nodes to go into the JSON object
+        List<Map<String, Integer>> nodeList = new LinkedList<>();
+
+        // Add the initial node first
+        Map<String, Integer> iniNodeMap = makeNode(evGraph,
+                evGraph.getInitialNode());
+        nodeList.add(iniNodeMap);
 
         // Get all the nodes in the evGraph
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
-        for (EvBasedNode node : allNodes) {
-            Map<String, Integer> nodesMap = new LinkedHashMap<String, Integer>();
+        for (EvBasedNode node : evGraph.getNodes()) {
 
             if (node != evGraph.getInitialNode()
                     && node != evGraph.getTerminalNode()) {
-                nodesMap.put("id", globalID);
-                nodesIDMap.put(node, globalID);
-                nodeList.add(nodesMap);
-                globalID++;
+
+                Map<String, Integer> nodeMap = makeNode(evGraph, node);
+                nodeList.add(nodeMap);
             }
         }
 
-        // add the terminal node last
-        Map<String, Integer> terminalNodeMap = new LinkedHashMap<String, Integer>();
-        terminalNodeMap.put("id", globalID);
-        nodesIDMap.put(evGraph.getTerminalNode(), globalID);
-        terminalNodeMap.put("displayableIDs: ",
-                displayablesIDMap.get("TERMINAL"));
-        nodeList.add(terminalNodeMap);
-        globalID++;
+        // Add the terminal node last
+        Map<String, Integer> termNodeMap = makeNode(evGraph,
+                evGraph.getTerminalNode());
+        nodeList.add(termNodeMap);
 
         return nodeList;
     }
 
-    // Map of edges and their respective global ID's
-    static Map<EvBasedEdge, Integer> edgesIDMap = new LinkedHashMap<EvBasedEdge, Integer>();
+    /**
+     * Processes nodes for makeNodesJSON by adding their ID and displayable
+     * value if applicable
+     * 
+     * @param evGraph
+     *            The EvBasedGraph whose nodes we're processing
+     * @param node
+     *            The particular node being processed
+     */
+    private static Map<String, Integer> makeNode(EvBasedGraph evGraph,
+            EvBasedNode node) {
+        Map<String, Integer> nodeMap = new LinkedHashMap<>();
+        nodeMap.put("id", globalID);
+        nodesIDMap.put(node, globalID);
+        if (node == evGraph.getInitialNode()) {
+            nodeMap.put("displayableIDs: ", displayablesIDMap.get(initial));
+        } else if (node == evGraph.getTerminalNode()) {
+            nodeMap.put("displayablesIDs: ", displayablesIDMap.get(terminal));
+        }
+        globalID++;
+        return nodeMap;
+    }
 
     /**
      * Creates the 'edges' of the JSON object: a list of edges within this
@@ -174,23 +198,22 @@ public class JsonExporter {
     private static List<Map<String, Integer>> makeEdgesJSON(
             EvBasedGraph evGraph) {
 
-        // List of edges and info to go into the JSON Object
-        List<Map<String, Integer>> edgesList = new LinkedList<Map<String, Integer>>();
+        edgesIDMap = new LinkedHashMap<>();
 
-        // Get all the nodes in the evGraph
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
+        assert (nodesIDMap != null
+                && displayablesIDMap != null) : "Either one or both of nodesIDMap and displayablesIDMap is null";
+
+        // List of edges and info to go into the JSON Object
+        List<Map<String, Integer>> edgesList = new LinkedList<>();
 
         // Contains all edges used to avoid duplicates
-        Set<EvBasedEdge> usedEdges = new HashSet<EvBasedEdge>();
+        Set<EvBasedEdge> usedEdges = new HashSet<>();
 
-        for (EvBasedNode node : allNodes) {
+        for (EvBasedNode node : evGraph.getNodes()) {
 
-            // Get the edges for each node
-            Set<EvBasedEdge> allEdges = node.outEdges;
+            for (EvBasedEdge edge : node.outEdges) {
 
-            for (EvBasedEdge edge : allEdges) {
-
-                Map<String, Integer> edgesMap = new LinkedHashMap<String, Integer>();
+                Map<String, Integer> edgesMap = new LinkedHashMap<>();
 
                 // Check to see if it is a duplicate
                 if (!usedEdges.contains(edge)) {
@@ -198,12 +221,19 @@ public class JsonExporter {
                     edgesMap.put("id", globalID);
                     edgesMap.put("srcNodeID", nodesIDMap.get(edge.srcNode));
                     edgesMap.put("destNodeID", nodesIDMap.get(edge.destNode));
-                    String displayableValue = edge.eType.getETypeLabel() + " ["
-                            + edge.resMin + ", " + edge.resMax + "]";
-                    if (edge.resMin == null && edge.resMax == null) {
-                        displayableValue = edge.eType.getETypeLabel();
-                    }
-                    if (displayableValue != "INITIAL") {
+
+                    if (edge.eType.getETypeLabel() != initial
+                            && edge.eType.getETypeLabel() != terminal) {
+
+                        String displayableValue;
+
+                        if (edge.resMin == null && edge.resMax == null) {
+                            displayableValue = edge.eType.getETypeLabel();
+                        } else {
+                            displayableValue = edge.eType.getETypeLabel() + " ["
+                                    + edge.resMin + ", " + edge.resMax + "]";
+                        }
+
                         edgesMap.put("displayablesIDs",
                                 displayablesIDMap.get(displayableValue));
                     }
@@ -219,9 +249,6 @@ public class JsonExporter {
         return edgesList;
     }
 
-    // Map of displayables and their respective global ID's
-    static Map<String, Integer> displayablesIDMap = new LinkedHashMap<String, Integer>();
-
     /**
      * Creates the 'displayables' of the JSON object: a list of displayables
      * within this EvBasedGraph
@@ -232,22 +259,19 @@ public class JsonExporter {
     private static List<Map<String, Object>> makeDisplayablesJSON(
             EvBasedGraph evGraph) {
 
-        // List of edges and info to go into the JSON Object
-        List<Map<String, Object>> displayablesList = new LinkedList<Map<String, Object>>();
+        displayablesIDMap = new LinkedHashMap<>();
 
-        // Get all the nodes in the evGraph
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
+        // List of edges and info to go into the JSON Object
+        List<Map<String, Object>> displayablesList = new LinkedList<>();
 
         // Contains all the edges to avoid duplicates
-        Set<EvBasedEdge> usedEdges = new HashSet<EvBasedEdge>();
+        Set<EvBasedEdge> usedEdges = new HashSet<>();
 
-        for (EvBasedNode node : allNodes) {
-            // Get the edges for each node
-            Set<EvBasedEdge> allEdges = node.outEdges;
+        for (EvBasedNode node : evGraph.getNodes()) {
 
-            for (EvBasedEdge edge : allEdges) {
+            for (EvBasedEdge edge : node.outEdges) {
 
-                Map<String, Object> displayablesMap = new LinkedHashMap<String, Object>();
+                Map<String, Object> displayablesMap = new LinkedHashMap<>();
 
                 // Check for duplicate
                 if (!usedEdges.contains(edge)) {
@@ -256,9 +280,9 @@ public class JsonExporter {
                     String displayableValue = edge.eType.getETypeLabel() + " ["
                             + edge.resMin + ", " + edge.resMax + "]";
                     if (edge.resMin == null && edge.resMax == null) {
-                        if (displayablesIDMap.containsKey("INITIAL")
-                                && edge.eType.getETypeLabel() == "INITIAL") {
-                            displayableValue = "TERMINAL";
+                        if (displayablesIDMap.containsKey(initial)
+                                && edge.eType.getETypeLabel() == initial) {
+                            displayableValue = terminal;
                         } else {
                             displayableValue = edge.eType.getETypeLabel();
                         }
@@ -276,9 +300,6 @@ public class JsonExporter {
         return displayablesList;
     }
 
-    // Map of event types and their respective global ID's
-    static Map<String, Integer> eventTypesIDMap = new LinkedHashMap<String, Integer>();
-
     /**
      * Creates the 'eventTypes' of the JSON object: a list of event types within
      * this EvBasedGraph
@@ -289,19 +310,16 @@ public class JsonExporter {
     private static List<Map<String, Object>> makeEventTypesJSON(
             EvBasedGraph evGraph) {
 
+        eventTypesIDMap = new LinkedHashMap<>();
+
         // The list of event types to go into the JSON object
-        List<Map<String, Object>> eventTypesList = new LinkedList<Map<String, Object>>();
+        List<Map<String, Object>> eventTypesList = new LinkedList<>();
 
-        // Get all partitions in the partition graph
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
+        for (EvBasedNode node : evGraph.getNodes()) {
 
-        for (EvBasedNode node : allNodes) {
+            for (EvBasedEdge edge : node.outEdges) {
 
-            Set<EvBasedEdge> allEdges = node.outEdges;
-
-            for (EvBasedEdge edge : allEdges) {
-
-                Map<String, Object> eventTypesMap = new LinkedHashMap<String, Object>();
+                Map<String, Object> eventTypesMap = new LinkedHashMap<>();
 
                 if (!eventTypesIDMap.containsKey(edge.eType.toString())
                         && !edge.eType.isSpecialEventType()) {
@@ -317,9 +335,6 @@ public class JsonExporter {
         return eventTypesList;
     }
 
-    // Map of events and their respective global ID's
-    static Map<EventNode, Integer> eventsIDMap = new LinkedHashMap<EventNode, Integer>();
-
     /**
      * Creates the 'events' of the JSON object: a list of events within this
      * EvBasedGraph
@@ -330,8 +345,12 @@ public class JsonExporter {
     private static List<Map<String, Object>> makeEventsJSON(
             EvBasedGraph evGraph) {
 
+        eventsIDMap = new LinkedHashMap<>();
+
+        assert (eventTypesIDMap != null) : "eventTypesIDMap is null";
+
         // The events to go into the JSON object
-        List<Map<String, Object>> eventsList = new LinkedList<Map<String, Object>>();
+        List<Map<String, Object>> eventsList = new LinkedList<>();
 
         EvBasedNode initialNode = evGraph.getInitialNode();
         Set<EvBasedEdge> iniOutEdges = initialNode.outEdges;
@@ -346,7 +365,7 @@ public class JsonExporter {
                     .isTerminal(); event = event.getAllSuccessors().iterator()
                             .next()) {
 
-                Map<String, Object> singleEventMap = new LinkedHashMap<String, Object>();
+                Map<String, Object> singleEventMap = new LinkedHashMap<>();
 
                 singleEventMap.put("id", globalID);
                 singleEventMap.put("traceID", traceID);
@@ -372,9 +391,6 @@ public class JsonExporter {
         return eventsList;
     }
 
-    // Map of events and their respective global ID's
-    static Map<String, Integer> invariantTypesIDMap = new LinkedHashMap<String, Integer>();
-
     /**
      * Creates the 'invariantTypes' of the JSON object: a list of invariant
      * types within this EvBasedGraph
@@ -384,15 +400,18 @@ public class JsonExporter {
      */
     private static List<Map<String, Object>> makeInvariantTypesJSON(
             PartitionGraph pGraph) {
+
+        invariantTypesIDMap = new LinkedHashMap<>();
+
         // The list of invariant types to go into the JSON object
-        List<Map<String, Object>> invariantTypesList = new LinkedList<Map<String, Object>>();
+        List<Map<String, Object>> invariantTypesList = new LinkedList<>();
 
         // Get all invariants in the partition graph
         TemporalInvariantSet allInvariants = pGraph.getInvariants();
 
         for (ITemporalInvariant inv : allInvariants) {
             // One invariant contains type, predicates, constraint, and bounds
-            Map<String, Object> invariantMap = new LinkedHashMap<String, Object>();
+            Map<String, Object> invariantMap = new LinkedHashMap<>();
 
             // To avoid duplicates, check if an invariant with the same name has
             // already been mapped
@@ -429,17 +448,20 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose invariants we're outputting
      */
-    private static List<Map<String, Object>> makeNewInvariantsJSON(
+    private static List<Map<String, Object>> makeInvariantsJSON(
             PartitionGraph pGraph) {
+
+        assert (invariantTypesIDMap != null) : "invariantTypesIDMap is null";
+
         // The list of invariants to go into the JSON object
-        List<Map<String, Object>> invariantsList = new LinkedList<Map<String, Object>>();
+        List<Map<String, Object>> invariantsList = new LinkedList<>();
 
         // Get all invariants in the partition graph
         TemporalInvariantSet allInvariants = pGraph.getInvariants();
 
         for (ITemporalInvariant inv : allInvariants) {
             // One invariant, contains type, predicates, constraint, and bounds
-            Map<String, Object> invariantMap = new LinkedHashMap<String, Object>();
+            Map<String, Object> invariantMap = new LinkedHashMap<>();
 
             // Store the invariant ID
             invariantMap.put("id", globalID++);
@@ -448,7 +470,7 @@ public class JsonExporter {
                     invariantTypesIDMap.get(inv.getLongName()));
 
             // Get invariant predicates
-            List<Integer> predicateList = new LinkedList<Integer>();
+            List<Integer> predicateList = new LinkedList<>();
             for (EventType evType : inv.getPredicates()) {
                 predicateList.add(eventTypesIDMap.get(evType.toString()));
             }
@@ -458,7 +480,7 @@ public class JsonExporter {
             if (inv instanceof TempConstrainedInvariant) {
                 TempConstrainedInvariant<?> constInv = (TempConstrainedInvariant<?>) inv;
 
-                Map<String, Object> resourceBoundsMap = new LinkedHashMap<String, Object>();
+                Map<String, Object> resourceBoundsMap = new LinkedHashMap<>();
                 String constraint = constInv.getConstraint().toString();
 
                 // Extract the bound type and number from the constraint string
@@ -491,27 +513,25 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose logStatements we're outputting
      */
-    static Map<String, Integer> logStatementsIDMap = new LinkedHashMap<String, Integer>();
 
     public static List<Map<String, Object>> makeLogStatementsJSON(
             EvBasedGraph evGraph) {
+
+        logStatementsIDMap = new LinkedHashMap<>();
+
         // The log statements to go into the JSON Object
-        List<Map<String, Object>> logStatementsList = new LinkedList<Map<String, Object>>();
+        List<Map<String, Object>> logStatementsList = new LinkedList<>();
 
         // Contains all edges used to avoid duplicates
-        Set<EventNode> usedEvents = new HashSet<EventNode>();
+        Set<EventNode> usedEvents = new HashSet<>();
 
-        // Get all partitions in the partition graph
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
+        for (EvBasedNode node : evGraph.getNodes()) {
 
-        for (EvBasedNode node : allNodes) {
-            Set<EvBasedEdge> allEdges = node.outEdges;
+            for (EvBasedEdge edge : node.outEdges) {
 
-            for (EvBasedEdge edge : allEdges) {
-                Set<EventNode> allEvents = edge.events;
+                for (EventNode event : edge.events) {
 
-                for (EventNode event : allEvents) {
-                    Map<String, Object> logStatementsMap = new LinkedHashMap<String, Object>();
+                    Map<String, Object> logStatementsMap = new LinkedHashMap<>();
                     if (!usedEvents.contains(event)) {
                         if (event.getLine() != null) {
 
@@ -543,33 +563,29 @@ public class JsonExporter {
     private static List<Map<String, Object>> makeLinksJSON(
             EvBasedGraph evGraph) {
 
-        List<Map<String, Object>> linksList = new LinkedList<Map<String, Object>>();
+        assert (eventsIDMap != null && logStatementsIDMap != null
+                && edgesIDMap != null) : "Either one, two or all three of eventsIDMap, logStatementsIDMap, or edgesIDMap is null";
 
-        Set<EvBasedNode> allNodes = evGraph.getNodes();
+        List<Map<String, Object>> linksList = new LinkedList<>();
 
         // Contains all edges used to avoid duplicates
-        Set<EventNode> usedEvents = new HashSet<EventNode>();
+        Set<EventNode> usedEvents = new HashSet<>();
 
-        for (EvBasedNode node : allNodes) {
+        for (EvBasedNode node : evGraph.getNodes()) {
 
-            Set<EvBasedEdge> allEdges = node.outEdges;
+            for (EvBasedEdge edge : node.outEdges) {
 
-            for (EvBasedEdge edge : allEdges) {
-
-                Set<EventNode> allEventNodes = edge.events;
-                // this edge's events connected log statements
-
-                for (EventNode event : allEventNodes) {
+                for (EventNode event : edge.events) {
 
                     if (!usedEvents.contains(event)) {
                         if (logStatementsIDMap.get(event.getLine()) != null) {
-                            Map<String, Object> eventLinksMap = new LinkedHashMap<String, Object>();
+                            Map<String, Object> eventLinksMap = new LinkedHashMap<>();
                             eventLinksMap.put("id1", eventsIDMap.get(event));
                             eventLinksMap.put("id2",
                                     logStatementsIDMap.get(event.getLine()));
                             linksList.add(eventLinksMap);
                             usedEvents.add(event);
-                            Map<String, Object> edgeLinksMap = new LinkedHashMap<String, Object>();
+                            Map<String, Object> edgeLinksMap = new LinkedHashMap<>();
                             edgeLinksMap.put("id1", edgesIDMap.get(edge));
                             edgeLinksMap.put("id2",
                                     logStatementsIDMap.get(event.getLine()));
