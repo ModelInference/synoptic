@@ -36,19 +36,19 @@ public class JsonExporter {
     private static final String initial = "INITIAL";
     private static final String terminal = "TERMINAL";
     // Map of nodes and their respective global ID's
-    private static Map<EvBasedNode, Integer> nodesIDMap;
+    private static Map<EvBasedNode, Integer> nodesIDMap = null;
     // Map of edges and their respective global ID's
-    static Map<EvBasedEdge, Integer> edgesIDMap;
+    private static Map<EvBasedEdge, Integer> edgesIDMap = null;
     // Map of displayables and their respective global ID's
-    static Map<String, Integer> displayablesIDMap;
+    private static Map<String, Integer> displayablesIDMap = null;
     // Map of event types and their respective global ID's
-    static Map<String, Integer> eventTypesIDMap;
+    private static Map<String, Integer> eventTypesIDMap = null;
     // Map of events and their respective global ID's
-    static Map<EventNode, Integer> eventsIDMap;
+    private static Map<EventNode, Integer> eventsIDMap = null;
     // Map of events and their respective global ID's
-    static Map<String, Integer> invariantTypesIDMap;
+    private static Map<String, Integer> invariantTypesIDMap = null;
     // Map of log statements and their respective global ID's
-    static Map<String, Integer> logStatementsIDMap;
+    private static Map<String, Integer> logStatementsIDMap = null;
 
     /**
      * Export the JSON object representation of the partition graph pGraph to
@@ -142,9 +142,9 @@ public class JsonExporter {
         List<Map<String, Integer>> nodeList = new LinkedList<>();
 
         // Add the initial node first
-        Map<String, Integer> iniNodeMap = makeNode(evGraph,
+        Map<String, Integer> initNodeMap = makeNode(evGraph,
                 evGraph.getInitialNode());
-        nodeList.add(iniNodeMap);
+        nodeList.add(initNodeMap);
 
         // Get all the nodes in the evGraph
         for (EvBasedNode node : evGraph.getNodes()) {
