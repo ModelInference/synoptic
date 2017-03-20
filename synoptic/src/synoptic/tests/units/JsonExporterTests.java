@@ -37,7 +37,6 @@ public class JsonExporterTests {
         PerfumeOptions perfOpts = new PerfumeOptions();
         perfOpts.regExps = Arrays.asList(
                 new String[] { "(?<ip>.+), (?<TYPE>.+), (?<DTIME>.+)" });
-        // perfOpts.logLvlExtraVerbose=true;
         perfOpts.partitionRegExp = "\\k<ip>";
         perfOpts.logFilenames.add(
                 "./traces/abstract/perfume-survey/browser-caching-traces.txt");
