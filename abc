@@ -1,0 +1,117 @@
+Looking for tests in: /home/william/synoptic/synoptic/bin/
+Running tests: [synoptic.tests.units.POLogInvariantMiningTests, synoptic.tests.units.TimedTaskTests, synoptic.tests.units.TraceNormalizationTests, synoptic.tests.units.ConstrainedTracingSetTests, synoptic.tests.units.ChainsTraceGraphTests, synoptic.tests.units.SynDaikonizerTests, synoptic.tests.units.AllRelationsTransitiveClosureTests, synoptic.tests.units.ImmediateInvariantMinerTests, synoptic.tests.units.EventTypeTests, synoptic.tests.units.JsonExporterTests, synoptic.tests.units.BisimulationTests, synoptic.tests.units.SingleRelationSubgraphsInvariantMiningTests, synoptic.tests.units.ResourceTests, synoptic.tests.units.ConstrainedRefinementTests, synoptic.tests.units.TOLogInvariantMiningTests, synoptic.tests.units.TraceParserTests, synoptic.tests.units.FloydWarshallTests, synoptic.tests.units.DAGsTraceGraphTests, synoptic.tests.units.ListedPropertiesTests, synoptic.tests.units.InvariantStatisticsTests, synoptic.tests.units.VectorTimeTests, synoptic.tests.units.ModelCheckersTests, synoptic.tests.units.DaikonVarTypeTests, synoptic.tests.units.CounterExampleShorteningTests, synoptic.tests.units.KTailsTests, synoptic.tests.units.TopologicalKTailsTests, synoptic.tests.units.ResourceSeriesTests, synoptic.tests.units.TemporalInvariantSetTests, synoptic.tests.units.GraphVizExporterTests, synoptic.tests.units.KTailInvariantMinerTests, synoptic.tests.units.FsmStateSetTests, synoptic.tests.units.TempConstrainedInvariantTests, synoptic.tests.units.TransitionDeltaTests, synoptic.tests.units.BiRelationInvariantMiningTests, synoptic.tests.units.DAGsTraceGraphTCTests, synoptic.tests.units.PartitionGraphTests, synoptic.tests.units.ConstrainedInvMinerTests]
+JUnit version 4.9b2
+.............................................................................                                                                               .                                                                               .                                                                               .........
+
+
+
+.
+
+
+
+.
+
+
+
+{id=424, srcNodeID=416, destNodeID=421, displayablesIDs=287}
+{id=425, srcNodeID=416, destNodeID=419, displayablesIDs=286}
+{id=426, srcNodeID=417, destNodeID=420, displayablesIDs=288}
+{id=427, srcNodeID=415, destNodeID=418}
+{id=428, srcNodeID=415, destNodeID=421}
+{id=429, srcNodeID=418, destNodeID=416, displayablesIDs=284}
+{id=430, srcNodeID=419, destNodeID=417, displayablesIDs=292}
+{id=431, srcNodeID=420, destNodeID=423, displayablesIDs=283}
+{id=432, srcNodeID=421, destNodeID=422, displayablesIDs=285}
+{id=433, srcNodeID=422, destNodeID=420, displayablesIDs=291}
+.
+
+
+
+.
+
+
+
+.
+
+
+
+.
+
+
+
+.
+
+
+
+.
+
+
+
+{id1=971, id2=1047}
+{id1=1074, id2=1047}
+{id1=976, id2=1048}
+{id1=1074, id2=1048}
+{id1=981, id2=1049}
+{id1=1074, id2=1049}
+{id1=986, id2=1050}
+{id1=1074, id2=1050}
+{id1=989, id2=1051}
+{id1=1074, id2=1051}
+{id1=992, id2=1052}
+{id1=1074, id2=1052}
+{id1=969, id2=1053}
+{id1=1075, id2=1053}
+{id1=974, id2=1054}
+{id1=1075, id2=1054}
+{id1=967, id2=1039}
+{id1=1076, id2=1039}
+{id1=972, id2=1040}
+{id1=1076, id2=1040}
+{id1=977, id2=1041}
+{id1=1076, id2=1041}
+{id1=982, id2=1042}
+{id1=1076, id2=1042}
+{id1=975, id2=1055}
+{id1=1079, id2=1055}
+{id1=970, id2=1056}
+{id1=1079, id2=1056}
+{id1=987, id2=1043}
+{id1=1080, id2=1043}
+{id1=979, id2=1044}
+{id1=1080, id2=1044}
+{id1=990, id2=1045}
+{id1=1080, id2=1045}
+{id1=984, id2=1046}
+{id1=1080, id2=1046}
+{id1=988, id2=1057}
+{id1=1081, id2=1057}
+{id1=985, id2=1058}
+{id1=1081, id2=1058}
+{id1=980, id2=1059}
+{id1=1081, id2=1059}
+{id1=991, id2=1060}
+{id1=1081, id2=1060}
+{id1=983, id2=1061}
+{id1=1082, id2=1061}
+{id1=973, id2=1062}
+{id1=1082, id2=1062}
+{id1=978, id2=1063}
+{id1=1082, id2=1063}
+{id1=968, id2=1064}
+{id1=1082, id2=1064}
+
+
+
+
+
+
+
+id1 52
+id2 52
+restrue
+..................................................................................................................................................................................................................................................................................................................................[Binary inv:a AlwaysFollowedBy(t) b, Constraint: lowerbound = 2, Binary inv:a AlwaysFollowedBy(t) b, Constraint: upperbound = 6, Binary inv:a AlwaysPrecedes(t) b, Constraint: lowerbound = 2, Binary inv:a AlwaysPrecedes(t) b, Constraint: upperbound = 6, Binary inv:a IntrBy(t) b, Constraint: lowerbound = 2, Binary inv:a IntrBy(t) b, Constraint: upperbound = 2, Binary inv:b IntrBy(t) a, Constraint: lowerbound = -2, Binary inv:b IntrBy(t) a, Constraint: upperbound = -2]
+....
+Time: 5.756
+
+OK (422 tests)
+

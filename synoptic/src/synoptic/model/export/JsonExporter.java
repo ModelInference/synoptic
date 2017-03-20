@@ -123,6 +123,58 @@ public class JsonExporter {
         }
     }
 
+
+    public static <T extends INode<T>> void exportJsonObject(IGraph<T> graph) {
+
+        // The graph must be a partition graph
+        assert graph instanceof PartitionGraph;
+        PartitionGraph pGraph = (PartitionGraph) graph;
+
+        EvBasedGraph evGraph = new EvBasedGraph(pGraph);
+
+        Map<String, Object> finalModelMap = new LinkedHashMap<>();
+
+        // Add displayables to final model map
+        List<Map<String, Object>> displayablesList = makeDisplayablesJSON(
+                evGraph);
+        finalModelMap.put("displayables", displayablesList);
+
+        // Add nodes to the final model map
+        List<Map<String, Integer>> nodesList = makeNodesJSON(evGraph);
+        finalModelMap.put("nodes", nodesList);
+
+        // Add edges to final model map
+        List<Map<String, Integer>> edgesList = makeEdgesJSON(evGraph);
+        finalModelMap.put("edges", edgesList);
+
+        // Add event types to final model map
+        List<Map<String, Object>> eventTypesList = makeEventTypesJSON(evGraph);
+        finalModelMap.put("eventTypes", eventTypesList);
+
+        // Add events to final model map
+        List<Map<String, Object>> eventsList = makeEventsJSON(evGraph);
+        finalModelMap.put("events", eventsList);
+
+        // Add invariant types to final model map
+        List<Map<String, Object>> invariantTypesList = makeInvariantTypesJSON(
+                pGraph);
+        finalModelMap.put("invariantTypes", invariantTypesList);
+
+        // Add invariants to final model map
+        List<Map<String, Object>> invariantsList = makeInvariantsJSON(pGraph);
+        finalModelMap.put("invariants", invariantsList);
+
+        // Add log statements to final model map
+        List<Map<String, Object>> logStatementsList = makeLogStatementsJSON(
+                evGraph);
+        finalModelMap.put("logStatements", logStatementsList);
+
+        // Add links to final model map
+        List<Map<String, Object>> linksList = makeLinksJSON(evGraph);
+        finalModelMap.put("links", linksList);
+
+    }
+
     /**
      * Creates the 'nodes' of the JSON object: a list of nodes within this
      * EvBasedGraph
@@ -131,7 +183,7 @@ public class JsonExporter {
      *            The EvBasedGraph whose nodes we're outputting
      */
 
-    private static List<Map<String, Integer>> makeNodesJSON(
+    public static List<Map<String, Integer>> makeNodesJSON(
             EvBasedGraph evGraph) {
 
         nodesIDMap = new LinkedHashMap<>();
@@ -174,7 +226,7 @@ public class JsonExporter {
      * @param node
      *            The particular node being processed
      */
-    private static Map<String, Integer> makeNode(EvBasedGraph evGraph,
+    public static Map<String, Integer> makeNode(EvBasedGraph evGraph,
             EvBasedNode node) {
         Map<String, Integer> nodeMap = new LinkedHashMap<>();
         nodeMap.put("id", globalID);
@@ -195,7 +247,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose edges we're outputting
      */
-    private static List<Map<String, Integer>> makeEdgesJSON(
+    public static List<Map<String, Integer>> makeEdgesJSON(
             EvBasedGraph evGraph) {
 
         edgesIDMap = new LinkedHashMap<>();
@@ -256,7 +308,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose displayables we're outputting
      */
-    private static List<Map<String, Object>> makeDisplayablesJSON(
+    public static List<Map<String, Object>> makeDisplayablesJSON(
             EvBasedGraph evGraph) {
 
         displayablesIDMap = new LinkedHashMap<>();
@@ -307,7 +359,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose event types we're outputting
      */
-    private static List<Map<String, Object>> makeEventTypesJSON(
+    public static List<Map<String, Object>> makeEventTypesJSON(
             EvBasedGraph evGraph) {
 
         eventTypesIDMap = new LinkedHashMap<>();
@@ -342,7 +394,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose events we're outputting
      */
-    private static List<Map<String, Object>> makeEventsJSON(
+    public static List<Map<String, Object>> makeEventsJSON(
             EvBasedGraph evGraph) {
 
         eventsIDMap = new LinkedHashMap<>();
@@ -398,7 +450,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose invariant types we're outputting
      */
-    private static List<Map<String, Object>> makeInvariantTypesJSON(
+    public static List<Map<String, Object>> makeInvariantTypesJSON(
             PartitionGraph pGraph) {
 
         invariantTypesIDMap = new LinkedHashMap<>();
@@ -448,7 +500,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose invariants we're outputting
      */
-    private static List<Map<String, Object>> makeInvariantsJSON(
+    public static List<Map<String, Object>> makeInvariantsJSON(
             PartitionGraph pGraph) {
 
         assert (invariantTypesIDMap != null) : "invariantTypesIDMap is null";
@@ -560,7 +612,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose nodes we're outputting
      */
-    private static List<Map<String, Object>> makeLinksJSON(
+    public static List<Map<String, Object>> makeLinksJSON(
             EvBasedGraph evGraph) {
 
         assert (eventsIDMap != null && logStatementsIDMap != null

@@ -347,7 +347,7 @@ public class PerfumeOptions extends Options {
      * FINEST.
      */
     @Option(AbstractOptions.logLvlExtraVerboseStr)
-    public boolean logLvlExtraVerbose = false;
+    public boolean logLvlExtraVerbose = true;
 
     /**
      * Ignore invariants including certain event types.
