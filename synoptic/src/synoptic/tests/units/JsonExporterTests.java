@@ -8,8 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,26 +18,23 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.JsonExporter;
 import synoptic.model.export.types.EvBasedGraph;
+import synoptic.tests.SynopticTest;
 
 public class JsonExporterTests {
 
-    private PerfumeMain main = null;
     private PartitionGraph pGraph = null;
-    private EvBasedGraph evGraph = null;
-    private Object expectedJSON = null;
-    private JSONObject expectedJSONObject = null;
-    private JSONParser parser = null;
-    private String dispJString = null;
 
     @Before
     public void setUp() throws Exception {
+        PerfumeMain main = null;
         // Set up Perfume options
         PerfumeOptions perfOpts = new PerfumeOptions();
         perfOpts.regExps = Arrays.asList(
                 new String[] { "(?<ip>.+), (?<TYPE>.+), (?<DTIME>.+)" });
         perfOpts.partitionRegExp = "\\k<ip>";
-        perfOpts.logFilenames.add(
-                "./traces/abstract/perfume-survey/browser-caching-traces.txt");
+        String pathToLogFileName = SynopticTest.getTestPath(
+                "../traces/abstract/perfume-survey/browser-caching-traces.txt");
+        perfOpts.logFilenames.add(pathToLogFileName);
 
         // Create a Perfume instance
         AbstractMain.instance = null;
@@ -68,7 +63,9 @@ public class JsonExporterTests {
      */
     // public JSONArray parseJSONArray(String field) {
 
-    // parser = new JSONParser();
+    // Object expectedJSON = null;
+    // JSONObject expectedJSONObject = null;
+    // JSONParser parser = new JSONParser();
 
     // try {
     // expectedJSON = parser.parse(new
@@ -121,7 +118,7 @@ public class JsonExporterTests {
         // assertTrue(parsedDisplayables.size() == displayablesTest.size());
         // assertTrue(parsedDisplayables.containsAll(generatedDisplayables));
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedDisplayablesList = JsonExporter
                 .makeDisplayablesJSON(evGraph);
 
@@ -159,7 +156,7 @@ public class JsonExporterTests {
     @Test
     public void nodesTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Integer>> generatedNodesList = JsonExporter
                 .makeNodesJSON(evGraph);
 
@@ -194,7 +191,7 @@ public class JsonExporterTests {
     @Test
     public void edgesTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Integer>> t = JsonExporter.makeNodesJSON(evGraph);
         List<Map<String, Integer>> generatedEdgesList = JsonExporter
                 .makeEdgesJSON(evGraph);
@@ -245,7 +242,7 @@ public class JsonExporterTests {
     @Test
     public void eventTypesTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedEventTypesList = JsonExporter
                 .makeEventTypesJSON(evGraph);
 
@@ -281,7 +278,7 @@ public class JsonExporterTests {
     @Test
     public void eventsTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedEventsList = JsonExporter
                 .makeEventsJSON(evGraph);
 
@@ -433,7 +430,7 @@ public class JsonExporterTests {
     @Test
     public void logStatementsTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedLogStatementsList = JsonExporter
                 .makeLogStatementsJSON(evGraph);
 
@@ -476,7 +473,7 @@ public class JsonExporterTests {
     @Test
     public void linksTest() throws Exception {
 
-        evGraph = createEvGraph();
+        EvBasedGraph evGraph = createEvGraph();
         // List<Map<String,Integer>> generatedNodesList =
         // JsonExporter.makeNodesJSON(evGraph);
         List<Map<String, Integer>> generatedEdgesList = JsonExporter

@@ -137,4 +137,5 @@ public class EndToEndMainTests extends SynopticTest {
         AbstractMain.instance = null;
         SynopticMain.main(args);
     }
+
 }
