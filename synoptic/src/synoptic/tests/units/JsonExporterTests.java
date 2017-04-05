@@ -2,12 +2,17 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileReader;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +38,7 @@ public class JsonExporterTests {
                 new String[] { "(?<ip>.+), (?<TYPE>.+), (?<DTIME>.+)" });
         perfOpts.partitionRegExp = "\\k<ip>";
         String pathToLogFileName = SynopticTest.getTestPath(
-                "../traces/abstract/perfume-survey/browser-caching-traces.txt");
+                "traces/abstract/perfume-survey/browser-caching-traces.txt");
         perfOpts.logFilenames.add(pathToLogFileName);
 
         // Create a Perfume instance
@@ -61,30 +66,15 @@ public class JsonExporterTests {
      * @param field
      *            The field for which the JSONArray will be created
      */
-    // public JSONArray parseJSONArray(String field) {
+    public JSONArray parseJSONArray(String field) throws Exception {
 
-    // Object expectedJSON = null;
-    // JSONObject expectedJSONObject = null;
-    // JSONParser parser = new JSONParser();
+        JSONParser parser = new JSONParser();
+        Object expectedJSON = parser
+                .parse(new FileReader("expected-perfume-model.json"));
+        JSONObject expectedJSONObject = (JSONObject) expectedJSON;
 
-    // try {
-    // expectedJSON = parser.parse(new
-    // FileReader("expected-perfume-model.json"));
-    // expectedJSONObject = (JSONObject)expectedJSON;
-
-    // }
-    // catch (FileNotFoundException e) {
-    // e.printStackTrace();
-    // }
-    // catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // catch (ParseException e) {
-    // e.printStackTrace();
-    // }
-
-    // return (JSONArray)expectedJSONObject.get(field);
-    // }
+        return (JSONArray) expectedJSONObject.get(field);
+    }
 
     /*
      * Tests for the makeDisplayablesJSON method - Checks that each displayable
@@ -93,59 +83,48 @@ public class JsonExporterTests {
     @Test
     public void displayableTest() throws Exception {
 
-        // JSONArray displayables = parseJSONArray("displayables");
-
-        // ArrayList<String> parsedDisplayables = new ArrayList<String>();
-        // for(int a = 0; a < displayables.size(); a++) {
-        // JSONObject entireEntry = (JSONObject)displayables.get(a);
-        // String displayableValue =
-        // entireEntry.get("displayableValue").toString();
-        // parsedDisplayables.add(displayableValue);
-        // }
-
-        // List<Map<String, Object>> displayablesTest =
-        // JsonExporter.makeDisplayablesJSON(evGraph);
-        // Map<String, Object> m = new HashMap<>();
-        // ArrayList<Object> generatedDisplayables = new ArrayList<Object>();
-        // for(int b = 0; b < displayablesTest.size(); b++) {
-        // m = displayablesTest.get(b);
-        // if(m.get("displayableValue") != null) {
-        // generatedDisplayables.add(m.get("displayableValue"));
-        // }
-        // }
-
-        // assertTrue(displayables.size() == displayablesTest.size());
-        // assertTrue(parsedDisplayables.size() == displayablesTest.size());
-        // assertTrue(parsedDisplayables.containsAll(generatedDisplayables));
-
         EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedDisplayablesList = JsonExporter
                 .makeDisplayablesJSON(evGraph);
-
+        Set<String> generatedDisplayables = new HashSet<>();
         int idCount = 0;
         int dVCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genDisplayable : generatedDisplayablesList) {
 
-        for (int c = 0; c < generatedDisplayablesList.size(); c++) {
-            m = generatedDisplayablesList.get(c);
-            if (m.containsKey("id") && m.get("id") != null) {
-                idCount++;
-            } else if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
+            if (genDisplayable.get("displayableValue") != null) {
+                generatedDisplayables
+                        .add(genDisplayable.get("displayableValue").toString());
             }
-            if (m.containsKey("displayableValue")
-                    && m.get("displayableValue") != null) {
+
+            if (genDisplayable.containsKey("id")) {
+                if (genDisplayable.get("id") == null) {
+                    Assert.fail("Displayable contains null id.");
+                }
+                idCount++;
+            }
+            if (genDisplayable.containsKey("displayableValue")) {
+                if (genDisplayable.get("displayableValue") == null) {
+                    Assert.fail("DisplayableValue contains null value.");
+                }
                 dVCount++;
-            } else if (m.containsKey("displayableValue")
-                    && m.get("displayableValue") == null) {
-                res = false;
             }
         }
+
+        JSONArray displayables = parseJSONArray("displayables");
+        Set<String> expectedDisplayables = new HashSet<>();
+
+        for (Object expDisplayable : displayables) {
+
+            JSONObject dispJSONObj = (JSONObject) expDisplayable;
+            String displayableValue = dispJSONObj.get("displayableValue")
+                    .toString();
+            expectedDisplayables.add(displayableValue);
+        }
+
+        assertTrue(expectedDisplayables.equals(generatedDisplayables));
         assertTrue(idCount == generatedDisplayablesList.size());
         assertTrue(idCount == dVCount);
-        assertTrue(res);
     }
 
     /*
@@ -159,27 +138,23 @@ public class JsonExporterTests {
         EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Integer>> generatedNodesList = JsonExporter
                 .makeNodesJSON(evGraph);
-
         int idCount = 0;
-        boolean res = true;
 
-        Map<String, Integer> m = new HashMap<>();
+        for (Map<String, Integer> genNode : generatedNodesList) {
 
-        for (int a = 0; a < generatedNodesList.size(); a++) {
-            m = generatedNodesList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
+            if (genNode.containsKey("id")) {
+                if (genNode.get("id") == null) {
+                    Assert.fail("Node contains null id.");
+                }
                 idCount++;
             }
-            if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
-            }
-            if (m.containsKey("displayableValue")
-                    && m.get("displayableIDs") == null) {
-                res = false;
+            if (genNode.containsKey("displayableIDs")
+                    && genNode.get("displayableIDs") == null) {
+                Assert.fail("DisplayableIDs is null.");
             }
         }
+
         assertTrue(idCount == generatedNodesList.size());
-        assertTrue(res);
     }
 
     /*
@@ -195,44 +170,39 @@ public class JsonExporterTests {
         List<Map<String, Integer>> t = JsonExporter.makeNodesJSON(evGraph);
         List<Map<String, Integer>> generatedEdgesList = JsonExporter
                 .makeEdgesJSON(evGraph);
-
         int idCount = 0;
         int srcNodeCount = 0;
         int destNodeCount = 0;
-        boolean res = true;
 
-        Map<String, Integer> m = new LinkedHashMap<>();
+        for (Map<String, Integer> genEdge : generatedEdgesList) {
 
-        for (int a = 0; a < generatedEdgesList.size(); a++) {
-
-            m = generatedEdgesList.get(a);
-
-            if (m.containsKey("id") && m.get("id") != null) {
+            if (genEdge.containsKey("id")) {
+                if (genEdge.get("id") == null) {
+                    Assert.fail("Edge contains null id.");
+                }
                 idCount++;
-            } else if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
             }
-            if (m.containsKey("srcNodeID") && m.get("srcNodeID") != null) {
+            if (genEdge.containsKey("srcNodeID")) {
+                if (genEdge.get("srcNodeID") == null) {
+                    Assert.fail("Edge contains null srcNodeID.");
+                }
                 srcNodeCount++;
-            } else if (m.containsKey("srcNodeID")
-                    && m.get("srcNodeID") == null) {
-                res = false;
             }
-            if (m.containsKey("destNodeID") && m.get("destNodeID") != null) {
+            if (genEdge.containsKey("destNodeID")) {
+                if (genEdge.get("destNodeID") == null) {
+                    Assert.fail("Edge contains null destNodeID.");
+                }
                 destNodeCount++;
-            } else if (m.containsKey("destNodeID")
-                    && m.get("destNodeID") == null) {
-                res = false;
             }
-            if (m.containsKey("displayableIDs")
-                    && m.get("displayableIDs") == null) {
-                res = false;
+            if (genEdge.containsKey("displayableIDs")
+                    && genEdge.get("displayableIDs") == null) {
+                Assert.fail("DisplayableIDs is null.");
             }
         }
+
         assertTrue(idCount == srcNodeCount);
         assertTrue(idCount == destNodeCount);
         assertTrue(idCount == generatedEdgesList.size());
-        assertTrue(res);
     }
 
     /*
@@ -245,29 +215,42 @@ public class JsonExporterTests {
         EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedEventTypesList = JsonExporter
                 .makeEventTypesJSON(evGraph);
-
+        Set<String> generatedEventTypes = new HashSet<>();
         int idCount = 0;
         int labelCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genEventType : generatedEventTypesList) {
 
-        for (int a = 0; a < generatedEventTypesList.size(); a++) {
-            m = generatedEventTypesList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
-                idCount++;
-            } else if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
+            if (genEventType.get("label") != null) {
+                generatedEventTypes.add(genEventType.get("label").toString());
             }
-            if (m.containsKey("label") && m.get("label") != null) {
+            if (genEventType.containsKey("id")) {
+                if (genEventType.get("id") == null) {
+                    Assert.fail("EventTypes contains null id.");
+                }
+                idCount++;
+            }
+            if (genEventType.containsKey("label")) {
+                if (genEventType.get("label") == null) {
+                    Assert.fail("EventTypes contains null label.");
+                }
                 labelCount++;
-            } else if (m.containsKey("label") && m.get("label") == null) {
-                res = false;
             }
         }
+
+        JSONArray eventTypes = parseJSONArray("eventTypes");
+        Set<String> expectedEventTypes = new HashSet<>();
+
+        for (Object expEventType : eventTypes) {
+
+            JSONObject eventTypeJSONObj = (JSONObject) expEventType;
+            String label = eventTypeJSONObj.get("label").toString();
+            expectedEventTypes.add(label);
+        }
+
+        assertTrue(expectedEventTypes.equals(generatedEventTypes));
         assertTrue(idCount == generatedEventTypesList.size());
         assertTrue(idCount == labelCount);
-        assertTrue(res);
     }
 
     /*
@@ -281,54 +264,51 @@ public class JsonExporterTests {
         EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedEventsList = JsonExporter
                 .makeEventsJSON(evGraph);
-
         int idCount = 0;
         int traceIDCount = 0;
         int traceIndexCount = 0;
         int eventTypeIDCount = 0;
         int timestampCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genEvent : generatedEventsList) {
 
-        for (int a = 0; a < generatedEventsList.size(); a++) {
-            m = generatedEventsList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
+            if (genEvent.containsKey("id")) {
+                if (genEvent.get("id") == null) {
+                    Assert.fail("Events contains null id.");
+                }
                 idCount++;
-            } else if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
             }
-            if (m.containsKey("traceID") && m.get("traceID") != null) {
+            if (genEvent.containsKey("traceID")) {
+                if (genEvent.get("traceID") == null) {
+                    Assert.fail("Events contains null traceID.");
+                }
                 traceIDCount++;
-            } else if (m.containsKey("traceIDCount")
-                    && m.get("traceIDCount") == null) {
-                res = false;
             }
-            if (m.containsKey("traceIndex") && m.get("traceIndex") != null) {
+            if (genEvent.containsKey("traceIndex")) {
+                if (genEvent.get("traceIndex") == null) {
+                    Assert.fail("Events contains null traceIndex.");
+                }
                 traceIndexCount++;
-            } else if (m.containsKey("traceIndex")
-                    && m.get("traceIndex") == null) {
-                res = false;
             }
-            if (m.containsKey("eventTypeID") && m.get("eventTypeID") != null) {
+            if (genEvent.containsKey("eventTypeID")) {
+                if (genEvent.get("eventTypeID") == null) {
+                    Assert.fail("Events contains null eventTypeID.");
+                }
                 eventTypeIDCount++;
-            } else if (m.containsKey("eventTypeID")
-                    && m.get("eventTypeID") == null) {
-                res = false;
             }
-            if (m.containsKey("timestamp") && m.get("timestamp") != null) {
+            if (genEvent.containsKey("timestamp")) {
+                if (genEvent.get("timestamp") == null) {
+                    Assert.fail("Events contains null timestamp.");
+                }
                 timestampCount++;
-            } else if (m.containsKey("timestamp")
-                    && m.get("timestamp") == null) {
-                res = false;
             }
         }
+
         assertTrue(idCount == generatedEventsList.size());
         assertTrue(idCount == traceIDCount);
         assertTrue(idCount == traceIndexCount);
         assertTrue(idCount == eventTypeIDCount);
         assertTrue(idCount == timestampCount);
-        assertTrue(res);
     }
 
     /*
@@ -341,38 +321,51 @@ public class JsonExporterTests {
 
         List<Map<String, Object>> generatedInvariantTypesList = JsonExporter
                 .makeInvariantTypesJSON(pGraph);
-
+        Set<String> generatedInvariantTypes = new HashSet<>();
         int idCount = 0;
         int typeCount = 0;
         int shortNameCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
-        for (int a = 0; a < generatedInvariantTypesList.size(); a++) {
-            m = generatedInvariantTypesList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
+        for (Map<String, Object> genInvariantType : generatedInvariantTypesList) {
+
+            if (genInvariantType.get("type") != null) {
+                generatedInvariantTypes
+                        .add(genInvariantType.get("type").toString());
+            }
+            if (genInvariantType.containsKey("id")) {
+                if (genInvariantType.get("id") == null) {
+                    Assert.fail("InvariantTypes contains a null id.");
+                }
                 idCount++;
             }
-            if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
-            }
-            if (m.containsKey("type") && m.get("type") != null) {
+            if (genInvariantType.containsKey("type")) {
+                if (genInvariantType.get("type") == null) {
+                    Assert.fail("InvariantTypes contains a null type.");
+                }
                 typeCount++;
             }
-            if (m.containsKey("type") && m.get("type") == null) {
-                res = false;
-            }
-            if (m.containsKey("shortName") && m.get("shortName") != null) {
+            if (genInvariantType.containsKey("shortName")) {
+                if (genInvariantType.get("shortName") == null) {
+                    Assert.fail("InvariantTypes contains a null shortName.");
+                }
                 shortNameCount++;
             }
-            if (m.containsKey("shortName") && m.get("shortName") == null) {
-                res = false;
-            }
         }
+
+        JSONArray invariantTypes = parseJSONArray("invariantTypes");
+        Set<String> expectedInvariantTypes = new HashSet<>();
+
+        for (Object expInvariantType : invariantTypes) {
+
+            JSONObject invariantTypeJSONObj = (JSONObject) expInvariantType;
+            String type = invariantTypeJSONObj.get("type").toString();
+            expectedInvariantTypes.add(type);
+        }
+
+        assertTrue(expectedInvariantTypes.equals(generatedInvariantTypes));
         assertTrue(idCount == generatedInvariantTypesList.size());
         assertTrue(idCount == typeCount);
         assertTrue(idCount == shortNameCount);
-        assertTrue(res);
     }
 
     /*
@@ -386,40 +379,35 @@ public class JsonExporterTests {
 
         List<Map<String, Object>> generatedInvariantsList = JsonExporter
                 .makeInvariantsJSON(pGraph);
-
         int idCount = 0;
         int invariantTypeIDCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genInvariant : generatedInvariantsList) {
 
-        for (int a = 0; a < generatedInvariantsList.size(); a++) {
-            m = generatedInvariantsList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
+            if (genInvariant.containsKey("id")) {
+                if (genInvariant.get("id") == null) {
+                    Assert.fail("Invariants contains a null id.");
+                }
                 idCount++;
             }
-            if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
-            }
-            if (m.containsKey("invariantTypeID")
-                    && m.get("invariantTypeID") != null) {
+            if (genInvariant.containsKey("invariantTypeID")) {
+                if (genInvariant.get("invariantTypeID") == null) {
+                    Assert.fail("Invariants contains a null invariantTypeID.");
+                }
                 invariantTypeIDCount++;
             }
-            if (m.containsKey("invariantTypeID")
-                    && m.get("invariantTypeID") == null) {
-                res = false;
+            if (genInvariant.containsKey("predicates")
+                    && genInvariant.get("predicates") == null) {
+                Assert.fail("Invariants contains null predicates.");
             }
-            if (m.containsKey("predicates") && m.get("predicates") == null) {
-                res = false;
-            }
-            if (m.containsKey("resourceBounds")
-                    && m.get("resourceBounds") == null) {
-                res = false;
+            if (genInvariant.containsKey("resourceBounds")
+                    && genInvariant.get("resourceBounds") == null) {
+                Assert.fail("Invariants contains null resourceBounds.");
             }
         }
+
         assertTrue(idCount == generatedInvariantsList.size());
         assertTrue(idCount == invariantTypeIDCount);
-        assertTrue(res);
     }
 
     /*
@@ -433,37 +421,50 @@ public class JsonExporterTests {
         EvBasedGraph evGraph = createEvGraph();
         List<Map<String, Object>> generatedLogStatementsList = JsonExporter
                 .makeLogStatementsJSON(evGraph);
-
+        Set<String> generatedLogStatements = new HashSet<>();
         int idCount = 0;
         int textCount = 0;
         int logPositionCount = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genLogStatement : generatedLogStatementsList) {
 
-        for (int a = 0; a < generatedLogStatementsList.size(); a++) {
-            m = generatedLogStatementsList.get(a);
-            if (m.containsKey("id") && m.get("id") != null) {
+            if (genLogStatement.get("text") != null) {
+                generatedLogStatements
+                        .add(genLogStatement.get("text").toString());
+            }
+            if (genLogStatement.containsKey("id")) {
+                if (genLogStatement.get("id") == null) {
+                    Assert.fail("LogStatements contains a null id.");
+                }
                 idCount++;
-            } else if (m.containsKey("id") && m.get("id") == null) {
-                res = false;
             }
-            if (m.containsKey("text") && m.get("text") != null) {
+            if (genLogStatement.containsKey("text")) {
+                if (genLogStatement.get("text") == null) {
+                    Assert.fail("LogStatements contains a null text.");
+                }
                 textCount++;
-            } else if (m.containsKey("text") && m.get("text") == null) {
-                res = false;
             }
-            if (m.containsKey("logPosition") && m.get("logPosition") != null) {
+            if (genLogStatement.containsKey("logPosition")) {
+                if (genLogStatement.get("logPosition") == null) {
+                    Assert.fail("LogStatements contains a null logPosition.");
+                }
                 logPositionCount++;
-            } else if (m.containsKey("logPosition")
-                    && m.get("logPosition") == null) {
-                res = false;
             }
         }
+
+        JSONArray logStatements = parseJSONArray("logStatements");
+        Set<String> expectedLogStatements = new HashSet<>();
+
+        for (Object expLogStatement : logStatements) {
+            JSONObject logStatementJSONObj = (JSONObject) expLogStatement;
+            String type = logStatementJSONObj.get("text").toString();
+            expectedLogStatements.add(type);
+        }
+
+        assertTrue(expectedLogStatements.equals(generatedLogStatements));
         assertTrue(idCount == generatedLogStatementsList.size());
         assertTrue(idCount == textCount);
         assertTrue(idCount == logPositionCount);
-        assertTrue(res);
     }
 
     /*
@@ -474,34 +475,30 @@ public class JsonExporterTests {
     public void linksTest() throws Exception {
 
         EvBasedGraph evGraph = createEvGraph();
-        // List<Map<String,Integer>> generatedNodesList =
-        // JsonExporter.makeNodesJSON(evGraph);
         List<Map<String, Integer>> generatedEdgesList = JsonExporter
                 .makeEdgesJSON(evGraph);
         List<Map<String, Object>> generatedLinksList = JsonExporter
                 .makeLinksJSON(evGraph);
-
         int idCount1 = 0;
         int idCount2 = 0;
-        boolean res = true;
 
-        Map<String, Object> m = new LinkedHashMap<>();
+        for (Map<String, Object> genLink : generatedLinksList) {
 
-        for (int a = 0; a < generatedLinksList.size(); a++) {
-            m = generatedLinksList.get(a);
-            if (m.containsKey("id1") && m.get("id1") != null) {
+            if (genLink.containsKey("id1")) {
+                if (genLink.get("id1") == null) {
+                    Assert.fail("Links contains a null id1.");
+                }
                 idCount1++;
-            } else if (m.containsKey("id1") && m.get("id1") == null) {
-                res = false;
             }
-            if (m.containsKey("id2") && m.get("id2") != null) {
+            if (genLink.containsKey("id2")) {
+                if (genLink.get("id2") == null) {
+                    Assert.fail("Links contains a null id2.");
+                }
                 idCount2++;
-            } else if (m.containsKey("id2") && m.get("id2") == null) {
-                res = false;
             }
         }
+
         assertTrue(idCount1 == generatedLinksList.size());
         assertTrue(idCount1 == idCount2);
-        assertTrue(res);
     }
 }

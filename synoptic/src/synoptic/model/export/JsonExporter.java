@@ -232,9 +232,9 @@ public class JsonExporter {
         nodeMap.put("id", globalID);
         nodesIDMap.put(node, globalID);
         if (node == evGraph.getInitialNode()) {
-            nodeMap.put("displayableIDs: ", displayablesIDMap.get(initial));
+            nodeMap.put("displayableIDs", displayablesIDMap.get(initial));
         } else if (node == evGraph.getTerminalNode()) {
-            nodeMap.put("displayablesIDs: ", displayablesIDMap.get(terminal));
+            nodeMap.put("displayablesIDs", displayablesIDMap.get(terminal));
         }
         globalID++;
         return nodeMap;

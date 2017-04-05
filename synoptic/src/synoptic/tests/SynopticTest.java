@@ -64,22 +64,27 @@ public abstract class SynopticTest extends SynopticLibTest {
      */
     public static String getTestPath(String path) throws Exception {
 
-        // original path passed in
+        // The Original path passed in.
         File originalPath = new File(path);
-        // parent directory of the path passed in
-        File parentPath = new File("../" + path);
-        // removing parent directory (../) from path passed in
-        File parentRemovedPath = new File(path.substring(3));
-
         if (originalPath.exists()) {
             return path;
-        } else if (parentPath.exists()) {
-            return ("../" + path);
-        } else if (parentRemovedPath.exists()) {
-            return (path.substring(3));
-        } else {
-            throw new FileNotFoundException("Invalid path or file is missing.");
         }
+        // Removing the parent directory of the path passed in if it exists.
+        else if (path.startsWith("../") | path.startsWith("..\\")) {
+            File parentRemovedPath = new File(path.substring(3));
+            if (parentRemovedPath.exists()) {
+                return (path.substring(3));
+            }
+        }
+        // The parent directory of the path passed in.
+        else if (!(path.startsWith("../") | path.startsWith("..\\"))) {
+            File parentPath = new File(("../" + path));
+            if (parentPath.exists()) {
+                return ("../" + path);
+            }
+        }
+        // If none of the paths work, throw an error.
+        throw new FileNotFoundException("Invalid path or file is missing.");
     }
 
     // //////////////////////////////////////////////
