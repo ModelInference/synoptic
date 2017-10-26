@@ -91,8 +91,11 @@ public class AbstractOptions {
     static final String ignoreNonMatchingLinesStr = "-i Ignore lines that do not match any of the passed regular expressions";
     public boolean ignoreNonMatchingLines = false;
 
-    // Whether or not we are running Perfume (true), or Synoptic (false).
+    // Whether to run Perfume (true), or Synoptic (false)
     public boolean usePerformanceInfo = false;
+
+    // Whether to only run the k-tails algorithm, not Synoptic or Perfume
+    public boolean onlyRunKTails = false;
 
     static final String traceNormalizationStr = "Independently normalize each trace";
     public boolean traceNormalization = false;
