@@ -772,7 +772,7 @@ public class Bisimulation {
      * @param k
      *            the k parameter for k-equality
      */
-    private static void mergePartitions(PartitionGraph pGraph,
+    public static void mergePartitions(PartitionGraph pGraph,
             TemporalInvariantSet invariants, int k) {
         int outerItters = 0;
 

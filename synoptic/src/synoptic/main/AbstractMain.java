@@ -540,44 +540,11 @@ public abstract class AbstractMain {
      * @throws Exception
      */
     public PartitionGraph createInitialPartitionGraph() throws Exception {
-        TraceParser parser = new TraceParser(options.regExps, AbstractOptions.partitionRegExp,
-                AbstractOptions.separatorRegExp, options.dateFormat);
-        List<EventNode> parsedEvents;
-        try {
-            parsedEvents = parseEvents(parser, AbstractOptions.plumeOpts.logFilenames);
-        } catch (ParseException e) {
-            logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + AbstractOptions.plumeOpts.getOptDesc("help"));
-            logger.severe(e.toString());
+        // Parse traces into a chains trace graph
+        ChainsTraceGraph traceGraph = parseIntoTraceGraph();
+        if (traceGraph == null) {
             return null;
         }
-
-        if (options.debugParse) {
-            // Terminate since the user is interested in debugging the parser.
-            logger.info("Terminating. To continue further, re-run without the debugParse option.");
-            return null;
-        }
-
-        // PO Logs are processed differently.
-        if (!parser.logTimeTypeIsTotallyOrdered()) {
-            logger.warning(
-                    "Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
-            processPOLog(parser, parsedEvents);
-            return null;
-        }
-
-        if (parsedEvents.size() == 0) {
-            logger.severe("Did not parse any events from the input log files. Stopping.");
-            return null;
-        }
-
-        // //////////////////
-        ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
-        // //////////////////
-
-        // Parsing information can be garbage-collected.
-        parser = null;
-        parsedEvents = null;
 
         // Perform trace-wise normalization if requested
         if (options.traceNormalization) {
@@ -589,9 +556,8 @@ public abstract class AbstractMain {
             exportTraceGraph(AbstractOptions.outputPathPrefix + ".tracegraph", traceGraph);
         }
 
-        // //////////////////
-        TemporalInvariantSet minedInvs = mineTOInvariants(options.useTransitiveClosureMining, traceGraph);
-        // //////////////////
+        TemporalInvariantSet minedInvs = mineTOInvariants(
+                options.useTransitiveClosureMining, traceGraph);
 
         int origNumInvariants = minedInvs.numInvariants();
         logger.info("Mined " + origNumInvariants + " invariants");
@@ -599,31 +565,37 @@ public abstract class AbstractMain {
         // Check if the support counts for all the invariants that have a count
         // is above the
         // threshold and if not then remove the invariant
-        for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it.hasNext();) {
+        for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                .hasNext();) {
             ITemporalInvariant inv = it.next();
             if (inv instanceof BinaryInvariant) {
                 if (((BinaryInvariant) inv).getStatistics() != null
-                        && ((BinaryInvariant) inv).getStatistics().supportCount <= options.supportCountThreshold) {
+                        && ((BinaryInvariant) inv)
+                                .getStatistics().supportCount <= options.supportCountThreshold) {
                     it.remove();
                 }
             }
         }
 
         if (minedInvs.numInvariants() != origNumInvariants) {
-            logger.info(String.format("Retained %d invariants that met support count threshold %d",
+            logger.info(String.format(
+                    "Retained %d invariants that met support count threshold %d",
                     minedInvs.numInvariants(), options.supportCountThreshold));
         }
 
         // Removed IntrBy and/or NFby invariants if necessary
         if (options.ignoreIntrByInvs || options.ignoreNFbyInvs) {
-            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it.hasNext();) {
+            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                    .hasNext();) {
                 ITemporalInvariant inv = it.next();
 
-                if (options.ignoreIntrByInvs && inv.getShortName().equals("IntrBy")) {
+                if (options.ignoreIntrByInvs
+                        && inv.getShortName().equals("IntrBy")) {
                     it.remove();
                 }
 
-                if (options.ignoreNFbyInvs && inv.getShortName().equals("NFby")) {
+                if (options.ignoreNFbyInvs
+                        && inv.getShortName().equals("NFby")) {
                     it.remove();
                 }
             }
@@ -635,19 +607,23 @@ public abstract class AbstractMain {
             if (options.ignoreNFbyInvs) {
                 removedTypes = "NFby";
             }
-            logger.info(String.format("Retained %d invariants after removing %s invariants", minedInvs.numInvariants(),
-                    removedTypes));
+            logger.info(String.format(
+                    "Retained %d invariants after removing %s invariants",
+                    minedInvs.numInvariants(), removedTypes));
         }
 
         if (AbstractOptions.ignoreInvsOverETypeSet != null) {
 
             // Split string options.ignoreInvsOverETypeSet by the ";" delimiter:
-            List<String> stringEtypesToIgnore = Arrays.asList(AbstractOptions.ignoreInvsOverETypeSet.split(";"));
+            List<String> stringEtypesToIgnore = Arrays
+                    .asList(AbstractOptions.ignoreInvsOverETypeSet.split(";"));
 
-            logger.info("Ignoring invariants over event-types set: " + stringEtypesToIgnore.toString());
+            logger.info("Ignoring invariants over event-types set: "
+                    + stringEtypesToIgnore.toString());
 
             boolean removeInv;
-            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it.hasNext();) {
+            for (Iterator<ITemporalInvariant> it = minedInvs.iterator(); it
+                    .hasNext();) {
                 ITemporalInvariant inv = it.next();
 
                 // To remove an invariant inv, the event types associated with
@@ -672,13 +648,16 @@ public abstract class AbstractMain {
         }
 
         if (options.outputSupportCount) {
-            logger.info("Mined invariants and support counts:\n" + minedInvs.supportCountToPrettyString());
+            logger.info("Mined invariants and support counts:\n"
+                    + minedInvs.supportCountToPrettyString());
         }
 
         if (options.outputInvariantsToFile) {
-            String invariantsFilename = AbstractOptions.outputPathPrefix + ".invariants.txt";
+            String invariantsFilename = AbstractOptions.outputPathPrefix
+                    + ".invariants.txt";
             logger.info("Outputting invariants to file: " + invariantsFilename);
-            minedInvs.outputToFile(invariantsFilename, options.outputSupportCount);
+            minedInvs.outputToFile(invariantsFilename,
+                    options.outputSupportCount);
         }
 
         if (options.onlyMineInvariants) {
@@ -693,10 +672,62 @@ public abstract class AbstractMain {
         // //////////////////
 
         if (options.dumpInitialPartitionGraph) {
-            exportGraph(AbstractOptions.outputPathPrefix + ".condensed", pGraph, true, false, true);
+            exportGraph(AbstractOptions.outputPathPrefix + ".condensed", pGraph,
+                    true, false, true);
         }
 
         return pGraph;
+    }
+
+    /**
+     * Parse events into traces, and assemble traces into a chains trace graph
+     * 
+     * @return The trace graph resulting from the traces and options specified
+     * @throws ParseException
+     * @throws Exception
+     * @throws FileNotFoundException
+     */
+    protected ChainsTraceGraph parseIntoTraceGraph()
+            throws ParseException, Exception, FileNotFoundException {
+        TraceParser parser = new TraceParser(options.regExps,
+                AbstractOptions.partitionRegExp,
+                AbstractOptions.separatorRegExp, options.dateFormat);
+        List<EventNode> parsedEvents;
+        try {
+            parsedEvents = parseEvents(parser,
+                    AbstractOptions.plumeOpts.logFilenames);
+        } catch (ParseException e) {
+            logger.severe(
+                    "Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
+                            + AbstractOptions.plumeOpts.getOptDesc("help"));
+            logger.severe(e.toString());
+            return null;
+        }
+
+        if (options.debugParse) {
+            // Terminate since the user is interested in debugging the parser.
+            logger.info(
+                    "Terminating. To continue further, re-run without the debugParse option.");
+            return null;
+        }
+
+        // PO Logs are processed differently.
+        if (!parser.logTimeTypeIsTotallyOrdered()) {
+            logger.warning(
+                    "Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
+            processPOLog(parser, parsedEvents);
+            return null;
+        }
+
+        if (parsedEvents.size() == 0) {
+            logger.severe(
+                    "Did not parse any events from the input log files. Stopping.");
+            return null;
+        }
+
+        // //////////////////
+        ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
+        return traceGraph;
     }
 
     /**
@@ -826,6 +857,16 @@ public abstract class AbstractMain {
         // unsatisfied in the result
 
         // export the resulting graph
+        exportGraph(pGraph);
+    }
+
+    /**
+     * Export a partition graph as specified by the command line options
+     * 
+     * @param pGraph
+     */
+    protected void exportGraph(PartitionGraph pGraph) {
+        long startTime;
         if (AbstractOptions.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size() + " nodes]..");
             startTime = System.currentTimeMillis();

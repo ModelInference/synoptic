@@ -19,8 +19,8 @@ import synoptic.main.AbstractMain;
  * using toAbstractOptions().
  * </p>
  * <p>
- * Options common between this class and PerfumeOptions cannot be pushed up into
- * a superclass because plume-lib doesn't support inheritance.
+ * Options common between this and other options classes cannot be pushed up
+ * into a superclass because plume-lib doesn't support inheritance.
  * </p>
  */
 public class SynopticOptions extends Options {
@@ -160,6 +160,11 @@ public class SynopticOptions extends Options {
     public static final boolean usePerformanceInfo = false;
 
     /**
+     * Incompatible option that would run k-tails but not Synoptic
+     */
+    public final static boolean onlyRunKTails = false;
+
+    /**
      * Synoptic doesn't support trace-wise normalization
      */
     public final boolean traceNormalization = false;
@@ -253,14 +258,13 @@ public class SynopticOptions extends Options {
     public String dotExecutablePath = null;
 
     /**
-     * This sets the output edge labels on graphs that are exported.
+     * Whether or not probabilities are displayed on edge labels
      */
     @Option(value = AbstractOptions.outputProbLabelsStr, aliases = { "-outputProbLabels" })
     public boolean outputProbLabels = true;
 
     /**
-     * Whether or not transition counts are displayed on edge labels in addition
-     * to metric ranges, which are always displayed
+     * Whether or not transition counts are displayed on edge labels
      */
     @Option(value = AbstractOptions.outputCountLabelsStr, aliases = { "-outputCountLabels" })
     public boolean outputCountLabels = false;
@@ -512,6 +516,7 @@ public class SynopticOptions extends Options {
         AbstractOptions.partitionRegExp = partitionRegExp;
         absOpts.ignoreNonMatchingLines = ignoreNonMatchingLines;
         absOpts.usePerformanceInfo = usePerformanceInfo;
+        absOpts.onlyRunKTails = onlyRunKTails;
         absOpts.traceNormalization = traceNormalization;
         absOpts.keepOrder = keepOrder;
         absOpts.recoverFromParseErrors = recoverFromParseErrors;

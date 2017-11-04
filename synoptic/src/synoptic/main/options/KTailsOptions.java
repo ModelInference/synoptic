@@ -11,18 +11,38 @@ import synoptic.main.AbstractMain;
 
 /**
  * <p>
- * Defines and maintains command line arguments to Perfume. It uses plume-lib
- * for defining command line options, their types, and the corresponding help
- * messages. This library also provides support for parsing and populating
- * instances of these options. All options can be exported to AbstractOptions
- * (the common options for all Synoptic projects) using toAbstractOptions().
- * </p>
+ * This class defines and maintains command line arguments to Synoptic's
+ * implementation of the k-tails algorithm. It uses plume-lib for defining
+ * command line options, their types, and the corresponding help messages. This
+ * library also provides support for parsing and populating instances of these
+ * options. All options can be exported to AbstractOptions (the common options
+ * for all Synoptic projects) using toAbstractOptions().
  * <p>
  * Options common between this and other options classes cannot be pushed up
  * into a superclass because plume-lib doesn't support inheritance.
- * </p>
  */
-public class PerfumeOptions extends Options {
+public class KTailsOptions extends Options {
+
+    // Features that k-tails doesn't support
+    public final static String separateVTimeIndexSets = null;
+    public final static boolean multipleRelations = false;
+    public final static boolean stateProcessing = false;
+    public final static boolean testGeneration = false;
+    public final static int supportCountThreshold = 0;
+    public final static boolean ignoreIntrByInvs = false;
+    public final static boolean ignoreNFbyInvs = false;
+    public final static boolean usePerformanceInfo = false;
+    public final static boolean traceNormalization = false;
+    public final static boolean outputSupportCount = false;
+    public final static boolean outputInvariantsToFile = false;
+    public final static boolean dumpInvariants = false;
+    public final static String ignoreInvsOverETypeSet = null;
+    public final static boolean useTransitiveClosureMining = false;
+    public final static boolean mineNeverConcurrentWithInv = false;
+    public final static boolean onlyMineInvariants = false;
+    public final static boolean noCoarsening = false;
+    public final static boolean noRefinement = false;
+
     // //////////////////////////////////////////////////
     /**
      * Print the short usage message. This does not include verbosity or
@@ -40,7 +60,7 @@ public class PerfumeOptions extends Options {
     public boolean allHelp = false;
 
     /**
-     * Print the current Perfume version.
+     * Print the current Synoptic version.
      */
     @Option(value = AbstractOptions.versionStr, aliases = { "-version" })
     public boolean version = false;
@@ -61,42 +81,17 @@ public class PerfumeOptions extends Options {
     public boolean logLvlVerbose = false;
 
     /**
-     * Sets the random seed for Perfume's source of pseudo-random numbers.
+     * Sets the random seed for Synoptic's source of pseudo-random numbers.
      */
     @Option(AbstractOptions.randomSeedStr)
     public Long randomSeed = null;
 
     /**
-     * Perfume doesn't support vector time
+     * The k parameter for determining k-equality when running the k-tails
+     * algorithm
      */
-    public final String separateVTimeIndexSets = null;
-
-    /**
-     * Perfume doesn't support multiple relations
-     */
-    public final boolean multipleRelations = false;
-
-    /**
-     * Perfume doesn't support state processing
-     */
-    public final boolean stateProcessing = false;
-
-    /**
-     * Perfume doesn't support abstract test generation
-     */
-    public final boolean testGeneration = false;
-
-    /**
-     * Whether to ignore (filter out) IntrBy invariants
-     */
-    @Option(AbstractOptions.ignoreIntrByInvsStr)
-    public boolean ignoreIntrByInvs = false;
-
-    /**
-     * Whether to ignore (filter out) NFby invariants
-     */
-    @Option(AbstractOptions.ignoreNFbyInvsStr)
-    public boolean ignoreNFbyInvs = false;
+    // @Option(AbstractOptions.kStr)
+    // public int k = 2;
 
     // //////////////////////////////////////////////////
     /**
@@ -104,11 +99,12 @@ public class PerfumeOptions extends Options {
      * this expression, the lines before and after are considered to be in
      * different 'traces', each to be considered an individual sample of the
      * behavior of the system. This is implemented by augmenting the separator
-     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k
-     * <SEPCOUNT> to the partitioner.
+     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k <SEPCOUNT>
+     * to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(value = AbstractOptions.separatorRegExpStr, aliases = { "-partition-separator" })
+    @Option(value = AbstractOptions.separatorRegExpStr,
+            aliases = { "-partition-separator" })
     public String separatorRegExp = null;
 
     /**
@@ -129,13 +125,9 @@ public class PerfumeOptions extends Options {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    @Option(value = AbstractOptions.partitionRegExpStr, aliases = { "-partition-mapping" })
+    @Option(value = AbstractOptions.partitionRegExpStr,
+            aliases = { "-partition-mapping" })
     public String partitionRegExp = AbstractOptions.partitionRegExpDefault;
-
-    /**
-     * This flag indicates whether Perfume should partition traces by file
-     */
-    public boolean partitionViaFile = true;
 
     /**
      * This option relieves the user from writing regular expressions to parse
@@ -145,34 +137,23 @@ public class PerfumeOptions extends Options {
     @Option(AbstractOptions.ignoreNonMatchingLinesStr)
     public boolean ignoreNonMatchingLines = false;
 
-    /**
-     * Perfume always uses performance information.
-     */
-    public final static boolean usePerformanceInfo = true;
+    // Option that causes k-tails to run instead of Synoptic or Perfume
+    public final static boolean onlyRunKTails = true;
 
     /**
-     * Incompatible option that would run k-tails but not Perfume
-     */
-    public final static boolean onlyRunKTails = false;
-
-    /**
-     * Perform trace-wise normalization
-     */
-    @Option(value = AbstractOptions.traceNormalizationStr, aliases = { "-trace-norm" })
-    public boolean traceNormalization = false;
-
-    /**
-     * Keep events in log order and do not sort by supplied resource values
+     * Synoptic usually sorts events within a trace by supplied resource values,
+     * assumed to be time
      */
     @Option(value = AbstractOptions.keepOrderStr)
-    public boolean keepOrder = true;
+    public boolean keepOrder = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(value = AbstractOptions.recoverFromParseErrorsStr, aliases = { "-ignore-parse-errors" })
+    @Option(value = AbstractOptions.recoverFromParseErrorsStr,
+            aliases = { "-ignore-parse-errors" })
     public boolean recoverFromParseErrors = false;
 
     /**
@@ -195,38 +176,19 @@ public class PerfumeOptions extends Options {
     @OptionGroup("Input Options")
     @Option(value = AbstractOptions.argsFilenameStr, aliases = { "-argsfile" })
     public String argsFilename = null;
-
-    /**
-     * Interpret the supplied time values as delta values instead of absolute
-     * values
-     */
-    @Option(value = AbstractOptions.inputDeltaStr)
-    public boolean inputDelta = false;
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
     /**
-     * Specifies the prefix of where to store the final Perfume representation
+     * Specifies the prefix of where to store the final Synoptic representation
      * output. This prefix is also used to determine filenames of intermediary
      * files, like corresponding dot file and intermediate stage representations
      * (if specified, e.g. with --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(value = AbstractOptions.outputPathPrefixStr, aliases = { "-output-prefix" })
+    @Option(value = AbstractOptions.outputPathPrefixStr,
+            aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
-
-    /**
-     * Whether or not to output support counts along with mined invariants
-     */
-    @Option(AbstractOptions.outputSupportCountsStr)
-    public boolean outputSupportCount = false;
-
-    /**
-     * Whether or not to output the list of invariants to a file, with one
-     * invariant per line.
-     */
-    @Option(AbstractOptions.outputInvariantsToFileStr)
-    public boolean outputInvariantsToFile = false;
 
     /**
      * Do not output the final model unless a format is explicitly requested.
@@ -238,36 +200,38 @@ public class PerfumeOptions extends Options {
      * Whether or not models should be exported as GML (graph modeling language)
      * files (the default format is DOT file format).
      */
-    @Option(value = AbstractOptions.exportAsGMLStr, aliases = { "-export-as-gml" })
+    @Option(value = AbstractOptions.exportAsGMLStr,
+            aliases = { "-export-as-gml" })
     public boolean exportAsGML = false;
 
     /**
-     * The absolute path to the dot command executable to use for outputting
-     * graphical representations of Perfume models
+     * Output the LTS representation of the final model to the output prefix
+     * specified by -o or -output-prefix.
      */
-    @Option(value = AbstractOptions.dotExecutablePathStr, aliases = { "-dot-executable" })
+    @Option(value = AbstractOptions.outputLTSStr, aliases = { "-lts" })
+    public boolean outputLTS = false;
+
+    /**
+     * The absolute path to the dot command executable to use for outputting
+     * graphical representations of Synoptic models
+     */
+    @Option(value = AbstractOptions.dotExecutablePathStr,
+            aliases = { "-dot-executable" })
     public String dotExecutablePath = null;
 
     /**
-     * Whether or not probabilities are displayed on edge labels in addition to
-     * metric ranges, which are always displayed
+     * Whether or not probabilities are displayed on edge labels
      */
-    @Option(value = AbstractOptions.outputProbLabelsStr)
-    public boolean outputProbLabels = false;
+    @Option(value = AbstractOptions.outputProbLabelsStr,
+            aliases = { "-outputProbLabels" })
+    public boolean outputProbLabels = true;
 
     /**
-     * Whether or not transition counts are displayed on edge labels in addition
-     * to metric ranges, which are always displayed
+     * Whether or not transition counts are displayed on edge labels
      */
-    @Option(value = AbstractOptions.outputCountLabelsStr)
+    @Option(value = AbstractOptions.outputCountLabelsStr,
+            aliases = { "-outputCountLabels" })
     public boolean outputCountLabels = false;
-
-    /**
-     * Whether or not to show the median metric value on edges between the min
-     * and max, e.g., [1,5,9] instead of [1,9] for min 1, median 5, max 9
-     */
-    @Option(AbstractOptions.showMedianStr)
-    public boolean showMedian = false;
 
     /**
      * Whether or not the output graphs include the common TERMINAL state, to
@@ -294,18 +258,16 @@ public class PerfumeOptions extends Options {
 
     // //////////////////////////////////////////////////
     /**
-     * Dump the complete list of mined Perfume invariants for the set of input
+     * Dump the complete list of mined synoptic.invariants for the set of input
      * files to stdout. This option is <i>unpublicized</i>; it will not appear
      * in the default usage message
      */
     @OptionGroup(value = "Verbosity Options", unpublicized = true)
-    @Option(AbstractOptions.dumpInvariantsStr)
-    public boolean dumpInvariants = false;
 
     /**
      * Dump the DOT representation of the parsed trace graph to file. The file
      * will have the name <outputPathPrefix>.tracegraph.dot, where
-     * 'outputPathPrefix' is the filename of the final Perfume output. This
+     * 'outputPathPrefix' is the filename of the final Synoptic output. This
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message
      */
@@ -315,8 +277,8 @@ public class PerfumeOptions extends Options {
     /**
      * Dump PNG of parsed trace graph to file. The file will have the name
      * <outputPathPrefix>.tracegraph.dot.png, where 'outputPathPrefix' is the
-     * filename of the final Perfume output. This option is <i>unpublicized</i>;
-     * it will not appear in the default usage message
+     * filename of the final Synoptic output. This option is <i>unpublicized</i>
+     * ; it will not appear in the default usage message
      */
     @Option(AbstractOptions.dumpTraceGraphPngFileStr)
     public boolean dumpTraceGraphPngFile = false;
@@ -324,7 +286,7 @@ public class PerfumeOptions extends Options {
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will
      * have the name <outputPathPrefix>.condensed.dot.png, where
-     * 'outputPathPrefix' is the filename of the final Perfume output. This
+     * 'outputPathPrefix' is the filename of the final Synoptic output. This
      * option is <i>unpublicized</i>; it will not appear in the default usage
      * message.
      */
@@ -332,10 +294,10 @@ public class PerfumeOptions extends Options {
     public boolean dumpInitialPartitionGraph = false;
 
     /**
-     * Dump the dot representations for intermediate Perfume steps to file. Each
-     * of these files will have a name like:
+     * Dump the dot representations for intermediate Synoptic steps to file.
+     * Each of these files will have a name like:
      * outputPathPrefix.stage-S.round-R.dot where 'outputPathPrefix' is the
-     * filename of the final Perfume output, 'S' is the name of the stage (e.g.
+     * filename of the final Synoptic output, 'S' is the name of the stage (e.g.
      * r for refinement, and c for coarsening), and 'R' is the round number
      * within the stage. This option requires that the outputPathPrefix is set
      * with the -o option (see above). This option is <i>unpublicized</i>; it
@@ -353,36 +315,6 @@ public class PerfumeOptions extends Options {
      */
     @Option(AbstractOptions.logLvlExtraVerboseStr)
     public boolean logLvlExtraVerbose = false;
-
-    /**
-     * Ignore invariants including certain event types.
-     */
-    @Option(AbstractOptions.ignoreInvsOverETypeSetStr)
-    public String ignoreInvsOverETypeSet = null;
-
-    /**
-     * Perfume doesn't support transitive closure mining
-     */
-    public final boolean useTransitiveClosureMining = false;
-
-    /**
-     * Perfume doesn't support the NeverConcurrentWith invariant
-     */
-    public final boolean mineNeverConcurrentWithInv = false;
-
-    /**
-     * Used to tell Perfume to not go past mining invariants.
-     */
-    @Option(AbstractOptions.onlyMineInvariantsStr)
-    public boolean onlyMineInvariants = false;
-
-    /**
-     * Do not perform the coarsening stage in Perfume, and as final output use
-     * the most refined representation. This option is <i>unpublicized</i>; it
-     * will not appear in the default usage message
-     */
-    @Option(AbstractOptions.noCoarseningStr)
-    public boolean noCoarsening = false;
 
     /**
      * Perform benchmarking and output benchmark information. This option is
@@ -421,27 +353,17 @@ public class PerfumeOptions extends Options {
      */
     @Option(AbstractOptions.performExtraChecksStr)
     public boolean performExtraChecks = false;
-
-    /**
-     * Do not perform the refinement (and therefore do not perform coarsening)
-     * and do not produce any representation as output. This is useful for just
-     * printing the list of mined synoptic.invariants (using the option
-     * 'dumpInvariants' above). This option is <i>unpublicized</i>; it will not
-     * appear in the default usage message
-     */
-    @Option(AbstractOptions.noRefinementStr)
-    public boolean noRefinement = false;
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    public static final String usageString = "perfume [options] <logfiles-to-analyze>";
+    public static final String usageString = "ktails [options] <logfiles-to-analyze>";
 
     /**
      * Use this constructor to create a blank set of options, that can then be
-     * populated manually, one at a time. This is useful when Perfume is used as
+     * populated manually, one at a time. This is useful when k-tails is used as
      * a library or in tests, and options do not come from the command line.
      */
-    public PerfumeOptions() {
+    public KTailsOptions() {
         randomSeed = System.currentTimeMillis();
         logFilenames = new LinkedList<String>();
     }
@@ -455,7 +377,7 @@ public class PerfumeOptions extends Options {
      *            an array of command line arguments
      * @throws IOException
      */
-    public PerfumeOptions(String[] args) throws IOException {
+    public KTailsOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);
         if (randomSeed == null) {
@@ -468,7 +390,8 @@ public class PerfumeOptions extends Options {
      */
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options", "Execution Options", "Parser Options", "Input Options",
+        System.out.println(plumeOptions.usage("General Options",
+                "Execution Options", "Parser Options", "Input Options",
                 "Output Options", "Verbosity Options", "Debugging Options"));
     }
 
@@ -500,8 +423,10 @@ public class PerfumeOptions extends Options {
         absOpts.multipleRelations = multipleRelations;
         absOpts.stateProcessing = stateProcessing;
         absOpts.testGeneration = testGeneration;
+        absOpts.supportCountThreshold = supportCountThreshold;
         absOpts.ignoreIntrByInvs = ignoreIntrByInvs;
         absOpts.ignoreNFbyInvs = ignoreNFbyInvs;
+        // absOpts.k = k;
 
         // Parser options
 
@@ -520,7 +445,6 @@ public class PerfumeOptions extends Options {
         // Input options
 
         AbstractOptions.argsFilename = argsFilename;
-        AbstractOptions.inputDelta = inputDelta;
 
         // Output options
 
@@ -529,10 +453,10 @@ public class PerfumeOptions extends Options {
         absOpts.outputInvariantsToFile = outputInvariantsToFile;
         absOpts.noModelOutput = noModelOutput;
         absOpts.exportAsGML = exportAsGML;
+        absOpts.outputLTS = outputLTS;
         AbstractOptions.dotExecutablePath = dotExecutablePath;
         absOpts.outputProbLabels = outputProbLabels;
         absOpts.outputCountLabels = outputCountLabels;
-        absOpts.showMedian = showMedian;
         absOpts.showTerminalNode = showTerminalNode;
         absOpts.showInitialNode = showInitialNode;
         absOpts.outputJSON = outputJSON;
