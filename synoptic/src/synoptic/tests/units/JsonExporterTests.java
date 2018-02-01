@@ -136,11 +136,11 @@ public class JsonExporterTests {
     public void nodesTest() throws Exception {
 
         EvBasedGraph evGraph = createEvGraph();
-        List<Map<String, Integer>> generatedNodesList = JsonExporter
+        List<Map<String, Object>> generatedNodesList = JsonExporter
                 .makeNodesJSON(evGraph);
         int idCount = 0;
 
-        for (Map<String, Integer> genNode : generatedNodesList) {
+        for (Map<String, Object> genNode : generatedNodesList) {
 
             if (genNode.containsKey("id")) {
                 if (genNode.get("id") == null) {
@@ -167,14 +167,14 @@ public class JsonExporterTests {
     public void edgesTest() throws Exception {
 
         EvBasedGraph evGraph = createEvGraph();
-        List<Map<String, Integer>> t = JsonExporter.makeNodesJSON(evGraph);
-        List<Map<String, Integer>> generatedEdgesList = JsonExporter
+        List<Map<String, Object>> t = JsonExporter.makeNodesJSON(evGraph);
+        List<Map<String, Object>> generatedEdgesList = JsonExporter
                 .makeEdgesJSON(evGraph);
         int idCount = 0;
         int srcNodeCount = 0;
         int destNodeCount = 0;
 
-        for (Map<String, Integer> genEdge : generatedEdgesList) {
+        for (Map<String, Object> genEdge : generatedEdgesList) {
 
             if (genEdge.containsKey("id")) {
                 if (genEdge.get("id") == null) {
@@ -475,7 +475,7 @@ public class JsonExporterTests {
     public void linksTest() throws Exception {
 
         EvBasedGraph evGraph = createEvGraph();
-        List<Map<String, Integer>> generatedEdgesList = JsonExporter
+        List<Map<String, Object>> generatedEdgesList = JsonExporter
                 .makeEdgesJSON(evGraph);
         List<Map<String, Object>> generatedLinksList = JsonExporter
                 .makeLinksJSON(evGraph);

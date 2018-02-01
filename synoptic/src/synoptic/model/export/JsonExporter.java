@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 import org.json.simple.JSONValue;
 
@@ -36,7 +37,7 @@ public class JsonExporter {
     private static final String initial = "INITIAL";
     private static final String terminal = "TERMINAL";
     // Map of nodes and their respective global ID's
-    private static Map<EvBasedNode, Integer> nodesIDMap = null;
+    private static Map<EvBasedNode, Object> nodesIDMap = null;
     // Map of edges and their respective global ID's
     private static Map<EvBasedEdge, Integer> edgesIDMap = null;
     // Map of displayables and their respective global ID's
@@ -77,11 +78,11 @@ public class JsonExporter {
         finalModelMap.put("displayables", displayablesList);
 
         // Add nodes to the final model map
-        List<Map<String, Integer>> nodesList = makeNodesJSON(evGraph);
+        List<Map<String, Object>> nodesList = makeNodesJSON(evGraph);
         finalModelMap.put("nodes", nodesList);
 
         // Add edges to final model map
-        List<Map<String, Integer>> edgesList = makeEdgesJSON(evGraph);
+        List<Map<String, Object>> edgesList = makeEdgesJSON(evGraph);
         finalModelMap.put("edges", edgesList);
 
         // Add event types to final model map
@@ -140,11 +141,11 @@ public class JsonExporter {
         finalModelMap.put("displayables", displayablesList);
 
         // Add nodes to the final model map
-        List<Map<String, Integer>> nodesList = makeNodesJSON(evGraph);
+        List<Map<String, Object>> nodesList = makeNodesJSON(evGraph);
         finalModelMap.put("nodes", nodesList);
 
         // Add edges to final model map
-        List<Map<String, Integer>> edgesList = makeEdgesJSON(evGraph);
+        List<Map<String, Object>> edgesList = makeEdgesJSON(evGraph);
         finalModelMap.put("edges", edgesList);
 
         // Add event types to final model map
@@ -183,7 +184,7 @@ public class JsonExporter {
      *            The EvBasedGraph whose nodes we're outputting
      */
 
-    public static List<Map<String, Integer>> makeNodesJSON(
+    public static List<Map<String, Object>> makeNodesJSON(
             EvBasedGraph evGraph) {
 
         nodesIDMap = new LinkedHashMap<>();
@@ -191,26 +192,24 @@ public class JsonExporter {
         assert (displayablesIDMap != null) : "displayablesIDMap is null";
 
         // List of nodes to go into the JSON object
-        List<Map<String, Integer>> nodeList = new LinkedList<>();
+        List<Map<String, Object>> nodeList = new LinkedList<>();
 
         // Add the initial node first
-        Map<String, Integer> initNodeMap = makeNode(evGraph,
-                evGraph.getInitialNode());
+        Map<String, Object> initNodeMap = makeNode(evGraph, evGraph.getInitialNode());
         nodeList.add(initNodeMap);
 
         // Get all the nodes in the evGraph
         for (EvBasedNode node : evGraph.getNodes()) {
 
-            if (node != evGraph.getInitialNode()
-                    && node != evGraph.getTerminalNode()) {
+            if (node != evGraph.getInitialNode() && node != evGraph.getTerminalNode()) {
 
-                Map<String, Integer> nodeMap = makeNode(evGraph, node);
+                Map<String, Object> nodeMap = makeNode(evGraph, node);
                 nodeList.add(nodeMap);
-            }
+             }
         }
 
         // Add the terminal node last
-        Map<String, Integer> termNodeMap = makeNode(evGraph,
+        Map<String, Object> termNodeMap = makeNode(evGraph,
                 evGraph.getTerminalNode());
         nodeList.add(termNodeMap);
 
@@ -226,15 +225,20 @@ public class JsonExporter {
      * @param node
      *            The particular node being processed
      */
-    public static Map<String, Integer> makeNode(EvBasedGraph evGraph,
+    public static Map<String, Object> makeNode(EvBasedGraph evGraph,
             EvBasedNode node) {
-        Map<String, Integer> nodeMap = new LinkedHashMap<>();
+        Map<String, Object> nodeMap = new LinkedHashMap<>();
         nodeMap.put("id", globalID);
         nodesIDMap.put(node, globalID);
         if (node == evGraph.getInitialNode()) {
-            nodeMap.put("displayableIDs", displayablesIDMap.get(initial));
-        } else if (node == evGraph.getTerminalNode()) {
-            nodeMap.put("displayablesIDs", displayablesIDMap.get(terminal));
+            List<Integer> displayableList = new LinkedList<>();
+            displayableList.add(displayablesIDMap.get(initial));
+            nodeMap.put("displayableIDs", displayableList);
+        }
+        if (node == evGraph.getTerminalNode()) {
+            List<Integer> displayableList = new LinkedList<>();
+            displayableList.add(displayablesIDMap.get(terminal));
+            nodeMap.put("displayableIDs", displayableList);
         }
         globalID++;
         return nodeMap;
@@ -247,7 +251,7 @@ public class JsonExporter {
      * @param evGraph
      *            The EvBasedGraph whose edges we're outputting
      */
-    public static List<Map<String, Integer>> makeEdgesJSON(
+    public static List<Map<String, Object>> makeEdgesJSON(
             EvBasedGraph evGraph) {
 
         edgesIDMap = new LinkedHashMap<>();
@@ -256,7 +260,7 @@ public class JsonExporter {
                 && displayablesIDMap != null) : "Either one or both of nodesIDMap and displayablesIDMap is null";
 
         // List of edges and info to go into the JSON Object
-        List<Map<String, Integer>> edgesList = new LinkedList<>();
+        List<Map<String, Object>> edgesList = new LinkedList<>();
 
         // Contains all edges used to avoid duplicates
         Set<EvBasedEdge> usedEdges = new HashSet<>();
@@ -265,7 +269,7 @@ public class JsonExporter {
 
             for (EvBasedEdge edge : node.outEdges) {
 
-                Map<String, Integer> edgesMap = new LinkedHashMap<>();
+                Map<String, Object> edgesMap = new LinkedHashMap<>();
 
                 // Check to see if it is a duplicate
                 if (!usedEdges.contains(edge)) {
@@ -285,9 +289,9 @@ public class JsonExporter {
                             displayableValue = edge.eType.getETypeLabel() + " ["
                                     + edge.resMin + ", " + edge.resMax + "]";
                         }
-
-                        edgesMap.put("displayablesIDs",
-                                displayablesIDMap.get(displayableValue));
+                        List<Integer> displayableList = new LinkedList<>();
+                        displayableList.add(displayablesIDMap.get(displayableValue));
+                        edgesMap.put("displayableIDs", displayableList);
                     }
 
                     edgesIDMap.put(edge, globalID);
@@ -349,6 +353,16 @@ public class JsonExporter {
                 }
             }
         }
+
+        if(!displayablesIDMap.containsKey(terminal)) {
+            Map<String, Object> displayablesMap = new LinkedHashMap<>();
+            displayablesMap.put("id", globalID);
+            displayablesMap.put("displayableValue", terminal);
+            displayablesIDMap.put(terminal, globalID);
+            displayablesList.add(displayablesMap);
+            globalID++;
+        }
+
         return displayablesList;
     }
 
@@ -428,9 +442,9 @@ public class JsonExporter {
                 eventsIDMap.put(event, globalID);
 
                 // Populate this event's time if it's not INITIAL or TERMINAL
-                if (!evType.isSpecialEventType()) {
-                    singleEventMap.put("timestamp", event.getTime());
-                }
+                // if (!evType.isSpecialEventType()) {
+                //     singleEventMap.put("timestamp", event.getTime());
+                // }
                 eventsList.add(singleEventMap);
                 // eventMap.put(event, new EventInstance(traceID,
                 // traceIndex++));
@@ -474,13 +488,16 @@ public class JsonExporter {
                 invariantMap.put("type", inv.getLongName());
                 // Store the invariant type short name
                 if (inv.getLongName() == "AlwaysPrecedes") {
-                    invariantMap.put("shortName", "←");
+                    invariantMap.put("shortName", "&larr;");
                 }
                 if (inv.getLongName() == "AlwaysFollowedBy") {
-                    invariantMap.put("shortName", "→");
+                    invariantMap.put("shortName", "&rarr;");
                 }
                 if (inv.getLongName() == "NeverFollowedBy") {
-                    invariantMap.put("shortName", "↛");
+                    invariantMap.put("shortName", "&#8603;");
+                }
+                if (inv.getLongName() == "InterruptedBy") {
+                    invariantMap.put("shortName", "&#8699;");
                 }
                 // Add it to invariant type map for global usage
                 invariantTypesIDMap.put(inv.getLongName(), globalID);
@@ -503,56 +520,79 @@ public class JsonExporter {
     public static List<Map<String, Object>> makeInvariantsJSON(
             PartitionGraph pGraph) {
 
-        assert (invariantTypesIDMap != null) : "invariantTypesIDMap is null";
+         assert (invariantTypesIDMap != null) : "invariantTypesIDMap is null";
+         boolean skip = false;
 
         // The list of invariants to go into the JSON object
         List<Map<String, Object>> invariantsList = new LinkedList<>();
+        List<Map<String, Object>> resourceBoundsArray = new LinkedList<>();
+        Map<String, Object> resourceBoundsMap = new LinkedHashMap<>();
+
 
         // Get all invariants in the partition graph
         TemporalInvariantSet allInvariants = pGraph.getInvariants();
-
+        // One invariant, contains type, predicates, constraint, and bounds
+        Map<String, Object> invariantMap = new LinkedHashMap<>();
         for (ITemporalInvariant inv : allInvariants) {
-            // One invariant, contains type, predicates, constraint, and bounds
-            Map<String, Object> invariantMap = new LinkedHashMap<>();
+            
 
-            // Store the invariant ID
-            invariantMap.put("id", globalID++);
-            // Get the invariant type ID and store it
-            invariantMap.put("invariantTypeID",
-                    invariantTypesIDMap.get(inv.getLongName()));
+            if(skip == false) {
+                resourceBoundsMap = new LinkedHashMap<>();
+                invariantMap = new LinkedHashMap<>();
+                // Store the invariant ID
+                invariantMap.put("id", globalID);
+                // Get the invariant type ID and store it
+                invariantMap.put("invariantTypeID",
+                        invariantTypesIDMap.get(inv.getLongName()));
+                // Get invariant predicates
+                List<Integer> predicateList = new LinkedList<>();
+                for (EventType evType : inv.getPredicates()) {
+                    predicateList.add(eventTypesIDMap.get(evType.toString()));
+                }
+                invariantMap.put("predicates", predicateList);
+                if (inv instanceof TempConstrainedInvariant) {
+                    TempConstrainedInvariant<?> constInv = (TempConstrainedInvariant<?>) inv;
+                    resourceBoundsArray = new LinkedList<>();
+                    String constraint = constInv.getConstraint().toString();
+                    // Extract the bound type and number from the constraint string
+                    if (constraint.contains("lowerbound = ")) {
+                        String boundType = "lower";
+                        resourceBoundsMap.put("type", boundType);
+                        constraint = constraint.replaceAll("[^\\.0123456789]", "");
+                        resourceBoundsMap.put("bound", constraint);
+                        resourceBoundsArray.add(resourceBoundsMap);
+                        // invariantMap.put("resourceBounds", resourceBoundsArray);
+                        skip = true;
+                        //invariantsList.add(invariantMap);
 
-            // Get invariant predicates
-            List<Integer> predicateList = new LinkedList<>();
-            for (EventType evType : inv.getPredicates()) {
-                predicateList.add(eventTypesIDMap.get(evType.toString()));
-            }
-
-            invariantMap.put("predicates", predicateList);
-
-            if (inv instanceof TempConstrainedInvariant) {
-                TempConstrainedInvariant<?> constInv = (TempConstrainedInvariant<?>) inv;
-
-                Map<String, Object> resourceBoundsMap = new LinkedHashMap<>();
-                String constraint = constInv.getConstraint().toString();
-
-                // Extract the bound type and number from the constraint string
-                if (constraint.contains("upperbound = ")) {
-                    String boundType = "upper";
-                    resourceBoundsMap.put("type", boundType);
-                    constraint = constraint.replaceAll("[^\\.0123456789]", "");
-                    resourceBoundsMap.put("bound", constraint);
-                    invariantMap.put("resourceBounds", resourceBoundsMap);
-                } else if (constraint.contains("lowerbound = ")) {
-                    String boundType = "lower";
-                    resourceBoundsMap.put("type", boundType);
-                    constraint = constraint.replaceAll("[^\\.0123456789]", "");
-                    resourceBoundsMap.put("bound", constraint);
-                    invariantMap.put("resourceBounds", resourceBoundsMap);
+                    } 
+                }
+                else {
+                    invariantsList.add(invariantMap);
+                    globalID++;
                 }
             }
+            if(skip == true) {
+                TempConstrainedInvariant<?> constInv = (TempConstrainedInvariant<?>) inv;
+                String constraint = constInv.getConstraint().toString();
+                    resourceBoundsMap = new LinkedHashMap<>();
+                    if (constraint.contains("upperbound = ")) {
+                        String boundType = "upper";
+                        resourceBoundsMap.put("type", boundType);
+                        constraint = constraint.replaceAll("[^\\.0123456789]", "");
+                        resourceBoundsMap.put("bound", constraint);
+                        resourceBoundsArray.add(resourceBoundsMap);
+                        invariantMap.put("resourceBounds", resourceBoundsArray);
+                        skip = false;
+                        globalID++;
+                                    invariantsList.add(invariantMap);
+
+                    }
+            }
+
 
             // Put the invariant map into the list of invariants
-            invariantsList.add(invariantMap);
+            // invariantsList.add(invariantMap);
         }
 
         return invariantsList;
