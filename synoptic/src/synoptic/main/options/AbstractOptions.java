@@ -39,6 +39,9 @@ public class AbstractOptions {
     // Execution Options
     // ////////////////////////////
 
+    static final String kTailsKStr = "Merge states that are k-equivalent using this value as k.";
+    public int kTailsK = 2;
+
     static final String logLvlQuietStr = "-q Be quiet, do not print much information";
     public boolean logLvlQuiet = false;
 

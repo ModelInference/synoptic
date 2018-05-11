@@ -43,6 +43,7 @@ public class KTailsMain extends AbstractMain {
      */
     public static void main(String[] args) throws Exception {
         KTailsMain mainInstance = processArgs(args);
+        AbstractOptions opts = AbstractMain.getInstance().options;
         if (mainInstance == null) {
             return;
         }
@@ -60,7 +61,7 @@ public class KTailsMain extends AbstractMain {
             PartitionGraph pGraph = new PartitionGraph(traceGraph, false, null);
             loggerInfoEnd("Creating partition graph took ", startTime);
 
-            runKTails(pGraph, 2);
+            runKTails(pGraph, opts.kTailsK);
             mainInstance.exportGraph(pGraph);
         } catch (ParseException e) {
             throw e;

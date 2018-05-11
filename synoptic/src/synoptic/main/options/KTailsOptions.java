@@ -67,10 +67,16 @@ public class KTailsOptions extends Options {
     // end option group "General Options"
 
     // //////////////////////////////////////////////////
+    @OptionGroup("Execution Options")
+    /**
+     * Merge states that are k-equivalent using this value as k.
+     */
+    @Option(value = AbstractOptions.kTailsKStr)
+    public int kTailsK = 2;
+
     /**
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
-    @OptionGroup("Execution Options")
     @Option(value = AbstractOptions.logLvlQuietStr, aliases = { "-quiet" })
     public boolean logLvlQuiet = false;
 
@@ -85,13 +91,6 @@ public class KTailsOptions extends Options {
      */
     @Option(AbstractOptions.randomSeedStr)
     public Long randomSeed = null;
-
-    /**
-     * The k parameter for determining k-equality when running the k-tails
-     * algorithm
-     */
-    // @Option(AbstractOptions.kStr)
-    // public int k = 2;
 
     // //////////////////////////////////////////////////
     /**
@@ -416,6 +415,7 @@ public class KTailsOptions extends Options {
 
         // Execution options
 
+        absOpts.kTailsK = kTailsK;
         absOpts.logLvlQuiet = logLvlQuiet;
         absOpts.logLvlVerbose = logLvlVerbose;
         absOpts.randomSeed = randomSeed;
