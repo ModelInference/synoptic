@@ -5,7 +5,7 @@ This site hosts source code, academic papers, and other resources for three rela
   * **Synoptic** : a tool to infer an FSM model from a sequential log.
   * **CSight** : a tool to infer a communicating FSM model from a distributed system's logs
   * **InvariMint** : an approach to declaratively specify model inference algorithms
-  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://kramer.nss.cs.ubc.ca/perfume/)
+  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://model.cs.umass.edu/perfume/)
 
 # Introduction #
 
@@ -19,7 +19,7 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * **InvariMint** is an approach to express FSM model inference algorithms in a common framework. The key idea is to encode properties of an algorithms as finite state machines. These properties can then be instantiated for a specific input log of observations and combined to generate/infer a model that describes the observations.
 
-  * **Perfume** extends Synoptic to account for resource utilization information often available in system logs. Perfume-generated models are FSM models with resource information annotating the event transitions. The algorithm extends trivially to arbitrary integer-valued resources, such as time, memory utilization, network throughput, etc. Perfume mines temporal properties with performance constraints from the log and uses these properties to identify and remove imprecise generalizations in the Synoptic model inference process. See [this page](http://people.cs.umass.edu/~ohmann/perfume/) to learn more about Perfume.
+  * **Perfume** extends Synoptic to account for resource utilization information often available in system logs. Perfume-generated models are FSM models with resource information annotating the event transitions. The algorithm extends trivially to arbitrary integer-valued resources, such as time, memory utilization, network throughput, etc. Perfume mines temporal properties with performance constraints from the log and uses these properties to identify and remove imprecise generalizations in the Synoptic model inference process. See [this page](https://modelinference.github.io/perfume/) to learn more about Perfume.
 
 ## For users ##
 
@@ -42,9 +42,9 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * Perfume
     * Works on Linux/OSX/Windows.
-    * Try Perfume in your browser: **http://bestchai.bitbucket.org/perfume/**
+    * Try Perfume in your browser: **http://model.cs.umass.edu/perfume/**
     * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsPerfumeCmdLineHelpScreen) : command line usage reference
-    * [A high-level description](http://people.cs.umass.edu/~ohmann/perfume/) of Perfume
+    * [A high-level description](https://modelinference.github.io/perfume/) of Perfume (including a [video](https://www.youtube.com/watch?v=0CLiEXK7LWc))
 
 ## For academics ##
 
