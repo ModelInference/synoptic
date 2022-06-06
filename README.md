@@ -5,7 +5,7 @@ This site hosts source code, academic papers, and other resources for three rela
   * **Synoptic** : a tool to infer an FSM model from a sequential log.
   * **CSight** : a tool to infer a communicating FSM model from a distributed system's logs
   * **InvariMint** : an approach to declaratively specify model inference algorithms
-  * **Perfume** : a tool to infer performance models from system logs. [Try it!](http://model.cs.umass.edu/perfume/)
+  * **Perfume** : a tool to infer performance models from system logs. 
 
 # Introduction #
 
@@ -42,7 +42,6 @@ Systems are often difficult to debug and to understand. A typical way of gaining
 
   * Perfume
     * Works on Linux/OSX/Windows.
-    * Try Perfume in your browser: **http://model.cs.umass.edu/perfume/**
     * [Help screen](https://github.com/ModelInference/synoptic/wiki/DocsPerfumeCmdLineHelpScreen) : command line usage reference
     * [A high-level description](https://modelinference.github.io/perfume/) of Perfume (including a [video](https://www.youtube.com/watch?v=0CLiEXK7LWc))
 
