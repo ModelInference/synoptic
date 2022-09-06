@@ -119,8 +119,8 @@ You then find exactly where this discrepancy occurs in the log file, and go on f
 
 ## Related projects ##
 
-  * [ShiVector](https://bitbucket.org/bestchai/shivector/) : a tool to augment logs of distributed systems with partial ordering information
-  * [ShiViz](https://bitbucket.org/bestchai/shiviz/) : a tool to visualize partially ordered distributed logs ([try it!](http://bestchai.bitbucket.org/shiviz/))
+  * [ShiVector](https://github.com/DistributedClocks) : a tool to augment logs of distributed systems with partial ordering information
+  * [ShiViz](https://github.com/DistributedClocks/shiviz) : a tool to visualize partially ordered distributed logs ([try it!](https://bestchai.bitbucket.io/shiviz/))
 
 ## Support ##
 
