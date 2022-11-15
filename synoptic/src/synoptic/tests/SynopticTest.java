@@ -1,13 +1,12 @@
 package synoptic.tests;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.rules.TestName;
-
-import junit.framework.Assert;
 
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.InterruptedByInvariant;
@@ -25,6 +24,8 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
+
+import junit.framework.Assert;
 
 /**
  * Base class for all Synoptic project tests. Performs common set-up and
@@ -57,6 +58,35 @@ public abstract class SynopticTest extends SynopticLibTest {
         super.setUp();
     }
 
+    /*
+     * Due to differences between command line and IDE usage, checks the path
+     * used and adjusts it accordingly.
+     */
+    public static String getTestPath(String path) throws Exception {
+
+        // The Original path passed in.
+        File originalPath = new File(path);
+        if (originalPath.exists()) {
+            return path;
+        }
+        // Removing the parent directory of the path passed in if it exists.
+        else if (path.startsWith("../") | path.startsWith("..\\")) {
+            File parentRemovedPath = new File(path.substring(3));
+            if (parentRemovedPath.exists()) {
+                return (path.substring(3));
+            }
+        }
+        // The parent directory of the path passed in.
+        else if (!(path.startsWith("../") | path.startsWith("..\\"))) {
+            File parentPath = new File(("../" + path));
+            if (parentPath.exists()) {
+                return ("../" + path);
+            }
+        }
+        // If none of the paths work, throw an error.
+        throw new FileNotFoundException("Invalid path or file is missing.");
+    }
+
     // //////////////////////////////////////////////
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
@@ -85,7 +115,8 @@ public abstract class SynopticTest extends SynopticLibTest {
      * array of host ids into a list of DistEventType objects. Does not handle
      * INITIAL or TERMINAL events types.
      */
-    public List<EventType> stringsToDistEventTypes(String[] types, String[] pids) {
+    public List<EventType> stringsToDistEventTypes(String[] types,
+            String[] pids) {
         Assert.assertTrue(types.length == pids.length);
         ArrayList<EventType> ret = new ArrayList<EventType>(types.length);
         for (int i = 0; i < types.length; i++) {
@@ -170,8 +201,8 @@ public abstract class SynopticTest extends SynopticLibTest {
     }
 
     public ArrayList<EventNode> parseLogEvents(String[] events,
-            TraceParser parser) throws InternalSynopticException,
-            ParseException {
+            TraceParser parser)
+            throws InternalSynopticException, ParseException {
         String traceStr = concatinateWithNewlines(events);
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
@@ -187,7 +218,8 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public TraceGraph<?> genChainsTraceGraph(String[] events, TraceParser parser)
+    public TraceGraph<?> genChainsTraceGraph(String[] events,
+            TraceParser parser)
             throws ParseException, InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
         return parser.generateDefaultOrderRelation(parsedEvents);
@@ -235,8 +267,8 @@ public abstract class SynopticTest extends SynopticLibTest {
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
-        return new PartitionGraph(inputGraph, true, miner.computeInvariants(
-                inputGraph, multipleRelations, false));
+        return new PartitionGraph(inputGraph, true,
+                miner.computeInvariants(inputGraph, multipleRelations, false));
     }
 
     /**
